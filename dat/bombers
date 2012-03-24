@@ -1,0 +1,22 @@
+# Format: dsv
+# ID:MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
+# Cost in £100s
+# Speed in mph (cruising, approx)
+# Capacity in lb (approx)
+# Serviceability proportion (works up to this value, log)
+# Defence is 'just a number', high is bad
+# Failure represents the chance of mech. fail. crashes and early returns, 'just a number', high is bad
+# Accuracy is an approximate percentage loads-on-target for a moderate raid to about the Ruhr...
+# Dates are entry and exit from service (null in either case means open-ended)
+
+0:Bristol:Blenheim:75:180:1200:35:14:10:20::10-01-1941
+1:Armstrong-Whitworth:Whitley:100:160:7000:30:17:8:30::18-06-1941
+2:Handley Page:Hampden:120:175:4000:35:12:8:35::02-10-1941
+3:Vickers:Wellington:150:190:4500:50:8:3:45::21-04-1943
+4:Avro:Manchester:200:210:10350:30:12:18:40:05-11-1940:26-06-1942
+5:Short:Stirling:250:200:14000:40:9:7:50:16-01-1941:08-02-1944
+6:Handley Page:Halifax I:300:225:13000:55:12:6:65:14-05-1941:1943
+7:Avro:Lancaster I:400:235:14000:75:6:4:80:07-03-1942:
+8:de Havilland:Mosquito:150:340:4000:90:3:4:90:12-08-1942:
+9:Handley Page:Halifax III:320:230:13500:85:7:5:75:30-04-1943:
+10:Avro:Lancaster X:450:245:16000:90:5:3:85:13-02-1944:

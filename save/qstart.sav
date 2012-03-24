@@ -1,0 +1,19 @@
+HARR:0.1.0
+DATE:03/09/1939
+TIME:9
+Bombers:11
+Type 0:123/43
+Type 1:67/20
+Type 2:63/22
+Type 3:85/42
+Type 4:0/0
+Type 5:0/0
+Type 6:0/0
+Type 7:0/0
+Type 8:0/0
+Type 9:0/0
+Type 10:0/0
+Targets:2
+Targ 0:4059000000000000,4034000000000000
+Targ 1:4059000000000000,402C000000000000
+Weather rand:1441

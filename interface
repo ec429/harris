@@ -1,0 +1,20 @@
+Top Left: Your Bomber Force
+	Lists how many of each type you have, how many are serviceable, and an indication of whether that type is operational, [and whether 'clamped' by weather].
+
+Top Middle: Targets
+	Lists the targets, their current weather conditions, damage state, flak strength, [difficulty to hit (colloq 'Size')].
+
+Top Right: Enemy NF Force
+	Gives the strengths by type of the enemy nff.
+
+Middle Left: Time and Moon
+
+Middle: Budget & Manufacturers' Orders
+	For each available bomber type, have an indication of how many are on order at present, and buttons to order more or cut back on orders.
+
+Lower Left: Morale & Confidence
+
+Lower Middle: Targets for Tonight
+	List of currently active raids, with 'edit' buttons, and an 'add' button
+
+Bottom: News Ticker

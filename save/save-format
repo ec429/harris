@@ -1,0 +1,33 @@
+extension: .sav
+
+Format is textual (human-readable)
+
+Format, sort of printfy
+"HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV // Magic ID, Harris version.
+"DATE:%d/%d/%d\n", day, month, year
+"TIME:%hhu\n", hour
+"Bombers:%hhu\n", ntypes // should be a constant, but might change between versions/modpacks; if so, will need some code that's aware of old versions
+for(i=0;i<ntypes;i++)
+	"Type %hhu:%u/%u\n", i, nbombers[i], nsvble[i]
+"Targets:%hhu\n", ntargs
+for(i=0;i<ntargs;i++)
+	"Targ %hhu:%s,%s\n", i, encdbl(targs[i].dmg), encdbl(targs[i].flk)
+either
+{
+	"Weather state:%s,%s,%s\n", encdbl(fx), encdbl(fc), encdbl(fdy)
+	for(x=0;x<128;x++)
+	{
+		for(y=0;y<128;y++)
+		{
+			for(i=0;i<3;i++)
+			{
+				"%s", x, y, i, encdbl(p[x][y][i])
+			}
+		}
+	}
+	"\n"
+}
+or
+{
+	"Weather rand:%d\n", seed
+}

@@ -1,0 +1,38 @@
+# Format: dsv
+# ID:NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
+# Prod: contributed production
+# Flak: strength of flak guns, predictors etc.
+# Esiz: 'effective' size, ease-to-hit.
+# Lat, long: where it is (scale TBDecided)
+# Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
+
+0:Berlin:100:20:50:31:11::
+1:Hamburg:65:14:35:29:7::
+
+# Berlin, 50 , 100 , 20 , 31 , 11 
+# Hamburg, 35 , 65 , 14 , 29 , 7 
+# Frankfurt, 30 , 50 , 13 , 27 , 16 
+# Königsberg, 30 , 45 , 10 , 33 , 18 
+# Munich, 40 , 35 , 14 , 31 , 19 
+# Cologne, 30 , 35 , 11 , 25 , 14 
+# Heidelberg, 24 , 30 , 10 , 25 , 17 
+# Essen, 16 , 20 , 12 , 25 , 15 
+# Hannover, 18 , 35 , 10 , 26 , 12 
+# Nuremberg, 12 , 35 , 8 , 29 , 16 
+# Leipzig (+), 14 , 18 , 20 , 30 , 14 
+# Bremen, 10 , 30 , 9 , 24 , 12 
+# Dresden, 9 , 25 , 7 , 32 , 15 
+# Brandenburg, 8 , 25 , 6 , 31 , 10 
+# Stuttgart, 8 , 23 , 7 , 27 , 18 
+# Wilhelmshaven, 10 , 30 , 5 , 26 , 9 
+# Dortmund, 8 , 25 , 7 , 27 , 13 
+# Schweinfurt (+), 14 , 15 , 35 , 28 , 16 
+# Bonn, 6 , 25 , 5 , 24 , 15 
+# Regensburg (+), 12 , 12 , 12 , 30 , 17 
+# Brunswick (+), 10 , 10 , 15 , 28 , 12 
+# Salzburg, 6 , 20 , 5 , 33 , 13 
+# Augsburg (+), 9 , 7 , 8 , 29 , 19 
+# Peenemunde, 4 , 8 , 6 , 24 , 16 
+# Gotha (+), 8 , 6 , 10 , 28 , 14 
+# Dortmund-Ems Canal, 30 , .00013 , 12 , 27 , 14 
+# Bielefeld Viaduct, 25 , .00017 , 8 , 26 , 18 
