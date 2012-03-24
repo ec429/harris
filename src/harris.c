@@ -108,8 +108,8 @@ int main(int argc, char *argv[])
 			{
 				bombertype this;
 				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
-				this.name=(char *)malloc(80); // this is bad, because it could be crashed by a long name.  However, if no-one fiddles with the data files it's ok; it will do as an interim
-				this.manu=(char *)malloc(80);
+				this.name=strdup(next); // guarantees that enough memory will be allocated
+				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
 				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%zn", this.name, this.manu, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &db))!=9)
@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
 					fprintf(stderr, "  sscanf returned %d\n", e);
 					return(1);
 				}
+				this.name=realloc(this.name, strlen(this.name)+1);
 				this.entry=readdate(next+db, (date){0, 0, 0});
 				const char *exit=strchr(next+db, ':');
 				this.exit=readdate(exit, (date){99, 99, 9999});
@@ -150,7 +151,7 @@ int main(int argc, char *argv[])
 			{
 				target this;
 				// NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
-				this.name=(char *)malloc(80); // this is bad, because it could be crashed by a long name.  However, if no-one fiddles with the data files it's ok; it will do as an interim
+				this.name=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
 				if((e=sscanf(next, "%[^:]:%u:%u:%u:%u:%u:%zn", this.name, &this.prod, &this.flak, &this.esiz, &this.lat, &this.lon, &db))!=6)
