@@ -11,17 +11,17 @@ for(i=0;i<ntypes;i++)
 	"Type %hhu:%u/%u\n", i, nbombers[i], nsvble[i]
 "Targets:%hhu\n", ntargs
 for(i=0;i<ntargs;i++)
-	"Targ %hhu:%s,%s\n", i, encdbl(targs[i].dmg), encdbl(targs[i].flk)
+	"Targ %hhu:%a,%a\n", i, targs[i].dmg, targs[i].flk
 either
 {
-	"Weather state:%s,%s,%s\n", encdbl(fx), encdbl(fc), encdbl(fdy)
+	"Weather state:%a,%a,%a\n", fx, fc, fdy
 	for(x=0;x<128;x++)
 	{
 		for(y=0;y<128;y++)
 		{
 			for(i=0;i<3;i++)
 			{
-				"%s", x, y, i, encdbl(p[x][y][i])
+				"%a,", x, y, i, p[x][y][i]
 			}
 		}
 	}

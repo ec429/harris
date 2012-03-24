@@ -1,33 +1,56 @@
 #include <stdio.h>
-//#include <stdlib.h>
-#include <unistd.h>
-#include <sys/param.h> // tells us what endianism we are
+#include <stdbool.h>
+#include <gtk/gtk.h>
 
-#include "../inc/draw.h"
-#include "../inc/dialogs.h"
-#include "../inc/weather.h"
+#include "bits.h"
+#include "weather.h"
+
+static gboolean delete(__attribute__((unused)) GtkWidget *widget, __attribute__((unused)) GdkEvent *event, __attribute__((unused)) gpointer data)
+{
+    return(false);
+}
+
+/*static void clicked_kill(__attribute__((unused)) GtkWidget *widget, gpointer data)
+{
+	gtk_widget_destroy(data);
+}*/
+
+static void destroy(__attribute__((unused)) GtkWidget *widget, __attribute__((unused)) gpointer data)
+{
+	gtk_main_quit();
+}
+
+static void clicked_newgame(GtkWidget *widget, __attribute__((unused)) gpointer data)
+{
+	if(!widget) return;
+}
+
+static void clicked_loadgame(GtkWidget *widget, __attribute__((unused)) gpointer data)
+{
+	if(!widget) return;
+}
 
 typedef struct
 {
-	int year;
-	int month;
-	int day;
+	unsigned int year;
+	unsigned int month;
+	unsigned int day;
 }
 date;
 
 typedef struct
 {
 	//ID:MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
-	int id;
+	unsigned int id;
 	char * manu;
 	char * name;
-	int cost;
-	int speed;
-	int cap;
-	int svp;
-	int defn;
-	int fail;
-	int accu;
+	unsigned int cost;
+	unsigned int speed;
+	unsigned int cap;
+	unsigned int svp;
+	unsigned int defn;
+	unsigned int fail;
+	unsigned int accu;
 	date entry;
 	date exit;
 }
@@ -36,12 +59,10 @@ bombertype;
 typedef struct
 {
 	//ID:NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
-	int id;
+	unsigned int id;
 	char * name;
-	int prod, flak, esiz, lat, lon;
+	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
-	double dmg;
-	double flk;
 }
 target;
 
@@ -49,71 +70,26 @@ target;
 #define VER_MIN	1
 #define VER_REV	0
 
-bool little_endian;
-
-char * slurp(FILE *);
-double decdbl(char *);
-void test_endian(void);
-
-int main(void)
+int main(int argc, char *argv[])
 {
-	test_endian();
-	// init some GUI stuff
-	TTF_Init();
-	atexit(TTF_Quit);
-	TTF_Font *harris_font=TTF_OpenFont(FONT_FILE, 12);
-	TTF_Font *big_font=TTF_OpenFont(FONT_FILE, 36);
-	SDL_Surface * screen = gf_init(OSIZ_X, OSIZ_Y);
-	SDL_Surface * arthurharris = IMG_Load("img/arthurharris.jpg");
-	if(!arthurharris)
-	{
-		fprintf(stderr, "Failed to read splash screen image!\n");
-		fprintf(stderr, "IMG_Load: %s\n", IMG_GetError());
-		dtext(screen, 8, 8, "Harris", harris_font, 192, 192, 192);
-		dtext(screen, 8, 20, "loading datafiles...", harris_font, 192, 192, 192);
-		SDL_Flip(screen);
-	}
-	else
-	{
-		// Draws the image on the screen:
-		SDL_Rect rcDest = {(OSIZ_X-491)/2, 0, 0, 0}; // 491x600
-		SDL_BlitSurface(arthurharris, NULL, screen, &rcDest);
-		SDL_FreeSurface(arthurharris);
-		dtext(screen, (OSIZ_X-90)/2, 8, "Harris", big_font, 224, 192, 32);
-		dtext(screen, (OSIZ_X-128)/2, 44, "Bomber Command WWII", harris_font, 224, 192, 0);
-		SDL_Flip(screen);
-		sleep(1);
-	}
-	
-	SDL_Surface * button_u = IMG_Load("img/button_u.png");
-	SDL_Surface * button_p = IMG_Load("img/button_p.png");
-	SDL_Surface * small_button_u = IMG_Load("img/small_button_u.png");
-	SDL_Surface * small_button_p = IMG_Load("img/small_button_p.png");
-	SDL_Surface * box_small = IMG_Load("img/box.png");
-	SDL_Surface * box_large = IMG_Load("img/box_large.png");
-	if(!button_u || !button_p || !small_button_u || !small_button_p || !box_small || !box_large)
-	{
-		fprintf(stderr, "Failed to read images!\n");
-		fprintf(stderr, "IMG_Load: %s\n", IMG_GetError());
-		return(1);
-	}
+	gtk_init(&argc, &argv);
 	
 	// Load data files
-	FILE * typefp = fopen("dat/bombers", "r");
-	bombertype * types = NULL;
+	fprintf(stderr, "Loading data files...\n");
+	FILE *typefp=fopen("dat/bombers", "r");
+	bombertype *types=NULL;
 	int ntypes=0;
-	if(typefp==NULL)
+	if(!typefp)
 	{
 		fprintf(stderr, "Failed to open data file 'bombers'!\n");
-		char *boxtextlines[] = {"Failed to open data file 'bombers'!", "Harris will now exit."};
-		okbox2(screen, box_large, boxtextlines, 2, small_button_u, small_button_p, harris_font, big_font, "OK", 24, 48, 96, 48, 96, 192);
 		return(1);
 	}
 	else
 	{
-		char * typefile = slurp(typefp);
-		char * next = strtok(typefile, "\n");
-		while(next!=NULL)
+		char *typefile=slurp(typefp);
+		fclose(typefp);
+		char *next=typefile?strtok(typefile, "\n"):NULL;
+		while(next)
 		{
 			if(*next!='#')
 			{
@@ -139,7 +115,7 @@ int main(void)
 				{
 					sscanf(entry, "%u-%u-%u", &this.exit.day, &this.exit.month, &this.exit.year);
 				}
-				types = (bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
+				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
 				types[ntypes]=this;
 				ntypes++;
 			}
@@ -149,21 +125,20 @@ int main(void)
 		fprintf(stderr, "Loaded %u bomber types\n", ntypes);
 	}
 	
-	FILE * targfp = fopen("dat/targets", "r");
-	target * targs = NULL;
+	FILE *targfp =fopen("dat/targets", "r");
+	target *targs=NULL;
 	int ntargs=0;
-	if(targfp==NULL)
+	if(!targfp)
 	{
 		fprintf(stderr, "Failed to open data file 'targets'!\n");
-		char *boxtextlines[] = {"Failed to open data file 'targets'!", "Harris will now exit."};
-		okbox2(screen, box_large, boxtextlines, 2, small_button_u, small_button_p, harris_font, big_font, "OK", 24, 48, 96, 48, 96, 192);
 		return(1);
 	}
 	else
 	{
-		char * targfile = slurp(targfp);
-		char * next = strtok(targfile, "\n");
-		while(next!=NULL)
+		char *targfile=slurp(targfp);
+		fclose(targfp);
+		char *next=targfile?strtok(targfile, "\n"):NULL;
+		while(next)
 		{
 			if(*next!='#')
 			{
@@ -188,8 +163,6 @@ int main(void)
 				{
 					sscanf(entry, "%u-%u-%u", &this.exit.day, &this.exit.month, &this.exit.year);
 				}
-				this.dmg=100;
-				this.flk=this.flak;
 				targs = (target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
@@ -200,34 +173,41 @@ int main(void)
 		fprintf(stderr, "Loaded %u targets\n", ntargs);
 	}
 	
-	// okbox(screen, box_small, "Test", small_button_u, small_button_p, harris_font, big_font, "OK", 24, 48, 96, 48, 96, 192);
+	fprintf(stderr, "Data files loaded\n");
 	
-	// SDL stuff
-	SDL_WM_SetCaption("Harris", "Harris");
-	SDL_EnableUNICODE(1);
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-	SDL_Event event;
-	SDL_Rect cls;
-	cls.x=0;
-	cls.y=0;
-	cls.w=OSIZ_X;
-	cls.h=OSIZ_Y;
-	int errupt = 0;
+	GtkWidget *mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	g_signal_connect(mainwindow, "delete-event", G_CALLBACK(delete), NULL);
+	g_signal_connect(mainwindow, "destroy", G_CALLBACK(destroy), NULL);
+	gtk_window_set_title(GTK_WINDOW(mainwindow), "Harris");
 	
-	char button;
-	pos mouse;
-	char drag=0, dold=drag;
+	GtkWidget *mainmenu = gtk_vbox_new(false, 0);
+	gtk_container_add(GTK_CONTAINER(mainwindow), mainmenu);
 	
-	int state=0; // main menu
+	GtkWidget *menulabel = gtk_label_new("Main Menu");
+	gtk_box_pack_start(GTK_BOX(mainmenu), menulabel, true, true, 0);
+	
+	GtkWidget *newgame = gtk_button_new_with_label("New Game");
+	g_signal_connect(newgame, "clicked", G_CALLBACK(clicked_newgame), NULL);
+	gtk_box_pack_start(GTK_BOX(mainmenu), newgame, true, true, 0);
+	
+	GtkWidget *loadgame = gtk_button_new_with_label("Load Game");
+	g_signal_connect(loadgame, "clicked", G_CALLBACK(clicked_loadgame), NULL);
+	gtk_box_pack_start(GTK_BOX(mainmenu), loadgame, true, true, 0);
+	
+	GtkWidget *exit = gtk_button_new_with_label("Exit");
+	g_signal_connect(exit, "clicked", G_CALLBACK(destroy), NULL);
+	gtk_box_pack_start(GTK_BOX(mainmenu), exit, true, true, 0);
+	
+	gtk_widget_show_all(mainwindow);
 	
 	/* game state vars */
-	int day,month,year;
+	/*int day,month,year;
 	int hour;
 	int nbombers[ntypes], nsvble[ntypes];
 	w_state weather;
-	// targets state is in targs[].dmg, .flk
+	double dmg[ntargs], flk[ntargs];*/
 	
-	while(!errupt)
+	/*while(!errupt)
 	{
 		//SDL_FillRect(screen, &cls, SDL_MapRGB(screen->format, 0, 0, 0));
 		switch(state)
@@ -459,157 +439,8 @@ int main(void)
 				errupt++;
 			break;
 		}
-		SDL_Flip(screen);
-		
-		dold=drag;
-		
-		while(SDL_PollEvent(&event))
-		{
-			switch (event.type)
-			{
-				case SDL_QUIT:
-					errupt++;
-				break;
-				case SDL_KEYDOWN:
-					if(event.key.type==SDL_KEYDOWN)
-					{
-						SDL_keysym key=event.key.keysym;
-						if(key.sym==SDLK_q)
-						{
-							errupt++;
-						}
-						/*
-						the ascii character is:
-						if ((key.unicode & 0xFF80) == 0)
-						{
-							// it's (char)keysym.unicode & 0x7F;
-						}
-						else
-						{
-							// it's not [low] ASCII
-						}
-						*/
-					}
-				break;
-				case SDL_MOUSEMOTION:
-					mouse.x=event.motion.x;
-					mouse.y=event.motion.y;
-				break;
-				case SDL_MOUSEBUTTONDOWN:
-					mouse.x=event.button.x;
-					mouse.y=event.button.y;
-					button=event.button.button;
-					drag|=button;
-					switch(button)
-					{
-						case SDL_BUTTON_LEFT:
-						break;
-						case SDL_BUTTON_RIGHT:
-						break;
-						case SDL_BUTTON_WHEELUP:
-						break;
-						case SDL_BUTTON_WHEELDOWN:
-						break;
-					}
-				break;
-				case SDL_MOUSEBUTTONUP:
-					mouse.x=event.button.x;
-					mouse.y=event.button.y;
-					button=event.button.button;
-					drag&=~button;
-					switch(button)
-					{
-						case SDL_BUTTON_LEFT:
-						break;
-						case SDL_BUTTON_RIGHT:
-						break;
-						case SDL_BUTTON_WHEELUP:
-						break;
-						case SDL_BUTTON_WHEELDOWN:
-						break;
-					}
-				break;
-			}
-		}
-		SDL_Delay(18);
 	}
-
-	// clean up
-	TTF_CloseFont(harris_font);
-	if(SDL_MUSTLOCK(screen))
-		SDL_UnlockSurface(screen);
+	*/
+	gtk_main();
 	return(0);
-}
-
-char * slurp(FILE *fp)
-{
-	fseek(fp, 0, SEEK_SET);
-	// slurps a filefull of textual data, {re}alloc()ing as it goes, so you don't need to make a buffer for it, nor must thee fret thyself about overruns!
-	char * lout = (char *)malloc(80);
-	int i=0;
-	int c;
-	while(!feof(fp))
-	{
-		c = fgetc(fp);
-		if(c == EOF)
-			break;
-		if (c != 0)
-			lout[i++]=(char)c;
-		if ((i%80) == 0)
-		{
-			if ((lout = (char *)realloc(lout, i+80))==NULL)
-			{
-				free(lout);
-				fprintf(stderr, "\nNot enough memory to store input!\n");
-				return(NULL);
-			}
-		}
-	}
-	lout[i]=0;
-	lout=(char *)realloc(lout, i+1);
-	return(lout);
-}
-
-double decdbl(char * ptr)
-{
-	if(ptr==NULL)
-	{
-		return(nan(""));
-	}
-	char conv[8];
-	int i;
-	for(i=0;i<8;i++)
-	{
-		if(!(ptr[i*2]&&ptr[i*2+1]))
-			return(nan(""));
-		char c[3];
-		c[0]=ptr[i*2];
-		c[1]=ptr[i*2+1];
-		c[2]=0;
-		unsigned char h;
-		sscanf(c, "%hhx", &h);
-		if(little_endian)
-			conv[7-i]=h;
-		else
-			conv[i]=h;
-	}
-	double rv = *(double *)conv;
-	return(rv);
-}
-
-void test_endian(void)
-{
-	#ifdef __BYTE_ORDER
-	# if __BYTE_ORDER == __LITTLE_ENDIAN
-		little_endian=true;
-		return;
-	# else
-	#  if __BYTE_ORDER == __BIG_ENDIAN
-		little_endian=false;
-		return;
-	#  endif
-	# endif
-	#endif /* __BYTE_ORDER */
-	long one=1;
-	little_endian=(*((char *)(&one)));
 }

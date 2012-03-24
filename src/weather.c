@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "../inc/weather.h"
+#include "weather.h"
 
 #define max(a,b)	((a)>(b)?(a):(b))
 #define min(a,b)	((a)<(b)?(a):(b))
