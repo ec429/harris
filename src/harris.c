@@ -40,8 +40,7 @@ date;
 
 typedef struct
 {
-	//ID:MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
-	unsigned int id;
+	//MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
 	char * manu;
 	char * name;
 	unsigned int cost;
@@ -58,7 +57,7 @@ bombertype;
 
 typedef struct
 {
-	//ID:NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
+	//NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
 	unsigned int id;
 	char * name;
 	unsigned int prod, flak, esiz, lat, lon;
@@ -66,9 +65,23 @@ typedef struct
 }
 target;
 
+typedef struct
+{
+	date now;
+	unsigned int hour;
+	unsigned int ntypes;
+	unsigned int *nbombers, *nsvble;
+	w_state weather;
+	unsigned int ntargs;
+	double *dmg, *flk;
+}
+game;
+
 #define VER_MAJ	0
 #define VER_MIN	1
 #define VER_REV	0
+
+date readdate(const char *t, date nulldate);
 
 int main(int argc, char *argv[])
 {
@@ -81,7 +94,7 @@ int main(int argc, char *argv[])
 	int ntypes=0;
 	if(!typefp)
 	{
-		fprintf(stderr, "Failed to open data file 'bombers'!\n");
+		fprintf(stderr, "Failed to open data file `bombers'!\n");
 		return(1);
 	}
 	else
@@ -91,30 +104,23 @@ int main(int argc, char *argv[])
 		char *next=typefile?strtok(typefile, "\n"):NULL;
 		while(next)
 		{
-			if(*next!='#')
+			if(*next&&(*next!='#'))
 			{
 				bombertype this;
-				char entry[80], exit[80];
-				// ID:MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
+				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
 				this.name=(char *)malloc(80); // this is bad, because it could be crashed by a long name.  However, if no-one fiddles with the data files it's ok; it will do as an interim
 				this.manu=(char *)malloc(80);
-				sscanf(next, "%u:%s:%s:%u:%u:%u:%u:%u:%u:%u:%79s:%79s", &this.id, this.name, this.manu, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, entry, exit);
-				if(*entry==0)
+				ssize_t db;
+				int e;
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%zn", this.name, this.manu, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &db))!=9)
 				{
-					this.entry.day=this.entry.month=this.entry.year=0;
+					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
 				}
-				else
-				{
-					sscanf(entry, "%u-%u-%u", &this.entry.day, &this.entry.month, &this.entry.year);
-				}
-				if(*exit==0)
-				{
-					this.exit.day=this.exit.month=this.exit.year=9999;
-				}
-				else
-				{
-					sscanf(entry, "%u-%u-%u", &this.exit.day, &this.exit.month, &this.exit.year);
-				}
+				this.entry=readdate(next+db, (date){0, 0, 0});
+				const char *exit=strchr(next+db, ':');
+				this.exit=readdate(exit, (date){99, 99, 9999});
 				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
 				types[ntypes]=this;
 				ntypes++;
@@ -125,12 +131,12 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Loaded %u bomber types\n", ntypes);
 	}
 	
-	FILE *targfp =fopen("dat/targets", "r");
+	FILE *targfp=fopen("dat/targets", "r");
 	target *targs=NULL;
 	int ntargs=0;
 	if(!targfp)
 	{
-		fprintf(stderr, "Failed to open data file 'targets'!\n");
+		fprintf(stderr, "Failed to open data file `targets'!\n");
 		return(1);
 	}
 	else
@@ -143,27 +149,20 @@ int main(int argc, char *argv[])
 			if(*next!='#')
 			{
 				target this;
-				char entry[80], exit[80];
-				// ID:NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
+				// NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
 				this.name=(char *)malloc(80); // this is bad, because it could be crashed by a long name.  However, if no-one fiddles with the data files it's ok; it will do as an interim
-				sscanf(next, "%u:%s:%u:%u:%u:%u:%u:%79s:%79s", &this.id, this.name, &this.prod, &this.flak, &this.esiz, &this.lat, &this.lon, entry, exit);
-				if(*entry==0)
+				ssize_t db;
+				int e;
+				if((e=sscanf(next, "%[^:]:%u:%u:%u:%u:%u:%zn", this.name, &this.prod, &this.flak, &this.esiz, &this.lat, &this.lon, &db))!=6)
 				{
-					this.entry.day=this.entry.month=this.entry.year=0;
+					fprintf(stderr, "Malformed `targets' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
 				}
-				else
-				{
-					sscanf(entry, "%u-%u-%u", &this.entry.day, &this.entry.month, &this.entry.year);
-				}
-				if(*exit==0)
-				{
-					this.exit.day=this.exit.month=this.exit.year=9999;
-				}
-				else
-				{
-					sscanf(entry, "%u-%u-%u", &this.exit.day, &this.exit.month, &this.exit.year);
-				}
-				targs = (target *)realloc(targs, (ntargs+1)*sizeof(target));
+				this.entry=readdate(next+db, (date){0, 0, 0});
+				const char *exit=strchr(next+db, ':');
+				this.exit=readdate(exit, (date){99, 99, 9999});
+				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
 			}
@@ -200,12 +199,29 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show_all(mainwindow);
 	
-	/* game state vars */
-	/*int day,month,year;
-	int hour;
-	int nbombers[ntypes], nsvble[ntypes];
-	w_state weather;
-	double dmg[ntargs], flk[ntargs];*/
+	game state;
+	state.ntypes=ntypes;
+	if(!(state.nbombers=malloc(ntypes*sizeof(*state.nbombers))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(state.nsvble=malloc(ntypes*sizeof(*state.nsvble))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	state.ntargs=ntargs;
+	if(!(state.dmg=malloc(ntargs*sizeof(*state.dmg))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(state.flk=malloc(ntargs*sizeof(*state.flk))))
+	{
+		perror("malloc");
+		return(1);
+	}
 	
 	/*while(!errupt)
 	{
@@ -443,4 +459,11 @@ int main(int argc, char *argv[])
 	*/
 	gtk_main();
 	return(0);
+}
+
+date readdate(const char *t, date nulldate)
+{
+	date d;
+	if(t&&*t&&(sscanf(t, "%u-%u-%u", &d.day, &d.month, &d.year)==3)) return(d);
+	return(nulldate);
 }

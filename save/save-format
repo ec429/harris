@@ -4,7 +4,7 @@ Format is textual (human-readable)
 
 Format, sort of printfy
 "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV // Magic ID, Harris version.
-"DATE:%d/%d/%d\n", day, month, year
+"DATE:%02d-%02d-%04d\n", day, month, year
 "TIME:%hhu\n", hour
 "Bombers:%hhu\n", ntypes // should be a constant, but might change between versions/modpacks; if so, will need some code that's aware of old versions
 for(i=0;i<ntypes;i++)

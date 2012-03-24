@@ -1,0 +1,20 @@
+# ID:DD-MM-YYYY
+
+# Permit attacks on civilian areas
+CIV:15-03-1940
+# Battle of the Barges
+BARGE:04-07-1940
+ENDBARGE:31-10-1940
+# Area Bombing Directive
+ABD:14-02-1942
+# Operation Crossbow
+V1:19-04-1944
+V1END:03-09-1944
+
+#Pathfinder Force formed
+PFF:15-08-1942
+
+OBOE:25-12-1941
+GEE:05-03-1942
+H2S:26-01-1943
+GH:13-11-1943

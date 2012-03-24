@@ -1,13 +1,13 @@
 # Format: dsv
-# ID:NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
+# NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
 # Prod: contributed production
 # Flak: strength of flak guns, predictors etc.
 # Esiz: 'effective' size, ease-to-hit.
 # Lat, long: where it is (scale TBDecided)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
 
-0:Berlin:100:20:50:31:11::
-1:Hamburg:65:14:35:29:7::
+Berlin:100:20:50:31:11::
+Hamburg:65:14:35:29:7::
 
 # Berlin, 50 , 100 , 20 , 31 , 11 
 # Hamburg, 35 , 65 , 14 , 29 , 7 
