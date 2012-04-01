@@ -1,3 +1,5 @@
+Conference Pane
+
 Top Left: Your Bomber Force
 	Lists how many of each type you have, how many are serviceable, and an indication of whether that type is operational, [and whether 'clamped' by weather].
 
@@ -18,3 +20,10 @@ Lower Middle: Targets for Tonight
 	List of currently active raids, with 'edit' buttons, and an 'add' button
 
 Bottom: News Ticker
+
+------
+
+Attack Pane
+
+Map: Shows geography, weather, routes & targets, aircraft.
+Forces: Shows, for each stream, number of aircraft despatched, number lost, number bombed etc.

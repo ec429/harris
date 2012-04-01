@@ -1,0 +1,8 @@
+Key to map mockup:
+Terrain layer: blue = sea, brown = shore, green = land (progressively redder for higher relief), light blue = rivers.
+Cities layer: grey = built-up area.
+Flak layer: magenta block = flak unit (w/ radar and/or searchlight control).
+Target layer: red crosshair = A.P. (Aiming Point).
+Weather layer: grey = cloud.
+Route layer: black = route & turning points.
+Aircraft layer: white = bomber, yellow = crashed bomber, cyan = damaged bomber (includes mech.fail), red = fighter, orange = crashed fighter.
