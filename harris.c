@@ -1,34 +1,10 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <gtk/gtk.h>
+
+#include "atg/atg.h"
 
 #include "bits.h"
 #include "weather.h"
-
-static gboolean delete(__attribute__((unused)) GtkWidget *widget, __attribute__((unused)) GdkEvent *event, __attribute__((unused)) gpointer data)
-{
-    return(false);
-}
-
-/*static void clicked_kill(__attribute__((unused)) GtkWidget *widget, gpointer data)
-{
-	gtk_widget_destroy(data);
-}*/
-
-static void destroy(__attribute__((unused)) GtkWidget *widget, __attribute__((unused)) gpointer data)
-{
-	gtk_main_quit();
-}
-
-static void clicked_newgame(GtkWidget *widget, __attribute__((unused)) gpointer data)
-{
-	if(!widget) return;
-}
-
-static void clicked_loadgame(GtkWidget *widget, __attribute__((unused)) gpointer data)
-{
-	if(!widget) return;
-}
 
 typedef struct
 {
@@ -83,9 +59,14 @@ game;
 
 date readdate(const char *t, date nulldate);
 
-int main(int argc, char *argv[])
+int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-	gtk_init(&argc, &argv);
+	atg_canvas *canvas=atg_create_canvas(120, 96, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+	if(!canvas)
+	{
+		fprintf(stderr, "atg_create_canvas failed\n");
+		return(1);
+	}
 	
 	// Load data files
 	fprintf(stderr, "Loading data files...\n");
@@ -175,30 +156,63 @@ int main(int argc, char *argv[])
 	
 	fprintf(stderr, "Data files loaded\n");
 	
-	GtkWidget *mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	g_signal_connect(mainwindow, "delete-event", G_CALLBACK(delete), NULL);
-	g_signal_connect(mainwindow, "destroy", G_CALLBACK(destroy), NULL);
-	gtk_window_set_title(GTK_WINDOW(mainwindow), "Harris");
-	
-	GtkWidget *mainmenu = gtk_vbox_new(false, 0);
-	gtk_container_add(GTK_CONTAINER(mainwindow), mainmenu);
-	
-	GtkWidget *menulabel = gtk_label_new("Main Menu");
-	gtk_box_pack_start(GTK_BOX(mainmenu), menulabel, true, true, 0);
-	
-	GtkWidget *newgame = gtk_button_new_with_label("New Game");
-	g_signal_connect(newgame, "clicked", G_CALLBACK(clicked_newgame), NULL);
-	gtk_box_pack_start(GTK_BOX(mainmenu), newgame, true, true, 0);
-	
-	GtkWidget *loadgame = gtk_button_new_with_label("Load Game");
-	g_signal_connect(loadgame, "clicked", G_CALLBACK(clicked_loadgame), NULL);
-	gtk_box_pack_start(GTK_BOX(mainmenu), loadgame, true, true, 0);
-	
-	GtkWidget *exit = gtk_button_new_with_label("Exit");
-	g_signal_connect(exit, "clicked", G_CALLBACK(destroy), NULL);
-	gtk_box_pack_start(GTK_BOX(mainmenu), exit, true, true, 0);
-	
-	gtk_widget_show_all(mainwindow);
+	atg_box *mainbox=canvas->box;
+	atg_element *MainMenu=atg_create_element_label("HARRIS: Main Menu", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+	if(!MainMenu)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_pack_element(mainbox, MainMenu))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *QuickStart=atg_create_element_button("Quick Start Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
+	if(!QuickStart)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_pack_element(mainbox, QuickStart))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *NewGame=atg_create_element_button("Set Up New Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
+	if(!NewGame)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_pack_element(mainbox, NewGame))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *LoadGame=atg_create_element_button("Load Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
+	if(!LoadGame)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_pack_element(mainbox, LoadGame))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *Exit=atg_create_element_button("Exit", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
+	if(!Exit)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_pack_element(mainbox, Exit))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	QuickStart->w=NewGame->w=LoadGame->w=Exit->w=canvas->surface->w;
 	
 	game state;
 	state.ntypes=ntypes;
@@ -222,6 +236,47 @@ int main(int argc, char *argv[])
 	{
 		perror("malloc");
 		return(1);
+	}
+	
+	int errupt=0;
+	atg_event e;
+	while(!errupt)
+	{
+		atg_flip(canvas);
+		while(atg_poll_event(&e, canvas))
+		{
+			switch(e.type)
+			{
+				case ATG_EV_RAW:;
+					SDL_Event *s=e.event.raw;
+					if(s)
+					{
+						switch(s->type)
+						{
+							case SDL_QUIT:
+								errupt++;
+							break;
+						}
+					}
+				break;
+				case ATG_EV_TRIGGER:;
+					atg_ev_trigger *trigger=e.event.trigger;
+					if(trigger)
+					{
+						if(trigger->e==Exit)
+							errupt++;
+						else if(!trigger->e)
+						{
+							// internal error
+						}
+						else
+							fprintf(stderr, "Clicked on unknown button!\n");
+					}
+				break;
+				default:
+				break;
+			}
+		}
 	}
 	
 	/*while(!errupt)
@@ -458,7 +513,6 @@ int main(int argc, char *argv[])
 		}
 	}
 	*/
-	gtk_main();
 	return(0);
 }
 

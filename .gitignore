@@ -1,4 +1,3 @@
-bin
 harris
-lib
-*~
+*.o
+atg

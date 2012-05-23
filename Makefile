@@ -1,30 +1,25 @@
 # Makefile for harris
 
-BINDIR := bin/
-SRCDIR := src/
-INCDIR := inc/
-LIBDIR := lib/
-
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
-CPPFLAGS := -I$(INCDIR)
-GTK := `pkg-config gtk+-2.0 --libs`
-GTKFLAGS := `pkg-config gtk+-2.0 --cflags`
 
-INCLUDES := $(INCDIR)weather.h $(INCDIR)bits.h
-LIBS := $(LIBDIR)harris.o $(LIBDIR)weather.o $(LIBDIR)bits.o
+INCLUDES := weather.h bits.h atg/atg.h
+LIBS := harris.o weather.o bits.o atg/atg.o
 
-all: harris $(BINDIR)harris
+SDL := `sdl-config --libs` -lSDL_ttf
+SDLFLAGS := `sdl-config --cflags`
 
-harris: $(BINDIR)harris
-	-ln -s $(BINDIR)harris harris
+all: harris
 
-$(BINDIR)harris: $(LIBS)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(GTKFLAGS) $(LDFLAGS) $(GTK) $(LIBS) -o $@
+harris: $(LIBS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(SDL) $(LIBS) -o $@
 
-$(LIBDIR)harris.o: $(SRCDIR)harris.c $(INCLUDES)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(GTKFLAGS) -o $@ -c $<
+harris.o: harris.c $(INCLUDES)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
-$(LIBDIR)%.o: $(SRCDIR)%.c $(INCDIR)%.h
+atg/atg.o: atg/atg.c atg/atg.h
+	make -C atg
+
+%.o: %.c %.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
