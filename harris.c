@@ -61,7 +61,7 @@ date readdate(const char *t, date nulldate);
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-	atg_canvas *canvas=atg_create_canvas(120, 96, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+	atg_canvas *canvas=atg_create_canvas(120, 86, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 	if(!canvas)
 	{
 		fprintf(stderr, "atg_create_canvas failed\n");
@@ -248,30 +248,24 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			switch(e.type)
 			{
 				case ATG_EV_RAW:;
-					SDL_Event *s=e.event.raw;
-					if(s)
+					SDL_Event s=e.event.raw;
+					switch(s.type)
 					{
-						switch(s->type)
-						{
-							case SDL_QUIT:
-								errupt++;
-							break;
-						}
+						case SDL_QUIT:
+							errupt++;
+						break;
 					}
 				break;
 				case ATG_EV_TRIGGER:;
-					atg_ev_trigger *trigger=e.event.trigger;
-					if(trigger)
+					atg_ev_trigger trigger=e.event.trigger;
+					if(trigger.e==Exit)
+						errupt++;
+					else if(!trigger.e)
 					{
-						if(trigger->e==Exit)
-							errupt++;
-						else if(!trigger->e)
-						{
-							// internal error
-						}
-						else
-							fprintf(stderr, "Clicked on unknown button!\n");
+						// internal error
 					}
+					else
+						fprintf(stderr, "Clicked on unknown button!\n");
 				break;
 				default:
 				break;
