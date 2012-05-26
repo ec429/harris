@@ -64,7 +64,7 @@ int ntargs=0;
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-	atg_canvas *canvas=atg_create_canvas(120, 86, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+	atg_canvas *canvas=atg_create_canvas(120, 24, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 	if(!canvas)
 	{
 		fprintf(stderr, "atg_create_canvas failed\n");
@@ -241,6 +241,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	main_menu:
 	canvas->box=mainbox;
+	atg_resize_canvas(canvas, 120, 86);
 	int errupt=0;
 	atg_event e;
 	while(!errupt)
@@ -330,7 +331,7 @@ int loadgame(const char *fn, game *state)
 			char *tag=line, *dat=strchr(line, ':');
 			if(dat) *dat++=0;
 			int e=0,f; // poor-man's try...
-			if(strcmp(tag, "HARR:")==0)
+			if(strcmp(tag, "HARR")==0)
 			{
 				f=sscanf(dat, "%hhu.%hhu.%hhu\n", s_version+2, s_version+1, s_version);
 				if(f!=3)
@@ -348,11 +349,11 @@ int loadgame(const char *fn, game *state)
 				fprintf(stderr, "8 File does not start with valid HARR tag\n");
 				e|=8;
 			}
-			else if(strcmp(tag, "DATE:")==0)
+			else if(strcmp(tag, "DATE")==0)
 			{
 				state->now=readdate(dat, (date){3, 9, 1939});
 			}
-			else if(strcmp(tag, "TIME:")==0)
+			else if(strcmp(tag, "TIME")==0)
 			{
 				f=sscanf(dat, "%u\n", &state->hour);
 				if(f!=1)
@@ -361,7 +362,7 @@ int loadgame(const char *fn, game *state)
 					e|=1;
 				}
 			}
-			else if(strcmp(tag, "Bombers:")==0)
+			else if(strcmp(tag, "Bombers")==0)
 			{
 				int sntypes;
 				f=sscanf(dat, "%d\n", &sntypes);
@@ -407,7 +408,7 @@ int loadgame(const char *fn, game *state)
 					}
 				}
 			}
-			else if(strcmp(tag, "Targets:")==0)
+			else if(strcmp(tag, "Targets")==0)
 			{
 				int sntargs;
 				f=sscanf(dat, "%d\n", &sntargs);
@@ -450,7 +451,7 @@ int loadgame(const char *fn, game *state)
 					}
 				}
 			}
-			else if(strcmp(tag, "Weather rand:")==0)
+			else if(strcmp(tag, "Weather rand")==0)
 			{
 				unsigned int seed;
 				f=sscanf(dat, "%u\n", &seed);
