@@ -61,6 +61,7 @@ game;
 
 int loadgame(const char *fn, game *state);
 date readdate(const char *t, date nulldate);
+int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 int ntypes=0;
 int ntargs=0;
 
@@ -233,25 +234,25 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_box failed\n");
 		return(1);
 	}
-	atg_box *GB_btrow[ntypes];
+	atg_element *GB_btrow[ntypes], *GB_btnum[ntypes];
 	for(int i=0;i<ntypes;i++)
 	{
-		atg_element *e;
-		if(!(e=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
+		if(!(GB_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
 		{
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		if(atg_pack_element(gamebox, e))
+		if(atg_pack_element(gamebox, GB_btrow[i]))
 		{
 			perror("atg_pack_element");
 			return(1);
 		}
-		e->clickable=true;
-		e->w=120;
-		if(!(GB_btrow[i]=e->elem.box))
+		GB_btrow[i]->clickable=true;
+		GB_btrow[i]->w=120;
+		atg_box *b=GB_btrow[i]->elem.box;
+		if(!b)
 		{
-			fprintf(stderr, "GB_btrow[%d] is NULL\n", i);
+			fprintf(stderr, "GB_btrow[i]->elem.box==NULL\n");
 			return(1);
 		}
 		SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[i].picture->format->BitsPerPixel, types[i].picture->format->Rmask, types[i].picture->format->Gmask, types[i].picture->format->Bmask, types[i].picture->format->Amask);
@@ -269,7 +270,34 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_image failed\n");
 			return(1);
 		}
-		if(atg_pack_element(GB_btrow[i], picture))
+		if(atg_pack_element(b, picture))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_element *vbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!vbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_pack_element(b, vbox))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_box *vb=vbox->elem.box;
+		if(!vb)
+		{
+			fprintf(stderr, "vbox->elem.box==NULL\n");
+			return(1);
+		}
+		if(!(GB_btnum[i]=atg_create_element_label("svble/total", 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_pack_element(vb, GB_btnum[i]))
 		{
 			perror("atg_pack_element");
 			return(1);
@@ -353,6 +381,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	gameloop:
 	canvas->box=gamebox;
 	atg_resize_canvas(canvas, 640, 480);
+	for(int i=0;i<ntypes;i++)
+	{
+		if(GB_btrow[i])
+			GB_btrow[i]->hidden=((diffdate(types[i].entry, state.now)>0)||(diffdate(types[i].exit, state.now)<0));
+		if(GB_btnum[i]&&GB_btnum[i]->elem.label&&GB_btnum[i]->elem.label->text)
+			snprintf(GB_btnum[i]->elem.label->text, 12, "%u/%u", state.nsvble[i], state.nbombers[i]);
+	}
 	while(1)
 	{
 		atg_flip(canvas);
@@ -371,17 +406,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				break;
 				case ATG_EV_CLICK:;
 					atg_ev_click c=e.event.click;
-					if(c.e&&(c.e->type==ATG_BOX))
+					if(c.e)
 					{
-						atg_box *b=c.e->elem.box;
-						if(b)
+						for(int i=0;i<ntypes;i++)
 						{
-							for(int i=0;i<ntypes;i++)
+							if(c.e==GB_btrow[i])
 							{
-								if(b==GB_btrow[i])
-								{
-									fprintf(stderr, "btrow %d\n", i);
-								}
+								fprintf(stderr, "btrow %d\n", i);
 							}
 						}
 					}
@@ -406,6 +437,15 @@ date readdate(const char *t, date nulldate)
 	date d;
 	if(t&&*t&&(sscanf(t, "%u-%u-%u", &d.day, &d.month, &d.year)==3)) return(d);
 	return(nulldate);
+}
+
+int diffdate(date date1, date date2) // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
+{
+	int d=date1.year-date2.year;
+	if(d) return(d);
+	d=date1.month-date2.month;
+	if(d) return(d);
+	return(date1.day-date2.day);
 }
 
 int loadgame(const char *fn, game *state)
