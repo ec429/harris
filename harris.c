@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "atg/atg.h"
+#include <SDL_image.h>
 
 #include "bits.h"
 #include "weather.h"
@@ -28,6 +29,7 @@ typedef struct
 	unsigned int accu;
 	date entry;
 	date exit;
+	SDL_Surface *picture;
 }
 bombertype;
 
@@ -95,16 +97,26 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%zn", this.name, this.manu, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &db))!=9)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &db))!=9)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
 					return(1);
 				}
-				this.name=realloc(this.name, strlen(this.name)+1);
+				size_t nlen=strlen(this.name)+1;
+				this.name=realloc(this.name, nlen);
 				this.entry=readdate(next+db, (date){0, 0, 0});
 				const char *exit=strchr(next+db, ':');
 				this.exit=readdate(exit, (date){9999, 99, 99});
+				char pn[4+nlen+4];
+				strcpy(pn, "art/");
+				for(size_t p=0;p<=nlen;p++) pn[4+p]=tolower(this.name[p]);
+				strcat(pn, ".png");
+				if(!(this.picture=IMG_Load(pn)))
+				{
+					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
+					return(1);
+				}
 				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
 				types[ntypes]=this;
 				ntypes++;
@@ -215,6 +227,55 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	MM_QuickStart->w=MM_NewGame->w=MM_LoadGame->w=MM_Exit->w=canvas->surface->w;
 	
+	atg_box *gamebox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 47, 0, ATG_ALPHA_OPAQUE});
+	if(!gamebox)
+	{
+		fprintf(stderr, "atg_create_box failed\n");
+		return(1);
+	}
+	atg_box *GB_btrow[ntypes];
+	for(int i=0;i<ntypes;i++)
+	{
+		atg_element *e;
+		if(!(e=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_pack_element(gamebox, e))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		e->clickable=true;
+		e->w=120;
+		if(!(GB_btrow[i]=e->elem.box))
+		{
+			fprintf(stderr, "GB_btrow[%d] is NULL\n", i);
+			return(1);
+		}
+		SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[i].picture->format->BitsPerPixel, types[i].picture->format->Rmask, types[i].picture->format->Gmask, types[i].picture->format->Bmask, types[i].picture->format->Amask);
+		if(!pic)
+		{
+			fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+			return(1);
+		}
+		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
+		SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, 0, 0, 0});
+		atg_element *picture=atg_create_element_image(pic);
+		SDL_FreeSurface(pic);
+		if(!picture)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		if(atg_pack_element(GB_btrow[i], picture))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+	}
+	
 	game state;
 	state.ntypes=ntypes;
 	if(!(state.nbombers=malloc(ntypes*sizeof(*state.nbombers))))
@@ -242,9 +303,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	main_menu:
 	canvas->box=mainbox;
 	atg_resize_canvas(canvas, 120, 86);
-	int errupt=0;
 	atg_event e;
-	while(!errupt)
+	while(1)
 	{
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
@@ -256,7 +316,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(s.type)
 					{
 						case SDL_QUIT:
-							errupt++;
+							goto do_exit;
 						break;
 					}
 				break;
@@ -266,8 +326,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						goto do_exit;
 					else if(trigger.e==MM_QuickStart)
 					{
+						fprintf(stderr, "Loading game state from Quick Start file...\n");
 						if(!loadgame("save/qstart.sav", &state))
 						{
+							fprintf(stderr, "Quick Start Game loaded\n");
 							goto gameloop;
 						}
 						else
@@ -289,13 +351,53 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	
 	gameloop:
-	fprintf(stderr, "Game loop not done yet, dropping back to menu\n");
-	goto main_menu;
+	canvas->box=gamebox;
+	atg_resize_canvas(canvas, 640, 480);
+	while(1)
+	{
+		atg_flip(canvas);
+		while(atg_poll_event(&e, canvas))
+		{
+			switch(e.type)
+			{
+				case ATG_EV_RAW:;
+					SDL_Event s=e.event.raw;
+					switch(s.type)
+					{
+						case SDL_QUIT:
+							goto main_menu;
+						break;
+					}
+				break;
+				case ATG_EV_CLICK:;
+					atg_ev_click c=e.event.click;
+					if(c.e&&(c.e->type==ATG_BOX))
+					{
+						atg_box *b=c.e->elem.box;
+						if(b)
+						{
+							for(int i=0;i<ntypes;i++)
+							{
+								if(b==GB_btrow[i])
+								{
+									fprintf(stderr, "btrow %d\n", i);
+								}
+							}
+						}
+					}
+				break;
+				default:
+					fprintf(stderr, "e.type %d\n", e.type);
+				break;
+			}
+		}
+	}
 	
 	do_exit:
 	canvas->box=NULL;
 	atg_free_canvas(canvas);
 	atg_free_box(mainbox);
+	atg_free_box(gamebox);
 	return(0);
 }
 

@@ -6,7 +6,7 @@ CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 INCLUDES := weather.h bits.h atg/atg.h
 LIBS := harris.o weather.o bits.o atg/atg.o
 
-SDL := `sdl-config --libs` -lSDL_ttf
+SDL := `sdl-config --libs` -lSDL_ttf -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
 
 all: harris
