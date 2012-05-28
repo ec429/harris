@@ -520,7 +520,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			perror("atg_pack_element");
 			return(1);
 		}
-		if(!(GB_ttflk[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){159, 159, 151, ATG_ALPHA_OPAQUE})))
+		if(!(GB_ttflk[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){183, 183, 199, ATG_ALPHA_OPAQUE})))
 		{
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
@@ -606,6 +606,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				break;
 			}
 		}
+		SDL_Delay(50);
 	}
 	
 	gameloop:
@@ -639,6 +640,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				if(i==seltarg)
 				{
 					GB_ttrow[i]->elem.box->bgcolour.r=GB_ttrow[i]->elem.box->bgcolour.g=GB_ttrow[i]->elem.box->bgcolour.r+64;
+				}
+				if(GB_ttrow[i]->elem.box->nelems>1)
+				{
+					if(GB_ttrow[i]->elem.box->elems[1]&&(GB_ttrow[i]->elem.box->elems[1]->type==ATG_BOX)&&GB_ttrow[i]->elem.box->elems[1]->elem.box)
+					{
+						GB_ttrow[i]->elem.box->elems[1]->elem.box->bgcolour=GB_ttrow[i]->elem.box->bgcolour;
+					}
 				}
 			}
 		}
@@ -675,8 +683,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								seltarg=i;
 								SDL_FreeSurface(GB_map->elem.image->data);
 								GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon, .y=targs[i].lat});
 								SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon, .y=targs[i].lat});
 							}
 						}
 					}
@@ -686,6 +694,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				break;
 			}
 		}
+		SDL_Delay(50);
 		/*for(unsigned int it=0;it<8;it++)
 			w_iter(&state.weather, lorw);
 		SDL_FreeSurface(GB_map->elem.image->data);
