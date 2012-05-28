@@ -38,13 +38,18 @@ typedef struct
 }
 bombertype;
 
+#define CITYSIZE	17
+#define HALFCITY	8
+
 typedef struct
 {
-	//NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
+	//NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
 	unsigned int id;
 	char * name;
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
+	enum {TCLASS_CITY,} class;
+	SDL_Surface *picture;
 }
 target;
 
@@ -68,6 +73,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128]);
 date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 SDL_Surface *render_weather(w_state weather);
+SDL_Surface *render_cities(int ntargs, target *targs);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 int ntypes=0;
 int ntargs=0;
@@ -82,6 +88,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_canvas failed\n");
 		return(1);
 	}
+	
+	srand(0); // predictable seed for creating 'random' target maps
 	
 	// Load data files
 	fprintf(stderr, "Loading data files...\n");
@@ -171,7 +179,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(*next!='#')
 			{
 				target this;
-				// NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY
+				// NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
 				this.name=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
@@ -183,7 +191,63 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				this.entry=readdate(next+db, (date){0, 0, 0});
 				const char *exit=strchr(next+db, ':');
-				this.exit=readdate(exit, (date){99, 99, 9999});
+				if(!exit)
+				{
+					fprintf(stderr, "Malformed `targets' line `%s'\n", next);
+					fprintf(stderr, "  missing :EXIT\n");
+					return(1);
+				}
+				exit++;
+				this.exit=readdate(exit, (date){9999, 99, 99});
+				const char *class=strchr(exit, ':');
+				if(!class)
+				{
+					fprintf(stderr, "Malformed `targets' line `%s'\n", next);
+					fprintf(stderr, "  missing :CLASS\n");
+					return(1);
+				}
+				class++;
+				if(strcmp(class, "CITY")==0)
+				{
+					this.class=TCLASS_CITY;
+				}
+				else
+				{
+					fprintf(stderr, "Bad `targets' line `%s'\n", next);
+					fprintf(stderr, "  unrecognised :CLASS `%s'\n", class);
+					return(1);
+				}
+				switch(this.class)
+				{
+					case TCLASS_CITY:
+						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, CITYSIZE, CITYSIZE, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+						{
+							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+							return(1);
+						}
+						SDL_SetAlpha(this.picture, 0, 0);
+						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
+						{
+							for(unsigned int k=0;k<6;k++)
+							{
+								int x=HALFCITY, y=HALFCITY;
+								for(unsigned int i=0;i<this.esiz>>1;i++)
+								{
+									pset(this.picture, x, y, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+									unsigned int j=rand()&3;
+									if(j&1) y+=j-2;
+									else x+=j-1;
+									if((x<0)||(x>=CITYSIZE)) x=HALFCITY;
+									if((y<0)||(y>=CITYSIZE)) x=HALFCITY;
+								}
+							}
+						}
+					break;
+					default: // shouldn't ever get here
+						fprintf(stderr, "Bad this.class = %d\n", this.class);
+						return(1);
+					break;
+				}
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
@@ -428,7 +492,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	SDL_Surface *weather_overlay=NULL;
+	SDL_Surface *weather_overlay=NULL, *city_overlay=NULL;
 	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 	if(!GB_tt)
 	{
@@ -626,6 +690,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(GB_ttflk[i])
 			GB_ttflk[i]->w=floor(state.flk[i]);
 	}
+	SDL_FreeSurface(city_overlay);
+	city_overlay=render_cities(ntargs, targs);
+	SDL_BlitSurface(city_overlay, NULL, GB_map->elem.image->data, NULL);
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state.weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
@@ -679,12 +746,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							if(c.e==GB_ttrow[i])
 							{
-								fprintf(stderr, "ttrow %d\n", i);
 								seltarg=i;
 								SDL_FreeSurface(GB_map->elem.image->data);
 								GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+								SDL_BlitSurface(city_overlay, NULL, GB_map->elem.image->data, NULL);
 								SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
-								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon, .y=targs[i].lat});
+								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon-3, .y=targs[i].lat-3});
 							}
 						}
 					}
@@ -915,32 +982,30 @@ SDL_Surface *render_weather(w_state weather)
 		fprintf(stderr, "render_weather: SDL_CreateRGBSurface: %s\n", SDL_GetError());
 		return(NULL);
 	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	for(unsigned int x=0;x<256;x++)
 	{
 		for(unsigned int y=0;y<256;y++)
 		{
 			Uint8 cl=min(max(floor(1016-weather.p[x>>1][y>>1])*8.0, 0), 255);
 			pset(rv, x, y, (atg_colour){255, 255, 255, cl});
-			/*double p=weather.p[x>>1][y>>1];
-			if(p>1004)
-				pset(rv, x, y, (atg_colour){0, 0, 0, ATG_ALPHA_TRANSPARENT});
-			else if(p>996)
-			{
-				Uint8 cl=floor(255-(1004-p)*6);
-				pset(rv, x, y, (atg_colour){cl, cl, cl, 255-cl});
-			}
-			else if(p>988)
-			{
-				Uint8 cl=floor(255-48-(996-p)*8);
-				pset(rv, x, y, (atg_colour){cl, cl, cl, 255-48-104-(cl>>1)});
-			}
-			else
-			{
-				Uint8 cl=max(floor(255-48-64-(988-p)*3), 0);
-				pset(rv, x, y, (atg_colour){cl, cl, cl, 255-cl});
-			}
-			*/
 		}
+	}
+	return(rv);
+}
+
+SDL_Surface *render_cities(int ntargs, target *targs)
+{
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
+	{
+		fprintf(stderr, "render_cities: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
+	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	for(int i=0;i<ntargs;i++)
+	{
+		SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-HALFCITY, .y=targs[i].lat-HALFCITY});
 	}
 	return(rv);
 }
