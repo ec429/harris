@@ -1,11 +1,10 @@
-#include <math.h>
+#include <stdbool.h>
 
 typedef struct
 {
-	double p[128][128][3];
-	double fx,fc,fdy;
+	double p[256][128];
 }
 w_state;
 
-void w_init(w_state * buf, int prep);
-void w_iter(w_state * ptr);
+void w_init(w_state * buf, unsigned int prep, bool lorw[128][128]);
+void w_iter(w_state * ptr, bool lorw[128][128]);

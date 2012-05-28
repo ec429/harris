@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "atg/atg.h"
 #include <SDL_image.h>
@@ -59,11 +60,15 @@ game;
 #define VER_MIN	1
 #define VER_REV	0
 
-int loadgame(const char *fn, game *state);
+int loadgame(const char *fn, game *state, bool lorw[128][128]);
 date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
+SDL_Surface *render_weather(w_state weather);
+int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 int ntypes=0;
 int ntargs=0;
+SDL_Surface *terrain=NULL;
+SDL_Surface *location=NULL;
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
@@ -168,6 +173,38 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "Loaded %u targets\n", ntargs);
 	}
 	
+	bool lorw[128][128]; // TRUE for water
+	{
+		SDL_Surface *water;
+		if(!(water=IMG_Load("map/overlay_water.png")))
+		{
+			fprintf(stderr, "Water overlay: IMG_Load: %s\n", IMG_GetError());
+			return(1);
+		}
+		for(unsigned int x=0;x<128;x++)
+		{
+			for(unsigned int y=0;y<128;y++)
+			{
+				size_t s_off = (y*water->pitch) + (x*water->format->BytesPerPixel);
+				uint32_t pixval = *(uint32_t *)((char *)water->pixels + s_off);
+				Uint8 r,g,b;
+				SDL_GetRGB(pixval, water->format, &r, &g, &b);
+				lorw[x][y]=(r+g+b<381);
+			}
+		}
+		SDL_FreeSurface(water);
+	}
+	if(!(terrain=IMG_Load("map/overlay_terrain.png")))
+	{
+		fprintf(stderr, "Terrain overlay: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(location=IMG_Load("art/location.png")))
+	{
+		fprintf(stderr, "Location icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	
 	fprintf(stderr, "Data files loaded\n");
 	
 	atg_box *mainbox=canvas->box;
@@ -228,10 +265,27 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	MM_QuickStart->w=MM_NewGame->w=MM_LoadGame->w=MM_Exit->w=canvas->surface->w;
 	
-	atg_box *gamebox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 47, 0, ATG_ALPHA_OPAQUE});
+	atg_box *gamebox=atg_create_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 47, 0, ATG_ALPHA_OPAQUE});
 	if(!gamebox)
 	{
 		fprintf(stderr, "atg_create_box failed\n");
+		return(1);
+	}
+	atg_element *GB_bt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 47, 0, ATG_ALPHA_OPAQUE});
+	if(!GB_bt)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(gamebox, GB_bt))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_box *GB_btb=GB_bt->elem.box;
+	if(!GB_btb)
+	{
+		fprintf(stderr, "GB_bt->elem.box==NULL\n");
 		return(1);
 	}
 	atg_element *GB_btrow[ntypes], *GB_btnum[ntypes];
@@ -242,13 +296,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		if(atg_pack_element(gamebox, GB_btrow[i]))
+		if(atg_pack_element(GB_btb, GB_btrow[i]))
 		{
 			perror("atg_pack_element");
 			return(1);
 		}
 		GB_btrow[i]->clickable=true;
-		GB_btrow[i]->w=120;
+		GB_btrow[i]->w=159;
 		atg_box *b=GB_btrow[i]->elem.box;
 		if(!b)
 		{
@@ -270,6 +324,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_image failed\n");
 			return(1);
 		}
+		picture->w=38;
 		if(atg_pack_element(b, picture))
 		{
 			perror("atg_pack_element");
@@ -292,12 +347,165 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "vbox->elem.box==NULL\n");
 			return(1);
 		}
+		if(types[i].manu&&types[i].name)
+		{
+			size_t len=strlen(types[i].manu)+strlen(types[i].name)+2;
+			char *fullname=malloc(len);
+			if(fullname)
+			{
+				snprintf(fullname, len, "%s %s", types[i].manu, types[i].name);
+				atg_element *name=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+				if(!name)
+				{
+					fprintf(stderr, "atg_create_element_label failed\n");
+					return(1);
+				}
+				name->w=121;
+				if(atg_pack_element(vb, name))
+				{
+					perror("atg_pack_element");
+					return(1);
+				}
+			}
+			else
+			{
+				perror("malloc");
+				return(1);
+			}
+			free(fullname);
+		}
+		else
+		{
+			fprintf(stderr, "Missing manu or name in type %d\n", i);
+			return(1);
+		}
 		if(!(GB_btnum[i]=atg_create_element_label("svble/total", 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE})))
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
 		if(atg_pack_element(vb, GB_btnum[i]))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+	}
+	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+	if(!map)
+	{
+		fprintf(stderr, "map: SDL_ConvertSurface: %s\n", SDL_GetError());
+		return(1);
+	}
+	atg_element *GB_map=atg_create_element_image(map);
+	if(!GB_map)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	if(atg_pack_element(gamebox, GB_map))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+	if(!GB_tt)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(gamebox, GB_tt))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_box *GB_ttb=GB_tt->elem.box;
+	if(!GB_ttb)
+	{
+		fprintf(stderr, "GB_tt->elem.box==NULL\n");
+		return(1);
+	}
+	atg_element *GB_ttl=atg_create_element_label("Targets", 12, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+	if(!GB_ttl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_ttb, GB_ttl))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *GB_ttrow[ntargs], *GB_ttdmg[ntargs], *GB_ttflk[ntargs];
+	for(int i=0;i<ntargs;i++)
+	{
+		GB_ttrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+		if(!GB_ttrow[i])
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		GB_ttrow[i]->clickable=true;
+		if(atg_pack_element(GB_ttb, GB_ttrow[i]))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_box *b=GB_ttrow[i]->elem.box;
+		if(!b)
+		{
+			fprintf(stderr, "GB_ttrow[i]->elem.box==NULL\n");
+			return(1);
+		}
+		atg_element *item=atg_create_element_label(targs[i].name, 10, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+		if(!item)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		item->w=120;
+		if(atg_pack_element(b, item))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 119, ATG_ALPHA_OPAQUE});
+		if(!item)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		item->w=105;
+		if(atg_pack_element(b, item))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		b=item->elem.box;
+		if(!b)
+		{
+			fprintf(stderr, "item->elem.box==NULL\n");
+			return(1);
+		}
+		if(!(GB_ttdmg[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){0, 0, 255, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		GB_ttdmg[i]->w=1;
+		GB_ttdmg[i]->h=6;
+		if(atg_pack_element(b, GB_ttdmg[i]))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		if(!(GB_ttflk[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){159, 159, 151, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		GB_ttflk[i]->w=1;
+		GB_ttflk[i]->h=6;
+		if(atg_pack_element(b, GB_ttflk[i]))
 		{
 			perror("atg_pack_element");
 			return(1);
@@ -355,7 +563,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					else if(trigger.e==MM_QuickStart)
 					{
 						fprintf(stderr, "Loading game state from Quick Start file...\n");
-						if(!loadgame("save/qstart.sav", &state))
+						if(!loadgame("save/qstart.sav", &state, lorw))
 						{
 							fprintf(stderr, "Quick Start Game loaded\n");
 							goto gameloop;
@@ -388,6 +596,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(GB_btnum[i]&&GB_btnum[i]->elem.label&&GB_btnum[i]->elem.label->text)
 			snprintf(GB_btnum[i]->elem.label->text, 12, "%u/%u", state.nsvble[i], state.nbombers[i]);
 	}
+	for(int i=0;i<ntargs;i++)
+	{
+		if(GB_ttdmg[i])
+			GB_ttdmg[i]->w=floor(state.dmg[i]);
+		if(GB_ttflk[i])
+			GB_ttflk[i]->w=floor(state.flk[i]);
+	}
+	SDL_Surface *weather_overlay=render_weather(state.weather);
+	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 	while(1)
 	{
 		atg_flip(canvas);
@@ -415,6 +632,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								fprintf(stderr, "btrow %d\n", i);
 							}
 						}
+						for(int i=0;i<ntargs;i++)
+						{
+							if(c.e==GB_ttrow[i])
+							{
+								fprintf(stderr, "ttrow %d\n", i);
+								SDL_FreeSurface(GB_map->elem.image->data);
+								GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon, .y=targs[i].lat});
+								SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+							}
+						}
 					}
 				break;
 				default:
@@ -422,6 +650,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				break;
 			}
 		}
+		/*for(unsigned int it=0;it<8;it++)
+			w_iter(&state.weather, lorw);
+		SDL_FreeSurface(GB_map->elem.image->data);
+		GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		//SDL_FillRect(GB_map->elem.image->data, &(SDL_Rect){.x=0, .y=0, .w=256, .h=256}, SDL_MapRGB(GB_map->elem.image->data->format, 0, 0, 0));
+		SDL_FreeSurface(weather_overlay);
+		weather_overlay=render_weather(state.weather);
+		SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);*/
 	}
 	
 	do_exit:
@@ -429,6 +665,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	atg_free_canvas(canvas);
 	atg_free_box(mainbox);
 	atg_free_box(gamebox);
+	SDL_FreeSurface(weather_overlay);
 	return(0);
 }
 
@@ -448,7 +685,7 @@ int diffdate(date date1, date date2) // returns <0 if date1<date2, >0 if date1>d
 	return(date1.day-date2.day);
 }
 
-int loadgame(const char *fn, game *state)
+int loadgame(const char *fn, game *state, bool lorw[128][128])
 {
 	FILE *fs = fopen(fn, "r");
 	if(!fs)
@@ -603,7 +840,7 @@ int loadgame(const char *fn, game *state)
 					e|=1;
 				}
 				srand(seed);
-				w_init(&state->weather, 16);
+				w_init(&state->weather, 256, lorw);
 			}
 			else
 			{
@@ -619,5 +856,55 @@ int loadgame(const char *fn, game *state)
 			}
 		}
 	}
+	return(0);
+}
+
+SDL_Surface *render_weather(w_state weather)
+{
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
+	{
+		fprintf(stderr, "render_weather: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
+	}
+	for(unsigned int x=0;x<256;x++)
+	{
+		for(unsigned int y=0;y<256;y++)
+		{
+			Uint8 cl=min(max(floor(1016-weather.p[x>>1][y>>1])*8.0, 0), 255);
+			pset(rv, x, y, (atg_colour){255, 255, 255, cl});
+			/*double p=weather.p[x>>1][y>>1];
+			if(p>1004)
+				pset(rv, x, y, (atg_colour){0, 0, 0, ATG_ALPHA_TRANSPARENT});
+			else if(p>996)
+			{
+				Uint8 cl=floor(255-(1004-p)*6);
+				pset(rv, x, y, (atg_colour){cl, cl, cl, 255-cl});
+			}
+			else if(p>988)
+			{
+				Uint8 cl=floor(255-48-(996-p)*8);
+				pset(rv, x, y, (atg_colour){cl, cl, cl, 255-48-104-(cl>>1)});
+			}
+			else
+			{
+				Uint8 cl=max(floor(255-48-64-(988-p)*3), 0);
+				pset(rv, x, y, (atg_colour){cl, cl, cl, 255-cl});
+			}
+			*/
+		}
+	}
+	return(rv);
+}
+
+int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c)
+{
+	if(!s)
+		return(1);
+	if((x>=(unsigned int)s->w)||(y>=(unsigned int)s->h))
+		return(2);
+	size_t s_off = (y*s->pitch) + (x*s->format->BytesPerPixel);
+	uint32_t pixval = SDL_MapRGBA(s->format, c.r, c.g, c.b, c.a);
+	*(uint32_t *)((char *)s->pixels + s_off)=pixval;
 	return(0);
 }

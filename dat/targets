@@ -3,11 +3,11 @@
 # Prod: contributed production
 # Flak: strength of flak guns, predictors etc.
 # Esiz: 'effective' size, ease-to-hit.
-# Lat, long: where it is (scale TBDecided)
+# Lat, long: where it is (within the 256x256 map)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
 
-Berlin:100:20:50:31:11::
-Hamburg:65:14:35:29:7::
+Berlin:100:20:50:97:233::
+Hamburg:65:14:35:73:185::
 
 # Berlin, 50 , 100 , 20 , 31 , 11 
 # Hamburg, 35 , 65 , 14 , 29 , 7 

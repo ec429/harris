@@ -1,91 +1,59 @@
 #include <stdlib.h>
+#include <math.h>
 #include "weather.h"
 
 #define max(a,b)	((a)>(b)?(a):(b))
 #define min(a,b)	((a)<(b)?(a):(b))
-#define sgn(x)		((x)>0?1:(x)<0?-1:0)
 
-void w_init(w_state * buf, int prep)
+void w_init(w_state * buf, unsigned int prep, bool lorw[128][128])
 {
 	if(buf!=NULL)
 	{
-		int x,y,t;
-		for(x=0;x<128;x++)
+		for(unsigned int x=0;x<256;x++)
 		{
-			for(y=0;y<128;y++)
+			for(unsigned int y=0;y<128;y++)
 			{
-				for(t=0;t<3;t++)
-				{
-					buf->p[x][y][t]=984+(rand()*32.0/RAND_MAX);
-				}
+				buf->p[x][y]=984+(rand()*32.0/RAND_MAX);
 			}
 		}
-		buf->fx=-16;
-		buf->fc=1.5;
-		buf->fdy=0.3;
-		int p;
-		for(p=0;p<prep;p++)
+		for(unsigned int p=0;p<prep;p++)
 		{
-			w_iter(buf);
+			w_iter(buf, lorw);
 		}
 	}
 }
 
-void w_iter(w_state * ptr)
+void w_iter(w_state * ptr, bool lorw[128][128])
 {
 	if(ptr!=NULL)
 	{
-		int x,y;
-		double r1=(ptr->p[0][0][2]*16.0)-floor(ptr->p[0][0][2]*16.0);
-		double r2=(ptr->p[1][0][2]*16.0)-floor(ptr->p[1][0][2]*16.0);
-		double r3=(ptr->p[2][0][2]*16.0)-floor(ptr->p[2][0][2]*16.0);
-		double r4=(ptr->p[3][0][2]*16.0)-floor(ptr->p[3][0][2]*16.0);
-		double r5=(ptr->p[4][0][2]*16.0)-floor(ptr->p[4][0][2]*16.0);
-		double tmp[128][128];
-		double fd=(r1*4.0);
-		ptr->fx+=(r2*4.5);
-		if(ptr->fx>180)
+		double tmp[256][128];
+		for(unsigned int x=0;x<256;x++)
 		{
-			ptr->fx=(r3*64.0)-16.0;
-			ptr->fdy=(r4*1.6)-0.8;
-		}
-		else
-			ptr->fdy=(ptr->fdy*.99)+(r4-0.5)*0.02;
-		ptr->fc=(ptr->fc*.95)+(r5*0.15);
-		for(x=0;x<128;x++)
-		{
-			for(y=0;y<128;y++)
+			for(unsigned int y=0;y<128;y++)
 			{
-				double r6=(ptr->p[x][y][2]*16.0)-floor(ptr->p[x][y][2]*16.0);
-				double ns;
-				int dx,dy,nsn;
-				ns=0;
-				nsn=0;
-				for(dx=-8;dx<=8;dx++)
+				ptr->p[x][y]+=(rand()*2.0/RAND_MAX)-1.0;
+				double d2px=ptr->p[(x+255)%256][y]+ptr->p[(x+1)%256][y]-2*ptr->p[x][y];
+				double d2py=ptr->p[x][max(y, 1)-1]+ptr->p[x][min(y+1, 127)]-2*ptr->p[x][y];
+				double divp=d2px+d2py;
+				double big=(abs(d2px)>abs(d2py))?d2px:d2py;
+				tmp[x][y]=ptr->p[x][y]+divp*.09+big*.07+(ptr->p[(x+255)%256][y]-1000)*.07;
+				if(x<128)
 				{
-					for(dy=-8;dy<=8;dy++)
+					if(lorw[x][y])
 					{
-						if((x+dx>=0) && (x+dx<128) && (y+dy>=0) && (y+dy<128))
-						{
-							ns+=ptr->p[x+dx][y+dy][0]*(2-sgn(dx));
-							nsn+=(2-sgn(dx));
-						}
+						tmp[x][y]+=(tmp[x][y]-1000)*0.05+(ptr->p[x][max(y, 1)-1]-1000)*.04+(ptr->p[x][(y+1)%128]-1000)*.04;
 					}
+					else tmp[x][y]-=(tmp[x][y]-1000)*0.02;
 				}
-				ns/=nsn;
-				double d2p=ptr->p[x][y][0]-(2.0*ptr->p[x][y][1])+ptr->p[x][y][2];
-				double dp=ptr->p[x][y][0]-ptr->p[x][y][1];
-				ptr->p[x][y][2]=ptr->p[x][y][1];
-				ptr->p[x][y][1]=ptr->p[x][y][0];
-				tmp[x][y]=(ptr->p[x][y][0]*.96)+40.14+(d2p*0.16)-(0.15*dp)+(sqrt(abs(ns-ptr->p[x][y][0]))*sgn(ns-ptr->p[x][y][0])*1.8)+(r6*16.0)-8;
-				tmp[x][y]-=(fd/(2.0+abs(ptr->fx-x-pow((64+((y-64)*ptr->fdy))*0.25, ptr->fc))));
+				tmp[x][y]-=pow((tmp[x][y]-1000)*0.1, 3);
 			}
 		}
-		for(x=0;x<128;x++)
+		for(unsigned int x=0;x<256;x++)
 		{
-			for(y=0;y<128;y++)
+			for(unsigned int y=0;y<128;y++)
 			{
-				ptr->p[x][y][0]=min(max(tmp[x][y], 872), 1127);
+				ptr->p[x][y]=min(max(tmp[x][y], 872), 1127);
 			}
 		}
 	}
