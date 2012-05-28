@@ -13,7 +13,8 @@ Type 7:0/0
 Type 8:0/0
 Type 9:0/0
 Type 10:0/0
-Targets:2
+Targets:3
 Targ 0:100,20
 Targ 1:100,14
+Targ 2:100,13
 Weather rand:1441
