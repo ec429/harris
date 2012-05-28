@@ -32,7 +32,10 @@ void w_iter(w_state * ptr, bool lorw[128][128])
 		{
 			for(unsigned int y=0;y<128;y++)
 			{
-				ptr->p[x][y]+=(rand()*2.0/RAND_MAX)-1.0;
+				if((x<131)||(x>253))
+					ptr->p[x][y]+=(rand()*2.0/RAND_MAX)-1.0;
+				else
+					ptr->p[x][y]+=(rand()*5.0/RAND_MAX)-2.5;
 				double d2px=ptr->p[(x+255)%256][y]+ptr->p[(x+1)%256][y]-2*ptr->p[x][y];
 				double d2py=ptr->p[x][max(y, 1)-1]+ptr->p[x][min(y+1, 127)]-2*ptr->p[x][y];
 				double divp=d2px+d2py;
