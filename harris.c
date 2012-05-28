@@ -628,8 +628,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state.weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+	int seltarg=-1;
 	while(1)
 	{
+		for(int i=0;i<ntargs;i++)
+		{
+			if(GB_ttrow[i]&&GB_ttrow[i]->elem.box)
+			{
+				GB_ttrow[i]->elem.box->bgcolour=(false?(atg_colour){191, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+				if(i==seltarg)
+				{
+					GB_ttrow[i]->elem.box->bgcolour.r=GB_ttrow[i]->elem.box->bgcolour.g=GB_ttrow[i]->elem.box->bgcolour.r+64;
+				}
+			}
+		}
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
@@ -660,6 +672,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(c.e==GB_ttrow[i])
 							{
 								fprintf(stderr, "ttrow %d\n", i);
+								seltarg=i;
 								SDL_FreeSurface(GB_map->elem.image->data);
 								GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon, .y=targs[i].lat});
@@ -680,7 +693,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		//SDL_FillRect(GB_map->elem.image->data, &(SDL_Rect){.x=0, .y=0, .w=256, .h=256}, SDL_MapRGB(GB_map->elem.image->data->format, 0, 0, 0));
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state.weather);
-		SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);*/
+		SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+		if(seltarg>=0)
+			SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[seltarg].lon, .y=targs[seltarg].lat});
+		*/
 	}
 	
 	do_exit:
