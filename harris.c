@@ -16,9 +16,12 @@ typedef struct
 }
 date;
 
+#define NNAVAIDS	4
+const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH"};
+
 typedef struct
 {
-	//MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
+	//MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
 	char * manu;
 	char * name;
 	unsigned int cost;
@@ -30,6 +33,7 @@ typedef struct
 	unsigned int accu;
 	date entry;
 	date exit;
+	bool nav[NNAVAIDS];
 	SDL_Surface *picture;
 }
 bombertype;
@@ -98,7 +102,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(*next&&(*next!='#'))
 			{
 				bombertype this;
-				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY
+				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
@@ -113,7 +117,24 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				this.name=realloc(this.name, nlen);
 				this.entry=readdate(next+db, (date){0, 0, 0});
 				const char *exit=strchr(next+db, ':');
+				if(!exit)
+				{
+					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+					fprintf(stderr, "  missing :EXIT\n");
+					return(1);
+				}
+				exit++;
 				this.exit=readdate(exit, (date){9999, 99, 99});
+				const char *nav=strchr(exit, ':');
+				if(!nav)
+				{
+					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+					fprintf(stderr, "  missing :NAVAIDS\n");
+					return(1);
+				}
+				nav++;
+				for(unsigned int i=0;i<NNAVAIDS;i++)
+					this.nav[i]=strstr(nav, navaids[i]);
 				char pn[4+nlen+4];
 				strcpy(pn, "art/");
 				for(size_t p=0;p<=nlen;p++) pn[4+p]=tolower(this.name[p]);
@@ -407,6 +428,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
+	SDL_Surface *weather_overlay=NULL;
 	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 	if(!GB_tt)
 	{
@@ -603,7 +625,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(GB_ttflk[i])
 			GB_ttflk[i]->w=floor(state.flk[i]);
 	}
-	SDL_Surface *weather_overlay=render_weather(state.weather);
+	SDL_FreeSurface(weather_overlay);
+	weather_overlay=render_weather(state.weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 	while(1)
 	{
