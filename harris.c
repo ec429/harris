@@ -65,7 +65,7 @@ typedef struct
 	date now;
 	unsigned int hour;
 	unsigned int ntypes;
-	unsigned int *nbombers, *nsvble;
+	unsigned int *nbombers, *nsvble, *nleft;
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk;
@@ -470,7 +470,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		else
 		{
-			fprintf(stderr, "Missing manu or name in type %d\n", i);
+			fprintf(stderr, "Missing manu or name in type %u\n", i);
 			return(1);
 		}
 		if(!(GB_btnum[i]=atg_create_element_label("svble/total", 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE})))
@@ -531,7 +531,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	atg_element *GB_raid=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 63, 67, ATG_ALPHA_OPAQUE});
+	atg_element *GB_raid=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 	if(!GB_raid)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -543,13 +543,115 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	atg_box *GB_raidbox[ntargs], *GB_raidbox_empty=GB_raid->elem.box;
+	atg_element *GB_rbrow[ntargs][ntypes], *GB_raidnum[ntargs][ntypes];
 	for(unsigned int i=0;i<ntargs;i++)
 	{
-		GB_raidbox[i]=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 63, 67, ATG_ALPHA_OPAQUE});
+		GB_raidbox[i]=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 		if(!GB_raidbox[i])
 		{
 			fprintf(stderr, "atg_create_box failed\n");
 			return(1);
+		}
+		for(unsigned int j=0;j<ntypes;j++)
+		{
+			if(!(GB_rbrow[i][j]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
+			if(atg_pack_element(GB_raidbox[i], GB_rbrow[i][j]))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
+			GB_rbrow[i][j]->clickable=true;
+			GB_rbrow[i][j]->w=256;
+			atg_box *b=GB_rbrow[i][j]->elem.box;
+			if(!b)
+			{
+				fprintf(stderr, "GB_rbrow[i][j]->elem.box==NULL\n");
+				return(1);
+			}
+			SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[j].picture->format->BitsPerPixel, types[j].picture->format->Rmask, types[j].picture->format->Gmask, types[j].picture->format->Bmask, types[j].picture->format->Amask);
+			if(!pic)
+			{
+				fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+				return(1);
+			}
+			SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
+			SDL_BlitSurface(types[j].picture, NULL, pic, &(SDL_Rect){(36-types[j].picture->w)>>1, 0, 0, 0});
+			atg_element *picture=atg_create_element_image(pic);
+			SDL_FreeSurface(pic);
+			if(!picture)
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+				return(1);
+			}
+			picture->w=38;
+			if(atg_pack_element(b, picture))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
+			atg_element *vbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+			if(!vbox)
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
+			if(atg_pack_element(b, vbox))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
+			atg_box *vb=vbox->elem.box;
+			if(!vb)
+			{
+				fprintf(stderr, "vbox->elem.box==NULL\n");
+				return(1);
+			}
+			if(types[j].manu&&types[j].name)
+			{
+				size_t len=strlen(types[j].manu)+strlen(types[j].name)+2;
+				char *fullname=malloc(len);
+				if(fullname)
+				{
+					snprintf(fullname, len, "%s %s", types[j].manu, types[j].name);
+					atg_element *name=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+					if(!name)
+					{
+						fprintf(stderr, "atg_create_element_label failed\n");
+						return(1);
+					}
+					name->w=216;
+					if(atg_pack_element(vb, name))
+					{
+						perror("atg_pack_element");
+						return(1);
+					}
+				}
+				else
+				{
+					perror("malloc");
+					return(1);
+				}
+				free(fullname);
+			}
+			else
+			{
+				fprintf(stderr, "Missing manu or name in type %u\n", j);
+				return(1);
+			}
+			if(!(GB_raidnum[i][j]=atg_create_element_label("assigned", 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE})))
+			{
+				fprintf(stderr, "atg_create_element_label failed\n");
+				return(1);
+			}
+			if(atg_pack_element(vb, GB_raidnum[i][j]))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
 		}
 	}
 	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
@@ -670,6 +772,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("malloc");
 		return(1);
 	}
+	if(!(state.nleft=malloc(ntypes*sizeof(*state.nleft))))
+	{
+		perror("malloc");
+		return(1);
+	}
 	state.ntargs=ntargs;
 	if(!(state.dmg=malloc(ntargs*sizeof(*state.dmg))))
 	{
@@ -757,6 +864,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			GB_btrow[i]->hidden=((diffdate(types[i].entry, state.now)>0)||(diffdate(types[i].exit, state.now)<0));
 		if(GB_btnum[i]&&GB_btnum[i]->elem.label&&GB_btnum[i]->elem.label->text)
 			snprintf(GB_btnum[i]->elem.label->text, 12, "%u/%u", state.nsvble[i], state.nbombers[i]);
+		state.nleft[i]=state.nsvble[i];
 	}
 	for(unsigned int i=0;i<ntargs;i++)
 	{
@@ -764,51 +872,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			GB_ttdmg[i]->w=floor(state.dmg[i]);
 		if(GB_ttflk[i])
 			GB_ttflk[i]->w=floor(state.flk[i]);
-		if(GB_raidbox[i])
+		for(unsigned int j=0;j<ntypes;j++)
 		{
-			atg_free_box(GB_raidbox[i]);
-			if(GB_raidbox[i]=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 63, 67, ATG_ALPHA_OPAQUE}))
-			{
-				for(unsigned int j=0;j<ntypes;j++)
-				{
-					if(!GB_btrow[j]->hidden)
-					{
-						atg_element *rbrow=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 67, ATG_ALPHA_OPAQUE}))
-						if(rbrow)
-						{
-							if(atg_pack_element(GB_raidbox[i], rbrow)
-								atg_free_element(rbrow);
-							else
-							{
-								atg_box *rb=rbrow->elem.box;
-								if(rb)
-								{
-									SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[j].picture->format->BitsPerPixel, types[j].picture->format->Rmask, types[j].picture->format->Gmask, types[j].picture->format->Bmask, types[j].picture->format->Amask);
-									if(!pic)
-									{
-										fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
-										return(1);
-									}
-									SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
-									SDL_BlitSurface(types[j].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, 0, 0, 0});
-									atg_element *picture=atg_create_element_image(pic);
-									SDL_FreeSurface(pic);
-									if(!picture)
-									{
-										fprintf(stderr, "atg_create_element_image failed\n");
-										return(1);
-									}
-									picture->w=38;
-									if(atg_pack_element(rb, picture);)
-									{
-										atg_free_element(
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			if(GB_rbrow[i][j])
+				GB_rbrow[i][j]->hidden=GB_btrow[j]?GB_btrow[j]->hidden:true;
+			if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
+				snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", state.raids[i].nbombers[j]);
 		}
 	}
 	SDL_FreeSurface(city_overlay);
@@ -824,7 +893,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			if(GB_ttrow[i]&&GB_ttrow[i]->elem.box)
 			{
-				GB_ttrow[i]->elem.box->bgcolour=(false?(atg_colour){191, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+				unsigned int traid=0;
+				for(unsigned int j=0;j<ntypes;j++)
+				{
+					traid+=state.raids[i].nbombers[j];
+					if(GB_rbrow[i][j])
+						GB_rbrow[i][j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!state.raids[i].nbombers[j];
+				}
+				GB_ttrow[i]->elem.box->bgcolour=(traid?(atg_colour){127, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 				if((int)i==seltarg)
 				{
 					GB_ttrow[i]->elem.box->bgcolour.r=GB_ttrow[i]->elem.box->bgcolour.g=GB_ttrow[i]->elem.box->bgcolour.r+64;
@@ -855,13 +931,35 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				break;
 				case ATG_EV_CLICK:;
 					atg_ev_click c=e.event.click;
+					atg_mousebutton b=c.button;
 					if(c.e)
 					{
 						for(unsigned int i=0;i<ntypes;i++)
 						{
 							if(c.e==GB_btrow[i])
 							{
-								fprintf(stderr, "btrow %d\n", i);
+								if(seltarg<0)
+									fprintf(stderr, "btrow %d\n", i);
+								else
+								{
+									unsigned int amount;
+									switch(b)
+									{
+										case ATG_MB_RIGHT:
+											amount=1;
+										break;
+										case ATG_MB_MIDDLE:
+											amount=-1;
+										break;
+										case ATG_MB_LEFT:
+										default:
+											amount=10;
+									}
+									state.raids[seltarg].nbombers[i]+=min(amount, state.nleft[i]);
+									state.nleft[i]-=min(amount, state.nleft[i]);
+									if(GB_raidnum[seltarg][i]&&GB_raidnum[seltarg][i]->elem.label&&GB_raidnum[seltarg][i]->elem.label->text)
+										snprintf(GB_raidnum[seltarg][i]->elem.label->text, 9, "%u", state.raids[seltarg].nbombers[i]);
+								}
 							}
 						}
 						if(c.e==GB_ttl)
@@ -890,6 +988,29 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								GB_raid_label->elem.label->text=malloc(ll);
 								snprintf(GB_raid_label->elem.label->text, ll, "Raid on %s", targs[i].name);
 								GB_raid->elem.box=GB_raidbox[i];
+							}
+							for(unsigned int j=0;j<ntypes;j++)
+							{
+								if(c.e==GB_rbrow[i][j])
+								{
+									unsigned int amount;
+									switch(b)
+									{
+										case ATG_MB_RIGHT:
+											amount=1;
+										break;
+										case ATG_MB_MIDDLE:
+											amount=-1;
+										break;
+										case ATG_MB_LEFT:
+										default:
+											amount=10;
+									}
+									state.nleft[j]+=min(amount, state.raids[i].nbombers[j]);
+									state.raids[i].nbombers[j]-=min(state.raids[i].nbombers[j], amount);
+									if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
+										snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", state.raids[i].nbombers[j]);
+								}
 							}
 						}
 					}
