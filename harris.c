@@ -21,7 +21,7 @@ const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH"};
 
 typedef struct
 {
-	//MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
+	//MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
 	char * manu;
 	char * name;
 	unsigned int cost;
@@ -34,6 +34,7 @@ typedef struct
 	date entry;
 	date exit;
 	bool nav[NNAVAIDS];
+	unsigned int blat, blon;
 	SDL_Surface *picture;
 }
 bombertype;
@@ -73,6 +74,19 @@ typedef struct
 }
 game;
 
+typedef struct
+{
+	unsigned int type;
+	unsigned int targ;
+	double lat, lon;
+	double navlat, navlon;
+	bool nav[NNAVAIDS];
+	unsigned int bmb; // bombload on board
+	bool crashed;
+	bool failed;
+}
+ac_bomber;
+
 #define VER_MAJ	0
 #define VER_MIN	1
 #define VER_REV	0
@@ -83,6 +97,7 @@ int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
 SDL_Surface *render_weather(w_state weather);
 SDL_Surface *render_cities(unsigned int ntargs, target *targs);
+SDL_Surface *render_ac_b(unsigned int nb, ac_bomber *b);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 unsigned int ntypes=0;
 unsigned int ntargs=0;
@@ -119,12 +134,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(*next&&(*next!='#'))
 			{
 				bombertype this;
-				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
+				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &db))!=9)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.blat, &this.blon, &db))!=11)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -484,6 +499,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 	}
+	atg_element *GB_go=atg_create_element_button("Run tonight's raids", (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE}, (atg_colour){31, 63, 31, ATG_ALPHA_OPAQUE});
+	if(!GB_go)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	GB_go->w=159;
+	if(atg_pack_element(GB_btb, GB_go))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
 	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 	if(!map)
 	{
@@ -760,6 +787,25 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	
+	atg_box *raidbox=atg_create_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 47, 0, ATG_ALPHA_OPAQUE});
+	if(!raidbox)
+	{
+		fprintf(stderr, "atg_create_box failed\n");
+		return(1);
+	}
+	atg_element *RB_map=atg_create_element_image(map);
+	if(!RB_map)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	RB_map->h=map->h+2;
+	if(atg_pack_element(raidbox, RB_map))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	
 	game state;
 	state.ntypes=ntypes;
 	if(!(state.nbombers=malloc(ntypes*sizeof(*state.nbombers))))
@@ -880,12 +926,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", state.raids[i].nbombers[j]);
 		}
 	}
+	SDL_FreeSurface(GB_map->elem.image->data);
+	GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 	SDL_FreeSurface(city_overlay);
 	city_overlay=render_cities(ntargs, targs);
 	SDL_BlitSurface(city_overlay, NULL, GB_map->elem.image->data, NULL);
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state.weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+	/*if(seltarg>=0)
+		SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[seltarg].lon, .y=targs[seltarg].lat});*/
 	int seltarg=-1;
 	while(1)
 	{
@@ -1015,24 +1065,86 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 					}
 				break;
+				case ATG_EV_TRIGGER:;
+					atg_ev_trigger trigger=e.event.trigger;
+					if(trigger.e)
+					{
+						if(trigger.e==GB_go)
+						{
+							goto run_raid;
+						}
+					}
+				break;
 				default:
 					fprintf(stderr, "e.type %d\n", e.type);
 				break;
 			}
 		}
 		SDL_Delay(50);
-		/*for(unsigned int it=0;it<8;it++)
-			w_iter(&state.weather, lorw);
-		SDL_FreeSurface(GB_map->elem.image->data);
-		GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-		//SDL_FillRect(GB_map->elem.image->data, &(SDL_Rect){.x=0, .y=0, .w=256, .h=256}, SDL_MapRGB(GB_map->elem.image->data->format, 0, 0, 0));
+	}
+	
+	run_raid:;
+	unsigned int totalraids;
+	totalraids=0;
+	for(unsigned int i=0;i<ntargs;i++)
+		for(unsigned int j=0;j<ntypes;j++)
+			totalraids+=state.raids[i].nbombers[j];
+	if(totalraids)
+	{
+		canvas->box=raidbox;
+		atg_resize_canvas(canvas, 640, 480);
+		SDL_FreeSurface(RB_map->elem.image->data);
+		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		SDL_Surface *with_city=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		SDL_FreeSurface(city_overlay);
+		city_overlay=render_cities(ntargs, targs);
+		SDL_BlitSurface(city_overlay, NULL, with_city, NULL);
+		SDL_Surface *with_weather=SDL_ConvertSurface(with_city, with_city->format, with_city->flags);
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state.weather);
-		SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
-		if(seltarg>=0)
-			SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[seltarg].lon, .y=targs[seltarg].lat});
-		*/
+		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
+		SDL_BlitSurface(with_weather, NULL, RB_map->elem.image->data, NULL);
+		unsigned int it=0;
+		ac_bomber *b=malloc(totalraids*sizeof(*b));
+		if(!b)
+		{
+			perror("malloc");
+			return(1); // TODO try and make recovery possible
+		}
+		unsigned int bi=0;
+		for(unsigned int i=0;i<ntargs;i++)
+			for(unsigned int j=0;j<ntypes;j++)
+				for(unsigned int k=0;k<state.raids[i].nbombers[j];k++)
+				{
+					b[bi]=(ac_bomber){.type=j, .targ=i, .lat=types[j].blat, .lon=types[j].blon, .bmb=types[j].cap, .crashed=false, .failed=false}; // TODO reduction of bombload on longer missions?
+					b[bi].lat+=rand()*3.0/RAND_MAX-1;
+					b[bi].lon+=rand()*3.0/RAND_MAX-1;
+					b[bi].navlat=b[bi].lat;
+					b[bi].navlon=b[bi].lon;
+					bi++;
+					// TODO navaids
+				}
+		if(bi!=totalraids) // shouldn't happen
+		{
+			fprintf(stderr, "Warning: bi!=totalraids (%u!=%u)\n", bi, totalraids);
+		}
+		SDL_Surface *ac_b_overlay=render_ac_b(bi, b);
+		SDL_Surface *with_ac_b=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
+		SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
+		SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
+		/* TODO: raid loop! */
+		atg_flip(canvas);
+		SDL_Delay(5000);
+		// finish the weather
+		for(; it<128;it++)
+			w_iter(&state.weather, lorw);
 	}
+	else
+	{
+		for(unsigned int it=0;it<128;it++)
+			w_iter(&state.weather, lorw);
+	}
+	goto gameloop;
 	
 	do_exit:
 	canvas->box=NULL;
@@ -1275,6 +1387,28 @@ SDL_Surface *render_cities(unsigned int ntargs, target *targs)
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-HALFCITY, .y=targs[i].lat-HALFCITY});
+	}
+	return(rv);
+}
+
+SDL_Surface *render_ac_b(unsigned int nb, ac_bomber *b)
+{
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
+	{
+		fprintf(stderr, "render_ac_b: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
+	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	for(unsigned int i=0;i<nb;i++)
+	{
+		unsigned int x=floor(b[i].lon), y=floor(b[i].lat);
+		if(b[i].crashed)
+			pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+		else if(b[i].failed)
+			pset(rv, x, y, (atg_colour){0, 255, 255, ATG_ALPHA_OPAQUE});
+		else
+			pset(rv, x, y, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 	}
 	return(rv);
 }
