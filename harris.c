@@ -542,6 +542,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
+	atg_box *GB_raidbox[ntargs], *GB_raidbox_empty=GB_raid->elem.box;
+	for(unsigned int i=0;i<ntargs;i++)
+	{
+		GB_raidbox[i]=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 63, 67, ATG_ALPHA_OPAQUE});
+		if(!GB_raidbox[i])
+		{
+			fprintf(stderr, "atg_create_box failed\n");
+			return(1);
+		}
+	}
 	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 	if(!GB_tt)
 	{
@@ -565,6 +575,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
+	GB_ttl->clickable=true;
 	if(atg_pack_element(GB_ttb, GB_ttl))
 	{
 		perror("atg_pack_element");
@@ -753,6 +764,52 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			GB_ttdmg[i]->w=floor(state.dmg[i]);
 		if(GB_ttflk[i])
 			GB_ttflk[i]->w=floor(state.flk[i]);
+		if(GB_raidbox[i])
+		{
+			atg_free_box(GB_raidbox[i]);
+			if(GB_raidbox[i]=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 63, 67, ATG_ALPHA_OPAQUE}))
+			{
+				for(unsigned int j=0;j<ntypes;j++)
+				{
+					if(!GB_btrow[j]->hidden)
+					{
+						atg_element *rbrow=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 67, ATG_ALPHA_OPAQUE}))
+						if(rbrow)
+						{
+							if(atg_pack_element(GB_raidbox[i], rbrow)
+								atg_free_element(rbrow);
+							else
+							{
+								atg_box *rb=rbrow->elem.box;
+								if(rb)
+								{
+									SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[j].picture->format->BitsPerPixel, types[j].picture->format->Rmask, types[j].picture->format->Gmask, types[j].picture->format->Bmask, types[j].picture->format->Amask);
+									if(!pic)
+									{
+										fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+										return(1);
+									}
+									SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
+									SDL_BlitSurface(types[j].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, 0, 0, 0});
+									atg_element *picture=atg_create_element_image(pic);
+									SDL_FreeSurface(pic);
+									if(!picture)
+									{
+										fprintf(stderr, "atg_create_element_image failed\n");
+										return(1);
+									}
+									picture->w=38;
+									if(atg_pack_element(rb, picture);)
+									{
+										atg_free_element(
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	SDL_FreeSurface(city_overlay);
 	city_overlay=render_cities(ntargs, targs);
@@ -781,6 +838,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 			}
 		}
+		GB_raid->elem.box=(seltarg<0)?GB_raidbox_empty:GB_raidbox[seltarg];
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
@@ -806,6 +864,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								fprintf(stderr, "btrow %d\n", i);
 							}
 						}
+						if(c.e==GB_ttl)
+						{
+							seltarg=-1;
+							SDL_FreeSurface(GB_map->elem.image->data);
+							GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+							SDL_BlitSurface(city_overlay, NULL, GB_map->elem.image->data, NULL);
+							SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+							free(GB_raid_label->elem.label->text);
+							GB_raid_label->elem.label->text=strdup("Select a Target");
+							GB_raid->elem.box=GB_raidbox_empty;
+						}
 						for(unsigned int i=0;i<ntargs;i++)
 						{
 							if(c.e==GB_ttrow[i])
@@ -820,6 +889,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								size_t ll=9+strlen(targs[i].name);
 								GB_raid_label->elem.label->text=malloc(ll);
 								snprintf(GB_raid_label->elem.label->text, ll, "Raid on %s", targs[i].name);
+								GB_raid->elem.box=GB_raidbox[i];
 							}
 						}
 					}
