@@ -81,10 +81,10 @@ int loadgame(const char *fn, game *state, bool lorw[128][128]);
 date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 SDL_Surface *render_weather(w_state weather);
-SDL_Surface *render_cities(int ntargs, target *targs);
+SDL_Surface *render_cities(unsigned int ntargs, target *targs);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
-int ntypes=0;
-int ntargs=0;
+unsigned int ntypes=0;
+unsigned int ntargs=0;
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
 
@@ -382,7 +382,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	atg_element *GB_btrow[ntypes], *GB_btnum[ntypes];
-	for(int i=0;i<ntypes;i++)
+	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!(GB_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
 		{
@@ -570,7 +570,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	atg_element *GB_ttrow[ntargs], *GB_ttdmg[ntargs], *GB_ttflk[ntargs];
-	for(int i=0;i<ntargs;i++)
+	for(unsigned int i=0;i<ntargs;i++)
 	{
 		GB_ttrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 		if(!GB_ttrow[i])
@@ -739,14 +739,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	gameloop:
 	canvas->box=gamebox;
 	atg_resize_canvas(canvas, 640, 480);
-	for(int i=0;i<ntypes;i++)
+	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
 			GB_btrow[i]->hidden=((diffdate(types[i].entry, state.now)>0)||(diffdate(types[i].exit, state.now)<0));
 		if(GB_btnum[i]&&GB_btnum[i]->elem.label&&GB_btnum[i]->elem.label->text)
 			snprintf(GB_btnum[i]->elem.label->text, 12, "%u/%u", state.nsvble[i], state.nbombers[i]);
 	}
-	for(int i=0;i<ntargs;i++)
+	for(unsigned int i=0;i<ntargs;i++)
 	{
 		if(GB_ttdmg[i])
 			GB_ttdmg[i]->w=floor(state.dmg[i]);
@@ -762,12 +762,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	int seltarg=-1;
 	while(1)
 	{
-		for(int i=0;i<ntargs;i++)
+		for(unsigned int i=0;i<ntargs;i++)
 		{
 			if(GB_ttrow[i]&&GB_ttrow[i]->elem.box)
 			{
 				GB_ttrow[i]->elem.box->bgcolour=(false?(atg_colour){191, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
-				if(i==seltarg)
+				if((int)i==seltarg)
 				{
 					GB_ttrow[i]->elem.box->bgcolour.r=GB_ttrow[i]->elem.box->bgcolour.g=GB_ttrow[i]->elem.box->bgcolour.r+64;
 				}
@@ -798,14 +798,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					atg_ev_click c=e.event.click;
 					if(c.e)
 					{
-						for(int i=0;i<ntypes;i++)
+						for(unsigned int i=0;i<ntypes;i++)
 						{
 							if(c.e==GB_btrow[i])
 							{
 								fprintf(stderr, "btrow %d\n", i);
 							}
 						}
-						for(int i=0;i<ntargs;i++)
+						for(unsigned int i=0;i<ntargs;i++)
 						{
 							if(c.e==GB_ttrow[i])
 							{
@@ -900,6 +900,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 					e|=1;
 				}
+				#error naughty type-punning
 				if(*(long *)s_version>*(long *)version)
 				{
 					fprintf(stderr, "Warning - file is newer version than program;\n may cause strange behaviour\n");
@@ -925,8 +926,8 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 			}
 			else if(strcmp(tag, "Bombers")==0)
 			{
-				int sntypes;
-				f=sscanf(dat, "%d\n", &sntypes);
+				unsigned int sntypes;
+				f=sscanf(dat, "%u\n", &sntypes);
 				if(f!=1)
 				{
 					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -939,7 +940,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				}
 				else
 				{
-					for(int i=0;i<ntypes;i++)
+					for(unsigned int i=0;i<ntypes;i++)
 					{
 						free(line);
 						line=fgetl(fs);
@@ -949,18 +950,18 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 							e|=64;
 							break;
 						}
-						int j;
+						unsigned int j;
 						unsigned int snbombers, snsvble; // don't read 'snsvble' as 'sensible', or you'll just get confused.  It's savefile (s) number (n) serviceable (svble).
-						f=sscanf(line, "Type %d:%u/%u\n", &j, &snbombers, &snsvble);
+						f=sscanf(line, "Type %u:%u/%u\n", &j, &snbombers, &snsvble);
 						if(f!=3)
 						{
-							fprintf(stderr, "1 Too few arguments to part %d of tag \"%s\"\n", i, tag);
+							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 							e|=1;
 							break;
 						}
 						if(j!=i)
 						{
-							fprintf(stderr, "4 Index mismatch in part %d (%d?) of tag \"%s\"\n", i, j, tag);
+							fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
 							e|=4;
 							break;
 						}
@@ -971,8 +972,8 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 			}
 			else if(strcmp(tag, "Targets")==0)
 			{
-				int sntargs;
-				f=sscanf(dat, "%d\n", &sntargs);
+				unsigned int sntargs;
+				f=sscanf(dat, "%u\n", &sntargs);
 				if(f!=1)
 				{
 					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -985,7 +986,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				}
 				else
 				{
-					for(int i=0;i<ntargs;i++)
+					for(unsigned int i=0;i<ntargs;i++)
 					{
 						free(line);
 						line=fgetl(fs);
@@ -995,17 +996,17 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 							e|=64;
 							break;
 						}
-						int j;
-						f=sscanf(line, "Targ %d:%la,%la\n", &j, &state->dmg[i], &state->flk[i]);
+						unsigned int j;
+						f=sscanf(line, "Targ %u:%la,%la\n", &j, &state->dmg[i], &state->flk[i]);
 						if(f!=3)
 						{
-							fprintf(stderr, "1 Too few arguments to part %d of tag \"%s\"\n", i, tag);
+							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 							e|=1;
 							break;
 						}
 						if(j!=i)
 						{
-							fprintf(stderr, "4 Index mismatch in part %d (%d?) of tag \"%s\"\n", i, j, tag);
+							fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
 							e|=4;
 							break;
 						}
@@ -1061,7 +1062,7 @@ SDL_Surface *render_weather(w_state weather)
 	return(rv);
 }
 
-SDL_Surface *render_cities(int ntargs, target *targs)
+SDL_Surface *render_cities(unsigned int ntargs, target *targs)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
@@ -1070,7 +1071,7 @@ SDL_Surface *render_cities(int ntargs, target *targs)
 		return(NULL);
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
-	for(int i=0;i<ntargs;i++)
+	for(unsigned int i=0;i<ntargs;i++)
 	{
 		SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-HALFCITY, .y=targs[i].lat-HALFCITY});
 	}
