@@ -55,6 +55,13 @@ target;
 
 typedef struct
 {
+	unsigned int *nbombers;
+	// TODO routing
+}
+raid;
+
+typedef struct
+{
 	date now;
 	unsigned int hour;
 	unsigned int ntypes;
@@ -62,6 +69,7 @@ typedef struct
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk;
+	raid *raids;
 }
 game;
 
@@ -481,18 +489,58 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "map: SDL_ConvertSurface: %s\n", SDL_GetError());
 		return(1);
 	}
+	atg_element *GB_middle=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!GB_middle)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(gamebox, GB_middle))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_box *GB_mb=GB_middle->elem.box;
+	if(!GB_mb)
+	{
+		fprintf(stderr, "GB_middle->elem.box==NULL\n");
+		return(1);
+	}
 	atg_element *GB_map=atg_create_element_image(map);
 	if(!GB_map)
 	{
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
-	if(atg_pack_element(gamebox, GB_map))
+	GB_map->h=map->h+2;
+	if(atg_pack_element(GB_mb, GB_map))
 	{
 		perror("atg_pack_element");
 		return(1);
 	}
 	SDL_Surface *weather_overlay=NULL, *city_overlay=NULL;
+	atg_element *GB_raid_label=atg_create_element_label("Select a Target", 12, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+	if(!GB_raid_label)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_mb, GB_raid_label))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *GB_raid=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 63, 67, ATG_ALPHA_OPAQUE});
+	if(!GB_raid)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_mb, GB_raid))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
 	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 	if(!GB_tt)
 	{
@@ -620,6 +668,21 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		perror("malloc");
 		return(1);
+	}
+	if(!(state.raids=malloc(ntargs*sizeof(*state.raids))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	for(unsigned int i=0;i<ntargs;i++)
+	{
+		if(!(state.raids[i].nbombers=malloc(ntypes*sizeof(*state.raids[i].nbombers))))
+		{
+			perror("malloc");
+			return(1);
+		}
+		for(unsigned int j=0;j<ntypes;j++)
+			state.raids[i].nbombers[j]=0;
 	}
 	
 	main_menu:
@@ -752,6 +815,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								SDL_BlitSurface(city_overlay, NULL, GB_map->elem.image->data, NULL);
 								SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon-3, .y=targs[i].lat-3});
+								free(GB_raid_label->elem.label->text);
+								size_t ll=9+strlen(targs[i].name);
+								GB_raid_label->elem.label->text=malloc(ll);
+								snprintf(GB_raid_label->elem.label->text, ll, "Raid on %s", targs[i].name);
 							}
 						}
 					}
