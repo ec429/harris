@@ -80,6 +80,7 @@ game;
 int loadgame(const char *fn, game *state, bool lorw[128][128]);
 date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
+bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
 SDL_Surface *render_weather(w_state weather);
 SDL_Surface *render_cities(unsigned int ntargs, target *targs);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
@@ -867,6 +868,16 @@ int diffdate(date date1, date date2) // returns <0 if date1<date2, >0 if date1>d
 	return(date1.day-date2.day);
 }
 
+bool version_newer(const unsigned char v1[3], const unsigned char v2[3])
+{
+	for(unsigned int i=0;i<3;i++)
+	{
+		if(v1[i]>v2[i]) return(true);
+		if(v1[i]<v2[i]) return(false);
+	}
+	return(false);
+}
+
 int loadgame(const char *fn, game *state, bool lorw[128][128])
 {
 	FILE *fs = fopen(fn, "r");
@@ -878,8 +889,8 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 	}
 	else
 	{
-		unsigned char s_version[4]={0,0,0,0};
-		unsigned char version[4]={VER_REV,VER_MIN,VER_MAJ,0};
+		unsigned char s_version[3]={0,0,0};
+		unsigned char version[3]={VER_MAJ,VER_MIN,VER_REV};
 		while(!feof(fs))
 		{
 			char *line=fgetl(fs);
@@ -894,19 +905,18 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 			int e=0,f; // poor-man's try...
 			if(strcmp(tag, "HARR")==0)
 			{
-				f=sscanf(dat, "%hhu.%hhu.%hhu\n", s_version+2, s_version+1, s_version);
+				f=sscanf(dat, "%hhu.%hhu.%hhu\n", s_version, s_version+1, s_version+2);
 				if(f!=3)
 				{
 					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 					e|=1;
 				}
-				#error naughty type-punning
-				if(*(long *)s_version>*(long *)version)
+				if(version_newer(s_version, version))
 				{
 					fprintf(stderr, "Warning - file is newer version than program;\n may cause strange behaviour\n");
 				}
 			}
-			else if(*(long *)s_version==0)
+			else if(!(s_version[0]||s_version[1]||s_version[2]))
 			{
 				fprintf(stderr, "8 File does not start with valid HARR tag\n");
 				e|=8;
