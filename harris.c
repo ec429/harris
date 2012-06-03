@@ -7,6 +7,7 @@
 
 #include "bits.h"
 #include "weather.h"
+#include "rand.h"
 
 typedef struct
 {
@@ -80,13 +81,14 @@ typedef struct
 	unsigned int targ;
 	double lat, lon;
 	double navlat, navlon; // error in "believed position" relative to true position
-	double bmblat, bmblon; // true position where bombs were dropped (if any)
+	unsigned int bmblat, bmblon; // true position where bombs were dropped (if any)
 	bool nav[NNAVAIDS];
 	unsigned int bmb; // bombload carried
 	bool bombed;
 	bool crashed;
 	bool failed;
 	bool landed;
+	double speed;
 }
 ac_bomber;
 
@@ -102,6 +104,7 @@ SDL_Surface *render_weather(w_state weather);
 SDL_Surface *render_cities(unsigned int ntargs, target *targs);
 SDL_Surface *render_ac_b(unsigned int nb, ac_bomber *b);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
+atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
 unsigned int ntargs=0;
 SDL_Surface *terrain=NULL;
@@ -1124,6 +1127,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					b[bi].lon+=rand()*3.0/RAND_MAX-1;
 					b[bi].navlat=0;
 					b[bi].navlon=0;
+					b[bi].speed=(types[j].speed+irandu(16)-8)/300.0;
 					bi++;
 					// TODO navaids
 				}
@@ -1135,38 +1139,79 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_Surface *ac_b_overlay=render_ac_b(bi, b);
 		SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
 		SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
-		unsigned int inair=bi;
+		unsigned int inair=bi, t=0;
 		while(inair)
 		{
+			t++;
+			if((!(t&7))&&(it<128))
+			{
+				w_iter(&state.weather, lorw);
+				SDL_FreeSurface(weather_overlay);
+				weather_overlay=render_weather(state.weather);
+				SDL_BlitSurface(with_city, NULL, with_weather, NULL);
+				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
+				it++;
+			}
 			for(unsigned int a=0;a<bi;a++)
 			{
 				if(b[a].crashed||b[a].landed) continue;
-				int destx=b[a].bombed?types[b[a].type].blon:targs[b[a].targ].lon,
-					desty=b[a].bombed?types[b[a].type].blat:targs[b[a].targ].lat;
-				double cx=destx-(b[a].lon+b[a].navlon), cy=desty-(b[a].lat+b[a].navlat);
-				double d=hypot(cx, cy);
-				if(d<0.4)
+				if(brandp(types[b[a].type].fail/50000.0))
 				{
-					if(b[a].bombed)
+					b[a].failed=true;
+					if(brandp(0.1))
 					{
-						b[a].landed=true;
+						b[a].crashed=true;
 						inair--;
-					}
-					else
-					{
-						b[a].bmblon=b[a].lon;
-						b[a].bmblat=b[a].lat;
-						b[a].bombed=true;
+						continue;
 					}
 				}
-				double spd=types[b[a].type].speed/300.0;
-				double dx=cx*spd/d,
-					dy=cy*spd/d;
+				int destx=(b[a].bombed||b[a].failed)?types[b[a].type].blon:targs[b[a].targ].lon,
+					desty=(b[a].bombed||b[a].failed)?types[b[a].type].blat:targs[b[a].targ].lat;
+				double cx=destx-(b[a].lon+b[a].navlon), cy=desty-(b[a].lat+b[a].navlat);
+				double d=hypot(cx, cy);
+				if(b[a].bombed)
+				{
+					if(d<0.4)
+					{
+						if(b[a].lon<63)
+						{
+							b[a].landed=true;
+							inair--;
+						}
+						else
+						{
+							b[a].navlon=0;
+						}
+					}
+				}
+				else if(cx<0.6) // TODO variant behaviour depending on current rules of engagement
+				{
+					b[a].bmblon=b[a].lon;
+					b[a].bmblat=b[a].lat;
+					b[a].bombed=true;
+				}
+				double dx=cx*b[a].speed/d,
+					dy=cy*b[a].speed/d;
 				b[a].lon+=dx;
 				b[a].lat+=dy;
-				// TODO: navigation affected by weather, sun/moon, a/c type, proximity to England, navaids...
-				b[a].navlon+=rand()*0.2/RAND_MAX-0.1;
-				b[a].navlat+=rand()*0.2/RAND_MAX-0.1;
+				// TODO: navigation affected by sun/moon, navaids...
+				double navacc=200.0/types[b[a].type].accu;
+				b[a].navlon+=drandu(navacc)-(navacc/2);
+				b[a].navlat+=drandu(navacc)-(navacc/2);
+				unsigned int x=b[a].lon, y=b[a].lat;
+				double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
+				double navp=types[b[a].type].accu*3.5/(double)(8+max(1008-wea, 0));
+				if(b[a].lon<64) navp=1;
+				if(brandp(navp))
+				{
+					b[a].navlon*=b[a].lon/256.0;
+					b[a].navlat*=b[a].lon/256.0;
+				}
+				else
+				{
+					b[a].navlon*=0.96;
+					b[a].navlat*=0.96;
+				}
 			}
 			SDL_FreeSurface(ac_b_overlay);
 			ac_b_overlay=render_ac_b(bi, b);
@@ -1175,7 +1220,64 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
 			atg_flip(canvas);
 		}
-		// TODO: incorporate the results, and clear the raids ready for next cycle
+		// incorporate the results, and clear the raids ready for next cycle
+		unsigned int nloss=0, nbomb=0, tbomb=0, ntarg=0, ttarg=0;
+		unsigned int bntarg[ntypes], bttarg[ntypes], tntarg[ntargs], tttarg[ntargs];
+		for(unsigned int i=0;i<ntargs;i++)
+			tntarg[i]=tttarg[i]=0;
+		for(unsigned int j=0;j<ntypes;j++)
+			bntarg[j]=bttarg[j]=0;
+		for(unsigned int a=0;a<bi;a++)
+		{
+			if(b[a].crashed)
+			{
+				nloss++;
+				state.nbombers[b[a].type]--;
+				state.nsvble[b[a].type]--;
+			}
+			if(b[a].bombed)
+			{
+				nbomb++;
+				tbomb+=b[a].bmb;
+				for(unsigned int i=0;i<ntargs;i++)
+				{
+					int dx=b[a].bmblon-targs[i].lon, dy=b[a].bmblat-targs[i].lat;
+					if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
+					{
+						if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+						{
+							state.dmg[i]=max(0, state.dmg[i]-b[a].bmb/100000.0);
+							ntarg++;
+							ttarg+=b[a].bmb;
+							bntarg[b[a].type]++;
+							bttarg[b[a].type]+=b[a].bmb;
+							tntarg[i]++;
+							tttarg[i]+=b[a].bmb;
+						}
+					}
+				}
+			}
+		}
+		for(unsigned int i=0;i<ntargs;i++)
+		{
+			for(unsigned int j=0;j<ntypes;j++)
+				state.raids[i].nbombers[j]=0;
+		}
+		// report on the results (TODO: GUI bit)
+		fprintf(stderr, "%u dispatched\n%u lost\n%u bombed (%ulb)\n", bi, nloss, nbomb, tbomb);
+		fprintf(stderr, "%u on target (%ulb)\n", ntarg, ttarg);
+		fprintf(stderr, " By type:\n");
+		for(unsigned int j=0;j<ntypes;j++)
+		{
+			if(bntarg[j])
+				fprintf(stderr, "  %s %s: %u (%ulb)\n", types[j].manu, types[j].name, bntarg[j], bttarg[j]);
+		}
+		fprintf(stderr, " By target\n");
+		for(unsigned int i=0;i<ntargs;i++)
+		{
+			if(tntarg[i])
+				fprintf(stderr, "  %s: %u (%u lb)\n", targs[i].name, tntarg[i], tttarg[i]);
+		}
 		free(b);
 		// finish the weather
 		for(; it<128;it++)
@@ -1465,4 +1567,17 @@ int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c)
 	uint32_t pixval = SDL_MapRGBA(s->format, c.r, c.g, c.b, c.a);
 	*(uint32_t *)((char *)s->pixels + s_off)=pixval;
 	return(0);
+}
+
+atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y)
+{
+	if(!s)
+		return((atg_colour){.r=0, .g=0, .b=0, .a=0});
+	if((x>=(unsigned int)s->w)||(y>=(unsigned int)s->h))
+		return((atg_colour){.r=0, .g=0, .b=0, .a=0});
+	size_t s_off = (y*s->pitch) + (x*s->format->BytesPerPixel);
+	uint32_t pixval = *(uint32_t *)((char *)s->pixels + s_off);
+	atg_colour c;
+	SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
+	return(c);
 }
