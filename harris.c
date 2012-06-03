@@ -929,7 +929,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(GB_rbrow[i][j])
 				GB_rbrow[i][j]->hidden=GB_btrow[j]?GB_btrow[j]->hidden:true;
 			if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
-				snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", state.raids[i].nbombers[j]);
+				snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", state.raids[i].nbombers[j]=0);
 		}
 	}
 	SDL_FreeSurface(GB_map->elem.image->data);
@@ -1155,10 +1155,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			for(unsigned int a=0;a<bi;a++)
 			{
 				if(b[a].crashed||b[a].landed) continue;
-				if(brandp(types[b[a].type].fail/50000.0))
+				if(brandp(types[b[a].type].fail/10000.0))
 				{
 					b[a].failed=true;
-					if(brandp(0.1))
+					if(brandp(0.02))
 					{
 						b[a].crashed=true;
 						inair--;
@@ -1169,7 +1169,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					desty=(b[a].bombed||b[a].failed)?types[b[a].type].blat:targs[b[a].targ].lat;
 				double cx=destx-(b[a].lon+b[a].navlon), cy=desty-(b[a].lat+b[a].navlat);
 				double d=hypot(cx, cy);
-				if(b[a].bombed)
+				if(b[a].bombed||b[a].failed)
 				{
 					if(d<0.4)
 					{
@@ -1257,11 +1257,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 				}
 			}
-		}
-		for(unsigned int i=0;i<ntargs;i++)
-		{
-			for(unsigned int j=0;j<ntypes;j++)
-				state.raids[i].nbombers[j]=0;
 		}
 		// report on the results (TODO: GUI bit)
 		fprintf(stderr, "%u dispatched\n%u lost\n%u bombed (%ulb)\n", bi, nloss, nbomb, tbomb);
