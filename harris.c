@@ -81,6 +81,7 @@ typedef struct
 	unsigned int targ;
 	double lat, lon;
 	double navlat, navlon; // error in "believed position" relative to true position
+	double driftlat, driftlon; // rate of error
 	unsigned int bmblat, bmblon; // true position where bombs were dropped (if any)
 	bool nav[NNAVAIDS];
 	unsigned int bmb; // bombload carried
@@ -1127,6 +1128,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					b[bi].lon+=rand()*3.0/RAND_MAX-1;
 					b[bi].navlat=0;
 					b[bi].navlon=0;
+					b[bi].driftlat=0;
+					b[bi].driftlon=0;
 					b[bi].speed=(types[j].speed+irandu(16)-8)/300.0;
 					bi++;
 					// TODO navaids
@@ -1143,7 +1146,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		while(inair)
 		{
 			t++;
-			if((!(t&7))&&(it<128))
+			if((!(t&1))&&(it<512))
 			{
 				w_iter(&state.weather, lorw);
 				SDL_FreeSurface(weather_overlay);
@@ -1195,22 +1198,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				b[a].lon+=dx;
 				b[a].lat+=dy;
 				// TODO: navigation affected by sun/moon, navaids...
-				double navacc=200.0/types[b[a].type].accu;
-				b[a].navlon+=drandu(navacc)-(navacc/2);
-				b[a].navlat+=drandu(navacc)-(navacc/2);
+				double navacc=2.0/types[b[a].type].accu;
+				double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
+				b[a].driftlon=b[a].driftlon*.98+ex;
+				b[a].driftlat=b[a].driftlat*.98+ey;
+				b[a].lon+=b[a].driftlon;
+				b[a].lat+=b[a].driftlat;
+				b[a].navlon-=b[a].driftlon;
+				b[a].navlat-=b[a].driftlat;
 				unsigned int x=b[a].lon, y=b[a].lat;
 				double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 				double navp=types[b[a].type].accu*3.5/(double)(8+max(1008-wea, 0));
 				if(b[a].lon<64) navp=1;
 				if(brandp(navp))
 				{
-					b[a].navlon*=b[a].lon/256.0;
-					b[a].navlat*=b[a].lon/256.0;
-				}
-				else
-				{
-					b[a].navlon*=0.96;
-					b[a].navlat*=0.96;
+					b[a].navlon*=(256.0+b[a].lon)/512.0;
+					b[a].navlat*=(256.0+b[a].lon)/512.0;
 				}
 			}
 			SDL_FreeSurface(ac_b_overlay);
@@ -1275,12 +1278,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		free(b);
 		// finish the weather
-		for(; it<128;it++)
+		for(; it<512;it++)
 			w_iter(&state.weather, lorw);
 	}
 	else
 	{
-		for(unsigned int it=0;it<128;it++)
+		for(unsigned int it=0;it<512;it++)
 			w_iter(&state.weather, lorw);
 	}
 	goto gameloop;
