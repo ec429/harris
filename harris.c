@@ -79,11 +79,14 @@ typedef struct
 	unsigned int type;
 	unsigned int targ;
 	double lat, lon;
-	double navlat, navlon;
+	double navlat, navlon; // error in "believed position" relative to true position
+	double bmblat, bmblon; // true position where bombs were dropped (if any)
 	bool nav[NNAVAIDS];
-	unsigned int bmb; // bombload on board
+	unsigned int bmb; // bombload carried
+	bool bombed;
 	bool crashed;
 	bool failed;
+	bool landed;
 }
 ac_bomber;
 
@@ -1116,11 +1119,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			for(unsigned int j=0;j<ntypes;j++)
 				for(unsigned int k=0;k<state.raids[i].nbombers[j];k++)
 				{
-					b[bi]=(ac_bomber){.type=j, .targ=i, .lat=types[j].blat, .lon=types[j].blon, .bmb=types[j].cap, .crashed=false, .failed=false}; // TODO reduction of bombload on longer missions?
+					b[bi]=(ac_bomber){.type=j, .targ=i, .lat=types[j].blat, .lon=types[j].blon, .bmb=types[j].cap, .bombed=false, .crashed=false, .failed=false, .landed=false}; // TODO reduction of bombload on longer missions?
 					b[bi].lat+=rand()*3.0/RAND_MAX-1;
 					b[bi].lon+=rand()*3.0/RAND_MAX-1;
-					b[bi].navlat=b[bi].lat;
-					b[bi].navlon=b[bi].lon;
+					b[bi].navlat=0;
+					b[bi].navlon=0;
 					bi++;
 					// TODO navaids
 				}
@@ -1128,13 +1131,52 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			fprintf(stderr, "Warning: bi!=totalraids (%u!=%u)\n", bi, totalraids);
 		}
-		SDL_Surface *ac_b_overlay=render_ac_b(bi, b);
 		SDL_Surface *with_ac_b=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
+		SDL_Surface *ac_b_overlay=render_ac_b(bi, b);
 		SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
 		SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
-		/* TODO: raid loop! */
-		atg_flip(canvas);
-		SDL_Delay(5000);
+		unsigned int inair=bi;
+		while(inair)
+		{
+			for(unsigned int a=0;a<bi;a++)
+			{
+				if(b[a].crashed||b[a].landed) continue;
+				int destx=b[a].bombed?types[b[a].type].blon:targs[b[a].targ].lon,
+					desty=b[a].bombed?types[b[a].type].blat:targs[b[a].targ].lat;
+				double cx=destx-(b[a].lon+b[a].navlon), cy=desty-(b[a].lat+b[a].navlat);
+				double d=hypot(cx, cy);
+				if(d<0.4)
+				{
+					if(b[a].bombed)
+					{
+						b[a].landed=true;
+						inair--;
+					}
+					else
+					{
+						b[a].bmblon=b[a].lon;
+						b[a].bmblat=b[a].lat;
+						b[a].bombed=true;
+					}
+				}
+				double spd=types[b[a].type].speed/300.0;
+				double dx=cx*spd/d,
+					dy=cy*spd/d;
+				b[a].lon+=dx;
+				b[a].lat+=dy;
+				// TODO: navigation affected by weather, sun/moon, a/c type, proximity to England, navaids...
+				b[a].navlon+=rand()*0.2/RAND_MAX-0.1;
+				b[a].navlat+=rand()*0.2/RAND_MAX-0.1;
+			}
+			SDL_FreeSurface(ac_b_overlay);
+			ac_b_overlay=render_ac_b(bi, b);
+			SDL_BlitSurface(with_weather, NULL, with_ac_b, NULL);
+			SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
+			SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
+			atg_flip(canvas);
+		}
+		// TODO: incorporate the results, and clear the raids ready for next cycle
+		free(b);
 		// finish the weather
 		for(; it<128;it++)
 			w_iter(&state.weather, lorw);
