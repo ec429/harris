@@ -72,6 +72,11 @@ typedef struct
 	unsigned int ntargs;
 	double *dmg, *flk;
 	raid *raids;
+	struct
+	{
+		bool idtar;
+	}
+	roe;
 }
 game;
 
@@ -90,6 +95,8 @@ typedef struct
 	bool failed;
 	bool landed;
 	double speed;
+	bool idtar; // identified target?  (for use if RoE require it)
+	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
 }
 ac_bomber;
 
@@ -856,6 +863,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		for(unsigned int j=0;j<ntypes;j++)
 			state.raids[i].nbombers[j]=0;
 	}
+	state.roe.idtar=true;
 	
 	main_menu:
 	canvas->box=mainbox;
@@ -1123,7 +1131,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			for(unsigned int j=0;j<ntypes;j++)
 				for(unsigned int k=0;k<state.raids[i].nbombers[j];k++)
 				{
-					b[bi]=(ac_bomber){.type=j, .targ=i, .lat=types[j].blat, .lon=types[j].blon, .bmb=types[j].cap, .bombed=false, .crashed=false, .failed=false, .landed=false}; // TODO reduction of bombload on longer missions?
+					b[bi]=(ac_bomber){.type=j, .targ=i, .lat=types[j].blat, .lon=types[j].blon, .bmb=types[j].cap, .bombed=false, .crashed=false, .failed=false, .landed=false, .idtar=false};
 					b[bi].lat+=rand()*3.0/RAND_MAX-1;
 					b[bi].lon+=rand()*3.0/RAND_MAX-1;
 					b[bi].navlat=0;
@@ -1131,6 +1139,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					b[bi].driftlat=0;
 					b[bi].driftlon=0;
 					b[bi].speed=(types[j].speed+irandu(16)-8)/300.0;
+					b[bi].fuelt=256+irandu(64);
+					if(targs[i].lon>180)
+					{
+						b[bi].fuelt+=3*(targs[i].lon-180);
+						b[bi].bmb*=(280-targs[i].lon)/100.0;
+					}
 					bi++;
 					// TODO navaids
 				}
@@ -1168,11 +1182,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						continue;
 					}
 				}
-				int destx=(b[a].bombed||b[a].failed)?types[b[a].type].blon:targs[b[a].targ].lon,
-					desty=(b[a].bombed||b[a].failed)?types[b[a].type].blat:targs[b[a].targ].lat;
+				bool home=b[a].bombed||b[a].failed||(t>b[a].fuelt);
+				int destx=home?types[b[a].type].blon:targs[b[a].targ].lon,
+					desty=home?types[b[a].type].blat:targs[b[a].targ].lat;
 				double cx=destx-(b[a].lon+b[a].navlon), cy=desty-(b[a].lat+b[a].navlat);
 				double d=hypot(cx, cy);
-				if(b[a].bombed||b[a].failed)
+				if(home)
 				{
 					if(d<0.4)
 					{
@@ -1187,18 +1202,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 					}
 				}
-				else if(cx<0.6) // TODO variant behaviour depending on current rules of engagement
+				else if((cx<1.2)&&(b[a].idtar||!state.roe.idtar||brandp(0.005)))
 				{
 					b[a].bmblon=b[a].lon;
 					b[a].bmblat=b[a].lat;
 					b[a].bombed=true;
 				}
+				b[a].idtar=false;
 				double dx=cx*b[a].speed/d,
 					dy=cy*b[a].speed/d;
+				if(d==0) dx=dy=-1;
 				b[a].lon+=dx;
 				b[a].lat+=dy;
 				// TODO: navigation affected by sun/moon, navaids...
-				double navacc=2.0/types[b[a].type].accu;
+				double navacc=3.0/types[b[a].type].accu;
 				double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
 				b[a].driftlon=b[a].driftlon*.98+ex;
 				b[a].driftlat=b[a].driftlat*.98+ey;
@@ -1214,6 +1231,23 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					b[a].navlon*=(256.0+b[a].lon)/512.0;
 					b[a].navlat*=(256.0+b[a].lon)/512.0;
+					if(pget(city_overlay, b[a].lon, b[a].lat).a==ATG_ALPHA_OPAQUE)
+					{
+						b[a].idtar=true;
+						unsigned int dm=0;
+						double mind=1000;
+						for(unsigned int i=0;i<ntargs;i++)
+						{
+							double d=hypot(b[a].lon+b[a].navlon-targs[i].lon, b[a].lat+b[a].navlat-targs[i].lat);
+							if(d<mind)
+							{
+								mind=d;
+								dm=i;
+							}
+						}
+						b[a].navlon=targs[dm].lon-b[a].lon;
+						b[a].navlat=targs[dm].lat-b[a].lat;
+					}
 				}
 			}
 			SDL_FreeSurface(ac_b_overlay);
@@ -1549,6 +1583,8 @@ SDL_Surface *render_ac_b(unsigned int nb, ac_bomber *b)
 			pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 		else if(b[i].failed)
 			pset(rv, x, y, (atg_colour){0, 255, 255, ATG_ALPHA_OPAQUE});
+		else if(b[i].bombed)
+			pset(rv, x, y, (atg_colour){127, 255, 63, ATG_ALPHA_OPAQUE});
 		else
 			pset(rv, x, y, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 	}
