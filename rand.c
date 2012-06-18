@@ -4,7 +4,7 @@
 
 int irandu(int n)
 {
-	return((rand()*n)/RAND_MAX);
+	return(rand()%n);
 }
 
 double drandu(double m)
