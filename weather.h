@@ -2,7 +2,9 @@
 
 typedef struct
 {
+	double push;
 	double p[256][128];
+	double t[256][128];
 }
 w_state;
 

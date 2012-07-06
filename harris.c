@@ -1096,6 +1096,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		}
 		SDL_Delay(50);
+		#if 0 // for testing weathersim code
+		for(unsigned int i=0;i<16;i++)
+			w_iter(&state.weather, lorw);
+		SDL_FreeSurface(GB_map->elem.image->data);
+		GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		SDL_FillRect(GB_map->elem.image->data, &(SDL_Rect){.x=0, .y=0, .w=terrain->w, .h=terrain->h}, SDL_MapRGB(terrain->format, 0, 0, 0));
+		SDL_FreeSurface(weather_overlay);
+		weather_overlay=render_weather(state.weather);
+		SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+		if(seltarg>=0)
+			SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[seltarg].lon, .y=targs[seltarg].lat});
+		#endif
 	}
 	
 	run_raid:;
@@ -1545,7 +1557,7 @@ SDL_Surface *render_weather(w_state weather)
 		for(unsigned int y=0;y<256;y++)
 		{
 			Uint8 cl=min(max(floor(1016-weather.p[x>>1][y>>1])*8.0, 0), 255);
-			pset(rv, x, y, (atg_colour){255, 255, 255, cl});
+			pset(rv, x, y, (atg_colour){180+weather.t[x>>1][y>>1]*3, 210, 255-weather.t[x>>1][y>>1]*3, cl});
 		}
 	}
 	return(rv);
