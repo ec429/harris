@@ -6,13 +6,141 @@ The Air Ministry further reminds you that due to the shortage of industrial capa
 
 You are also notified that the Political Warfare department wishes you to drop their propaganda leaflets over Germany whenever you can spare the forces to do so, in order to sow dissent and discontent amongst the German people.
 
+Your front-line forces consist of the following types:
+Bristol Blenheim: A light bomber for attacking coastal targets and tactical bombing.
+Armstrong-Whitworth Whitley: Designed as a night bomber, the Whitley carries the heaviest load.
+Handley Page Hampden: A high-performance bomber with good bombing accuracy.
+Vickers Wellington: A rugged and reliable all-rounder.
+
 ==CIV==
 
 In light of the costs of waging the bomber campaign, and of the enemy's clear indication that he intends to observe no limits to the conduct of war (as demonstrated by recent events), the restrictions upon bombing in civilian areas have been lifted; bombs may be dropped without positive target identification.  However, you are still directed to aim your attacks upon military targets; the War Office does not believe this country should engage in the indiscriminate bombing of civilians.
 
+==BARGE==
+
+The Germans have begun amassing barges in several Continental ports; it appears they are preparing for an invasion.  The War Office has ordered you to attack these barges, and prevent the invasion!
+
+==ENDBARGE==
+
+The invasion fleet appears to have been dispersed.  The Germans, defeated in the Battle of Britain, appear to have postponed their plans for invasion.  You can now return to the primary objectives.
+
 ==ABD==
 
 As experience has shown that precision bombing requires much greater accuracy than appears to be attainable, you are now directed to pursue the area bombing of cities.  Your attacks should now be focused upon the morale of the enemy civil population, and in particular industrial workers.  You are accordingly authorised to employ your forces without restriction.
+
+==INV==
+
+As part of the preparations for the invasion of the Continent, you are ordered to attack marshalling yards, railways, and airfields.  The area bombing campaign has been suspended; for the next six months you are under the direction of General Eisenhower.
+
+==V1==
+
+The Germans have begun to launch pilotless aircraft called "V1" or "FZG76" against London and the ports.  You are directed to bomb the launching sites and factories responsible for the supply of these flying bombs.
+
+==DDAY==
+
+Today is D-Day, the Allied invasion of Continental Europe.  Your bomber forces will now be required for army co-operation, attacking enemy troop concentrations and vital transport links.
+
+==V1END==
+
+The invasion forces have now reached far enough into Europe that Britain is no longer within range of V1 attack.
+
+==R2AB==
+
+As the Allied forces are now well-established on the Continent, you have been freed from army co-operation duties, and can now return to the Area Bombing campaign.
+
+==TERROR==
+
+Churchill writes: "It seems to me that the moment has come when the question of bombing of German cities simply for the sake of increasing the terror, though under other pretexts, should be reviewed.  I feel the need for more precise concentration upon military objectives such as oil and communications behind the immediate battle-zone, rather than on mere acts of terror and wanton destruction, however impressive."
+
+==MANNA==
+
+As ground forces have entered Berlin, the war is clearly almost over; you are now directed to cease strategic bombing attacks.  Your aircraft are now required for Operation Manna, the supply of food by air to famine-stricken regions in Holland and Belgium.
+
+==VE==
+
+Germany has surrendered!  After six long years, the war in Europe is over.  The bombers' job is done, and the aircrews can stand down at last.
+
+==PFF==
+
+The Air Ministry have mandated the creation of "Pathfinder Force", a unit drawn from the best crews in the command, to mark the targets using radionavigation and the new TI, or "Target Indicator", pyrotechnic flares.  No. 8 Group, led by Air Vice-Marshal Don Bennett, has been formed for this rôle.
+
+==GEE==
+
+A new radionavigation aid, GEE, has been developed.  Using synchronised pulse transmissions from three ground stations, it gives aircrews a rough idea of their position, but is insufficiently accurate for blind bombing.
+
+==OBOE==
+
+A blind bombing aid has been developed and is now available for installation into your bombers.  Called OBOE, it relies on radio transmissions from ground stations and can only handle a small number of aircraft (about fifteen per hour for each pair of ground stations).
+
+==H2S==
+
+A new navigation aid has been developed.  H2S is an air-to-ground radar which enables aircrews to navigate in cloud.  Rivers and coastlines give the best 'fixes'.
+
+==GH==
+
+A new blind bombing aid, Gee-H, has been developed.  Based on OBOE technology, it retains that system's accuracy but can be used by several aircraft at the same time.  A pair of ground stations can typically support about twenty concurrent users.
+
+==BOOZER==
+
+A new radio countermeasure, codenamed "Boozer", is now being installed into your bombers.  It detects the emissions of German radar and warns the aircrew when they are being tracked.
+
+==WINDOW==
+
+A new radio countermeasure, codenamed "Window", is ready for introduction.  It consists of strips of metal foil which are pushed out of the bombers and which blind the enemy radar.  To obtain maximum mutual protection from Window, bombers will henceforth fly together in one big stream.
+
+The War Office advises that the first use is likely to cause extra confusion and disruption to the enemy defences, and should thus be on a large-scale raid.
+
+==MOONSHINE==
+
+A new radio countermeasure, codenamed "Moonshine", is now being installed into your bombers.  It picks up German nightfighter radar and sends back delayed echoes, causing the aircraft to appear further away than it really is.  This should reduce losses to nightfighter attack.
+
+==ABC==
+
+A new radio countermeasure is now available.  "Airborne Cigar" operators will use transmitters codenamed "Jostle" and "Piperack" to jam enemy radiotelephony frequencies, preventing ground-controlled interception.  However, the aircraft carrying the ABC transmitters are likely to be homed on by the enemy.
+
+==FISHPOND==
+
+A new radio countermeasure is now being installed into your bombers.  "Fishpond" is a modification to the H2S receiver that allows it to detect aircraft below and somewhat to either side of the bomber.
+
+==WURZBURG==
+
+Intelligence reports suggest that the Germans now have radar equipment for searchlight and intercept control, known as "Würzburg".
+
+==KAMMHUBER==
+
+Intelligence reports that the Germans are building a line of flak, searchlights and radar covering the approaches to the Continent.
+
+==L_BC==
+
+Intelligence reports that the enemy have developed an airborne radar set, the Liechtenstein BC, and are installing it in their nightfighters.
+
+==NAXOS==
+
+Intelligence reports that enemy nightfighters are now being equipped with Naxos, a device for homing in on emissions from a bomber's H2S set.  Aircrews are advised to use the H2S for as short a time as possible.
+
+==L_SN==
+
+Intelligence reports a new German radar set, the Liechtenstein SN, which can defeat our radio countermeasures.  Enemy nightfighters are likely to increase their kills.
+
+==MUSIK==
+
+Intelligence reports that the Germans are applying a mod known as "Schräge Musik" enabling them to attack our bombers from beneath, where they have a blind spot.
+
+==GEEJAM==
+
+The Germans have begun to jam GEE on a large scale; aircrews report that the system becomes unusable shortly after crossing the Continental coast.
+
+==V_WEAPONS==
+
+Intelligence reports that the Germans are developing pilotless aircraft, long-range rockets, and other "superweapons", at Peenemünde.
+
+==SECRET==
+
+Intelligence reports that the Germans have an undisclosed secret weapon which will "blind and deafen its victims".
+
+==FLAKGAS==
+
+Intelligence reports a new German anti-aircraft weapon, "FLAK GAS", which is alleged to stop the engines of aircraft.
 
 ==Blenheim==
 
@@ -34,26 +162,54 @@ The Vickers Wellington, popularly dubbed the "Wimpy", is anything but; its geode
 
 The Avro 679 Manchester is the first of the heavy bombers to come into service.  It's powered by two Vulture engines, which are sadly unreliable and underpowered; as a result, it's likely to suffer losses both from enemy action and from mechanical failure.  However, it does carry a decent bomb load of 10,350lb.  It should probably be treated as a Whitley replacement.
 
+==NEW_Manchester==
+
+A new type of bomber has been developed and is now going into production.  The Avro Manchester is a twin-engined heavy bomber, capable of carrying 50% more bombs than a Whitley.  There have been a few teething problems with the Vulture engines, though.
+
 ==Stirling==
 
 The Short S.29 Stirling is the first four-engined heavy bomber available.  It's fairly slow with a low ceiling, but good manoeuvrability gives it a decent chance of survival.  It carries a heavy 14,000lb load, but isn't great for accuracy.  It also has poor reliability and serviceability.  Nonetheless, it's a welcome addition to the heavy striking force.
+
+==NEW_Stirling==
+
+The first of the new four-engined heavy bombers is now going into production.  The Short Stirling, a very large aircraft, carries a huge 14,000lb of bombs.
 
 ==Halifax I==
 
 The Handley Page H.P.57 Halifax I is a four-engined heavy.  Its load of 13,000lb is slightly less than the Stirling, and it suffers from a fatal yaw spiral in violent evasive manoeuvres, but it's faster, more reliable, and much more serviceable.  It's also a better bombing platform.  It gives you a realistic long-range heavy capability.
 
+==NEW_Halifax I==
+
+A new type of bomber has been developed and is now going into production.  The Handley Page Halifax is generally an improvement over the Stirling, but it does carry slightly less.
+
 ==Lancaster I==
 
 The Avro 683 Lancaster is the classic heavy bomber.  Developed from the Manchester, but re-engined with four Merlins, it carries 14,000lb of bombs, is reliable and survivable, and makes a good bombing platform.  It's a great all-round heavy, capable of anything from area bombing cities at night to precision strikes on special targets by day.
+
+==NEW_Lancaster I==
+
+A new type of bomber has been developed and is now going into production.  All the signs suggest that the Avro Lancaster will prove to be a classic heavy bomber: it's fast, reliable, and well-equipped to survive in the harsh night skies of Europe.
 
 ==Mosquito==
 
 The de Havilland DH.98 Mosquito is a high-performance, multi-rôle aircraft.  It's made chiefly of wood, making it easy to produce; it's extremely fast, reliable, and almost impossible to shoot down.  Although it only carries 4,000lb of bombs, it's capable of applying them with considerable accuracy.  It's best used as an OBOE-equipped Pathfinder, marking targets with pyrotechnics for the heavies to aim at.  It can also make 'nuisance raids' deep into enemy territory, keeping the Germans awake and nervous on nights without a major raid, and it's handy for diversionary attacks too.  A remarkable aircraft.
 
+==NEW_Mosquito==
+
+A new type of bomber has been developed and is now going into production.  The de Havilland Mosquito is small but powerful; its high performance makes it almost invulnerable.  Combined with OBOE, it looks as though it will prove to be the perfect Pathfinder aircraft.
+
 ==Halifax III==
 
 The H.P.61 Halifax III is an improved Halifax; the yaw spiral has been fixed with a revised tailplane, and the bombload increased to 13,500lb.  Though eclipsed by the more famous Lancaster, the "Halibag" is a solid workhorse; for one thing, it's cheaper.  It's also easier to maintain, due to its rugged construction.  It can prove handy for secondary tasks, such as diversionary raids, and it's not a bad bomber... it's just not the best.
 
+==NEW_Halifax III==
+
+A new type of bomber has been developed and is now going into production.  The Halifax Mark III is easier to produce in quantity, and to maintain, than the Lancaster, but has slightly inferior performance.
+
 ==Lancaster X==
 
 The designation "Lancaster B.X" actually refers only to airframes built in Canada by Victory Aircraft Ltd., but in Harris it represents all the developed variants of the Lanc.  With more powerful engines and better armament (the four .303 Brownings in the tail are replaced with twin .50s), the upgraded Lanc is faster, carries more (16,000lb of bombs), is more reliable and survivable - it's simply the ultimate heavy bomber.
+
+==NEW_Lancaster X==
+
+Advanced versions of the Lancaster are now going into production.  These new variants carry more bombs and mount better defensive armament.

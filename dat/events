@@ -7,9 +7,21 @@ BARGE:04-07-1940
 ENDBARGE:31-10-1940
 # Area Bombing Directive
 ABD:14-02-1942
+# Invasion support
+INV:01-04-1944
+# D-Day
+DDAY:06-06-1944
 # Operation Crossbow
 V1:19-04-1944
 V1END:03-09-1944
+# Return to area bombing
+R2AB:01-10-1944
+# Winston's "Terror" memo
+TERROR:28-03-1945
+# End of bombing; Operation Manna begins
+MANNA:22-04-1945
+# End of war in Europe
+VE:08-05-1945
 
 #Pathfinder Force formed
 PFF:15-08-1942
@@ -19,3 +31,38 @@ OBOE:25-12-1941
 GEE:05-03-1942
 H2S:26-01-1943
 GH:13-11-1943
+
+#RCM
+# Boozer is a receiver for Liechtenstein BC emissions.  However, in a bomber stream a Boozer warning doesn't mean much
+BOOZER:
+# Window, nowadays known as 'chaff', consists of strips of metal foil which jam enemy radar
+WINDOW:
+# Moonshine sends back delayed echoes from enemy airborne radar, screwing up their range readings
+MOONSHINE:
+# Airborne Cigar transmitters, carried in bombers, jam the German nightfighter R/T frequencies
+ABC:
+# Fishpond is a mod to H2S that detects aircraft in the H2S's viewcone
+FISHPOND:
+
+#German defenses
+# Start placing Wurzburgs and Giant Wurzburgs
+WURZBURG:
+# Kammhuber line
+KAMMHUBER:
+# Liechtenstein BC (airborne radar)
+L_BC:
+# Naxos homes on H2S transmissions
+NAXOS:
+# Liechtenstein SN (better)
+L_SN:
+# Schräge Musik
+MUSIK:
+# Jamming GEE
+GEEJAM:
+
+#Intelligence reports
+# Warnings
+V_WEAPONS:
+# Spurious
+SECRET:
+FLAKGAS:
