@@ -4,6 +4,7 @@
 const char *prio_labels[4]={"NONE","LOW","MED","HIGH"};
 atg_colour prio_colours[4]={{31, 31, 95, 0}, {95, 31, 31, 0}, {95, 95, 15, 0}, {31, 159, 31, 0}};
 
+SDL_Surface *priority_selector_render_callback(const struct atg_element *e);
 void priority_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
 
 atg_element *create_priority_selector(unsigned int *prio)
@@ -12,7 +13,7 @@ atg_element *create_priority_selector(unsigned int *prio)
 	if(!rv) return(NULL);
 	rv->type=ATG_CUSTOM;
 	rv->match_click_callback=priority_selector_match_click_callback;
-	rv->free_callback=atg_free_box;
+	rv->render_callback=priority_selector_render_callback;
 	atg_box *b=rv->elem.box;
 	if(!b)
 	{
@@ -22,11 +23,7 @@ atg_element *create_priority_selector(unsigned int *prio)
 	for(unsigned int i=0;i<4;i++)
 	{
 		atg_colour fg=prio_colours[i];
-		atg_element *btn=atg_create_element_button(prio_labels[i], fg,
-			(prio&&(i==*prio))
-				?(atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE}
-				:(atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE}
-			);
+		atg_element *btn=atg_create_element_button(prio_labels[i], fg, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
 		if(!btn)
 		{
 			atg_free_element(rv);
@@ -40,6 +37,28 @@ atg_element *create_priority_selector(unsigned int *prio)
 	}
 	rv->userdata=prio;
 	return(rv);
+}
+
+SDL_Surface *priority_selector_render_callback(const struct atg_element *e)
+{
+	if(!e) return(NULL);
+	if(!(e->type==ATG_CUSTOM)) return(NULL);
+	atg_box *b=e->elem.box;
+	if(!b) return(NULL);
+	if(!b->elems) return(NULL);
+	for(unsigned int i=0;i<b->nelems;i++)
+	{
+		if(e->userdata)
+		{
+			if(*(unsigned int *)e->userdata==i)
+				b->elems[i]->elem.button->content->bgcolour=(atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE};
+			else
+				b->elems[i]->elem.button->content->bgcolour=(atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE};
+		}
+		else
+			b->elems[i]->elem.button->content->bgcolour=(atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE};
+	}
+	return(atg_render_box(e));
 }
 
 void priority_selector_match_click_callback(__attribute__((unused)) struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff)
@@ -64,11 +83,11 @@ void priority_selector_match_click_callback(__attribute__((unused)) struct atg_e
 					}
 				}
 			}
-			else if(event.event.trigger.button==ATG_MB_SCROLLUP)
+			else if(event.event.trigger.button==ATG_MB_SCROLLDN)
 			{
 				if(element->userdata) *(unsigned int *)element->userdata=(1+*(unsigned int *)element->userdata)%b->nelems;
 			}
-			else if(event.event.trigger.button==ATG_MB_SCROLLDN)
+			else if(event.event.trigger.button==ATG_MB_SCROLLUP)
 			{
 				if(element->userdata) *(unsigned int *)element->userdata=(b->nelems-1+*(unsigned int *)element->userdata)%b->nelems;
 			}
@@ -76,17 +95,5 @@ void priority_selector_match_click_callback(__attribute__((unused)) struct atg_e
 		atg__event_list *next=sub_list.list->next;
 		free(sub_list.list);
 		sub_list.list=next;
-	}
-	for(unsigned int i=0;i<b->nelems;i++)
-	{
-		if(element->userdata)
-		{
-			if(*(unsigned int *)element->userdata==i)
-				b->elems[i]->elem.button->content->bgcolour=(atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE};
-			else
-				b->elems[i]->elem.button->content->bgcolour=(atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE};
-		}
-		else
-			b->elems[i]->elem.button->content->bgcolour=(atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE};
 	}
 }
