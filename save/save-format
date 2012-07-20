@@ -6,9 +6,9 @@ Format, sort of printfy
 "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV // Magic ID, Harris version.
 "DATE:%02d-%02d-%04d\n", day, month, year
 "TIME:%hhu\n", hour
-"Bombers:%hhu\n", ntypes // should be a constant, but might change between versions/modpacks; if so, will need some code that's aware of old versions
-for(i=0;i<ntypes;i++)
-	"Type %hhu:%u/%u\n", i, nbombers[i], nsvble[i]
+"Bombers:%u[%hhu]\n", nbombers, ntypes // should be a constant, but might change between versions/modpacks; if so, will need some code that's aware of old versions
+for(i=0;i<nbombers;i++)
+	"Type %hhu:%b,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[]
 "Targets:%hhu\n", ntargs
 for(i=0;i<ntargs;i++)
 	"Targ %hhu:%a,%a\n", i, targs[i].dmg, targs[i].flk

@@ -66,7 +66,28 @@ target;
 
 typedef struct
 {
-	unsigned int *nbombers;
+	unsigned int type;
+	unsigned int targ;
+	double lat, lon;
+	double navlat, navlon; // error in "believed position" relative to true position
+	double driftlat, driftlon; // rate of error
+	unsigned int bmblat, bmblon; // true position where bombs were dropped (if any)
+	bool nav[NNAVAIDS];
+	unsigned int bmb; // bombload carried
+	bool bombed;
+	bool crashed;
+	bool failed; // for forces, read as !svble
+	bool landed; // for forces, read as !assigned
+	double speed;
+	bool idtar; // identified target?  (for use if RoE require it)
+	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
+}
+ac_bomber;
+
+typedef struct
+{
+	unsigned int nbombers;
+	unsigned int *bombers; // offsets into the game.bombers list
 	// TODO routing
 }
 raid;
@@ -75,8 +96,8 @@ typedef struct
 {
 	date now;
 	unsigned int hour;
-	unsigned int ntypes;
-	unsigned int *nbombers, *nsvble, *nleft;
+	unsigned int nbombers;
+	ac_bomber *bombers;
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk;
@@ -88,26 +109,6 @@ typedef struct
 	roe;
 }
 game;
-
-typedef struct
-{
-	unsigned int type;
-	unsigned int targ;
-	double lat, lon;
-	double navlat, navlon; // error in "believed position" relative to true position
-	double driftlat, driftlon; // rate of error
-	unsigned int bmblat, bmblon; // true position where bombs were dropped (if any)
-	bool nav[NNAVAIDS];
-	unsigned int bmb; // bombload carried
-	bool bombed;
-	bool crashed;
-	bool failed;
-	bool landed;
-	double speed;
-	bool idtar; // identified target?  (for use if RoE require it)
-	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
-}
-ac_bomber;
 
 #define VER_MAJ	0
 #define VER_MIN	1
@@ -844,18 +845,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	
 	game state;
-	state.ntypes=ntypes;
-	if(!(state.nbombers=malloc(ntypes*sizeof(*state.nbombers))))
-	{
-		perror("malloc");
-		return(1);
-	}
-	if(!(state.nsvble=malloc(ntypes*sizeof(*state.nsvble))))
-	{
-		perror("malloc");
-		return(1);
-	}
-	if(!(state.nleft=malloc(ntypes*sizeof(*state.nleft))))
+	if(!(state.bombers=malloc(state.nbombers*sizeof(*state.bombers))))
 	{
 		perror("malloc");
 		return(1);
@@ -878,13 +868,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	for(unsigned int i=0;i<ntargs;i++)
 	{
-		if(!(state.raids[i].nbombers=malloc(ntypes*sizeof(*state.raids[i].nbombers))))
-		{
-			perror("malloc");
-			return(1);
-		}
-		for(unsigned int j=0;j<ntypes;j++)
-			state.raids[i].nbombers[j]=0;
+		state.raids[i].nbombers=0;
+		state.raids[i].bombers=NULL;
 	}
 	state.roe.idtar=true;
 	
@@ -942,13 +927,25 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	gameloop:
 	canvas->box=gamebox;
 	atg_resize_canvas(canvas, 640, 480);
+	for(unsigned int j=0;j<state.nbombers;j++)
+	{
+		state.bombers[j].landed=true;
+	}
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
 			GB_btrow[i]->hidden=((diffdate(types[i].entry, state.now)>0)||(diffdate(types[i].exit, state.now)<0));
 		if(GB_btnum[i]&&GB_btnum[i]->elem.label&&GB_btnum[i]->elem.label->text)
-			snprintf(GB_btnum[i]->elem.label->text, 12, "%u/%u", state.nsvble[i], state.nbombers[i]);
-		state.nleft[i]=state.nsvble[i];
+		{
+			unsigned int svble=0,total=0;
+			for(unsigned int j=0;j<state.nbombers;j++)
+				if(state.bombers[j].type==i)
+				{
+					total++;
+					if(!state.bombers[j].failed) svble++;
+				}
+			snprintf(GB_btnum[i]->elem.label->text, 12, "%u/%u", svble, total);
+		}
 	}
 	for(unsigned int i=0;i<ntargs;i++)
 	{
@@ -961,7 +958,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(GB_rbrow[i][j])
 				GB_rbrow[i][j]->hidden=GB_btrow[j]?GB_btrow[j]->hidden:true;
 			if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
-				snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", state.raids[i].nbombers[j]=0);
+				snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", 0);
 		}
 	}
 	SDL_FreeSurface(GB_map->elem.image->data);
@@ -982,11 +979,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(GB_ttrow[i]&&GB_ttrow[i]->elem.box)
 			{
 				unsigned int traid=0;
+				unsigned int raid[ntypes];
+				for(unsigned int j=0;j<ntypes;j++)
+					raid[j]=0;
+				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
+				{
+					traid++;
+					raid[state.raids[i].bombers[j].type]++;
+				}
 				for(unsigned int j=0;j<ntypes;j++)
 				{
-					traid+=state.raids[i].nbombers[j];
 					if(GB_rbrow[i][j])
-						GB_rbrow[i][j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!state.raids[i].nbombers[j];
+						GB_rbrow[i][j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!raid[j];
 				}
 				GB_ttrow[i]->elem.box->bgcolour=(traid?(atg_colour){127, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 				if((int)i==seltarg)
@@ -1450,21 +1454,17 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 			}
 			else if(strcmp(tag, "Bombers")==0)
 			{
-				unsigned int sntypes;
-				f=sscanf(dat, "%u\n", &sntypes);
+				f=sscanf(dat, "%u\n", &state->nbombers);
 				if(f!=1)
 				{
 					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 					e|=1;
 				}
-				else if(sntypes!=ntypes)
-				{
-					fprintf(stderr, "2 Value mismatch: different ntypes value\n");
-					e|=2;
-				}
 				else
 				{
-					for(unsigned int i=0;i<ntypes;i++)
+					free(state->bombers);
+					state->bombers=malloc(state->nbombers*sizeof(ac_bomber));
+					for(unsigned int i=0;i<nbombers;i++)
 					{
 						free(line);
 						line=fgetl(fs);
@@ -1475,22 +1475,23 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 							break;
 						}
 						unsigned int j;
-						unsigned int snbombers, snsvble; // don't read 'snsvble' as 'sensible', or you'll just get confused.  It's savefile (s) number (n) serviceable (svble).
-						f=sscanf(line, "Type %u:%u/%u\n", &j, &snbombers, &snsvble);
+						unsigned int svble,nav;
+						f=sscanf(line, "Type %u:%u,%u\n", &j, &svble, &nav);
 						if(f!=3)
 						{
 							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 							e|=1;
 							break;
 						}
-						if(j!=i)
+						if(j>ntypes)
 						{
-							fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+							fprintf(stderr, "4 Index mismatch in part %u of tag \"%s\"\n", j, tag);
 							e|=4;
 							break;
 						}
-						state->nbombers[i]=snbombers;
-						state->nsvble[i]=snsvble;
+						state->bombers[i]=(ac_bomber){.type=j, .failed=!svble};
+						for(unsigned int n=0;n<NNAVAIDS;n++)
+							state->bombers[i].nav[n]=(nav>>n)&1;
 					}
 				}
 			}
