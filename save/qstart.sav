@@ -1,6 +1,18 @@
 HARR:0.1.0
 DATE:03-09-1939
 TIME:9
+Types:11
+Prio 0:2
+Prio 1:1
+Prio 2:2
+Prio 3:3
+Prio 4:2
+Prio 5:2
+Prio 6:2
+Prio 7:2
+Prio 8:2
+Prio 9:2
+Prio 10:2
 Bombers:388
 Type 0:0,0
 Type 0:0,0

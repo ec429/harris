@@ -124,6 +124,7 @@ SDL_Surface *render_ac_b(game state);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
+bombertype *types;
 unsigned int ntargs=0;
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
@@ -142,7 +143,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	// Load data files
 	fprintf(stderr, "Loading data files...\n");
 	FILE *typefp=fopen("dat/bombers", "r");
-	bombertype *types=NULL;
+	types=NULL;
 	if(!typefp)
 	{
 		fprintf(stderr, "Failed to open data file `bombers'!\n");
@@ -1502,6 +1503,50 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				{
 					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 					e|=1;
+				}
+			}
+			else if(strcmp(tag, "Types")==0)
+			{
+				unsigned int sntypes;
+				f=sscanf(dat, "%u\n", &sntypes);
+				if(f!=1)
+				{
+					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+					e|=1;
+				}
+				else if(sntypes!=ntypes)
+				{
+					fprintf(stderr, "2 Value mismatch: different ntypes value\n");
+					e|=2;
+				}
+				else
+				{
+					for(unsigned int i=0;i<ntypes;i++)
+					{
+						free(line);
+						line=fgetl(fs);
+						if(!line)
+						{
+							fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+							e|=64;
+							break;
+						}
+						unsigned int j, prio;
+						f=sscanf(line, "Prio %u:%u\n", &j, &prio);
+						if(f!=2)
+						{
+							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+							e|=1;
+							break;
+						}
+						if(j!=i)
+						{
+							fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+							e|=4;
+							break;
+						}
+						types[j].prio=prio;
+					}
 				}
 			}
 			else if(strcmp(tag, "Bombers")==0)
