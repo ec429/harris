@@ -1050,6 +1050,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									for(unsigned int j=0;j<state.nbombers;j++)
 									{
 										if(state.bombers[j].type!=i) continue;
+										if(state.bombers[j].failed) continue;
 										if(!state.bombers[j].landed) continue;
 										state.bombers[j].landed=false;;
 										amount--;
