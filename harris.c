@@ -120,7 +120,7 @@ int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
 SDL_Surface *render_weather(w_state weather);
 SDL_Surface *render_cities(unsigned int ntargs, target *targs);
-SDL_Surface *render_ac_b(unsigned int nb, ac_bomber *b);
+SDL_Surface *render_ac_b(game state);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
@@ -1218,7 +1218,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 			}
 		SDL_Surface *with_ac_b=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
-		SDL_Surface *ac_b_overlay=render_ac_b(bi, b);
+		SDL_Surface *ac_b_overlay=render_ac_b(state);
 		SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
 		SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
 		unsigned int inair=totalraids, t=0;
@@ -1636,7 +1636,7 @@ SDL_Surface *render_cities(unsigned int ntargs, target *targs)
 	return(rv);
 }
 
-SDL_Surface *render_ac_b(unsigned int nb, ac_bomber *b)
+SDL_Surface *render_ac_b(game state)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
@@ -1645,18 +1645,20 @@ SDL_Surface *render_ac_b(unsigned int nb, ac_bomber *b)
 		return(NULL);
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
-	for(unsigned int i=0;i<nb;i++)
-	{
-		unsigned int x=floor(b[i].lon), y=floor(b[i].lat);
-		if(b[i].crashed)
-			pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
-		else if(b[i].failed)
-			pset(rv, x, y, (atg_colour){0, 255, 255, ATG_ALPHA_OPAQUE});
-		else if(b[i].bombed)
-			pset(rv, x, y, (atg_colour){127, 255, 63, ATG_ALPHA_OPAQUE});
-		else
-			pset(rv, x, y, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
-	}
+	for(unsigned int i=0;i<state.ntargs;i++)
+		for(unsigned int j=0;j<state.raid[i].nbombers)
+		{
+			unsigned int k=state.raid[i].bombers[j];
+			unsigned int x=floor(state.bombers[k].lon), y=floor(state.bombers[k].lat);
+			if(state.bombers[k].crashed)
+				pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+			else if(state.bombers[k].failed)
+				pset(rv, x, y, (atg_colour){0, 255, 255, ATG_ALPHA_OPAQUE});
+			else if(state.bombers[k].bombed)
+				pset(rv, x, y, (atg_colour){127, 255, 63, ATG_ALPHA_OPAQUE});
+			else
+				pset(rv, x, y, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+		}
 	return(rv);
 }
 
