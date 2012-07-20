@@ -8,6 +8,7 @@
 #include "bits.h"
 #include "weather.h"
 #include "rand.h"
+#include "widgets.h"
 
 typedef struct
 {
@@ -42,6 +43,9 @@ typedef struct
 	bool nav[NNAVAIDS];
 	unsigned int blat, blon;
 	SDL_Surface *picture;
+	
+	unsigned int prio;
+	atg_element *prio_selector;
 }
 bombertype;
 
@@ -195,6 +199,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
 					return(1);
 				}
+				this.prio=2;
 				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
 				types[ntypes]=this;
 				ntypes++;
@@ -202,6 +207,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			next=strtok(NULL, "\n");
 		}
 		free(typefile);
+		for(unsigned int i=0;i<ntypes;i++)
+		{
+			if(!(types[i].prio_selector=create_priority_selector(&types[i].prio)))
+			{
+				fprintf(stderr, "create_priority_selector failed (i=%u)\n", i);
+				return(1);
+			}
+		}
 		fprintf(stderr, "Loaded %u bomber types\n", ntypes);
 	}
 	
@@ -416,7 +429,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "GB_bt->elem.box==NULL\n");
 		return(1);
 	}
-	atg_element *GB_btrow[ntypes], *GB_btnum[ntypes];
+	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btnum[ntypes];
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!(GB_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
@@ -429,7 +442,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			perror("atg_pack_element");
 			return(1);
 		}
-		GB_btrow[i]->clickable=true;
 		GB_btrow[i]->w=159;
 		atg_box *b=GB_btrow[i]->elem.box;
 		if(!b)
@@ -445,15 +457,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
 		SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, 0, 0, 0});
-		atg_element *picture=atg_create_element_image(pic);
+		GB_btpic[i]=atg_create_element_image(pic);
 		SDL_FreeSurface(pic);
-		if(!picture)
+		if(!GB_btpic[i])
 		{
 			fprintf(stderr, "atg_create_element_image failed\n");
 			return(1);
 		}
-		picture->w=38;
-		if(atg_pack_element(b, picture))
+		GB_btpic[i]->w=38;
+		GB_btpic[i]->clickable=true;
+		if(atg_pack_element(b, GB_btpic[i]))
 		{
 			perror("atg_pack_element");
 			return(1);
@@ -513,6 +526,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		if(atg_pack_element(vb, GB_btnum[i]))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		if(atg_pack_element(vb, types[i].prio_selector))
 		{
 			perror("atg_pack_element");
 			return(1);
@@ -1006,7 +1024,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						for(unsigned int i=0;i<ntypes;i++)
 						{
-							if(c.e==GB_btrow[i])
+							if(c.e==GB_btpic[i])
 							{
 								if(seltarg<0)
 									fprintf(stderr, "btrow %d\n", i);
@@ -1342,8 +1360,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	do_exit:
 	canvas->box=NULL;
 	atg_free_canvas(canvas);
-	atg_free_box(mainbox);
-	atg_free_box(gamebox);
+	atg_free_box_box(mainbox);
+	atg_free_box_box(gamebox);
 	SDL_FreeSurface(weather_overlay);
 	return(0);
 }
