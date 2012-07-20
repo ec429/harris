@@ -1318,7 +1318,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 				}
 			SDL_FreeSurface(ac_b_overlay);
-			ac_b_overlay=render_ac_b(bi, b);
+			ac_b_overlay=render_ac_b(state);
 			SDL_BlitSurface(with_weather, NULL, with_ac_b, NULL);
 			SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
 			SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
@@ -1352,7 +1352,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								bntarg[type]++;
 								bttarg[type]+=state.bombers[k].bmb;
 								tntarg[i]++;
-								tttarg[i]+=b[a].bmb;
+								tttarg[i]+=state.bombers[k].bmb;
 							}
 						}
 					}
@@ -1369,7 +1369,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		}
 		// report on the results (TODO: GUI bit)
-		fprintf(stderr, "%u dispatched\n%u lost\n%u bombed (%ulb)\n", bi, nloss, nbomb, tbomb);
+		fprintf(stderr, "%u dispatched\n%u lost\n%u bombed (%ulb)\n", totalraids, nloss, nbomb, tbomb);
 		fprintf(stderr, "%u on target (%ulb)\n", ntarg, ttarg);
 		fprintf(stderr, " By type:\n");
 		for(unsigned int j=0;j<ntypes;j++)
@@ -1497,7 +1497,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				{
 					free(state->bombers);
 					state->bombers=malloc(state->nbombers*sizeof(ac_bomber));
-					for(unsigned int i=0;i<nbombers;i++)
+					for(unsigned int i=0;i<state->nbombers;i++)
 					{
 						free(line);
 						line=fgetl(fs);
@@ -1646,9 +1646,9 @@ SDL_Surface *render_ac_b(game state)
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	for(unsigned int i=0;i<state.ntargs;i++)
-		for(unsigned int j=0;j<state.raid[i].nbombers)
+		for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 		{
-			unsigned int k=state.raid[i].bombers[j];
+			unsigned int k=state.raids[i].bombers[j];
 			unsigned int x=floor(state.bombers[k].lon), y=floor(state.bombers[k].lat);
 			if(state.bombers[k].crashed)
 				pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
