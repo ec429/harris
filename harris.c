@@ -1265,6 +1265,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.bombers[k].navlon=0;
 							}
 						}
+						else if(t>2048)
+						{
+							state.bombers[k].navlon=state.bombers[k].navlat=0;
+						}
 					}
 					else if((cx<1.2)&&(state.bombers[k].idtar||!state.roe.idtar||brandp(0.005)))
 					{
@@ -1368,6 +1372,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.nbombers--;
 				for(unsigned int j=i;j<state.nbombers;j++)
 					state.bombers[j]=state.bombers[j+1];
+				i--;
+				continue;
 			}
 		}
 		// report on the results (TODO: GUI bit)
@@ -1393,6 +1399,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		for(unsigned int it=0;it<512;it++)
 			w_iter(&state.weather, lorw);
+	}
+	for(unsigned int i=0;i<state.nbombers;i++)
+	{
+		if(state.bombers[i].failed)
+		{
+			if(brandp((types[state.bombers[i].type].svp/100.0)/3.0)) state.bombers[i].failed=false;
+		}
+		else
+		{
+			if(brandp((1-types[state.bombers[i].type].svp/100.0)/3.0)) state.bombers[i].failed=true;
+		}
 	}
 	goto gameloop;
 	
