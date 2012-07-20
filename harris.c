@@ -985,7 +985,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 				{
 					traid++;
-					raid[state.raids[i].bombers[j].type]++;
+					raid[state.bombers[state.raids[i].bombers[j]].type]++;
 				}
 				for(unsigned int j=0;j<ntypes;j++)
 				{
@@ -1047,10 +1047,30 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										default:
 											amount=10;
 									}
-									state.raids[seltarg].nbombers[i]+=min(amount, state.nleft[i]);
-									state.nleft[i]-=min(amount, state.nleft[i]);
+									for(unsigned int j=0;j<state.nbombers;j++)
+									{
+										if(state.bombers[j].type!=i) continue;
+										if(!state.bombers[j].landed) continue;
+										state.bombers[j].landed=false;;
+										amount--;
+										unsigned int n=state.raids[seltarg].nbombers++;
+										unsigned int *new=realloc(state.raids[seltarg].bombers, state.raids[seltarg].nbombers*sizeof(unsigned int));
+										if(!new)
+										{
+											perror("realloc");
+											state.raids[seltarg].nbombers=n;
+											break;
+										}
+										(state.raids[seltarg].bombers=new)[n]=j;
+										if(!amount) break;
+									}
 									if(GB_raidnum[seltarg][i]&&GB_raidnum[seltarg][i]->elem.label&&GB_raidnum[seltarg][i]->elem.label->text)
-										snprintf(GB_raidnum[seltarg][i]->elem.label->text, 9, "%u", state.raids[seltarg].nbombers[i]);
+									{
+										unsigned int count=0;
+										for(unsigned int j=0;j<state.raids[seltarg].nbombers;j++)
+											if(state.bombers[state.raids[seltarg].bombers[j]].type==i) count++;
+										snprintf(GB_raidnum[seltarg][i]->elem.label->text, 9, "%u", count);
+									}
 								}
 							}
 						}
@@ -1098,10 +1118,23 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										default:
 											amount=10;
 									}
-									state.nleft[j]+=min(amount, state.raids[i].nbombers[j]);
-									state.raids[i].nbombers[j]-=min(state.raids[i].nbombers[j], amount);
-									if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
-										snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", state.raids[i].nbombers[j]);
+									for(unsigned int j=0;j<state.raids[seltarg].nbombers;j++)
+									{
+										unsigned int k=state.raids[seltarg].bombers[j];
+										if(state.bombers[k].type!=i) continue;
+										state.bombers[k].landed=true;
+										amount--;
+										state.raids[seltarg].nbombers--;
+										for(unsigned int k=j;k<state.raids[seltarg].nbombers;k++)
+											state.bombers[k]=state.bombers[k+1];
+									}
+									if(GB_raidnum[seltarg][i]&&GB_raidnum[seltarg][i]->elem.label&&GB_raidnum[seltarg][i]->elem.label->text)
+									{
+										unsigned int count=0;
+										for(unsigned int j=0;j<state.raids[seltarg].nbombers;j++)
+											if(state.bombers[state.raids[seltarg].bombers[j]].type==i) count++;
+										snprintf(GB_raidnum[seltarg][i]->elem.label->text, 9, "%u", count);
+									}
 								}
 							}
 						}
@@ -1141,8 +1174,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	unsigned int totalraids;
 	totalraids=0;
 	for(unsigned int i=0;i<ntargs;i++)
-		for(unsigned int j=0;j<ntypes;j++)
-			totalraids+=state.raids[i].nbombers[j];
+		totalraids+=state.raids[i].nbombers;
 	if(totalraids)
 	{
 		canvas->box=raidbox;
@@ -1159,43 +1191,37 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_BlitSurface(with_weather, NULL, RB_map->elem.image->data, NULL);
 		unsigned int it=0;
-		ac_bomber *b=malloc(totalraids*sizeof(*b));
-		if(!b)
-		{
-			perror("malloc");
-			return(1); // TODO try and make recovery possible
-		}
-		unsigned int bi=0;
 		for(unsigned int i=0;i<ntargs;i++)
-			for(unsigned int j=0;j<ntypes;j++)
-				for(unsigned int k=0;k<state.raids[i].nbombers[j];k++)
+			for(unsigned int j=0;j<state.raids[i].nbombers;j++)
+			{
+				unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
+				state.bombers[k].targ=i;
+				state.bombers[k].lat=types[type].blat;
+				state.bombers[k].lon=types[type].blon;
+				state.bombers[k].bmb=types[type].cap;
+				state.bombers[k].bombed=false;
+				state.bombers[k].crashed=false;
+				state.bombers[k].landed=false;
+				state.bombers[k].idtar=false;
+				state.bombers[k].lat+=rand()*3.0/RAND_MAX-1;
+				state.bombers[k].lon+=rand()*3.0/RAND_MAX-1;
+				state.bombers[k].navlat=0;
+				state.bombers[k].navlon=0;
+				state.bombers[k].driftlat=0;
+				state.bombers[k].driftlon=0;
+				state.bombers[k].speed=(types[type].speed+irandu(16)-8)/300.0;
+				state.bombers[k].fuelt=256+irandu(64);
+				if(targs[i].lon>180)
 				{
-					b[bi]=(ac_bomber){.type=j, .targ=i, .lat=types[j].blat, .lon=types[j].blon, .bmb=types[j].cap, .bombed=false, .crashed=false, .failed=false, .landed=false, .idtar=false};
-					b[bi].lat+=rand()*3.0/RAND_MAX-1;
-					b[bi].lon+=rand()*3.0/RAND_MAX-1;
-					b[bi].navlat=0;
-					b[bi].navlon=0;
-					b[bi].driftlat=0;
-					b[bi].driftlon=0;
-					b[bi].speed=(types[j].speed+irandu(16)-8)/300.0;
-					b[bi].fuelt=256+irandu(64);
-					if(targs[i].lon>180)
-					{
-						b[bi].fuelt+=3*(targs[i].lon-180);
-						b[bi].bmb*=(280-targs[i].lon)/100.0;
-					}
-					bi++;
-					// TODO navaids
+					state.bombers[k].fuelt+=3*(targs[i].lon-180);
+					state.bombers[k].bmb*=(280-targs[i].lon)/100.0;
 				}
-		if(bi!=totalraids) // shouldn't happen
-		{
-			fprintf(stderr, "Warning: bi!=totalraids (%u!=%u)\n", bi, totalraids);
-		}
+			}
 		SDL_Surface *with_ac_b=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
 		SDL_Surface *ac_b_overlay=render_ac_b(bi, b);
 		SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
 		SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
-		unsigned int inair=bi, t=0;
+		unsigned int inair=totalraids, t=0;
 		while(inair)
 		{
 			t++;
@@ -1208,87 +1234,89 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 				it++;
 			}
-			for(unsigned int a=0;a<bi;a++)
-			{
-				if(b[a].crashed||b[a].landed) continue;
-				if(brandp(types[b[a].type].fail/10000.0))
+			for(unsigned int i=0;i<ntargs;i++)
+				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 				{
-					b[a].failed=true;
-					if(brandp(0.02))
+					unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
+					if(state.bombers[k].crashed||state.bombers[k].landed) continue;
+					if(brandp(types[type].fail/10000.0))
 					{
-						b[a].crashed=true;
-						inair--;
-						continue;
-					}
-				}
-				bool home=b[a].bombed||b[a].failed||(t>b[a].fuelt);
-				int destx=home?types[b[a].type].blon:targs[b[a].targ].lon,
-					desty=home?types[b[a].type].blat:targs[b[a].targ].lat;
-				double cx=destx-(b[a].lon+b[a].navlon), cy=desty-(b[a].lat+b[a].navlat);
-				double d=hypot(cx, cy);
-				if(home)
-				{
-					if(d<0.4)
-					{
-						if(b[a].lon<63)
+						state.bombers[k].failed=true;
+						if(brandp(0.02))
 						{
-							b[a].landed=true;
+							state.bombers[k].crashed=true;
 							inair--;
-						}
-						else
-						{
-							b[a].navlon=0;
+							continue;
 						}
 					}
-				}
-				else if((cx<1.2)&&(b[a].idtar||!state.roe.idtar||brandp(0.005)))
-				{
-					b[a].bmblon=b[a].lon;
-					b[a].bmblat=b[a].lat;
-					b[a].bombed=true;
-				}
-				b[a].idtar=false;
-				double dx=cx*b[a].speed/d,
-					dy=cy*b[a].speed/d;
-				if(d==0) dx=dy=-1;
-				b[a].lon+=dx;
-				b[a].lat+=dy;
-				// TODO: navigation affected by sun/moon, navaids...
-				double navacc=3.0/types[b[a].type].accu;
-				double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
-				b[a].driftlon=b[a].driftlon*.98+ex;
-				b[a].driftlat=b[a].driftlat*.98+ey;
-				b[a].lon+=b[a].driftlon;
-				b[a].lat+=b[a].driftlat;
-				b[a].navlon-=b[a].driftlon;
-				b[a].navlat-=b[a].driftlat;
-				unsigned int x=b[a].lon, y=b[a].lat;
-				double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-				double navp=types[b[a].type].accu*3.5/(double)(8+max(1008-wea, 0));
-				if(b[a].lon<64) navp=1;
-				if(brandp(navp))
-				{
-					b[a].navlon*=(256.0+b[a].lon)/512.0;
-					b[a].navlat*=(256.0+b[a].lon)/512.0;
-					if(pget(city_overlay, b[a].lon, b[a].lat).a==ATG_ALPHA_OPAQUE)
+					bool home=state.bombers[k].bombed||state.bombers[k].failed||(t>state.bombers[k].fuelt);
+					int destx=home?types[type].blon:targs[i].lon,
+						desty=home?types[type].blat:targs[i].lat;
+					double cx=destx-(state.bombers[k].lon+state.bombers[k].navlon), cy=desty-(state.bombers[k].lat+state.bombers[k].navlat);
+					double d=hypot(cx, cy);
+					if(home)
 					{
-						b[a].idtar=true;
-						unsigned int dm=0;
-						double mind=1000;
-						for(unsigned int i=0;i<ntargs;i++)
+						if(d<0.4)
 						{
-							double d=hypot(b[a].lon+b[a].navlon-targs[i].lon, b[a].lat+b[a].navlat-targs[i].lat);
-							if(d<mind)
+							if(state.bombers[k].lon<63)
 							{
-								mind=d;
-								dm=i;
+								state.bombers[k].landed=true;
+								inair--;
+							}
+							else
+							{
+								state.bombers[k].navlon=0;
 							}
 						}
-						b[a].navlon=targs[dm].lon-b[a].lon;
-						b[a].navlat=targs[dm].lat-b[a].lat;
+					}
+					else if((cx<1.2)&&(state.bombers[k].idtar||!state.roe.idtar||brandp(0.005)))
+					{
+						state.bombers[k].bmblon=state.bombers[k].lon;
+						state.bombers[k].bmblat=state.bombers[k].lat;
+						state.bombers[k].bombed=true;
+					}
+					state.bombers[k].idtar=false;
+					double dx=cx*state.bombers[k].speed/d,
+						dy=cy*state.bombers[k].speed/d;
+					if(d==0) dx=dy=-1;
+					state.bombers[k].lon+=dx;
+					state.bombers[k].lat+=dy;
+					// TODO: navigation affected by sun/moon, navaids...
+					double navacc=3.0/types[type].accu;
+					double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
+					state.bombers[k].driftlon=state.bombers[k].driftlon*.98+ex;
+					state.bombers[k].driftlat=state.bombers[k].driftlat*.98+ey;
+					state.bombers[k].lon+=state.bombers[k].driftlon;
+					state.bombers[k].lat+=state.bombers[k].driftlat;
+					state.bombers[k].navlon-=state.bombers[k].driftlon;
+					state.bombers[k].navlat-=state.bombers[k].driftlat;
+					unsigned int x=state.bombers[k].lon, y=state.bombers[k].lat;
+					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
+					double navp=types[type].accu*3.5/(double)(8+max(1008-wea, 0));
+					if(state.bombers[k].lon<64) navp=1;
+					if(brandp(navp))
+					{
+						state.bombers[k].navlon*=(256.0+state.bombers[k].lon)/512.0;
+						state.bombers[k].navlat*=(256.0+state.bombers[k].lon)/512.0;
+						if(pget(city_overlay, state.bombers[k].lon, state.bombers[k].lat).a==ATG_ALPHA_OPAQUE)
+						{
+							state.bombers[k].idtar=true;
+							unsigned int dm=0;
+							double mind=1000;
+							for(unsigned int i=0;i<ntargs;i++)
+							{
+								double d=hypot(state.bombers[k].lon+state.bombers[k].navlon-targs[i].lon, state.bombers[k].lat+state.bombers[k].navlat-targs[i].lat);
+								if(d<mind)
+								{
+									mind=d;
+									dm=i;
+								}
+							}
+							state.bombers[k].navlon=targs[dm].lon-state.bombers[k].lon;
+							state.bombers[k].navlat=targs[dm].lat-state.bombers[k].lat;
+						}
 					}
 				}
-			}
 			SDL_FreeSurface(ac_b_overlay);
 			ac_b_overlay=render_ac_b(bi, b);
 			SDL_BlitSurface(with_weather, NULL, with_ac_b, NULL);
@@ -1303,35 +1331,41 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			tntarg[i]=tttarg[i]=0;
 		for(unsigned int j=0;j<ntypes;j++)
 			bntarg[j]=bttarg[j]=0;
-		for(unsigned int a=0;a<bi;a++)
-		{
-			if(b[a].crashed)
+		for(unsigned int i=0;i<ntargs;i++)
+			for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 			{
-				nloss++;
-				state.nbombers[b[a].type]--;
-				state.nsvble[b[a].type]--;
-			}
-			if(b[a].bombed)
-			{
-				nbomb++;
-				tbomb+=b[a].bmb;
-				for(unsigned int i=0;i<ntargs;i++)
+				unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
+				if(state.bombers[k].bombed)
 				{
-					int dx=b[a].bmblon-targs[i].lon, dy=b[a].bmblat-targs[i].lat;
-					if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
+					nbomb++;
+					tbomb+=state.bombers[k].bmb;
+					for(unsigned int i=0;i<ntargs;i++)
 					{
-						if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+						int dx=state.bombers[k].bmblon-targs[i].lon, dy=state.bombers[k].bmblat-targs[i].lat;
+						if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
 						{
-							state.dmg[i]=max(0, state.dmg[i]-b[a].bmb/100000.0);
-							ntarg++;
-							ttarg+=b[a].bmb;
-							bntarg[b[a].type]++;
-							bttarg[b[a].type]+=b[a].bmb;
-							tntarg[i]++;
-							tttarg[i]+=b[a].bmb;
+							if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+							{
+								state.dmg[i]=max(0, state.dmg[i]-state.bombers[k].bmb/100000.0);
+								ntarg++;
+								ttarg+=state.bombers[k].bmb;
+								bntarg[type]++;
+								bttarg[type]+=state.bombers[k].bmb;
+								tntarg[i]++;
+								tttarg[i]+=b[a].bmb;
+							}
 						}
 					}
 				}
+			}
+		for(unsigned int i=0;i<state.nbombers;i++)
+		{
+			if(state.bombers[i].crashed)
+			{
+				nloss++;
+				state.nbombers--;
+				for(unsigned int j=i;j<state.nbombers;j++)
+					state.bombers[j]=state.bombers[j+1];
 			}
 		}
 		// report on the results (TODO: GUI bit)
@@ -1349,7 +1383,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(tntarg[i])
 				fprintf(stderr, "  %s: %u (%u lb)\n", targs[i].name, tntarg[i], tttarg[i]);
 		}
-		free(b);
 		// finish the weather
 		for(; it<512;it++)
 			w_iter(&state.weather, lorw);
