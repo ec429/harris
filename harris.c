@@ -978,21 +978,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			if(GB_ttrow[i]&&GB_ttrow[i]->elem.box)
 			{
-				unsigned int traid=0;
 				unsigned int raid[ntypes];
 				for(unsigned int j=0;j<ntypes;j++)
 					raid[j]=0;
 				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
-				{
-					traid++;
 					raid[state.bombers[state.raids[i].bombers[j]].type]++;
-				}
 				for(unsigned int j=0;j<ntypes;j++)
-				{
 					if(GB_rbrow[i][j])
 						GB_rbrow[i][j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!raid[j];
-				}
-				GB_ttrow[i]->elem.box->bgcolour=(traid?(atg_colour){127, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+				GB_ttrow[i]->elem.box->bgcolour=(state.raids[i].nbombers?(atg_colour){127, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 				if((int)i==seltarg)
 				{
 					GB_ttrow[i]->elem.box->bgcolour.r=GB_ttrow[i]->elem.box->bgcolour.g=GB_ttrow[i]->elem.box->bgcolour.r+64;
@@ -1052,7 +1046,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										if(state.bombers[j].type!=i) continue;
 										if(state.bombers[j].failed) continue;
 										if(!state.bombers[j].landed) continue;
-										state.bombers[j].landed=false;;
+										state.bombers[j].landed=false;
 										amount--;
 										unsigned int n=state.raids[seltarg].nbombers++;
 										unsigned int *new=realloc(state.raids[seltarg].bombers, state.raids[seltarg].nbombers*sizeof(unsigned int));
@@ -1119,22 +1113,24 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										default:
 											amount=10;
 									}
-									for(unsigned int j=0;j<state.raids[seltarg].nbombers;j++)
+									for(unsigned int l=0;l<state.raids[i].nbombers;l++)
 									{
-										unsigned int k=state.raids[seltarg].bombers[j];
-										if(state.bombers[k].type!=i) continue;
+										unsigned int k=state.raids[i].bombers[l];
+										if(state.bombers[k].type!=j) continue;
 										state.bombers[k].landed=true;
 										amount--;
-										state.raids[seltarg].nbombers--;
-										for(unsigned int k=j;k<state.raids[seltarg].nbombers;k++)
-											state.bombers[k]=state.bombers[k+1];
+										state.raids[i].nbombers--;
+										for(unsigned int k=l;k<state.raids[i].nbombers;k++)
+											state.raids[i].bombers[k]=state.raids[i].bombers[k+1];
+										if(!amount) break;
+										l--;
 									}
-									if(GB_raidnum[seltarg][i]&&GB_raidnum[seltarg][i]->elem.label&&GB_raidnum[seltarg][i]->elem.label->text)
+									if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
 									{
 										unsigned int count=0;
-										for(unsigned int j=0;j<state.raids[seltarg].nbombers;j++)
-											if(state.bombers[state.raids[seltarg].bombers[j]].type==i) count++;
-										snprintf(GB_raidnum[seltarg][i]->elem.label->text, 9, "%u", count);
+										for(unsigned int l=0;l<state.raids[i].nbombers;l++)
+											if(state.bombers[state.raids[i].bombers[l]].type==j) count++;
+										snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", count);
 									}
 								}
 							}
@@ -1333,6 +1329,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		for(unsigned int j=0;j<ntypes;j++)
 			bntarg[j]=bttarg[j]=0;
 		for(unsigned int i=0;i<ntargs;i++)
+		{
 			for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 			{
 				unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
@@ -1359,6 +1356,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 				}
 			}
+			state.raids[i].nbombers=0;
+			free(state.raids[i].bombers);
+			state.raids[i].bombers=NULL;
+		}
 		for(unsigned int i=0;i<state.nbombers;i++)
 		{
 			if(state.bombers[i].crashed)
@@ -1509,8 +1510,8 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 							break;
 						}
 						unsigned int j;
-						unsigned int svble,nav;
-						f=sscanf(line, "Type %u:%u,%u\n", &j, &svble, &nav);
+						unsigned int failed,nav;
+						f=sscanf(line, "Type %u:%u,%u\n", &j, &failed, &nav);
 						if(f!=3)
 						{
 							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
@@ -1523,7 +1524,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 							e|=4;
 							break;
 						}
-						state->bombers[i]=(ac_bomber){.type=j, .failed=!svble};
+						state->bombers[i]=(ac_bomber){.type=j, .failed=failed};
 						for(unsigned int n=0;n<NNAVAIDS;n++)
 							state->bombers[i].nav[n]=(nav>>n)&1;
 					}
