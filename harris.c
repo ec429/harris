@@ -24,9 +24,8 @@ const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 #define NAV_H2S		1
 #define NAV_OBOE	2
 #define NAV_GH		3
-#define NAV_ABC		4
-#define NNAVAIDS	5
-const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH","ABC"}; // ABC is actually a type of RCM
+#define NNAVAIDS	4
+const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH"};
 
 typedef struct
 {
