@@ -13,10 +13,12 @@
 typedef struct
 {
 	unsigned int year;
-	unsigned int month;
-	unsigned int day;
+	unsigned int month; // 1-based
+	unsigned int day; // also 1-based
 }
 date;
+
+const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 #define NAV_GEE		0
 #define NAV_H2S		1
@@ -45,6 +47,7 @@ typedef struct
 	SDL_Surface *picture;
 	
 	unsigned int prio;
+	unsigned int pribuf;
 	atg_element *prio_selector;
 }
 bombertype;
@@ -96,6 +99,7 @@ typedef struct
 {
 	date now;
 	unsigned int hour;
+	unsigned int cash, cshr;
 	unsigned int nbombers;
 	ac_bomber *bombers;
 	w_state weather;
@@ -202,6 +206,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					return(1);
 				}
 				this.prio=2;
+				this.pribuf=0;
 				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
 				types[ntypes]=this;
 				ntypes++;
@@ -350,6 +355,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	fprintf(stderr, "Data files loaded\n");
 	
+	fprintf(stderr, "Instantiating GUI elements...\n");
+	
 	atg_box *mainbox=canvas->box;
 	atg_element *MainMenu=atg_create_element_label("HARRIS: Main Menu", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 	if(!MainMenu)
@@ -430,6 +437,34 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		fprintf(stderr, "GB_bt->elem.box==NULL\n");
 		return(1);
+	}
+	char *datestring=malloc(11);
+	if(!datestring)
+	{
+		perror("malloc");
+		return(1);
+	}
+	atg_element *GB_date=atg_create_element_label("", 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+	if(!GB_date)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_btb, GB_date))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	else
+	{
+		atg_label *l=GB_date->elem.label;
+		if(l)
+			l->text=datestring;
+		else
+		{
+			fprintf(stderr, "GB_date->elem.label==NULL\n");
+			return(1);
+		}
 	}
 	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btnum[ntypes];
 	for(unsigned int i=0;i<ntypes;i++)
@@ -845,6 +880,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	
+	fprintf(stderr, "GUI instantiated\n");
+	
 	game state;
 	if(!(state.bombers=malloc(state.nbombers*sizeof(*state.bombers))))
 	{
@@ -928,6 +965,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	gameloop:
 	canvas->box=gamebox;
 	atg_resize_canvas(canvas, 640, 480);
+	snprintf(datestring, 11, "%02u-%02u-%04u\n", state.now.day, state.now.month, state.now.year);
 	for(unsigned int j=0;j<state.nbombers;j++)
 	{
 		state.bombers[j].landed=true;
@@ -973,6 +1011,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	/*if(seltarg>=0)
 		SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[seltarg].lon, .y=targs[seltarg].lat});*/
 	int seltarg=-1;
+	free(GB_raid_label->elem.label->text);
+	GB_raid_label->elem.label->text=strdup("Select a Target");
+	GB_raid->elem.box=GB_raidbox_empty;
 	while(1)
 	{
 		for(unsigned int i=0;i<ntargs;i++)
@@ -1412,6 +1453,53 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(brandp((1-types[state.bombers[i].type].svp/100.0)/3.0)) state.bombers[i].failed=true;
 		}
 	}
+	// TODO modify cshr by raid results & other factors
+	state.cash+=state.cshr;
+	// purchase additional planes based on priorities
+	while(true)
+	{
+		unsigned int m=0;
+		for(unsigned int i=1;i<ntypes;i++)
+		{
+			if((diffdate(types[i].entry, state.now)>0)||(diffdate(types[i].exit, state.now)<0)) continue;
+			if(types[i].pribuf>types[m].pribuf) m=i;
+		}
+		if(types[m].pribuf<8)
+		{
+			bool any=false;
+			for(unsigned int i=0;i<ntypes;i++)
+			{
+				if((diffdate(types[i].entry, state.now)>0)||(diffdate(types[i].exit, state.now)<0)) continue;
+				types[i].pribuf+=(unsigned int [4]){0, 1, 3, 6}[types[i].prio];
+				if(types[i].prio) any=true;
+			}
+			if(!any) break;
+			continue;
+		}
+		if(types[m].cost>state.cash) break;
+		unsigned int n=state.nbombers++;
+		ac_bomber *nb=realloc(state.bombers, state.nbombers*sizeof(ac_bomber));
+		if(!nb)
+		{
+			perror("realloc"); // TODO more visible warning
+			state.nbombers=n;
+			break;
+		}
+		(state.bombers=nb)[n]=(ac_bomber){.type=m, .failed=false};
+		for(unsigned int j=0;j<NNAVAIDS;j++)
+			nb[n].nav[j]=false;
+		state.cash-=types[m].cost;
+		types[m].pribuf-=8;
+	}
+	if(++state.now.day>monthdays[state.now.month-1]+(((state.now.month==2)&&!(state.now.year%4))?1:0))
+	{
+		state.now.day=1;
+		if(++state.now.month>12)
+		{
+			state.now.month=1;
+			state.now.year++;
+		}
+	}
 	goto gameloop;
 	
 	do_exit:
@@ -1505,6 +1593,15 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					e|=1;
 				}
 			}
+			else if(strcmp(tag, "Budget")==0)
+			{
+				f=sscanf(dat, "%u+%u\n", &state->cash, &state->cshr);
+				if(f!=2)
+				{
+					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+					e|=1;
+				}
+			}
 			else if(strcmp(tag, "Types")==0)
 			{
 				unsigned int sntypes;
@@ -1531,9 +1628,9 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 							e|=64;
 							break;
 						}
-						unsigned int j, prio;
-						f=sscanf(line, "Prio %u:%u\n", &j, &prio);
-						if(f!=2)
+						unsigned int j, prio, pribuf;
+						f=sscanf(line, "Prio %u:%u,%u\n", &j, &prio, &pribuf);
+						if(f!=3)
 						{
 							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 							e|=1;
@@ -1546,6 +1643,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 							break;
 						}
 						types[j].prio=prio;
+						types[j].pribuf=pribuf;
 					}
 				}
 			}
