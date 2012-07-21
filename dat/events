@@ -33,32 +33,34 @@ H2S:26-01-1943
 GH:13-11-1943
 
 #RCM
-# Boozer is a receiver for Liechtenstein BC emissions.  However, in a bomber stream a Boozer warning doesn't mean much
-BOOZER:
+# Boozer is a receiver for enemy radar emissions.  However, in a bomber stream a Boozer warning doesn't mean much
+BOOZER:17-08-1943
 # Window, nowadays known as 'chaff', consists of strips of metal foil which jam enemy radar
-WINDOW:
-# Moonshine sends back delayed echoes from enemy airborne radar, screwing up their range readings
-MOONSHINE:
+WINDOW:24-07-1943
+# Moonshine sends back delayed echoes to enemy 'Freya' ground radar, jamming them
+MOONSHINE:01-10-1942
 # Airborne Cigar transmitters, carried in bombers, jam the German nightfighter R/T frequencies
-ABC:
+ABC:09-10-1943
 # Fishpond is a mod to H2S that detects aircraft in the H2S's viewcone
-FISHPOND:
+FISHPOND:02-04-1944
+# Serrate is a device to track Lichtenstein BC radar
+SERRATE:16-12-1942
 
 #German defenses
 # Start placing Wurzburgs and Giant Wurzburgs
-WURZBURG:
+WURZBURG:09-04-1940
 # Kammhuber line
-KAMMHUBER:
-# Liechtenstein BC (airborne radar)
-L_BC:
+KAMMHUBER:28-07-1940
+# Lichtenstein B/C (airborne radar)
+L_BC:12-02-1942
 # Naxos homes on H2S transmissions
-NAXOS:
-# Liechtenstein SN (better)
-L_SN:
+NAXOS:28-11-1943
+# Lichtenstein SN (better)
+L_SN:01-10-1943
 # Schräge Musik
 MUSIK:
 # Jamming GEE
-GEEJAM:
+GEEJAM:21-09-1942
 
 #Intelligence reports
 # Warnings

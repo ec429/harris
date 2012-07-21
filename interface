@@ -1,3 +1,5 @@
+For reference: the interface layout of the old (BASIC) Harris game
+
 Conference Pane
 
 Top Left: Your Bomber Force
@@ -17,7 +19,6 @@ Middle: Budget & Manufacturers' Orders
 Lower Left: Morale & Confidence
 
 Lower Middle: Targets for Tonight
-	List of currently active raids, with 'edit' buttons, and an 'add' button
 
 Bottom: News Ticker
 
@@ -25,5 +26,7 @@ Bottom: News Ticker
 
 Attack Pane
 
-Map: Shows geography, weather, routes & targets, aircraft.
-Forces: Shows, for each stream, number of aircraft despatched, number lost, number bombed etc.
+Top: Forces
+
+Bottom: Stats
+	Appears after the raids are over.
