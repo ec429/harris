@@ -10,10 +10,6 @@
 #include "rand.h"
 #include "widgets.h"
 
-/* TODO
-	Make the Leaflet targets copy the images from the corresponding Cities.
-*/
-
 typedef struct
 {
 	unsigned int year;
@@ -131,8 +127,9 @@ SDL_Surface *render_ac_b(game state);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
-bombertype *types;
+bombertype *types=NULL;
 unsigned int ntargs=0;
+target *targs=NULL;
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
 
@@ -150,7 +147,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	// Load data files
 	fprintf(stderr, "Loading data files...\n");
 	FILE *typefp=fopen("dat/bombers", "r");
-	types=NULL;
 	if(!typefp)
 	{
 		fprintf(stderr, "Failed to open data file `bombers'!\n");
@@ -229,7 +225,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	
 	FILE *targfp=fopen("dat/targets", "r");
-	target *targs=NULL;
 	if(!targfp)
 	{
 		fprintf(stderr, "Failed to open data file `targets'!\n");
@@ -293,8 +288,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				switch(this.class)
 				{
-					case TCLASS_CITY:
 					case TCLASS_LEAFLET:
+						if(!ntargs)
+						{
+							fprintf(stderr, "Error: First target is a TCLASS_LEAFLET\n");
+							return(1);
+						}
+						if(targs[ntargs-1].class!=TCLASS_CITY)
+						{
+							fprintf(stderr, "Error: TCLASS_LEAFLET not preceded by its CITY\n");
+							return(1);
+						}
+						(this.picture=targs[ntargs-1].picture)->refcount++;
+					break;
+					case TCLASS_CITY:
 						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, CITYSIZE, CITYSIZE, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
 						{
 							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
@@ -1945,6 +1952,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 							e|=4;
 							break;
 						}
+						state->flk[i]*=targs[i].flak/100.0;
 					}
 				}
 			}
