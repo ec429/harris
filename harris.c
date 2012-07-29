@@ -10,6 +10,18 @@
 #include "rand.h"
 #include "widgets.h"
 
+/* TODO
+	Implement Saving
+	Make Loading handle Weather !rand
+	Implement stats tracking
+	Raid Results UI
+	Flak
+	Fighters
+	Air Ministry confidence & budget
+	Implement Events
+	Implement Navaids
+*/
+
 typedef struct
 {
 	unsigned int year;
