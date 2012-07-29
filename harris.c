@@ -1447,7 +1447,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			atg_flip(canvas);
 		}
 		// incorporate the results, and clear the raids ready for next cycle
-		unsigned int nloss=0, nbomb=0, nleaf=0, tbomb=0, tleaf=0, ntarg=0, nltarg=0, ttarg=0, tltarg=0;
+		unsigned int nloss=0, nbomb=0, nleaf=0, tbomb=0, tleaf=0, ntarg=0, nltarg=0, ttarg=0, tltarg=0, nship=0;
 		unsigned int bnloss[ntypes], bntarg[ntypes], bttarg[ntypes], btltarg[ntypes], tntarg[ntargs], tttarg[ntargs];
 		unsigned int nij[ntargs][ntypes], tij[ntargs][ntypes];
 		for(unsigned int i=0;i<ntargs;i++)
@@ -1533,6 +1533,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										{
 											tttarg[i]++;
 											tij[i][type]++;
+											nship++;
 										}
 									}
 								}
@@ -1568,6 +1569,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			fprintf(stderr, "%u bombed (%ulb)\n", nbomb, tbomb);
 			fprintf(stderr, " %u on target (%ulb)\n", ntarg, ttarg);
+		}
+		if(nship)
+		{
+			fprintf(stderr, "%u ship%s sunk\n", nship, nship==1?"":"s");
 		}
 		if(nleaf)
 		{
@@ -1605,7 +1610,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							fprintf(stderr, " %s: %u (%u leaflet%s)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
 						break;
 						case TCLASS_SHIPPING:
-							fprintf(stderr, " %s: %u (%u ship%s sunk)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
+							fprintf(stderr, " %s: %u", targs[i].name, tntarg[i]);
+							if(tttarg[i])
+								fprintf(stderr, " (%u ship%s sunk)", tttarg[i], tttarg[i]==1?"":"s");
+							fprintf(stderr, "\n");
 						break;
 						default: // shouldn't ever get here
 							fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
@@ -1625,7 +1633,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									fprintf(stderr, "  %s %s: %u (%u leaflet%s)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
 								break;
 								case TCLASS_SHIPPING:
-									fprintf(stderr, "  %s %s: %u (%u ship%s sunk)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
+									fprintf(stderr, "  %s %s: %u", types[j].manu, types[j].name, nij[i][j]);
+									if(tij[i][j])
+										fprintf(stderr, " (%u ship%s sunk)", tij[i][j], tij[i][j]==1?"":"s");
+									fprintf(stderr, "\n");
 								break;
 								default: // shouldn't ever get here
 									fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
