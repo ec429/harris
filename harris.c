@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "atg/atg.h"
+#include <atg.h>
 #include <SDL_image.h>
 
 #include "bits.h"

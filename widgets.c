@@ -1,5 +1,5 @@
 #include "widgets.h"
-#include "atg/atg_internals.h"
+#include <atg_internals.h>
 
 const char *prio_labels[4]={"NONE","LOW","MED","HIGH"};
 atg_colour prio_colours[4]={{31, 31, 95, 0}, {95, 31, 31, 0}, {95, 95, 15, 0}, {31, 159, 31, 0}};
