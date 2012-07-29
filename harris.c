@@ -895,6 +895,29 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_box failed\n");
 		return(1);
 	}
+	atg_element *RB_time=atg_create_element_label("--:--", 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+	if(!RB_time)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	char *RB_time_label;
+	if(!RB_time->elem.label)
+	{
+		fprintf(stderr, "RB_time->elem.label==NULL\n");
+		return(1);
+	}
+	if(!(RB_time_label=RB_time->elem.label->text))
+	{
+		fprintf(stderr, "RB_time_label==NULL\n");
+		return(1);
+	}
+	RB_time->w=159;
+	if(atg_pack_element(raidbox, RB_time))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
 	atg_element *RB_map=atg_create_element_image(map);
 	if(!RB_map)
 	{
@@ -1262,6 +1285,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		canvas->box=raidbox;
 		atg_resize_canvas(canvas, 640, 480);
+		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
 		SDL_FreeSurface(RB_map->elem.image->data);
 		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 		SDL_Surface *with_target=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
@@ -1310,6 +1334,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		unsigned int inair=totalraids, t=0;
 		while(inair)
 		{
+			if(RB_time_label) snprintf(RB_time_label, 6, "%02u:%02u", (21+(t/120))%24, (t/2)%60);
 			t++;
 			if((!(t&1))&&(it<512))
 			{
@@ -1354,16 +1379,23 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.bombers[k].navlon=0;
 							}
 						}
-						else if(t>2048)
+						else if(t>768)
 						{
 							state.bombers[k].navlon=state.bombers[k].navlat=0;
+							state.bombers[k].lon=min(state.bombers[k].lon, 127);
 						}
 					}
-					else if((cx<1.2)&&(state.bombers[k].idtar||!state.roe.idtar||brandp(0.005)))
+					else
 					{
-						state.bombers[k].bmblon=state.bombers[k].lon;
-						state.bombers[k].bmblat=state.bombers[k].lat;
-						state.bombers[k].bombed=true;
+						bool fuel=(t==state.bombers[k].fuelt);
+						bool roeok=state.bombers[k].idtar||!state.roe.idtar||brandp(0.005);
+						bool leaf=!state.bombers[k].bmb;
+						if(((cx<1.2)&&roeok)||(fuel&&(roeok||leaf)))
+						{
+							state.bombers[k].bmblon=state.bombers[k].lon;
+							state.bombers[k].bmblat=state.bombers[k].lat;
+							state.bombers[k].bombed=true;
+						}
 					}
 					state.bombers[k].idtar=false;
 					double dx=cx*state.bombers[k].speed/d,
@@ -1544,12 +1576,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		if(ntarg+nltarg)
 		{
-			fprintf(stderr, " By type:\n");
+			fprintf(stderr, "By type:\n");
 			for(unsigned int j=0;j<ntypes;j++)
 			{
 				if(bntarg[j])
 				{
-					fprintf(stderr, "  %s %s: %u (", types[j].manu, types[j].name, bntarg[j]);
+					fprintf(stderr, " %s %s: %u (", types[j].manu, types[j].name, bntarg[j]);
 					if(bttarg[j])
 						fprintf(stderr, "%ulb", bttarg[j]);
 					if(bttarg[j]&&btltarg[j])
@@ -1559,7 +1591,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					fprintf(stderr, "); %u lost\n", bnloss[j]);
 				}
 			}
-			fprintf(stderr, " By target:\n");
+			fprintf(stderr, "By target:\n");
 			for(unsigned int i=0;i<ntargs;i++)
 			{
 				if(tntarg[i])
@@ -1567,13 +1599,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(targs[i].class)
 					{
 						case TCLASS_CITY:
-							fprintf(stderr, "  %s: %u (%ulb)\n", targs[i].name, tntarg[i], tttarg[i]);
+							fprintf(stderr, " %s: %u (%ulb)\n", targs[i].name, tntarg[i], tttarg[i]);
 						break;
 						case TCLASS_LEAFLET:
-							fprintf(stderr, "  %s: %u (%u leaflet%s)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
+							fprintf(stderr, " %s: %u (%u leaflet%s)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
 						break;
 						case TCLASS_SHIPPING:
-							fprintf(stderr, "  %s: %u (%u ship%s sunk)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
+							fprintf(stderr, " %s: %u (%u ship%s sunk)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
 						break;
 						default: // shouldn't ever get here
 							fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
@@ -1587,13 +1619,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							switch(targs[i].class)
 							{
 								case TCLASS_CITY:
-									fprintf(stderr, "   %s %s: %u (%ulb)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j]);
+									fprintf(stderr, "  %s %s: %u (%ulb)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j]);
 								break;
 								case TCLASS_LEAFLET:
-									fprintf(stderr, "   %s %s: %u (%u leaflet%s)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
+									fprintf(stderr, "  %s %s: %u (%u leaflet%s)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
 								break;
 								case TCLASS_SHIPPING:
-									fprintf(stderr, "   %s %s: %u (%u ship%s sunk)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
+									fprintf(stderr, "  %s %s: %u (%u ship%s sunk)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
 								break;
 								default: // shouldn't ever get here
 									fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);

@@ -8,9 +8,10 @@
 # Class: what kind of target is it?  (CITY, SHIPPING, ...)
 
 # Shipping targets.
-Schillig Roads:8:1:6:67:158::01-04-1940:SHIPPING
+Schillig Roads:8:1:6:67:158::31-03-1940:SHIPPING
 Heligoland Bight:6:0:8:58:160::24-12-1939:SHIPPING
-Wilhelmshaven Docks:10:7:2:70:161::01-04-1940:SHIPPING
+Wilhelmshaven Docks:10:3:7:70:161::13-02-1942:SHIPPING
+Hörnum, Sylt:7:4:6:51:163::31-03-1940:SHIPPING
 
 # Nickelling (leaflet) targets.
 Berlin Leaflets:0:10:50:97:233:::LEAFLET
