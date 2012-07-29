@@ -10,6 +10,7 @@ void w_init(w_state * buf, unsigned int prep, bool lorw[128][128])
 	if(buf!=NULL)
 	{
 		buf->push=1000;
+		buf->slant=1;
 		for(unsigned int x=0;x<256;x++)
 		{
 			for(unsigned int y=0;y<128;y++)
@@ -30,6 +31,7 @@ void w_iter(w_state * ptr, bool lorw[128][128])
 	if(ptr!=NULL)
 	{
 		ptr->push=(ptr->push*.9996)+(rand()*0.8/RAND_MAX);
+		ptr->slant=(ptr->slant*.9992)+(rand()*0.0016/RAND_MAX);
 		double tmp[256][128];
 		for(unsigned int x=0;x<256;x++)
 		{
@@ -56,9 +58,13 @@ void w_iter(w_state * ptr, bool lorw[128][128])
 					}
 					else tmp[x][y]-=(tmp[x][y]-base)*0.02;
 				}
+				else
+					tmp[x][y]+=y*0.0002*pow(ptr->slant, 4.0);
 				tmp[x][y]-=pow((tmp[x][y]-base)*0.1, 3);
 			}
 		}
+		unsigned int rx=135+floor(rand()*114.0/RAND_MAX), ry=floor(rand()*128.0/RAND_MAX);
+		tmp[rx][ry]+=rand()*20.0/RAND_MAX-10.0;
 		for(unsigned int x=0;x<256;x++)
 		{
 			for(unsigned int y=0;y<128;y++)

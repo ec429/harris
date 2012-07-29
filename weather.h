@@ -2,7 +2,7 @@
 
 typedef struct
 {
-	double push;
+	double push, slant;
 	double p[256][128];
 	double t[256][128];
 }
