@@ -10,6 +10,10 @@
 #include "rand.h"
 #include "widgets.h"
 
+/* TODO
+	Make the Leaflet targets copy the images from the corresponding Cities.
+*/
+
 typedef struct
 {
 	unsigned int year;
@@ -61,7 +65,7 @@ typedef struct
 	char * name;
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
-	enum {TCLASS_CITY,} class;
+	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_LEAFLET,} class;
 	SDL_Surface *picture;
 }
 target;
@@ -75,7 +79,7 @@ typedef struct
 	double driftlat, driftlon; // rate of error
 	unsigned int bmblat, bmblon; // true position where bombs were dropped (if any)
 	bool nav[NNAVAIDS];
-	unsigned int bmb; // bombload carried
+	unsigned int bmb; // bombload carried.  0 means leaflets
 	bool bombed;
 	bool crashed;
 	bool failed; // for forces, read as !svble
@@ -122,7 +126,7 @@ date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
 SDL_Surface *render_weather(w_state weather);
-SDL_Surface *render_cities(unsigned int ntargs, target *targs);
+SDL_Surface *render_targets(unsigned int ntargs, target *targs, date now);
 SDL_Surface *render_ac_b(game state);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
@@ -273,6 +277,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					this.class=TCLASS_CITY;
 				}
+				else if(strcmp(class, "SHIPPING")==0)
+				{
+					this.class=TCLASS_SHIPPING;
+				}
+				else if(strcmp(class, "LEAFLET")==0)
+				{
+					this.class=TCLASS_LEAFLET;
+				}
 				else
 				{
 					fprintf(stderr, "Bad `targets' line `%s'\n", next);
@@ -282,6 +294,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				switch(this.class)
 				{
 					case TCLASS_CITY:
+					case TCLASS_LEAFLET:
 						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, CITYSIZE, CITYSIZE, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
 						{
 							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
@@ -304,6 +317,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								}
 							}
 						}
+					break;
+					case TCLASS_SHIPPING:
+						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 4, 3, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+						{
+							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+							return(1);
+						}
+						SDL_SetAlpha(this.picture, 0, 0);
+						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
+						pset(this.picture, 1, 0, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 0, 1, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 1, 1, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 2, 1, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 3, 1, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 1, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 2, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
 					break;
 					default: // shouldn't ever get here
 						fprintf(stderr, "Bad this.class = %d\n", this.class);
@@ -619,7 +648,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	SDL_Surface *weather_overlay=NULL, *city_overlay=NULL;
+	SDL_Surface *weather_overlay=NULL, *target_overlay=NULL;
 	atg_element *GB_raid_label=atg_create_element_label("Select a Target", 12, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
 	if(!GB_raid_label)
 	{
@@ -987,8 +1016,24 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	for(unsigned int i=0;i<ntargs;i++)
 	{
+		if(GB_ttrow[i])
+			GB_ttrow[i]->hidden=((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0));
 		if(GB_ttdmg[i])
-			GB_ttdmg[i]->w=floor(state.dmg[i]);
+			switch(targs[i].class)
+			{
+				case TCLASS_CITY:
+				case TCLASS_LEAFLET: // for LEAFLET shows morale rather than damage
+					GB_ttdmg[i]->w=floor(state.dmg[i]);
+					GB_ttdmg[i]->hidden=false;
+				break;
+				case TCLASS_SHIPPING:
+					GB_ttdmg[i]->w=0;
+				break;
+				default: // shouldn't ever get here
+					fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+					return(1);
+				break;
+			}
 		if(GB_ttflk[i])
 			GB_ttflk[i]->w=floor(state.flk[i]);
 		for(unsigned int j=0;j<ntypes;j++)
@@ -1001,9 +1046,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	SDL_FreeSurface(GB_map->elem.image->data);
 	GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-	SDL_FreeSurface(city_overlay);
-	city_overlay=render_cities(ntargs, targs);
-	SDL_BlitSurface(city_overlay, NULL, GB_map->elem.image->data, NULL);
+	SDL_FreeSurface(target_overlay);
+	target_overlay=render_targets(ntargs, targs, state.now);
+	SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state.weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
@@ -1115,7 +1160,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							seltarg=-1;
 							SDL_FreeSurface(GB_map->elem.image->data);
 							GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-							SDL_BlitSurface(city_overlay, NULL, GB_map->elem.image->data, NULL);
+							SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
 							SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 							free(GB_raid_label->elem.label->text);
 							GB_raid_label->elem.label->text=strdup("Select a Target");
@@ -1128,7 +1173,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								seltarg=i;
 								SDL_FreeSurface(GB_map->elem.image->data);
 								GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-								SDL_BlitSurface(city_overlay, NULL, GB_map->elem.image->data, NULL);
+								SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
 								SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon-3, .y=targs[i].lat-3});
 								free(GB_raid_label->elem.label->text);
@@ -1219,11 +1264,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		atg_resize_canvas(canvas, 640, 480);
 		SDL_FreeSurface(RB_map->elem.image->data);
 		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-		SDL_Surface *with_city=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-		SDL_FreeSurface(city_overlay);
-		city_overlay=render_cities(ntargs, targs);
-		SDL_BlitSurface(city_overlay, NULL, with_city, NULL);
-		SDL_Surface *with_weather=SDL_ConvertSurface(with_city, with_city->format, with_city->flags);
+		SDL_Surface *with_target=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		SDL_FreeSurface(target_overlay);
+		target_overlay=render_targets(ntargs, targs, state.now);
+		SDL_BlitSurface(target_overlay, NULL, with_target, NULL);
+		SDL_Surface *with_weather=SDL_ConvertSurface(with_target, with_target->format, with_target->flags);
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state.weather);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
@@ -1236,7 +1281,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].targ=i;
 				state.bombers[k].lat=types[type].blat;
 				state.bombers[k].lon=types[type].blon;
-				state.bombers[k].bmb=types[type].cap;
+				if(targs[i].class==TCLASS_LEAFLET)
+					state.bombers[k].bmb=0;
+				else
+					state.bombers[k].bmb=types[type].cap;
 				state.bombers[k].bombed=false;
 				state.bombers[k].crashed=false;
 				state.bombers[k].landed=false;
@@ -1268,7 +1316,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				w_iter(&state.weather, lorw);
 				SDL_FreeSurface(weather_overlay);
 				weather_overlay=render_weather(state.weather);
-				SDL_BlitSurface(with_city, NULL, with_weather, NULL);
+				SDL_BlitSurface(with_target, NULL, with_weather, NULL);
 				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 				it++;
 			}
@@ -1340,7 +1388,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						state.bombers[k].navlon*=(256.0+state.bombers[k].lon)/512.0;
 						state.bombers[k].navlat*=(256.0+state.bombers[k].lon)/512.0;
-						if(pget(city_overlay, state.bombers[k].lon, state.bombers[k].lat).a==ATG_ALPHA_OPAQUE)
+						if(pget(target_overlay, state.bombers[k].lon, state.bombers[k].lat).a==ATG_ALPHA_OPAQUE)
 						{
 							state.bombers[k].idtar=true;
 							unsigned int dm=0;
@@ -1367,36 +1415,100 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			atg_flip(canvas);
 		}
 		// incorporate the results, and clear the raids ready for next cycle
-		unsigned int nloss=0, nbomb=0, tbomb=0, ntarg=0, ttarg=0;
-		unsigned int bntarg[ntypes], bttarg[ntypes], tntarg[ntargs], tttarg[ntargs];
+		unsigned int nloss=0, nbomb=0, nleaf=0, tbomb=0, tleaf=0, ntarg=0, nltarg=0, ttarg=0, tltarg=0;
+		unsigned int bnloss[ntypes], bntarg[ntypes], bttarg[ntypes], btltarg[ntypes], tntarg[ntargs], tttarg[ntargs];
+		unsigned int nij[ntargs][ntypes], tij[ntargs][ntypes];
 		for(unsigned int i=0;i<ntargs;i++)
+		{
 			tntarg[i]=tttarg[i]=0;
+			for(unsigned int j=0;j<ntypes;j++)
+				nij[i][j]=tij[i][j]=0;
+		}
 		for(unsigned int j=0;j<ntypes;j++)
-			bntarg[j]=bttarg[j]=0;
+			bnloss[j]=bntarg[j]=bttarg[j]=btltarg[j]=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 			{
 				unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
+				bool leaf=!state.bombers[k].bmb;
 				if(state.bombers[k].bombed)
 				{
-					nbomb++;
-					tbomb+=state.bombers[k].bmb;
+					if(leaf)
+					{
+						nleaf++;
+						tleaf+=types[type].cap*3;
+					}
+					else
+					{
+						nbomb++;
+						tbomb+=state.bombers[k].bmb;
+					}
 					for(unsigned int i=0;i<ntargs;i++)
 					{
 						int dx=state.bombers[k].bmblon-targs[i].lon, dy=state.bombers[k].bmblat-targs[i].lat;
-						if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
+						switch(targs[i].class)
 						{
-							if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
-							{
-								state.dmg[i]=max(0, state.dmg[i]-state.bombers[k].bmb/100000.0);
-								ntarg++;
-								ttarg+=state.bombers[k].bmb;
-								bntarg[type]++;
-								bttarg[type]+=state.bombers[k].bmb;
-								tntarg[i]++;
-								tttarg[i]+=state.bombers[k].bmb;
-							}
+							case TCLASS_CITY:
+								if(leaf) continue;
+								if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
+								{
+									if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+									{
+										state.dmg[i]=max(0, state.dmg[i]-state.bombers[k].bmb/100000.0);
+										ntarg++;
+										nij[i][type]++;
+										ttarg+=state.bombers[k].bmb;
+										tij[i][type]+=state.bombers[k].bmb;
+										bntarg[type]++;
+										bttarg[type]+=state.bombers[k].bmb;
+										tntarg[i]++;
+										tttarg[i]+=state.bombers[k].bmb;
+									}
+								}
+							break;
+							case TCLASS_LEAFLET:
+								if(!leaf) continue;
+								if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
+								{
+									if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+									{
+										state.dmg[i]=max(0, state.dmg[i]-types[type].cap/400000.0);
+										nltarg++;
+										nij[i][type]++;
+										tltarg+=types[type].cap*3;
+										tij[i][type]+=types[type].cap*3;
+										bntarg[type]++;
+										btltarg[type]+=types[type].cap*3;
+										tntarg[i]++;
+										tttarg[i]+=types[type].cap*3;
+									}
+								}
+							break;
+							case TCLASS_SHIPPING:
+								if(leaf) continue;
+								if((abs(dx)<=2)&&(abs(dy)<=1))
+								{
+									if(brandp(targs[i].esiz/100.0))
+									{
+										ntarg++;
+										nij[i][type]++;
+										ttarg+=state.bombers[k].bmb;
+										bntarg[type]++;
+										bttarg[type]+=state.bombers[k].bmb;
+										tntarg[i]++;
+										if(brandp(log2(state.bombers[k].bmb/1000.0)/8.0))
+										{
+											tttarg[i]++;
+											tij[i][type]++;
+										}
+									}
+								}
+							break;
+							default: // shouldn't ever get here
+								fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+								return(1);
+							break;
 						}
 					}
 				}
@@ -1410,6 +1522,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(state.bombers[i].crashed)
 			{
 				nloss++;
+				bnloss[state.bombers[i].type]++;
 				state.nbombers--;
 				for(unsigned int j=i;j<state.nbombers;j++)
 					state.bombers[j]=state.bombers[j+1];
@@ -1418,19 +1531,79 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		}
 		// report on the results (TODO: GUI bit)
-		fprintf(stderr, "%u dispatched\n%u lost\n%u bombed (%ulb)\n", totalraids, nloss, nbomb, tbomb);
-		fprintf(stderr, "%u on target (%ulb)\n", ntarg, ttarg);
-		fprintf(stderr, " By type:\n");
-		for(unsigned int j=0;j<ntypes;j++)
+		fprintf(stderr, "%u dispatched\n%u lost\n", totalraids, nloss);
+		if(nbomb)
 		{
-			if(bntarg[j])
-				fprintf(stderr, "  %s %s: %u (%ulb)\n", types[j].manu, types[j].name, bntarg[j], bttarg[j]);
+			fprintf(stderr, "%u bombed (%ulb)\n", nbomb, tbomb);
+			fprintf(stderr, " %u on target (%ulb)\n", ntarg, ttarg);
 		}
-		fprintf(stderr, " By target\n");
-		for(unsigned int i=0;i<ntargs;i++)
+		if(nleaf)
 		{
-			if(tntarg[i])
-				fprintf(stderr, "  %s: %u (%u lb)\n", targs[i].name, tntarg[i], tttarg[i]);
+			fprintf(stderr, "%u leafleted (%u leaflet%s)\n", nleaf, tleaf, tleaf==1?"":"s");
+			fprintf(stderr, " %u on target (%u leaflet%s)\n", nltarg, tltarg, tltarg==1?"":"s");
+		}
+		if(ntarg+nltarg)
+		{
+			fprintf(stderr, " By type:\n");
+			for(unsigned int j=0;j<ntypes;j++)
+			{
+				if(bntarg[j])
+				{
+					fprintf(stderr, "  %s %s: %u (", types[j].manu, types[j].name, bntarg[j]);
+					if(bttarg[j])
+						fprintf(stderr, "%ulb", bttarg[j]);
+					if(bttarg[j]&&btltarg[j])
+						fprintf(stderr, ", ");
+					if(btltarg[j])
+						fprintf(stderr, "%u leaflet%s", btltarg[j], btltarg[j]==1?"":"s");
+					fprintf(stderr, "); %u lost\n", bnloss[j]);
+				}
+			}
+			fprintf(stderr, " By target:\n");
+			for(unsigned int i=0;i<ntargs;i++)
+			{
+				if(tntarg[i])
+				{
+					switch(targs[i].class)
+					{
+						case TCLASS_CITY:
+							fprintf(stderr, "  %s: %u (%ulb)\n", targs[i].name, tntarg[i], tttarg[i]);
+						break;
+						case TCLASS_LEAFLET:
+							fprintf(stderr, "  %s: %u (%u leaflet%s)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
+						break;
+						case TCLASS_SHIPPING:
+							fprintf(stderr, "  %s: %u (%u ship%s sunk)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
+						break;
+						default: // shouldn't ever get here
+							fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+							return(1);
+						break;
+					}
+					for(unsigned int j=0;j<ntypes;j++)
+					{
+						if(nij[i][j])
+						{
+							switch(targs[i].class)
+							{
+								case TCLASS_CITY:
+									fprintf(stderr, "   %s %s: %u (%ulb)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j]);
+								break;
+								case TCLASS_LEAFLET:
+									fprintf(stderr, "   %s %s: %u (%u leaflet%s)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
+								break;
+								case TCLASS_SHIPPING:
+									fprintf(stderr, "   %s %s: %u (%u ship%s sunk)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
+								break;
+								default: // shouldn't ever get here
+									fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+									return(1);
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
 		// finish the weather
 		for(; it<512;it++)
@@ -1781,18 +1954,31 @@ SDL_Surface *render_weather(w_state weather)
 	return(rv);
 }
 
-SDL_Surface *render_cities(unsigned int ntargs, target *targs)
+SDL_Surface *render_targets(unsigned int ntargs, target *targs, date now)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
 	{
-		fprintf(stderr, "render_cities: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		fprintf(stderr, "render_targets: SDL_CreateRGBSurface: %s\n", SDL_GetError());
 		return(NULL);
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	for(unsigned int i=0;i<ntargs;i++)
 	{
-		SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-HALFCITY, .y=targs[i].lat-HALFCITY});
+		if((diffdate(targs[i].entry, now)>0)||(diffdate(targs[i].exit, now)<0)) continue;
+		switch(targs[i].class)
+		{
+			case TCLASS_CITY:
+			case TCLASS_LEAFLET:
+				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-HALFCITY, .y=targs[i].lat-HALFCITY});
+			break;
+			case TCLASS_SHIPPING:
+				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-1, .y=targs[i].lat-1});
+			break;
+			default:
+				fprintf(stderr, "render_targets: Warning: bad targs[%d].class = %d\n", i, targs[i].class);
+			break;
+		}
 	}
 	return(rv);
 }

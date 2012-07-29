@@ -20,7 +20,7 @@ harris.o: harris.c $(INCLUDES)
 atg/atg.o: atg/atg.c atg/atg.h
 	make -C atg
 
-widgets.o: widgets.c widgets.h
+widgets.o: widgets.c widgets.h atg/atg.h atg/atg_internals.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 %.o: %.c %.h
