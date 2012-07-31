@@ -12,7 +12,6 @@
 
 /* TODO
 	Implement Saving
-	Make Loading handle Weather !rand
 	Implement stats tracking
 	Raid Results UI
 	Flak
@@ -2145,6 +2144,39 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						}
 						state->flk[i]*=targs[i].flak/100.0;
 					}
+				}
+			}
+			else if(strcmp(tag, "Weather state")==0)
+			{
+				f=sscanf(dat, "%la,%la\n", &state->weather.push, &state->weather.slant);
+				if(f!=2)
+				{
+					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+					e|=1;
+				}
+				else
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+					}
+					size_t p=0;
+					for(unsigned int x=0;x<256;x++)
+						for(unsigned int y=0;y<256;y++)
+						{
+							int bytes;
+							if(sscanf(line+p, "%la,%la,%n", &state->weather.p[x][y], &state->weather.t[x][y], &bytes)!=2)
+							{
+								fprintf(stderr, "1 Too few arguments to part (%u,%u) of tag \"%s\"\n", x, y, tag);
+								e|=1;
+								goto brk;
+							}
+							p+=bytes;
+						}
+					brk:;
 				}
 			}
 			else if(strcmp(tag, "Weather rand")==0)
