@@ -632,6 +632,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
+	atg_element *GB_save=atg_create_element_button("Save game", (atg_colour){159, 255, 191, ATG_ALPHA_OPAQUE}, (atg_colour){31, 63, 31, ATG_ALPHA_OPAQUE});
+	if(!GB_save)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	GB_save->w=159;
+	if(atg_pack_element(GB_btb, GB_save))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
 	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 	if(!map)
 	{
@@ -1042,6 +1054,98 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	
+	atg_box *savebox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
+	if(!savebox)
+	{
+		fprintf(stderr, "atg_create_box failed\n");
+		return(1);
+	}
+	atg_element *SA_file=atg_create_element_filepicker("Save Game", NULL, (atg_colour){239, 239, 255, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
+	if(!SA_file)
+	{
+		fprintf(stderr, "atg_create_element_filepicker failed\n");
+		return(1);
+	}
+	SA_file->h=450;
+	SA_file->w=640;
+	if(atg_pack_element(savebox, SA_file))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *SA_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE}), *SA_text=NULL, *SA_save=NULL;
+	char **SA_btext=NULL;
+	if(!SA_hbox)
+	{
+		fprintf(stderr, "atg_create_box failed\n");
+		return(1);
+	}
+	else if(atg_pack_element(savebox, SA_hbox))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	else
+	{
+		atg_box *b=SA_hbox->elem.box;
+		if(!b)
+		{
+			fprintf(stderr, "SA_hbox->elem.box==NULL\n");
+			return(1);
+		}
+		SA_save=atg_create_element_button("Save", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
+		if(!SA_save)
+		{
+			fprintf(stderr, "atg_create_button failed\n");
+			return(1);
+		}
+		if(atg_pack_element(b, SA_save))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		SA_text=atg_create_element_button(NULL, (atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
+		if(!SA_text)
+		{
+			fprintf(stderr, "atg_create_button failed\n");
+			return(1);
+		}
+		SA_text->h=24;
+		SA_text->w=600;
+		if(atg_pack_element(b, SA_text))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_button *tb=SA_text->elem.button;
+		if(!tb)
+		{
+			fprintf(stderr, "SA_text->elem.button==NULL\n");
+			return(1);
+		}
+		atg_box *t=tb->content;
+		if(!t)
+		{
+			fprintf(stderr, "tb->content==NULL\n");
+			return(1);
+		}
+		if(t->nelems&&t->elems&&t->elems[0]->type==ATG_LABEL)
+		{
+			atg_label *l=t->elems[0]->elem.label;
+			if(!l)
+			{
+				fprintf(stderr, "t->elems[0]->elem.label==NULL\n");
+				return(1);
+			}
+			SA_btext=&l->text;
+		}
+		else
+		{
+			fprintf(stderr, "SA_text has wrong content\n");
+			return(1);
+		}
+	}
+	
 	fprintf(stderr, "GUI instantiated\n");
 	
 	game state;
@@ -1199,6 +1303,87 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						else
 						{
 							if(LB_btext) *LB_btext=f->value;
+						}
+					}
+				break;
+				default:
+				break;
+			}
+		}
+		SDL_Delay(50);
+	}
+	
+	saver:
+	canvas->box=savebox;
+	atg_resize_canvas(canvas, 640, 480);
+	while(1)
+	{
+		atg_flip(canvas);
+		while(atg_poll_event(&e, canvas))
+		{
+			switch(e.type)
+			{
+				case ATG_EV_RAW:;
+					SDL_Event s=e.event.raw;
+					switch(s.type)
+					{
+						case SDL_QUIT:
+							goto main_menu;;
+						break;
+						case SDL_KEYDOWN:
+							#error Finish me!
+						break;
+					}
+				break;
+				case ATG_EV_TRIGGER:;
+					atg_ev_trigger trigger=e.event.trigger;
+					if(trigger.e==SA_save)
+					{
+						atg_filepicker *f=SA_file->elem.filepicker;
+						if(!f)
+						{
+							fprintf(stderr, "Error: SA_file->elem.filepicker==NULL\n");
+						}
+						else
+						{
+							char *file=malloc(strlen(f->curdir)+strlen(f->value)+1);
+							sprintf(file, "%s%s", f->curdir, f->value);
+							fprintf(stderr, "Saving game state to '%s'...\n", file);
+							if(!savegame(file, state))
+							{
+								fprintf(stderr, "Game saved\n");
+								goto gameloop;
+							}
+							else
+							{
+								fprintf(stderr, "Failed to save to file\n");
+							}
+						}
+					}
+					else if(trigger.e==SA_text)
+					{
+						if(SA_btext&&*SA_btext)
+							**SA_btext=0;
+					}
+					else if(!trigger.e)
+					{
+						// internal error
+					}
+					else
+						fprintf(stderr, "Clicked on unknown button!\n");
+				break;
+				case ATG_EV_VALUE:;
+					atg_ev_value value=e.event.value;
+					if(value.e==SA_file)
+					{
+						atg_filepicker *f=SA_file->elem.filepicker;
+						if(!f)
+						{
+							fprintf(stderr, "Error: SA_file->elem.filepicker==NULL\n");
+						}
+						else
+						{
+							if(SA_btext) *SA_btext=f->value;
 						}
 					}
 				break;
