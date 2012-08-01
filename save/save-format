@@ -25,8 +25,8 @@ either
 		{
 			"%la,%la,", p[x][y], t[x][y]
 		}
+		"\n"
 	}
-	"\n"
 }
 or
 {

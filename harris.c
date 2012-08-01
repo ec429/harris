@@ -153,6 +153,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_canvas failed\n");
 		return(1);
 	}
+	SDL_WM_SetCaption("Harris", "Harris");
+	SDL_EnableUNICODE(1);
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	
 	srand(0); // predictable seed for creating 'random' target maps
 	
@@ -1250,7 +1253,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(s.type)
 					{
 						case SDL_QUIT:
-							goto main_menu;;
+							goto main_menu;
 						break;
 					}
 				break;
@@ -1328,10 +1331,61 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(s.type)
 					{
 						case SDL_QUIT:
-							goto main_menu;;
+							goto gameloop;
 						break;
-						case SDL_KEYDOWN:
-							#error Finish me!
+						case SDL_KEYDOWN:;
+							switch(s.key.keysym.sym)
+							{
+								case SDLK_BACKSPACE:
+									if(SA_btext&&*SA_btext)
+									{
+										size_t l=strlen(*SA_btext);
+										if(l)
+											(*SA_btext)[l-1]=0;
+									}
+								break;
+								case SDLK_RETURN:
+									goto do_save;
+								default:
+									if((s.key.keysym.unicode&0xFF80)==0) // TODO handle UTF-8 in filenames?
+									{
+										char what=s.key.keysym.unicode&0x7F;
+										if(what)
+										{
+											atg_filepicker *f=SA_file->elem.filepicker;
+											if(!f)
+												fprintf(stderr, "Error: SA_file->elem.filepicker==NULL\n");
+											else if(f->value)
+											{
+												size_t l=strlen(f->value);
+												char *n=realloc(f->value, l+2);
+												if(n)
+												{
+													(f->value=n)[l]=what;
+													n[l+1]=0;
+													if(SA_btext)
+														*SA_btext=f->value;
+												}
+												else
+													perror("realloc");
+											}
+											else
+											{
+												f->value=malloc(2);
+												if(f->value)
+												{
+													f->value[0]=what;
+													f->value[1]=0;
+													if(SA_btext)
+														*SA_btext=f->value;
+												}
+												else
+													perror("malloc");
+											}
+										}
+									}
+								break;
+							}
 						break;
 					}
 				break;
@@ -1339,10 +1393,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e==SA_save)
 					{
+						do_save:;
 						atg_filepicker *f=SA_file->elem.filepicker;
 						if(!f)
 						{
 							fprintf(stderr, "Error: SA_file->elem.filepicker==NULL\n");
+						}
+						else if(!f->value)
+						{
+							fprintf(stderr, "Error: no filename\n");
+						}
+						else if(!f->curdir)
+						{
+							fprintf(stderr, "Error: f->curdir==NULL\n");
 						}
 						else
 						{
@@ -1634,6 +1697,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(trigger.e==GB_go)
 						{
 							goto run_raid;
+						}
+						else if(trigger.e==GB_save)
+						{
+							goto saver;
 						}
 					}
 				break;
@@ -2155,8 +2222,10 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 			free(line);
 			continue;
 		}
-		char *tag=line, *dat=strchr(line, ':');
+		char tag[64];
+		char *dat=strchr(line, ':');
 		if(dat) *dat++=0;
+		strncpy(tag, line, 64);
 		int e=0,f; // poor-man's try...
 		if(strcmp(tag, "HARR")==0)
 		{
@@ -2347,20 +2416,30 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
 					e|=64;
 				}
-				size_t p=0;
 				for(unsigned int x=0;x<256;x++)
-					for(unsigned int y=0;y<256;y++)
+				{
+					size_t p=0;
+					for(unsigned int y=0;y<128;y++)
 					{
 						int bytes;
 						if(sscanf(line+p, "%la,%la,%n", &state->weather.p[x][y], &state->weather.t[x][y], &bytes)!=2)
 						{
 							fprintf(stderr, "1 Too few arguments to part (%u,%u) of tag \"%s\"\n", x, y, tag);
 							e|=1;
-							goto brk;
+							break;
 						}
 						p+=bytes;
 					}
-				brk:;
+					if(e) break;
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+				}
 			}
 		}
 		else if(strcmp(tag, "Weather rand")==0)
@@ -2422,11 +2501,9 @@ int savegame(const char *fn, game state)
 	for(unsigned int x=0;x<256;x++)
 	{
 		for(unsigned int y=0;y<128;y++)
-		{
 			fprintf(fs, "%la,%la,", state.weather.p[x][y], state.weather.t[x][y]);
-		}
+		fprintf(fs, "\n");
 	}
-	fprintf(fs, "\n");
 	fclose(fs);
 	return(0);
 }
