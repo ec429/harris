@@ -1159,16 +1159,47 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_box failed\n");
 		return(1);
 	}
-	atg_element *RS_title=atg_create_element_label("Raid Result Statistics", 15, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
-	if(!RS_title)
+	else
 	{
-		fprintf(stderr, "atg_create_element_label failed\n");
-		return(1);
-	}
-	if(atg_pack_element(rstatbox, RS_title))
-	{
-		perror("atg_pack_element");
-		return(1);
+		atg_element *RS_trow=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!RS_trow)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_pack_element(rstatbox, RS_trow))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_box *b=RS_trow->elem.box;
+		if(!b)
+		{
+			fprintf(stderr, "RS_trow->elem.box==NULL\n");
+			return(1);
+		}
+		atg_element *RS_title=atg_create_element_label("Raid Result Statistics ", 15, (atg_colour){223, 255, 0, ATG_ALPHA_OPAQUE});
+		if(!RS_title)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_pack_element(b, RS_title))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_element *RS_cont=atg_create_element_button("Continue", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!RS_cont)
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		if(atg_pack_element(b, RS_cont))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
 	}
 	atg_element *RS_typerow=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 33, 33, ATG_ALPHA_OPAQUE}), *RS_typecol[ntypes], *RS_tocol;
 	if(!RS_typerow)
@@ -2125,6 +2156,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				continue;
 			}
 		}
+		// finish the weather
+		for(; it<512;it++)
+			w_iter(&state.weather, lorw);
+		
 		// Raid Results table
 		for(unsigned int i=2;i<rstatbox->nelems;i++)
 			atg_free_element(rstatbox->elems[i]);
@@ -2465,14 +2500,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							break;
 						}
 					break;
+					case ATG_EV_TRIGGER: // it must have been RS_cont, that's the only button on the page
+						errupt++;
+					break;
 					default:
 					break;
 				}
 			}
 		}
-		// finish the weather
-		for(; it<512;it++)
-			w_iter(&state.weather, lorw);
 	}
 	else
 	{
