@@ -2215,11 +2215,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(b2)
 								{
 									char dt[20],nt[20],tt[20],lt[20];
-									snprintf(dt, 20, "Dispatched: %u", dij[i][j]);
-									atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){191, 191, 0, ATG_ALPHA_OPAQUE});
-									if(dl) atg_pack_element(b2, dl);
 									if(dij[i][j]||nij[i][j])
 									{
+										snprintf(dt, 20, "Dispatched: %u", dij[i][j]);
+										atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){191, 191, 0, ATG_ALPHA_OPAQUE});
+										if(dl) atg_pack_element(b2, dl);
 										snprintf(nt, 20, "Hit Target: %u", nij[i][j]);
 										atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){191, 191, 0, ATG_ALPHA_OPAQUE});
 										if(nl) atg_pack_element(b2, nl);
@@ -2265,11 +2265,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(b2)
 								{
 									char dt[20],nt[20],tt[20],lt[20];
-									snprintf(dt, 20, "Dispatched: %u", di);
-									atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
-									if(dl) atg_pack_element(b2, dl);
 									if(di||ni)
 									{
+										snprintf(dt, 20, "Dispatched: %u", di);
+										atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+										if(dl) atg_pack_element(b2, dl);
 										snprintf(nt, 20, "Hit Target: %u", ni);
 										atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 										if(nl) atg_pack_element(b2, nl);
@@ -2343,11 +2343,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(b2)
 							{
 								char dt[20],nt[20],tt[20],lt[20];
-								snprintf(dt, 20, "Dispatched: %u", dj[j]);
-								atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
-								if(dl) atg_pack_element(b2, dl);
 								if(dj[j]||nj[j])
 								{
+									snprintf(dt, 20, "Dispatched: %u", dj[j]);
+									atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+									if(dl) atg_pack_element(b2, dl);
 									snprintf(nt, 20, "Hit Target: %u", nj[j]);
 									atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 									if(nl) atg_pack_element(b2, nl);
@@ -2394,11 +2394,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(b2)
 							{
 								char dt[20],nt[20],tt[20],lt[20];
-								snprintf(dt, 20, "Dispatched: %u", D);
-								atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
-								if(dl) atg_pack_element(b2, dl);
 								if(D||N)
 								{
+									snprintf(dt, 20, "Dispatched: %u", D);
+									atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+									if(dl) atg_pack_element(b2, dl);
 									snprintf(nt, 20, "Hit Target: %u", N);
 									atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 									if(nl) atg_pack_element(b2, nl);
