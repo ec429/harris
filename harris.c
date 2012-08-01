@@ -11,7 +11,6 @@
 #include "widgets.h"
 
 /* TODO
-	Implement Saving
 	Implement stats tracking
 	Raid Results UI
 	Flak
