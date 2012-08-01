@@ -129,6 +129,7 @@ game;
 #define VER_REV	0
 
 int loadgame(const char *fn, game *state, bool lorw[128][128]);
+int savegame(const char *fn, game state);
 date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
@@ -1958,203 +1959,77 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 		perror("fopen");
 		return(1);
 	}
-	else
+	unsigned char s_version[3]={0,0,0};
+	unsigned char version[3]={VER_MAJ,VER_MIN,VER_REV};
+	while(!feof(fs))
 	{
-		unsigned char s_version[3]={0,0,0};
-		unsigned char version[3]={VER_MAJ,VER_MIN,VER_REV};
-		while(!feof(fs))
+		char *line=fgetl(fs);
+		if(!line) break;
+		if(!*line)
 		{
-			char *line=fgetl(fs);
-			if(!line) break;
-			if(!*line)
+			free(line);
+			continue;
+		}
+		char *tag=line, *dat=strchr(line, ':');
+		if(dat) *dat++=0;
+		int e=0,f; // poor-man's try...
+		if(strcmp(tag, "HARR")==0)
+		{
+			f=sscanf(dat, "%hhu.%hhu.%hhu\n", s_version, s_version+1, s_version+2);
+			if(f!=3)
 			{
-				free(line);
-				continue;
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
 			}
-			char *tag=line, *dat=strchr(line, ':');
-			if(dat) *dat++=0;
-			int e=0,f; // poor-man's try...
-			if(strcmp(tag, "HARR")==0)
+			if(version_newer(s_version, version))
 			{
-				f=sscanf(dat, "%hhu.%hhu.%hhu\n", s_version, s_version+1, s_version+2);
-				if(f!=3)
-				{
-					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-					e|=1;
-				}
-				if(version_newer(s_version, version))
-				{
-					fprintf(stderr, "Warning - file is newer version than program;\n may cause strange behaviour\n");
-				}
+				fprintf(stderr, "Warning - file is newer version than program;\n may cause strange behaviour\n");
 			}
-			else if(!(s_version[0]||s_version[1]||s_version[2]))
+		}
+		else if(!(s_version[0]||s_version[1]||s_version[2]))
+		{
+			fprintf(stderr, "8 File does not start with valid HARR tag\n");
+			e|=8;
+		}
+		else if(strcmp(tag, "DATE")==0)
+		{
+			state->now=readdate(dat, (date){3, 9, 1939});
+		}
+		else if(strcmp(tag, "TIME")==0)
+		{
+			f=sscanf(dat, "%u\n", &state->hour);
+			if(f!=1)
 			{
-				fprintf(stderr, "8 File does not start with valid HARR tag\n");
-				e|=8;
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
 			}
-			else if(strcmp(tag, "DATE")==0)
+		}
+		else if(strcmp(tag, "Budget")==0)
+		{
+			f=sscanf(dat, "%u+%u\n", &state->cash, &state->cshr);
+			if(f!=2)
 			{
-				state->now=readdate(dat, (date){3, 9, 1939});
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
 			}
-			else if(strcmp(tag, "TIME")==0)
+		}
+		else if(strcmp(tag, "Types")==0)
+		{
+			unsigned int sntypes;
+			f=sscanf(dat, "%u\n", &sntypes);
+			if(f!=1)
 			{
-				f=sscanf(dat, "%u\n", &state->hour);
-				if(f!=1)
-				{
-					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-					e|=1;
-				}
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
 			}
-			else if(strcmp(tag, "Budget")==0)
+			else if(sntypes!=ntypes)
 			{
-				f=sscanf(dat, "%u+%u\n", &state->cash, &state->cshr);
-				if(f!=2)
-				{
-					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-					e|=1;
-				}
+				fprintf(stderr, "2 Value mismatch: different ntypes value\n");
+				e|=2;
 			}
-			else if(strcmp(tag, "Types")==0)
+			else
 			{
-				unsigned int sntypes;
-				f=sscanf(dat, "%u\n", &sntypes);
-				if(f!=1)
-				{
-					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-					e|=1;
-				}
-				else if(sntypes!=ntypes)
-				{
-					fprintf(stderr, "2 Value mismatch: different ntypes value\n");
-					e|=2;
-				}
-				else
-				{
-					for(unsigned int i=0;i<ntypes;i++)
-					{
-						free(line);
-						line=fgetl(fs);
-						if(!line)
-						{
-							fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-							e|=64;
-							break;
-						}
-						unsigned int j, prio, pribuf;
-						f=sscanf(line, "Prio %u:%u,%u\n", &j, &prio, &pribuf);
-						if(f!=3)
-						{
-							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-							e|=1;
-							break;
-						}
-						if(j!=i)
-						{
-							fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
-							e|=4;
-							break;
-						}
-						types[j].prio=prio;
-						types[j].pribuf=pribuf;
-					}
-				}
-			}
-			else if(strcmp(tag, "Bombers")==0)
-			{
-				f=sscanf(dat, "%u\n", &state->nbombers);
-				if(f!=1)
-				{
-					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-					e|=1;
-				}
-				else
-				{
-					free(state->bombers);
-					state->bombers=malloc(state->nbombers*sizeof(ac_bomber));
-					for(unsigned int i=0;i<state->nbombers;i++)
-					{
-						free(line);
-						line=fgetl(fs);
-						if(!line)
-						{
-							fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-							e|=64;
-							break;
-						}
-						unsigned int j;
-						unsigned int failed,nav;
-						f=sscanf(line, "Type %u:%u,%u\n", &j, &failed, &nav);
-						if(f!=3)
-						{
-							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-							e|=1;
-							break;
-						}
-						if(j>ntypes)
-						{
-							fprintf(stderr, "4 Index mismatch in part %u of tag \"%s\"\n", j, tag);
-							e|=4;
-							break;
-						}
-						state->bombers[i]=(ac_bomber){.type=j, .failed=failed};
-						for(unsigned int n=0;n<NNAVAIDS;n++)
-							state->bombers[i].nav[n]=(nav>>n)&1;
-					}
-				}
-			}
-			else if(strcmp(tag, "Targets")==0)
-			{
-				unsigned int sntargs;
-				f=sscanf(dat, "%u\n", &sntargs);
-				if(f!=1)
-				{
-					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-					e|=1;
-				}
-				else if(sntargs!=ntargs)
-				{
-					fprintf(stderr, "2 Value mismatch: different ntargs value\n");
-					e|=2;
-				}
-				else
-				{
-					for(unsigned int i=0;i<ntargs;i++)
-					{
-						free(line);
-						line=fgetl(fs);
-						if(!line)
-						{
-							fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-							e|=64;
-							break;
-						}
-						unsigned int j;
-						f=sscanf(line, "Targ %u:%la,%la\n", &j, &state->dmg[i], &state->flk[i]);
-						if(f!=3)
-						{
-							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-							e|=1;
-							break;
-						}
-						if(j!=i)
-						{
-							fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
-							e|=4;
-							break;
-						}
-						state->flk[i]*=targs[i].flak/100.0;
-					}
-				}
-			}
-			else if(strcmp(tag, "Weather state")==0)
-			{
-				f=sscanf(dat, "%la,%la\n", &state->weather.push, &state->weather.slant);
-				if(f!=2)
-				{
-					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-					e|=1;
-				}
-				else
+				for(unsigned int i=0;i<ntypes;i++)
 				{
 					free(line);
 					line=fgetl(fs);
@@ -2162,49 +2037,212 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					{
 						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
 						e|=64;
+						break;
 					}
-					size_t p=0;
-					for(unsigned int x=0;x<256;x++)
-						for(unsigned int y=0;y<256;y++)
-						{
-							int bytes;
-							if(sscanf(line+p, "%la,%la,%n", &state->weather.p[x][y], &state->weather.t[x][y], &bytes)!=2)
-							{
-								fprintf(stderr, "1 Too few arguments to part (%u,%u) of tag \"%s\"\n", x, y, tag);
-								e|=1;
-								goto brk;
-							}
-							p+=bytes;
-						}
-					brk:;
+					unsigned int j, prio, pribuf;
+					f=sscanf(line, "Prio %u:%u,%u\n", &j, &prio, &pribuf);
+					if(f!=3)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+					types[j].prio=prio;
+					types[j].pribuf=pribuf;
 				}
 			}
-			else if(strcmp(tag, "Weather rand")==0)
+		}
+		else if(strcmp(tag, "Bombers")==0)
+		{
+			f=sscanf(dat, "%u\n", &state->nbombers);
+			if(f!=1)
 			{
-				unsigned int seed;
-				f=sscanf(dat, "%u\n", &seed);
-				if(f!=1)
-				{
-					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-					e|=1;
-				}
-				srand(seed);
-				w_init(&state->weather, 256, lorw);
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
 			}
 			else
 			{
-				fprintf(stderr, "128 Bad tag \"%s\"\n", tag);
-				e|=128;
-			}
-			free(line);
-			if(e!=0) // ...catch
-			{
-				fprintf(stderr, "Error (%d) reading from %s\n", e, fn);
-				fclose(fs);
-				return(e);
+				free(state->bombers);
+				state->bombers=malloc(state->nbombers*sizeof(ac_bomber));
+				for(unsigned int i=0;i<state->nbombers;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j;
+					unsigned int failed,nav;
+					f=sscanf(line, "Type %u:%u,%u\n", &j, &failed, &nav);
+					if(f!=3)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j>ntypes)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u of tag \"%s\"\n", j, tag);
+						e|=4;
+						break;
+					}
+					state->bombers[i]=(ac_bomber){.type=j, .failed=failed};
+					for(unsigned int n=0;n<NNAVAIDS;n++)
+						state->bombers[i].nav[n]=(nav>>n)&1;
+				}
 			}
 		}
+		else if(strcmp(tag, "Targets")==0)
+		{
+			unsigned int sntargs;
+			f=sscanf(dat, "%u\n", &sntargs);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(sntargs!=ntargs)
+			{
+				fprintf(stderr, "2 Value mismatch: different ntargs value\n");
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<ntargs;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j;
+					f=sscanf(line, "Targ %u:%la,%la\n", &j, &state->dmg[i], &state->flk[i]);
+					if(f!=3)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+					state->flk[i]*=targs[i].flak/100.0;
+				}
+			}
+		}
+		else if(strcmp(tag, "Weather state")==0)
+		{
+			f=sscanf(dat, "%la,%la\n", &state->weather.push, &state->weather.slant);
+			if(f!=2)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else
+			{
+				free(line);
+				line=fgetl(fs);
+				if(!line)
+				{
+					fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+					e|=64;
+				}
+				size_t p=0;
+				for(unsigned int x=0;x<256;x++)
+					for(unsigned int y=0;y<256;y++)
+					{
+						int bytes;
+						if(sscanf(line+p, "%la,%la,%n", &state->weather.p[x][y], &state->weather.t[x][y], &bytes)!=2)
+						{
+							fprintf(stderr, "1 Too few arguments to part (%u,%u) of tag \"%s\"\n", x, y, tag);
+							e|=1;
+							goto brk;
+						}
+						p+=bytes;
+					}
+				brk:;
+			}
+		}
+		else if(strcmp(tag, "Weather rand")==0)
+		{
+			unsigned int seed;
+			f=sscanf(dat, "%u\n", &seed);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			srand(seed);
+			w_init(&state->weather, 256, lorw);
+		}
+		else
+		{
+			fprintf(stderr, "128 Bad tag \"%s\"\n", tag);
+			e|=128;
+		}
+		free(line);
+		if(e!=0) // ...catch
+		{
+			fprintf(stderr, "Error (%d) reading from %s\n", e, fn);
+			fclose(fs);
+			return(e);
+		}
 	}
+	return(0);
+}
+
+int savegame(const char *fn, game state)
+{
+	FILE *fs = fopen(fn, "w");
+	if(!fs)
+	{
+		fprintf(stderr, "Failed to open %s!\n", fn);
+		perror("fopen");
+		return(1);
+	}
+	fprintf(fs, "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV);
+	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
+	fprintf(fs, "TIME:%hhu\n", state.hour);
+	fprintf(fs, "Budget:%u+%u\n", state.cash, state.cshr);
+	fprintf(fs, "Types:%u\n", ntypes);
+	for(unsigned int i=0;i<ntypes;i++)
+		fprintf(fs, "Prio %hhu:%u,%u\n", i, types[i].prio, types[i].pribuf);
+	fprintf(fs, "Bombers:%u\n", state.nbombers);
+	for(unsigned int i=0;i<state.nbombers;i++)
+	{
+		unsigned int nav=0;
+		for(unsigned int n=0;n<NNAVAIDS;n++)
+			nav|=(state.bombers[i].nav[n]?(1<<n):0);
+		fprintf(fs, "Type %u:%d,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav);
+	}
+	fprintf(fs, "Targets:%hhu\n", ntargs);
+	for(unsigned int i=0;i<ntargs;i++)
+		fprintf(fs, "Targ %hhu:%a,%a\n", i, state.dmg[i], state.flk[i]*100.0/(double)targs[i].flak);
+	fprintf(fs, "Weather state:%la,%la\n", state.weather.push, state.weather.slant);
+	for(unsigned int x=0;x<256;x++)
+	{
+		for(unsigned int y=0;y<128;y++)
+		{
+			fprintf(fs, "%la,%la,", state.weather.p[x][y], state.weather.t[x][y]);
+		}
+	}
+	fprintf(fs, "\n");
+	fclose(fs);
 	return(0);
 }
 
