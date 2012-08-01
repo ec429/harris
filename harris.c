@@ -542,7 +542,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
-		SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, 0, 0, 0});
+		SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
 		GB_btpic[i]=atg_create_element_image(pic);
 		SDL_FreeSurface(pic);
 		if(!GB_btpic[i])
@@ -741,7 +741,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				return(1);
 			}
 			SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
-			SDL_BlitSurface(types[j].picture, NULL, pic, &(SDL_Rect){(36-types[j].picture->w)>>1, 0, 0, 0});
+			SDL_BlitSurface(types[j].picture, NULL, pic, &(SDL_Rect){(36-types[j].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
 			atg_element *picture=atg_create_element_image(pic);
 			SDL_FreeSurface(pic);
 			if(!picture)
