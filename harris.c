@@ -2032,7 +2032,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "By type:\n");
 			for(unsigned int j=0;j<ntypes;j++)
 			{
-				if(bntarg[j])
+				if(bntarg[j]||bnloss[j])
 				{
 					fprintf(stderr, " %s %s: %u (", types[j].manu, types[j].name, bntarg[j]);
 					if(bttarg[j])
