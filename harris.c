@@ -123,6 +123,11 @@ typedef struct
 }
 game;
 
+#define RS_cell_w	120
+#define RS_firstcol_w	150
+#define RS_cell_h	56
+#define RS_lastrow_h	100
+
 #define VER_MAJ	0
 #define VER_MIN	1
 #define VER_REV	0
@@ -741,7 +746,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				return(1);
 			}
 			SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
-			SDL_BlitSurface(types[j].picture, NULL, pic, &(SDL_Rect){(36-types[j].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
+			SDL_BlitSurface(types[j].picture, NULL, pic, &(SDL_Rect){(36-types[j].picture->w)>>1, (40-types[j].picture->h)>>1, 0, 0});
 			atg_element *picture=atg_create_element_image(pic);
 			SDL_FreeSurface(pic);
 			if(!picture)
@@ -1006,7 +1011,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		LB_load=atg_create_element_button("Load", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
 		if(!LB_load)
 		{
-			fprintf(stderr, "atg_create_button failed\n");
+			fprintf(stderr, "atg_create_element_button failed\n");
 			return(1);
 		}
 		if(atg_pack_element(b, LB_load))
@@ -1017,7 +1022,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		LB_text=atg_create_element_button(NULL, (atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
 		if(!LB_text)
 		{
-			fprintf(stderr, "atg_create_button failed\n");
+			fprintf(stderr, "atg_create_element_button failed\n");
 			return(1);
 		}
 		LB_text->h=24;
@@ -1079,7 +1084,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	char **SA_btext=NULL;
 	if(!SA_hbox)
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	else if(atg_pack_element(savebox, SA_hbox))
@@ -1098,7 +1103,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SA_save=atg_create_element_button("Save", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
 		if(!SA_save)
 		{
-			fprintf(stderr, "atg_create_button failed\n");
+			fprintf(stderr, "atg_create_element_button failed\n");
 			return(1);
 		}
 		if(atg_pack_element(b, SA_save))
@@ -1109,7 +1114,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SA_text=atg_create_element_button(NULL, (atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
 		if(!SA_text)
 		{
-			fprintf(stderr, "atg_create_button failed\n");
+			fprintf(stderr, "atg_create_element_button failed\n");
 			return(1);
 		}
 		SA_text->h=24;
@@ -1144,6 +1149,153 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		else
 		{
 			fprintf(stderr, "SA_text has wrong content\n");
+			return(1);
+		}
+	}
+	
+	atg_box *rstatbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+	if(!rstatbox)
+	{
+		fprintf(stderr, "atg_create_box failed\n");
+		return(1);
+	}
+	atg_element *RS_title=atg_create_element_label("Raid Result Statistics", 15, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+	if(!RS_title)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_pack_element(rstatbox, RS_title))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *RS_typerow=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 33, 33, ATG_ALPHA_OPAQUE}), *RS_typecol[ntypes], *RS_tocol;
+	if(!RS_typerow)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	RS_typerow->h=72;
+	if(atg_pack_element(rstatbox, RS_typerow))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	else
+	{
+		atg_box *b=RS_typerow->elem.box;
+		if(!b)
+		{
+			fprintf(stderr, "RS_typerow->elem.box==NULL\n");
+			return(1);
+		}
+		atg_element *padding=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 31, 31, ATG_ALPHA_TRANSPARENT});
+		if(!padding)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		padding->h=72;
+		padding->w=RS_firstcol_w;
+		if(atg_pack_element(b, padding))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		for(unsigned int i=0;i<ntypes;i++)
+		{
+			RS_typecol[i]=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 35, 35, ATG_ALPHA_OPAQUE});
+			if(!RS_typecol[i])
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
+			RS_typecol[i]->h=72;
+			RS_typecol[i]->w=RS_cell_w;
+			if(atg_pack_element(b, RS_typecol[i]))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
+			atg_box *b2=RS_typecol[i]->elem.box;
+			if(!b2)
+			{
+				fprintf(stderr, "RS_typecol[%u]->elem.box==NULL\n", i);
+				return(1);
+			}
+			SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[i].picture->format->BitsPerPixel, types[i].picture->format->Rmask, types[i].picture->format->Gmask, types[i].picture->format->Bmask, types[i].picture->format->Amask);
+			if(!pic)
+			{
+				fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+				return(1);
+			}
+			SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
+			SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
+			atg_element *picture=atg_create_element_image(pic);
+			SDL_FreeSurface(pic);
+			if(!picture)
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+				return(1);
+			}
+			picture->w=38;
+			if(atg_pack_element(b2, picture))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
+			atg_element *manu=atg_create_element_label(types[i].manu, 10, (atg_colour){239, 239, 0, ATG_ALPHA_OPAQUE});
+			if(!manu)
+			{
+				fprintf(stderr, "atg_create_element_label failed\n");
+				return(1);
+			}
+			if(atg_pack_element(b2, manu))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
+			atg_element *name=atg_create_element_label(types[i].name, 12, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+			if(!name)
+			{
+				fprintf(stderr, "atg_create_element_label failed\n");
+				return(1);
+			}
+			if(atg_pack_element(b2, name))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
+		}
+		RS_tocol=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){49, 37, 37, ATG_ALPHA_OPAQUE});
+		if(!RS_tocol)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		RS_tocol->h=72;
+		RS_tocol->w=RS_cell_w;
+		if(atg_pack_element(b, RS_tocol))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_box *tb=RS_tocol->elem.box;
+		if(!tb)
+		{
+			fprintf(stderr, "RS_tocol->elem.box==NULL\n");
+			return(1);
+		}
+		atg_element *total=atg_create_element_label("Total", 18, (atg_colour){255, 255, 255, ATG_ALPHA_TRANSPARENT});
+		if(!total)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_pack_element(tb, total))
+		{
+			perror("atg_pack_element");
 			return(1);
 		}
 	}
@@ -1894,35 +2046,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			atg_flip(canvas);
 		}
 		// incorporate the results, and clear the raids ready for next cycle
-		unsigned int nloss=0, nbomb=0, nleaf=0, tbomb=0, tleaf=0, ntarg=0, nltarg=0, ttarg=0, tltarg=0, nship=0;
-		unsigned int bnloss[ntypes], bntarg[ntypes], bttarg[ntypes], btltarg[ntypes], tntarg[ntargs], tttarg[ntargs];
-		unsigned int nij[ntargs][ntypes], tij[ntargs][ntypes];
+		unsigned int dij[ntargs][ntypes], nij[ntargs][ntypes], tij[ntargs][ntypes], lij[ntargs][ntypes];
 		for(unsigned int i=0;i<ntargs;i++)
-		{
-			tntarg[i]=tttarg[i]=0;
 			for(unsigned int j=0;j<ntypes;j++)
-				nij[i][j]=tij[i][j]=0;
-		}
-		for(unsigned int j=0;j<ntypes;j++)
-			bnloss[j]=bntarg[j]=bttarg[j]=btltarg[j]=0;
+				dij[i][j]=nij[i][j]=tij[i][j]=lij[i][j]=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 			{
 				unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
+				dij[i][type]++;
 				bool leaf=!state.bombers[k].bmb;
 				if(state.bombers[k].bombed)
 				{
-					if(leaf)
-					{
-						nleaf++;
-						tleaf+=types[type].cap*3;
-					}
-					else
-					{
-						nbomb++;
-						tbomb+=state.bombers[k].bmb;
-					}
 					for(unsigned int i=0;i<ntargs;i++)
 					{
 						int dx=state.bombers[k].bmblon-targs[i].lon, dy=state.bombers[k].bmblat-targs[i].lat;
@@ -1935,14 +2071,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
 									{
 										state.dmg[i]=max(0, state.dmg[i]-state.bombers[k].bmb/100000.0);
-										ntarg++;
 										nij[i][type]++;
-										ttarg+=state.bombers[k].bmb;
 										tij[i][type]+=state.bombers[k].bmb;
-										bntarg[type]++;
-										bttarg[type]+=state.bombers[k].bmb;
-										tntarg[i]++;
-										tttarg[i]+=state.bombers[k].bmb;
 									}
 								}
 							break;
@@ -1953,14 +2083,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
 									{
 										state.dmg[i]=max(0, state.dmg[i]-types[type].cap/400000.0);
-										nltarg++;
 										nij[i][type]++;
-										tltarg+=types[type].cap*3;
 										tij[i][type]+=types[type].cap*3;
-										bntarg[type]++;
-										btltarg[type]+=types[type].cap*3;
-										tntarg[i]++;
-										tttarg[i]+=types[type].cap*3;
 									}
 								}
 							break;
@@ -1970,24 +2094,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(brandp(targs[i].esiz/100.0))
 									{
-										ntarg++;
 										nij[i][type]++;
-										ttarg+=state.bombers[k].bmb;
-										bntarg[type]++;
-										bttarg[type]+=state.bombers[k].bmb;
-										tntarg[i]++;
 										if(brandp(log2(state.bombers[k].bmb/1000.0)/8.0))
 										{
-											tttarg[i]++;
 											tij[i][type]++;
-											nship++;
 										}
 									}
 								}
 							break;
 							default: // shouldn't ever get here
 								fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
-								return(1);
 							break;
 						}
 					}
@@ -2001,8 +2117,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			if(state.bombers[i].crashed)
 			{
-				nloss++;
-				bnloss[state.bombers[i].type]++;
+				lij[state.bombers[i].targ][state.bombers[i].type]++;
 				state.nbombers--;
 				for(unsigned int j=i;j<state.nbombers;j++)
 					state.bombers[j]=state.bombers[j+1];
@@ -2010,88 +2125,348 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				continue;
 			}
 		}
-		// report on the results (TODO: GUI bit)
-		fprintf(stderr, "%u dispatched\n%u lost\n", totalraids, nloss);
-		if(nbomb)
+		// Raid Results table
+		for(unsigned int i=2;i<rstatbox->nelems;i++)
+			atg_free_element(rstatbox->elems[i]);
+		rstatbox->nelems=2;
+		unsigned int dj[ntypes], nj[ntypes], tbj[ntypes], tlj[ntypes], tsj[ntypes], lj[ntypes];
+		unsigned int D=0, N=0, Tb=0, Tl=0, Ts=0, L=0;
+		unsigned int ntcols=0;
+		for(unsigned int j=0;j<ntypes;j++)
 		{
-			fprintf(stderr, "%u bombed (%ulb)\n", nbomb, tbomb);
-			fprintf(stderr, " %u on target (%ulb)\n", ntarg, ttarg);
-		}
-		if(nship)
-		{
-			fprintf(stderr, "%u ship%s sunk\n", nship, nship==1?"":"s");
-		}
-		if(nleaf)
-		{
-			fprintf(stderr, "%u leafleted (%u leaflet%s)\n", nleaf, tleaf, tleaf==1?"":"s");
-			fprintf(stderr, " %u on target (%u leaflet%s)\n", nltarg, tltarg, tltarg==1?"":"s");
-		}
-		if(ntarg+nltarg)
-		{
-			fprintf(stderr, "By type:\n");
-			for(unsigned int j=0;j<ntypes;j++)
-			{
-				if(bntarg[j]||bnloss[j])
-				{
-					fprintf(stderr, " %s %s: %u (", types[j].manu, types[j].name, bntarg[j]);
-					if(bttarg[j])
-						fprintf(stderr, "%ulb", bttarg[j]);
-					if(bttarg[j]&&btltarg[j])
-						fprintf(stderr, ", ");
-					if(btltarg[j])
-						fprintf(stderr, "%u leaflet%s", btltarg[j], btltarg[j]==1?"":"s");
-					fprintf(stderr, "); %u lost\n", bnloss[j]);
-				}
-			}
-			fprintf(stderr, "By target:\n");
+			dj[j]=nj[j]=tbj[j]=tlj[j]=tsj[j]=lj[j]=0;
 			for(unsigned int i=0;i<ntargs;i++)
 			{
-				if(tntarg[i])
+				dj[j]+=dij[i][j];
+				nj[j]+=nij[i][j];
+				switch(targs[i].class)
 				{
-					switch(targs[i].class)
+					case TCLASS_CITY:
+						tbj[j]+=tij[i][j];
+					break;
+					case TCLASS_LEAFLET:
+						tlj[j]+=tij[i][j];
+					break;
+					case TCLASS_SHIPPING:
+						tsj[j]+=tij[i][j];
+					break;
+					default: // shouldn't ever get here
+						fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+					break;
+				}
+				lj[j]+=lij[i][j];
+			}
+			D+=dj[j];
+			N+=nj[j];
+			Tb+=tbj[j];
+			Tl+=tlj[j];
+			Ts+=tsj[j];
+			L+=lj[j];
+			RS_typecol[j]->hidden=!dj[j];
+			if(dj[j]) ntcols++;
+		}
+		if(RS_tocol)
+			RS_tocol->hidden=(ntcols==1);
+		unsigned int ntrows=0;
+		for(unsigned int i=0;i<ntargs;i++)
+		{
+			unsigned int di=0, ni=0, ti=0, li=0;
+			for(unsigned int j=0;j<ntypes;j++)
+			{
+				di+=dij[i][j];
+				ni+=nij[i][j];
+				ti+=tij[i][j];
+				li+=lij[i][j];
+			}
+			if(di||ni)
+			{
+				ntrows++;
+				atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 33, 33, ATG_ALPHA_OPAQUE});
+				if(row)
+				{
+					row->h=RS_cell_h;
+					atg_pack_element(rstatbox, row);
+					atg_box *b=row->elem.box;
+					if(b)
 					{
-						case TCLASS_CITY:
-							fprintf(stderr, " %s: %u (%ulb)\n", targs[i].name, tntarg[i], tttarg[i]);
-						break;
-						case TCLASS_LEAFLET:
-							fprintf(stderr, " %s: %u (%u leaflet%s)\n", targs[i].name, tntarg[i], tttarg[i], tttarg[i]==1?"":"s");
-						break;
-						case TCLASS_SHIPPING:
-							fprintf(stderr, " %s: %u", targs[i].name, tntarg[i]);
-							if(tttarg[i])
-								fprintf(stderr, " (%u ship%s sunk)", tttarg[i], tttarg[i]==1?"":"s");
-							fprintf(stderr, "\n");
-						break;
-						default: // shouldn't ever get here
-							fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
-							return(1);
-						break;
-					}
-					for(unsigned int j=0;j<ntypes;j++)
-					{
-						if(nij[i][j])
+						atg_element *tncol=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 35, 35, ATG_ALPHA_OPAQUE});
+						if(tncol)
 						{
-							switch(targs[i].class)
+							tncol->h=RS_cell_h;
+							tncol->w=RS_firstcol_w;
+							atg_pack_element(b, tncol);
+							atg_box *b2=tncol->elem.box;
+							if(b2)
 							{
-								case TCLASS_CITY:
-									fprintf(stderr, "  %s %s: %u (%ulb)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j]);
-								break;
-								case TCLASS_LEAFLET:
-									fprintf(stderr, "  %s %s: %u (%u leaflet%s)\n", types[j].manu, types[j].name, nij[i][j], tij[i][j], tij[i][j]==1?"":"s");
-								break;
-								case TCLASS_SHIPPING:
-									fprintf(stderr, "  %s %s: %u", types[j].manu, types[j].name, nij[i][j]);
-									if(tij[i][j])
-										fprintf(stderr, " (%u ship%s sunk)", tij[i][j], tij[i][j]==1?"":"s");
-									fprintf(stderr, "\n");
-								break;
-								default: // shouldn't ever get here
-									fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
-									return(1);
-								break;
+								atg_element *tname=atg_create_element_label(targs[i].name, 12, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+								if(tname) atg_pack_element(b2, tname);
+							}
+						}
+						for(unsigned int j=0;j<ntypes;j++)
+						{
+							if(!dj[j]) continue;
+							atg_element *tbcol=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 35, 35, ATG_ALPHA_OPAQUE});
+							if(tbcol)
+							{
+								tbcol->h=RS_cell_h;
+								tbcol->w=RS_cell_w;
+								atg_pack_element(b, tbcol);
+								atg_box *b2=tbcol->elem.box;
+								if(b2)
+								{
+									char dt[20],nt[20],tt[20],lt[20];
+									snprintf(dt, 20, "Dispatched: %u", dij[i][j]);
+									atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){191, 191, 0, ATG_ALPHA_OPAQUE});
+									if(dl) atg_pack_element(b2, dl);
+									if(dij[i][j]||nij[i][j])
+									{
+										snprintf(nt, 20, "Hit Target: %u", nij[i][j]);
+										atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){191, 191, 0, ATG_ALPHA_OPAQUE});
+										if(nl) atg_pack_element(b2, nl);
+										if(nij[i][j])
+										{
+											switch(targs[i].class)
+											{
+												case TCLASS_CITY:
+													snprintf(tt, 20, "Bombs (lb): %u", tij[i][j]);
+												break;
+												case TCLASS_LEAFLET:
+													snprintf(tt, 20, "Leaflets  : %u", tij[i][j]);
+												break;
+												case TCLASS_SHIPPING:
+													snprintf(tt, 20, "Ships sunk: %u", tij[i][j]);
+												break;
+												default: // shouldn't ever get here
+													fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+												break;
+											}
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){191, 191, 0, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+										if(lij[i][j])
+										{
+											snprintf(lt, 20, "A/c Lost  : %u", lij[i][j]);
+											atg_element *ll=atg_create_element_label(lt, 10, (atg_colour){191, 0, 0, ATG_ALPHA_OPAQUE});
+											if(ll) atg_pack_element(b2, ll);
+										}
+									}
+								}
+							}
+						}
+						if(ntcols!=1)
+						{
+							atg_element *totcol=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){49, 37, 37, ATG_ALPHA_OPAQUE});
+							if(totcol)
+							{
+								totcol->h=RS_cell_h;
+								totcol->w=RS_cell_w;
+								atg_pack_element(b, totcol);
+								atg_box *b2=totcol->elem.box;
+								if(b2)
+								{
+									char dt[20],nt[20],tt[20],lt[20];
+									snprintf(dt, 20, "Dispatched: %u", di);
+									atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+									if(dl) atg_pack_element(b2, dl);
+									if(di||ni)
+									{
+										snprintf(nt, 20, "Hit Target: %u", ni);
+										atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+										if(nl) atg_pack_element(b2, nl);
+										if(ni)
+										{
+											switch(targs[i].class)
+											{
+												case TCLASS_CITY:
+													snprintf(tt, 20, "Bombs (lb): %u", ti);
+												break;
+												case TCLASS_LEAFLET:
+													snprintf(tt, 20, "Leaflets  : %u", ti);
+												break;
+												case TCLASS_SHIPPING:
+													snprintf(tt, 20, "Ships sunk: %u", ti);
+												break;
+												default: // shouldn't ever get here
+													fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+												break;
+											}
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+										if(li)
+										{
+											snprintf(lt, 20, "A/c Lost  : %u", li);
+											atg_element *ll=atg_create_element_label(lt, 10, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
+											if(ll) atg_pack_element(b2, ll);
+										}
+									}
+								}
 							}
 						}
 					}
+				}
+			}
+		}
+		if(ntrows!=1)
+		{
+			atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){49, 37, 37, ATG_ALPHA_OPAQUE});
+			if(row)
+			{
+				row->h=RS_lastrow_h;
+				atg_pack_element(rstatbox, row);
+				atg_box *b=row->elem.box;
+				if(b)
+				{
+					atg_element *tncol=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){51, 39, 39, ATG_ALPHA_OPAQUE});
+					if(tncol)
+					{
+						tncol->h=RS_lastrow_h;
+						tncol->w=RS_firstcol_w;
+						atg_pack_element(b, tncol);
+						atg_box *b2=tncol->elem.box;
+						if(b2)
+						{
+							atg_element *tname=atg_create_element_label("Total", 18, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+							if(tname) atg_pack_element(b2, tname);
+						}
+					}
+					for(unsigned int j=0;j<ntypes;j++)
+					{
+						if(!dj[j]) continue;
+						atg_element *tbcol=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){49, 37, 37, ATG_ALPHA_OPAQUE});
+						if(tbcol)
+						{
+							tbcol->h=RS_lastrow_h;
+							tbcol->w=RS_cell_w;
+							atg_pack_element(b, tbcol);
+							atg_box *b2=tbcol->elem.box;
+							if(b2)
+							{
+								char dt[20],nt[20],tt[20],lt[20];
+								snprintf(dt, 20, "Dispatched: %u", dj[j]);
+								atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+								if(dl) atg_pack_element(b2, dl);
+								if(dj[j]||nj[j])
+								{
+									snprintf(nt, 20, "Hit Target: %u", nj[j]);
+									atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+									if(nl) atg_pack_element(b2, nl);
+									if(nj[j])
+									{
+										if(tbj[j])
+										{
+											snprintf(tt, 20, "Bombs (lb): %u", tbj[j]);
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+										if(tlj[j])
+										{
+											snprintf(tt, 20, "Leaflets  : %u", tlj[j]);
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+										if(tsj[j])
+										{
+											snprintf(tt, 20, "Ships sunk: %u", tsj[j]);
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+									}
+									if(lj[j])
+									{
+										snprintf(lt, 20, "A/c Lost  : %u", lj[j]);
+										atg_element *ll=atg_create_element_label(lt, 10, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
+										if(ll) atg_pack_element(b2, ll);
+									}
+								}
+							}
+						}
+					}
+					if(ntcols!=1)
+					{
+						atg_element *totcol=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){51, 39, 39, ATG_ALPHA_OPAQUE});
+						if(totcol)
+						{
+							totcol->h=RS_lastrow_h;
+							totcol->w=RS_cell_w;
+							atg_pack_element(b, totcol);
+							atg_box *b2=totcol->elem.box;
+							if(b2)
+							{
+								char dt[20],nt[20],tt[20],lt[20];
+								snprintf(dt, 20, "Dispatched: %u", D);
+								atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+								if(dl) atg_pack_element(b2, dl);
+								if(D||N)
+								{
+									snprintf(nt, 20, "Hit Target: %u", N);
+									atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+									if(nl) atg_pack_element(b2, nl);
+									if(N)
+									{
+										if(Tb)
+										{
+											snprintf(tt, 20, "Bombs (lb): %u", Tb);
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+										if(Tl)
+										{
+											snprintf(tt, 20, "Leaflets  : %u", Tl);
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+										if(Ts)
+										{
+											snprintf(tt, 20, "Ships sunk: %u", Ts);
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+									}
+									if(L)
+									{
+										snprintf(lt, 20, "A/c Lost  : %u", L);
+										atg_element *ll=atg_create_element_label(lt, 10, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
+										if(ll) atg_pack_element(b2, ll);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		canvas->box=rstatbox;
+		atg_resize_canvas(canvas, 800, 480);
+		atg_flip(canvas);
+		int errupt=0;
+		while(!errupt)
+		{
+			while(atg_poll_event(&e, canvas))
+			{
+				switch(e.type)
+				{
+					case ATG_EV_RAW:;
+						SDL_Event s=e.event.raw;
+						switch(s.type)
+						{
+							case SDL_QUIT:
+								errupt++;
+							break;
+							case SDL_KEYDOWN:
+								switch(s.key.keysym.sym)
+								{
+									case SDLK_SPACE:
+										errupt++;
+									break;
+									default:
+									break;
+								}
+							break;
+						}
+					break;
+					default:
+					break;
 				}
 			}
 		}
