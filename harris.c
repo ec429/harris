@@ -132,9 +132,11 @@ typedef struct
 }
 game;
 
-#define RS_cell_w	120
+#define GAME_BG_COLOUR	(atg_colour){31, 31, 15, ATG_ALPHA_OPAQUE}
+
+#define RS_cell_w		120
 #define RS_firstcol_w	150
-#define RS_cell_h	56
+#define RS_cell_h		56
 #define RS_lastrow_h	100
 
 #define VER_MAJ	0
@@ -548,13 +550,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	MM_QuickStart->w=MM_NewGame->w=MM_LoadGame->w=MM_Exit->w=canvas->surface->w;
 	
-	atg_box *gamebox=atg_create_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 47, 0, ATG_ALPHA_OPAQUE});
+	atg_box *gamebox=atg_create_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
 	if(!gamebox)
 	{
 		fprintf(stderr, "atg_create_box failed\n");
 		return(1);
 	}
-	atg_element *GB_bt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 47, 0, ATG_ALPHA_OPAQUE});
+	atg_element *GB_bt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!GB_bt)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -612,7 +614,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			perror("atg_pack_element");
 			return(1);
 		}
-		GB_btrow[i]->w=159;
+		GB_btrow[i]->w=239;
 		atg_box *b=GB_btrow[i]->elem.box;
 		if(!b)
 		{
@@ -671,7 +673,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					fprintf(stderr, "atg_create_element_label failed\n");
 					return(1);
 				}
-				name->w=121;
+				name->w=201;
 				if(atg_pack_element(vb, name))
 				{
 					perror("atg_pack_element");
@@ -1022,6 +1024,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
+		GB_ttrow[i]->w=305;
+		GB_ttrow[i]->h=12;
 		GB_ttrow[i]->clickable=true;
 		if(atg_pack_element(GB_ttb, GB_ttrow[i]))
 		{
@@ -1034,19 +1038,32 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "GB_ttrow[i]->elem.box==NULL\n");
 			return(1);
 		}
-		atg_element *item=atg_create_element_label(targs[i].name, 10, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+		atg_element *item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 		if(!item)
 		{
-			fprintf(stderr, "atg_create_element_label failed\n");
+			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		item->w=120;
+		item->w=8;
+		item->h=12;
 		if(atg_pack_element(b, item))
 		{
 			perror("atg_pack_element");
 			return(1);
 		}
-		item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 119, ATG_ALPHA_OPAQUE});
+		item=atg_create_element_label(targs[i].name, 10, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+		if(!item)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		item->w=192;
+		if(atg_pack_element(b, item))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 		if(!item)
 		{
 			fprintf(stderr, "atg_create_element_box failed\n");
@@ -1090,7 +1107,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	
-	atg_box *raidbox=atg_create_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 47, 0, ATG_ALPHA_OPAQUE});
+	atg_box *raidbox=atg_create_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
 	if(!raidbox)
 	{
 		fprintf(stderr, "atg_create_box failed\n");
@@ -1113,7 +1130,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "RB_time_label==NULL\n");
 		return(1);
 	}
-	RB_time->w=159;
+	RB_time->w=239;
 	if(atg_pack_element(raidbox, RB_time))
 	{
 		perror("atg_pack_element");
@@ -1144,8 +1161,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_element_filepicker failed\n");
 		return(1);
 	}
-	LB_file->h=450;
-	LB_file->w=640;
+	LB_file->h=610;
+	LB_file->w=800;
 	if(atg_pack_element(loadbox, LB_file))
 	{
 		perror("atg_pack_element");
@@ -1189,7 +1206,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		LB_text->h=24;
-		LB_text->w=600;
+		LB_text->w=760;
 		if(atg_pack_element(b, LB_text))
 		{
 			perror("atg_pack_element");
@@ -1236,8 +1253,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_element_filepicker failed\n");
 		return(1);
 	}
-	SA_file->h=450;
-	SA_file->w=640;
+	SA_file->h=610;
+	SA_file->w=800;
 	if(atg_pack_element(savebox, SA_file))
 	{
 		perror("atg_pack_element");
@@ -1281,7 +1298,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		SA_text->h=24;
-		SA_text->w=600;
+		SA_text->w=760;
 		if(atg_pack_element(b, SA_text))
 		{
 			perror("atg_pack_element");
@@ -1585,7 +1602,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	loader:
 	canvas->box=loadbox;
-	atg_resize_canvas(canvas, 640, 480);
+	atg_resize_canvas(canvas, 800, 640);
 	while(1)
 	{
 		atg_flip(canvas);
@@ -1663,7 +1680,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	saver:
 	canvas->box=savebox;
-	atg_resize_canvas(canvas, 640, 480);
+	atg_resize_canvas(canvas, 800, 640);
 	while(1)
 	{
 		atg_flip(canvas);
@@ -1804,7 +1821,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	gameloop:
 	canvas->box=gamebox;
-	atg_resize_canvas(canvas, 640, 480);
+	atg_resize_canvas(canvas, 800, 640);
 	snprintf(datestring, 11, "%02u-%02u-%04u\n", state.now.day, state.now.month, state.now.year);
 	snprintf(GB_budget_label, 32, "Budget: £%u/day", state.cshr);
 	snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state.confid+0.5));
@@ -2087,7 +2104,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	if(totalraids)
 	{
 		canvas->box=raidbox;
-		atg_resize_canvas(canvas, 640, 480);
+		atg_resize_canvas(canvas, 800, 640);
 		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
 		SDL_FreeSurface(RB_map->elem.image->data);
 		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
