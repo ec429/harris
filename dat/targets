@@ -8,20 +8,32 @@
 # Class: what kind of target is it?  (CITY, SHIPPING, ...)
 
 # Shipping targets.
-Schillig Roads:8:1:6:67:158::31-03-1940:SHIPPING
-Heligoland Bight:6:0:8:58:160::24-12-1939:SHIPPING
-Wilhelmshaven Docks:10:3:7:70:161::13-02-1942:SHIPPING
-Hörnum, Sylt:7:4:6:51:163::31-03-1940:SHIPPING
+Schillig Roads:      8: 3: 6: 67:158:          :31-03-1940:SHIPPING
+Heligoland Bight:    6: 2: 8: 58:160:          :24-12-1939:SHIPPING
+Wilhelmshaven Docks:10: 4: 7: 70:161:          :13-02-1942:SHIPPING
+Hörnum, Sylt:        7: 5: 6: 51:163:          :31-03-1940:SHIPPING
 
-# Cities
-# Nickelling (leaflet) targets.
-Berlin:100:20:50:97:233:14-02-1942::CITY
-Berlin Leaflets:0:10:50:97:233:::LEAFLET
-Hamburg:65:14:35:73:185:14-02-1942::CITY
-Hamburg Leaflets:0:8:35:73:185:::LEAFLET
-Frankfurt:50:13:30:151:168:14-02-1942::CITY
-Frankfurt Leaflets:0:7:30:151:168:::LEAFLET
+# Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
+# TODO: end-dates from dates of liberation in 44/45
+Berlin:            100:20:50: 97:233:14-02-1942:          :CITY
+Berlin Leaflets:     8:10:50: 97:233:          :          :LEAFLET
+Hamburg:            65:14:35: 73:185:14-02-1942:          :CITY
+Hamburg Leaflets:    5: 8:35: 73:185:          :          :LEAFLET
+Frankfurt:          50:13:30:151:168:14-02-1942:          :CITY
+Frankfurt Leaflets:  4: 7:30:151:168:          :          :LEAFLET
 
+# Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
+Forties Mining:      9: 0:99: 15:103:          :          :MINING
+Dogger Mining:      15: 0:99: 58:113:          :          :MINING
+Heligoland Mining:  21: 2:99: 50:137:          :          :MINING
+Biscay Mining:      12: 1:99:243: 10:25-06-1940:06-06-1944:MINING
+Fehmarn Mining:     16: 3:99: 48:203:          :          :MINING
+Øresund Mining:     19: 2:99: 19:224:09-04-1940:          :MINING
+Kattegat Mining:    16: 1:99: 11:201:09-04-1940:          :MINING
+Baltic Mining:      18: 1:99: 44:225:          :          :MINING
+
+
+# Target list from the old HARRIS; import guide
 # Berlin, 50 , 100 , 20 , 31 , 11 
 # Hamburg, 35 , 65 , 14 , 29 , 7 
 # Frankfurt, 30 , 50 , 13 , 27 , 16 

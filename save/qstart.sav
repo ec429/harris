@@ -403,15 +403,5 @@ Type 3:1,0
 Type 3:1,0
 Type 3:1,0
 Type 3:1,0
-Targets:10
-Targ 0:100,100
-Targ 1:100,100
-Targ 2:100,100
-Targ 3:100,100
-Targ 4:100,100
-Targ 5:100,100
-Targ 6:100,100
-Targ 7:100,100
-Targ 8:100,100
-Targ 9:100,100
+Targets init:100,100
 Weather rand:1441

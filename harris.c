@@ -71,7 +71,7 @@ typedef struct
 	char * name;
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
-	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_LEAFLET,} class;
+	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,} class;
 	SDL_Surface *picture;
 }
 target;
@@ -295,6 +295,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					this.class=TCLASS_SHIPPING;
 				}
+				else if(strcmp(class, "MINING")==0)
+				{
+					this.class=TCLASS_MINING;
+				}
 				else if(strcmp(class, "LEAFLET")==0)
 				{
 					this.class=TCLASS_LEAFLET;
@@ -359,6 +363,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						pset(this.picture, 3, 1, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
 						pset(this.picture, 1, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
 						pset(this.picture, 2, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+					break;
+					case TCLASS_MINING:
+						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 2, 4, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+						{
+							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+							return(1);
+						}
+						SDL_SetAlpha(this.picture, 0, 0);
+						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 0));
+						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=1}, SDL_MapRGB(this.picture->format, 63, 63, 63));
 					break;
 					default: // shouldn't ever get here
 						fprintf(stderr, "Bad this.class = %d\n", this.class);
@@ -1672,6 +1686,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			{
 				case TCLASS_CITY:
 				case TCLASS_LEAFLET: // for LEAFLET shows morale rather than damage
+				case TCLASS_MINING: // for MINING shows how thoroughly mined the lane is
 					GB_ttdmg[i]->w=floor(state.dmg[i]);
 					GB_ttdmg[i]->hidden=false;
 				break;
@@ -2050,22 +2065,38 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						state.bombers[k].navlon*=(256.0+state.bombers[k].lon)/512.0;
 						state.bombers[k].navlat*=(256.0+state.bombers[k].lon)/512.0;
-						if(pget(target_overlay, state.bombers[k].lon, state.bombers[k].lat).a==ATG_ALPHA_OPAQUE)
+						switch(targs[i].class)
 						{
-							state.bombers[k].idtar=true;
-							unsigned int dm=0;
-							double mind=1000;
-							for(unsigned int i=0;i<ntargs;i++)
-							{
-								double d=hypot(state.bombers[k].lon+state.bombers[k].navlon-targs[i].lon, state.bombers[k].lat+state.bombers[k].navlat-targs[i].lat);
-								if(d<mind)
+							case TCLASS_CITY:
+							case TCLASS_LEAFLET:
+							case TCLASS_SHIPPING:
+								if(pget(target_overlay, state.bombers[k].lon, state.bombers[k].lat).a==ATG_ALPHA_OPAQUE)
 								{
-									mind=d;
-									dm=i;
+									state.bombers[k].idtar=true;
+									unsigned int dm=0;
+									double mind=1000;
+									for(unsigned int i=0;i<ntargs;i++)
+									{
+										double d=hypot(state.bombers[k].lon+state.bombers[k].navlon-targs[i].lon, state.bombers[k].lat+state.bombers[k].navlat-targs[i].lat);
+										if(d<mind)
+										{
+											mind=d;
+											dm=i;
+										}
+									}
+									state.bombers[k].navlon=targs[dm].lon-state.bombers[k].lon;
+									state.bombers[k].navlat=targs[dm].lat-state.bombers[k].lat;
 								}
-							}
-							state.bombers[k].navlon=targs[dm].lon-state.bombers[k].lon;
-							state.bombers[k].navlat=targs[dm].lat-state.bombers[k].lat;
+							break;
+							case TCLASS_MINING:;
+								int x=state.bombers[k].bmblon;
+								int y=state.bombers[k].bmblat;
+								if((x>=0)&&(y>=0)&&(x<128)&&(y<128)&&lorw[x][y])
+									state.bombers[k].idtar=true;
+							break;
+							default: // shouldn't ever get here
+								fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+							break;
 						}
 					}
 				}
@@ -2088,6 +2119,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
 				dij[i][type]++;
 				bool leaf=!state.bombers[k].bmb;
+				bool mine=(targs[i].class==TCLASS_MINING);
 				if(state.bombers[k].bombed)
 				{
 					for(unsigned int i=0;i<ntargs;i++)
@@ -2133,6 +2165,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									}
 								}
 							break;
+							case TCLASS_MINING:
+								if(leaf||!mine) continue;
+								int x=state.bombers[k].bmblon;
+								int y=state.bombers[k].bmblat;
+								bool water=(x>=0)&&(y>=0)&&(x<128)&&(y<128)&&lorw[x][y];
+								if((abs(dx)<=6)&&(abs(dy)<=6)&&water)
+								{
+									nij[i][type]++;
+									tij[i][type]+=state.bombers[k].bmb;
+								}
 							default: // shouldn't ever get here
 								fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
 							break;
@@ -2164,12 +2206,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		for(unsigned int i=2;i<rstatbox->nelems;i++)
 			atg_free_element(rstatbox->elems[i]);
 		rstatbox->nelems=2;
-		unsigned int dj[ntypes], nj[ntypes], tbj[ntypes], tlj[ntypes], tsj[ntypes], lj[ntypes];
-		unsigned int D=0, N=0, Tb=0, Tl=0, Ts=0, L=0;
+		unsigned int dj[ntypes], nj[ntypes], tbj[ntypes], tlj[ntypes], tsj[ntypes], tmj[ntypes], lj[ntypes];
+		unsigned int D=0, N=0, Tb=0, Tl=0, Ts=0, Tm=0, L=0;
 		unsigned int ntcols=0;
 		for(unsigned int j=0;j<ntypes;j++)
 		{
-			dj[j]=nj[j]=tbj[j]=tlj[j]=tsj[j]=lj[j]=0;
+			dj[j]=nj[j]=tbj[j]=tlj[j]=tsj[j]=tmj[j]=lj[j]=0;
 			for(unsigned int i=0;i<ntargs;i++)
 			{
 				dj[j]+=dij[i][j];
@@ -2185,6 +2227,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					case TCLASS_SHIPPING:
 						tsj[j]+=tij[i][j];
 					break;
+					case TCLASS_MINING:
+						tmj[j]+=tij[i][j];
+					break;
 					default: // shouldn't ever get here
 						fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
 					break;
@@ -2196,6 +2241,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			Tb+=tbj[j];
 			Tl+=tlj[j];
 			Ts+=tsj[j];
+			Tm+=tmj[j];
 			L+=lj[j];
 			RS_typecol[j]->hidden=!dj[j];
 			if(dj[j]) ntcols++;
@@ -2265,6 +2311,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 												case TCLASS_CITY:
 													snprintf(tt, 20, "Bombs (lb): %u", tij[i][j]);
 												break;
+												case TCLASS_MINING:
+													snprintf(tt, 20, "Mines (lb): %u", tij[i][j]);
+												break;
 												case TCLASS_LEAFLET:
 													snprintf(tt, 20, "Leaflets  : %u", tij[i][j]);
 												break;
@@ -2314,6 +2363,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											{
 												case TCLASS_CITY:
 													snprintf(tt, 20, "Bombs (lb): %u", ti);
+												break;
+												case TCLASS_MINING:
+													snprintf(tt, 20, "Mines (lb): %u", ti);
 												break;
 												case TCLASS_LEAFLET:
 													snprintf(tt, 20, "Leaflets  : %u", ti);
@@ -2394,6 +2446,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
+										if(tmj[j])
+										{
+											snprintf(tt, 20, "Mines (lb): %u", tmj[j]);
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
 										if(tlj[j])
 										{
 											snprintf(tt, 20, "Leaflets  : %u", tlj[j]);
@@ -2442,6 +2500,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										if(Tb)
 										{
 											snprintf(tt, 20, "Bombs (lb): %u", Tb);
+											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+											if(tl) atg_pack_element(b2, tl);
+										}
+										if(Tm)
+										{
+											snprintf(tt, 20, "Mines (lb): %u", Tm);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
@@ -2764,6 +2828,22 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				}
 			}
 		}
+		else if(strcmp(tag, "Targets init")==0)
+		{
+			double dmg,flk;
+			f=sscanf(dat, "%la,%la\n", &dmg, &flk);
+			if(f!=2)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+				break;
+			}
+			for(unsigned int i=0;i<ntargs;i++)
+			{
+				state->dmg[i]=dmg;
+				state->flk[i]=flk*targs[i].flak/100.0;
+			}
+		}
 		else if(strcmp(tag, "Targets")==0)
 		{
 			unsigned int sntargs;
@@ -2931,7 +3011,7 @@ SDL_Surface *render_weather(w_state weather)
 		for(unsigned int y=0;y<256;y++)
 		{
 			Uint8 cl=min(max(floor(1016-weather.p[x>>1][y>>1])*8.0, 0), 255);
-			pset(rv, x, y, (atg_colour){180+weather.t[x>>1][y>>1]*3, 210, 255-weather.t[x>>1][y>>1]*3, cl});
+			pset(rv, x, y, (atg_colour){180+weather.t[x>>1][y>>1]*3, 210, 255-weather.t[x>>1][y>>1]*3, min(cl, 191)});
 		}
 	}
 	return(rv);
@@ -2956,6 +3036,7 @@ SDL_Surface *render_targets(unsigned int ntargs, target *targs, date now)
 				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-HALFCITY, .y=targs[i].lat-HALFCITY});
 			break;
 			case TCLASS_SHIPPING:
+			case TCLASS_MINING:
 				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-1, .y=targs[i].lat-1});
 			break;
 			default:
