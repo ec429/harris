@@ -68,6 +68,8 @@ void priority_selector_match_click_callback(__attribute__((unused)) struct atg_e
 	struct atg_event_list sub_list={.list=NULL, .last=NULL};
 	for(unsigned int i=0;i<b->nelems;i++)
 		atg__match_click_recursive(&sub_list, b->elems[i], button, xoff+element->display.x, yoff+element->display.y);
+	unsigned int oldval=0;
+	if(element->userdata) oldval=*(unsigned int *)element->userdata;
 	while(sub_list.list)
 	{
 		atg_event event=sub_list.list->event;
@@ -96,4 +98,6 @@ void priority_selector_match_click_callback(__attribute__((unused)) struct atg_e
 		free(sub_list.list);
 		sub_list.list=next;
 	}
+	if(element->userdata&&(*(unsigned int *)element->userdata!=oldval))
+		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*(unsigned int *)element->userdata}});
 }

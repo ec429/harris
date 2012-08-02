@@ -638,6 +638,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		GB_btpic[i]->w=38;
 		GB_btpic[i]->clickable=true;
+		GB_btpic[i]->cache=true;
 		if(atg_pack_element(b, GB_btpic[i]))
 		{
 			perror("atg_pack_element");
@@ -674,6 +675,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					return(1);
 				}
 				name->w=201;
+				name->cache=true;
 				if(atg_pack_element(vb, name))
 				{
 					perror("atg_pack_element");
@@ -920,6 +922,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				return(1);
 			}
 			picture->w=38;
+			picture->cache=true;
 			if(atg_pack_element(b, picture))
 			{
 				perror("atg_pack_element");
@@ -955,6 +958,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						fprintf(stderr, "atg_create_element_label failed\n");
 						return(1);
 					}
+					name->cache=true;
 					name->w=216;
 					if(atg_pack_element(vb, name))
 					{
@@ -1058,6 +1062,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		item->w=192;
+		item->cache=true;
 		if(atg_pack_element(b, item))
 		{
 			perror("atg_pack_element");
@@ -1895,38 +1900,44 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	free(GB_raid_label->elem.label->text);
 	GB_raid_label->elem.label->text=strdup("Select a Target");
 	GB_raid->elem.box=GB_raidbox_empty;
+	bool rfsh=true;
 	while(1)
 	{
-		for(unsigned int i=0;i<ntargs;i++)
+		if(rfsh)
 		{
-			if(GB_ttrow[i]&&GB_ttrow[i]->elem.box)
+			for(unsigned int i=0;i<ntargs;i++)
 			{
-				unsigned int raid[ntypes];
-				for(unsigned int j=0;j<ntypes;j++)
-					raid[j]=0;
-				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
-					raid[state.bombers[state.raids[i].bombers[j]].type]++;
-				for(unsigned int j=0;j<ntypes;j++)
-					if(GB_rbrow[i][j])
-						GB_rbrow[i][j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!raid[j];
-				GB_ttrow[i]->elem.box->bgcolour=(state.raids[i].nbombers?(atg_colour){127, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
-				if((int)i==seltarg)
+				if(GB_ttrow[i]&&GB_ttrow[i]->elem.box)
 				{
-					GB_ttrow[i]->elem.box->bgcolour.r=GB_ttrow[i]->elem.box->bgcolour.g=GB_ttrow[i]->elem.box->bgcolour.r+64;
-				}
-				if(GB_ttrow[i]->elem.box->nelems>1)
-				{
-					if(GB_ttrow[i]->elem.box->elems[1]&&(GB_ttrow[i]->elem.box->elems[1]->type==ATG_BOX)&&GB_ttrow[i]->elem.box->elems[1]->elem.box)
+					unsigned int raid[ntypes];
+					for(unsigned int j=0;j<ntypes;j++)
+						raid[j]=0;
+					for(unsigned int j=0;j<state.raids[i].nbombers;j++)
+						raid[state.bombers[state.raids[i].bombers[j]].type]++;
+					for(unsigned int j=0;j<ntypes;j++)
+						if(GB_rbrow[i][j])
+							GB_rbrow[i][j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!raid[j];
+					GB_ttrow[i]->elem.box->bgcolour=(state.raids[i].nbombers?(atg_colour){127, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+					if((int)i==seltarg)
 					{
-						GB_ttrow[i]->elem.box->elems[1]->elem.box->bgcolour=GB_ttrow[i]->elem.box->bgcolour;
+						GB_ttrow[i]->elem.box->bgcolour.r=GB_ttrow[i]->elem.box->bgcolour.g=GB_ttrow[i]->elem.box->bgcolour.r+64;
+					}
+					if(GB_ttrow[i]->elem.box->nelems>1)
+					{
+						if(GB_ttrow[i]->elem.box->elems[1]&&(GB_ttrow[i]->elem.box->elems[1]->type==ATG_BOX)&&GB_ttrow[i]->elem.box->elems[1]->elem.box)
+						{
+							GB_ttrow[i]->elem.box->elems[1]->elem.box->bgcolour=GB_ttrow[i]->elem.box->bgcolour;
+						}
 					}
 				}
 			}
+			GB_raid->elem.box=(seltarg<0)?GB_raidbox_empty:GB_raidbox[seltarg];
+			atg_flip(canvas);
+			rfsh=false;
 		}
-		GB_raid->elem.box=(seltarg<0)?GB_raidbox_empty:GB_raidbox[seltarg];
-		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
+			if(e.type!=ATG_EV_RAW) rfsh=true;
 			switch(e.type)
 			{
 				case ATG_EV_RAW:;
@@ -2075,6 +2086,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							goto saver;
 						}
 					}
+				break;
+				case ATG_EV_VALUE:
+					// ignore
 				break;
 				default:
 					fprintf(stderr, "e.type %d\n", e.type);
