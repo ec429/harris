@@ -12,7 +12,6 @@
 
 /* TODO
 	Implement stats tracking
-	Raid Results UI
 	Flak
 	Fighters
 	Air Ministry confidence & budget
