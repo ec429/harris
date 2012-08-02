@@ -2538,7 +2538,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		}
 		canvas->box=rstatbox;
-		atg_resize_canvas(canvas, 800, 480);
+		atg_resize_canvas(canvas, 800, 640);
 		atg_flip(canvas);
 		int errupt=0;
 		while(!errupt)
