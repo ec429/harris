@@ -14,9 +14,16 @@ for(i=0;i<ntypes;i++)
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[]
-"Targets:%hhu\n", ntargs
-for(i=0;i<ntargs;i++)
-	"Targ %hhu:%la,%la\n", i, targs[i].dmg, targs[i].flk
+either
+{
+	"Targets:%hhu\n", ntargs
+	for(i=0;i<ntargs;i++)
+		"Targ %hhu:%la,%la\n", i, targs[i].dmg, targs[i].flk
+}
+or
+{
+	"Targets init:%la,%la\n", targs[*].dmg, targs[*].flk
+}
 either
 {
 	"Weather state:%la,%la\n", push, slant
