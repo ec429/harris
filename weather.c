@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "weather.h"
+#include "rand.h"
 
 #define max(a,b)	((a)>(b)?(a):(b))
 #define min(a,b)	((a)<(b)?(a):(b))
@@ -58,13 +59,19 @@ void w_iter(w_state * ptr, bool lorw[128][128])
 					}
 					else tmp[x][y]-=(tmp[x][y]-base)*0.02;
 				}
-				else
-					tmp[x][y]+=y*0.0002*pow(ptr->slant, 4.0);
-				tmp[x][y]-=pow((tmp[x][y]-base)*0.1, 3);
+				tmp[x][y]-=pow((tmp[x][y]-base)*0.11, 3);
 			}
 		}
-		unsigned int rx=135+floor(rand()*114.0/RAND_MAX), ry=floor(rand()*128.0/RAND_MAX);
-		tmp[rx][ry]+=rand()*20.0/RAND_MAX-10.0;
+		if(brandp(0.2))
+		{
+			double bias=rand()*6.0/RAND_MAX+6.0;
+			if(brandp(0.5)) bias = -bias;
+			double m=((double)rand())*1.0/((double)RAND_MAX)-0.5;
+			for(int dx=-5;dx<6;dx++)
+				//for(int dy=-7;dy<8;dy++)
+				for(int y=0;y<128;y++)
+					tmp[192+dx+(int)floor((y-64)*m)][y]+=bias*ptr->slant;
+		}
 		for(unsigned int x=0;x<256;x++)
 		{
 			for(unsigned int y=0;y<128;y++)

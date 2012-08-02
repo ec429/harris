@@ -12,6 +12,7 @@
 
 /* TODO
 	Implement stats tracking
+	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
 	Implement Fighters
 	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
@@ -2097,6 +2098,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		SDL_Delay(50);
 		#if 0 // for testing weathersim code
+		rfsh=true;
 		for(unsigned int i=0;i<16;i++)
 			w_iter(&state.weather, lorw);
 		SDL_FreeSurface(GB_map->elem.image->data);
