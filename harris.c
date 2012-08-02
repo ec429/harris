@@ -2158,7 +2158,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if(brandp(targs[l].esiz/100.0))
 									{
 										nij[l][type]++;
-										if(brandp(log2(state.bombers[k].bmb/1000.0)/8.0))
+										if(brandp(log2(state.bombers[k].bmb/500.0)/8.0))
 										{
 											tij[l][type]++;
 										}
@@ -2573,6 +2573,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					break;
 				}
 			}
+			SDL_Delay(50);
 		}
 	}
 	else
