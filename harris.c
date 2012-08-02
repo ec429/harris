@@ -2089,8 +2089,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								}
 							break;
 							case TCLASS_MINING:;
-								int x=state.bombers[k].bmblon;
-								int y=state.bombers[k].bmblat;
+								int x=state.bombers[k].lon/2;
+								int y=state.bombers[k].lat/2;
 								if((x>=0)&&(y>=0)&&(x<128)&&(y<128)&&lorw[x][y])
 									state.bombers[k].idtar=true;
 							break;
@@ -2122,20 +2122,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				bool mine=(targs[i].class==TCLASS_MINING);
 				if(state.bombers[k].bombed)
 				{
-					for(unsigned int i=0;i<ntargs;i++)
+					for(unsigned int l=0;l<ntargs;l++)
 					{
-						int dx=state.bombers[k].bmblon-targs[i].lon, dy=state.bombers[k].bmblat-targs[i].lat;
-						switch(targs[i].class)
+						int dx=state.bombers[k].bmblon-targs[l].lon, dy=state.bombers[k].bmblat-targs[l].lat;
+						switch(targs[l].class)
 						{
 							case TCLASS_CITY:
 								if(leaf) continue;
 								if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
 								{
-									if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+									if(pget(targs[l].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
 									{
-										state.dmg[i]=max(0, state.dmg[i]-state.bombers[k].bmb/100000.0);
-										nij[i][type]++;
-										tij[i][type]+=state.bombers[k].bmb;
+										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/100000.0);
+										nij[l][type]++;
+										tij[l][type]+=state.bombers[k].bmb;
 									}
 								}
 							break;
@@ -2143,11 +2143,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(!leaf) continue;
 								if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
 								{
-									if(pget(targs[i].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+									if(pget(targs[l].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
 									{
-										state.dmg[i]=max(0, state.dmg[i]-types[type].cap/400000.0);
-										nij[i][type]++;
-										tij[i][type]+=types[type].cap*3;
+										state.dmg[l]=max(0, state.dmg[l]-types[type].cap/400000.0);
+										nij[l][type]++;
+										tij[l][type]+=types[type].cap*3;
 									}
 								}
 							break;
@@ -2155,28 +2155,30 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=2)&&(abs(dy)<=1))
 								{
-									if(brandp(targs[i].esiz/100.0))
+									if(brandp(targs[l].esiz/100.0))
 									{
-										nij[i][type]++;
+										nij[l][type]++;
 										if(brandp(log2(state.bombers[k].bmb/1000.0)/8.0))
 										{
-											tij[i][type]++;
+											tij[l][type]++;
 										}
 									}
 								}
 							break;
 							case TCLASS_MINING:
 								if(leaf||!mine) continue;
-								int x=state.bombers[k].bmblon;
-								int y=state.bombers[k].bmblat;
+								int x=state.bombers[k].bmblon/2;
+								int y=state.bombers[k].bmblat/2;
 								bool water=(x>=0)&&(y>=0)&&(x<128)&&(y<128)&&lorw[x][y];
-								if((abs(dx)<=6)&&(abs(dy)<=6)&&water)
+								if((abs(dx)<=8)&&(abs(dy)<=8)&&water)
 								{
-									nij[i][type]++;
-									tij[i][type]+=state.bombers[k].bmb;
+									state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/400000.0);
+									nij[l][type]++;
+									tij[l][type]+=state.bombers[k].bmb;
 								}
+							break;
 							default: // shouldn't ever get here
-								fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+								fprintf(stderr, "Bad targs[%d].class = %d\n", l, targs[l].class);
 							break;
 						}
 					}
