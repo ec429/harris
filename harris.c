@@ -12,11 +12,13 @@
 
 /* TODO
 	Implement stats tracking
-	Flak
-	Fighters
-	Air Ministry confidence & budget
+	Make Flak only be known to you after you've encountered it
+	Implement Fighters
+	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
+		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
 	Implement Events
 	Implement Navaids
+	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
 */
 
 typedef struct
@@ -66,7 +68,6 @@ bombertype;
 typedef struct
 {
 	//NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
-	unsigned int id;
 	char * name;
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
@@ -74,6 +75,14 @@ typedef struct
 	SDL_Surface *picture;
 }
 target;
+
+typedef struct
+{
+	//STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
+	unsigned int strength, lat, lon;
+	date entry, radar, exit;
+}
+flaksite;
 
 typedef struct
 {
@@ -90,6 +99,7 @@ typedef struct
 	bool failed; // for forces, read as !svble
 	bool landed; // for forces, read as !assigned
 	double speed;
+	double damage; // increases the probability of mech.fail and of consequent crashes
 	bool idtar; // identified target?  (for use if RoE require it)
 	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
 }
@@ -106,8 +116,8 @@ raid;
 typedef struct
 {
 	date now;
-	unsigned int hour;
 	unsigned int cash, cshr;
+	double confid, morale;
 	unsigned int nbombers;
 	ac_bomber *bombers;
 	w_state weather;
@@ -137,7 +147,8 @@ date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
 SDL_Surface *render_weather(w_state weather);
-SDL_Surface *render_targets(unsigned int ntargs, target *targs, date now);
+SDL_Surface *render_targets(date now);
+SDL_Surface *render_flak(date now);
 SDL_Surface *render_ac_b(game state);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
@@ -145,6 +156,8 @@ unsigned int ntypes=0;
 bombertype *types=NULL;
 unsigned int ntargs=0;
 target *targs=NULL;
+unsigned int nflaks=0;
+flaksite *flaks=NULL;
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
 
@@ -386,6 +399,59 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		free(targfile);
 		fprintf(stderr, "Loaded %u targets\n", ntargs);
+	}
+	FILE *flakfp=fopen("dat/flak", "r");
+	if(!flakfp)
+	{
+		fprintf(stderr, "Failed to open data file `flak'!\n");
+		return(1);
+	}
+	else
+	{
+		char *flakfile=slurp(flakfp);
+		fclose(flakfp);
+		char *next=flakfile?strtok(flakfile, "\n"):NULL;
+		while(next)
+		{
+			if(*next!='#')
+			{
+				flaksite this;
+				// STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
+				ssize_t db;
+				int e;
+				if((e=sscanf(next, "%u:%u:%u:%zn", &this.strength, &this.lat, &this.lon, &db))!=3)
+				{
+					fprintf(stderr, "Malformed `flak' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
+				}
+				this.entry=readdate(next+db, (date){0, 0, 0});
+				const char *radar=strchr(next+db, ':');
+				if(!radar)
+				{
+					fprintf(stderr, "Malformed `flak' line `%s'\n", next);
+					fprintf(stderr, "  missing :RADAR\n");
+					return(1);
+				}
+				radar++;
+				this.radar=readdate(radar, (date){9999, 99, 99});
+				const char *exit=strchr(radar, ':');
+				if(!exit)
+				{
+					fprintf(stderr, "Malformed `flak' line `%s'\n", next);
+					fprintf(stderr, "  missing :EXIT\n");
+					return(1);
+				}
+				exit++;
+				this.exit=readdate(exit, (date){9999, 99, 99});
+				flaks=(flaksite *)realloc(flaks, (nflaks+1)*sizeof(flaksite));
+				flaks[nflaks]=this;
+				nflaks++;
+			}
+			next=strtok(NULL, "\n");
+		}
+		free(flakfile);
+		fprintf(stderr, "Loaded %u flaksites\n", nflaks);
 	}
 	
 	bool lorw[128][128]; // TRUE for water
@@ -664,6 +730,90 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
+	char *GB_budget_label=malloc(32);
+	if(!GB_budget_label)
+	{
+		perror("malloc");
+		return(1);
+	}
+	atg_element *GB_budget=atg_create_element_label(NULL, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
+	if(!GB_budget)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	else
+	{
+		atg_label *l=GB_budget->elem.label;
+		if(!l)
+		{
+			fprintf(stderr, "GB_budget->elem.label==NULL\n");
+			return(1);
+		}
+		*(l->text=GB_budget_label)=0;
+		GB_budget->w=159;
+		if(atg_pack_element(GB_btb, GB_budget))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+	}
+	char *GB_confid_label=malloc(32);
+	if(!GB_confid_label)
+	{
+		perror("malloc");
+		return(1);
+	}
+	atg_element *GB_confid=atg_create_element_label(NULL, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
+	if(!GB_confid)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	else
+	{
+		atg_label *l=GB_confid->elem.label;
+		if(!l)
+		{
+			fprintf(stderr, "GB_confid->elem.label==NULL\n");
+			return(1);
+		}
+		*(l->text=GB_confid_label)=0;
+		GB_confid->w=159;
+		if(atg_pack_element(GB_btb, GB_confid))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+	}
+	char *GB_morale_label=malloc(32);
+	if(!GB_morale_label)
+	{
+		perror("malloc");
+		return(1);
+	}
+	atg_element *GB_morale=atg_create_element_label(NULL, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
+	if(!GB_morale)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	else
+	{
+		atg_label *l=GB_morale->elem.label;
+		if(!l)
+		{
+			fprintf(stderr, "GB_morale->elem.label==NULL\n");
+			return(1);
+		}
+		*(l->text=GB_morale_label)=0;
+		GB_morale->w=159;
+		if(atg_pack_element(GB_btb, GB_morale))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+	}
 	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 	if(!map)
 	{
@@ -699,7 +849,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	SDL_Surface *weather_overlay=NULL, *target_overlay=NULL;
+	SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL;
 	atg_element *GB_raid_label=atg_create_element_label("Select a Target", 12, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
 	if(!GB_raid_label)
 	{
@@ -1656,9 +1806,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	canvas->box=gamebox;
 	atg_resize_canvas(canvas, 640, 480);
 	snprintf(datestring, 11, "%02u-%02u-%04u\n", state.now.day, state.now.month, state.now.year);
+	snprintf(GB_budget_label, 32, "Budget: £%u/day", state.cshr);
+	snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state.confid+0.5));
+	snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state.morale+0.5));
 	for(unsigned int j=0;j<state.nbombers;j++)
 	{
 		state.bombers[j].landed=true;
+		state.bombers[j].damage=0;
 	}
 	for(unsigned int i=0;i<ntypes;i++)
 	{
@@ -1709,8 +1863,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	SDL_FreeSurface(GB_map->elem.image->data);
 	GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+	SDL_FreeSurface(flak_overlay);
+	flak_overlay=render_flak(state.now);
+	SDL_BlitSurface(flak_overlay, NULL, GB_map->elem.image->data, NULL);
 	SDL_FreeSurface(target_overlay);
-	target_overlay=render_targets(ntargs, targs, state.now);
+	target_overlay=render_targets(state.now);
 	SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state.weather);
@@ -1823,6 +1980,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							seltarg=-1;
 							SDL_FreeSurface(GB_map->elem.image->data);
 							GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+							SDL_BlitSurface(flak_overlay, NULL, GB_map->elem.image->data, NULL);
 							SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
 							SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 							free(GB_raid_label->elem.label->text);
@@ -1836,6 +1994,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								seltarg=i;
 								SDL_FreeSurface(GB_map->elem.image->data);
 								GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+								SDL_BlitSurface(flak_overlay, NULL, GB_map->elem.image->data, NULL);
 								SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
 								SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon-3, .y=targs[i].lat-3});
@@ -1932,9 +2091,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
 		SDL_FreeSurface(RB_map->elem.image->data);
 		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-		SDL_Surface *with_target=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		SDL_Surface *with_flak=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		SDL_FreeSurface(flak_overlay);
+		flak_overlay=render_flak(state.now);
+		SDL_BlitSurface(flak_overlay, NULL, with_flak, NULL);
+		SDL_Surface *with_target=SDL_ConvertSurface(with_flak, with_flak->format, with_flak->flags);
 		SDL_FreeSurface(target_overlay);
-		target_overlay=render_targets(ntargs, targs, state.now);
+		target_overlay=render_targets(state.now);
 		SDL_BlitSurface(target_overlay, NULL, with_target, NULL);
 		SDL_Surface *with_weather=SDL_ConvertSurface(with_target, with_target->format, with_target->flags);
 		SDL_FreeSurface(weather_overlay);
@@ -1994,7 +2157,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
 					if(state.bombers[k].crashed||state.bombers[k].landed) continue;
-					if(brandp(types[type].fail/10000.0))
+					if((state.bombers[k].damage>=100)||(brandp((types[type].fail+state.bombers[k].damage)/10000.0)))
 					{
 						state.bombers[k].failed=true;
 						if(brandp(0.02))
@@ -2047,7 +2210,46 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					if(d==0) dx=dy=-1;
 					state.bombers[k].lon+=dx;
 					state.bombers[k].lat+=dy;
-					// TODO: navigation affected by sun/moon, navaids...
+					for(unsigned int i=0;i<ntargs;i++)
+					{
+						if(((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0))) continue;
+						double d=hypot(state.bombers[k].lon-targs[i].lon, state.bombers[k].lat-targs[i].lat);
+						double range;
+						switch(targs[i].class)
+						{
+							case TCLASS_CITY:
+							case TCLASS_LEAFLET:
+								range=3.6;
+							break;
+							case TCLASS_SHIPPING:
+								range=1.2;
+							break;
+							case TCLASS_MINING:
+								range=2.0;
+							break;
+							default:
+								fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+								range=0.6;
+							break;
+						}
+						if(d<range)
+						{
+							if(brandp(state.flk[i]/600.0))
+								state.bombers[k].damage+=irandu(types[type].defn);
+						}
+					}
+					for(unsigned int i=0;i<nflaks;i++)
+					{
+						if(((diffdate(flaks[i].entry, state.now)>0)||(diffdate(flaks[i].exit, state.now)<0))) continue;
+						bool rad=(diffdate(flaks[i].radar, state.now)<0);
+						double d=hypot(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat);
+						if(d<0.8)
+						{
+							if(brandp(flaks[i].strength*(rad?3:1)/1200.0))
+								state.bombers[k].damage+=irandu(types[type].defn)/2.0;
+						}
+					}
+					// TODO: navigation affected by moon, navaids...
 					double navacc=3.0/types[type].accu;
 					double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
 					state.bombers[k].driftlon=state.bombers[k].driftlon*.98+ex;
@@ -2108,6 +2310,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		// incorporate the results, and clear the raids ready for next cycle
 		unsigned int dij[ntargs][ntypes], nij[ntargs][ntypes], tij[ntargs][ntypes], lij[ntargs][ntypes];
+		double cidam=0;
 		for(unsigned int i=0;i<ntargs;i++)
 			for(unsigned int j=0;j<ntypes;j++)
 				dij[i][j]=nij[i][j]=tij[i][j]=lij[i][j]=0;
@@ -2132,7 +2335,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(pget(targs[l].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
 									{
+										cidam-=state.dmg[l];
 										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/100000.0);
+										cidam+=state.dmg[l];
 										nij[l][type]++;
 										tij[l][type]+=state.bombers[k].bmb;
 									}
@@ -2198,6 +2403,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				i--;
 				continue;
 			}
+			else if(state.bombers[i].damage>50)
+				state.bombers[i].failed=true; // mark as u/s
 		}
 		// finish the weather
 		for(; it<512;it++)
@@ -2247,6 +2454,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			RS_typecol[j]->hidden=!dj[j];
 			if(dj[j]) ntcols++;
 		}
+		state.cshr+=Tb/50;
+		state.cshr+=Tl/10000;
+		state.cshr+=Ts*1200;
+		state.cshr+=Tm/2000;
+		double par=0.2+((state.now.year-1939)*0.1);
+		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0);
+		state.confid+=Ts*0.25;
+		state.confid+=cidam*0.1;
+		state.confid=min(max(state.confid, 0), 100);
+		state.morale+=(1.5-L*100.0/(double)D)/3.0;
+		if(L==0) state.morale+=0.25;
+		if(D>=100) state.morale+=0.2;
+		if(D>=1000) state.morale+=1.0;
+		state.morale=min(max(state.morale, 0), 100);
 		if(RS_tocol)
 			RS_tocol->hidden=(ntcols==1);
 		unsigned int ntrows=0;
@@ -2591,7 +2812,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(brandp((1-types[state.bombers[i].type].svp/100.0)/3.0)) state.bombers[i].failed=true;
 		}
 	}
-	// TODO modify cshr by raid results & other factors
+	// TODO: if confid or morale too low, SACKED
+	state.cshr+=state.confid;
+	state.cshr+=state.morale/2.0;
+	state.cshr*=.96;
 	state.cash+=state.cshr;
 	// purchase additional planes based on priorities
 	while(true)
@@ -2724,9 +2948,18 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 		{
 			state->now=readdate(dat, (date){3, 9, 1939});
 		}
-		else if(strcmp(tag, "TIME")==0)
+		else if(strcmp(tag, "Confid")==0)
 		{
-			f=sscanf(dat, "%u\n", &state->hour);
+			f=sscanf(dat, "%la\n", &state->confid);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+		}
+		else if(strcmp(tag, "Morale")==0)
+		{
+			f=sscanf(dat, "%la\n", &state->morale);
 			if(f!=1)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -2972,7 +3205,8 @@ int savegame(const char *fn, game state)
 	}
 	fprintf(fs, "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV);
 	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
-	fprintf(fs, "TIME:%hhu\n", state.hour);
+	fprintf(fs, "Confid:%la\n", state.confid);
+	fprintf(fs, "Morale:%la\n", state.morale);
 	fprintf(fs, "Budget:%u+%u\n", state.cash, state.cshr);
 	fprintf(fs, "Types:%u\n", ntypes);
 	for(unsigned int i=0;i<ntypes;i++)
@@ -2983,11 +3217,11 @@ int savegame(const char *fn, game state)
 		unsigned int nav=0;
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
-		fprintf(fs, "Type %u:%d,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav);
+		fprintf(fs, "Type %u:%u,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav);
 	}
 	fprintf(fs, "Targets:%hhu\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
-		fprintf(fs, "Targ %hhu:%a,%a\n", i, state.dmg[i], state.flk[i]*100.0/(double)targs[i].flak);
+		fprintf(fs, "Targ %hhu:%la,%la\n", i, state.dmg[i], state.flk[i]*100.0/(double)targs[i].flak);
 	fprintf(fs, "Weather state:%la,%la\n", state.weather.push, state.weather.slant);
 	for(unsigned int x=0;x<256;x++)
 	{
@@ -3019,7 +3253,7 @@ SDL_Surface *render_weather(w_state weather)
 	return(rv);
 }
 
-SDL_Surface *render_targets(unsigned int ntargs, target *targs, date now)
+SDL_Surface *render_targets(date now)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
@@ -3049,6 +3283,61 @@ SDL_Surface *render_targets(unsigned int ntargs, target *targs, date now)
 	return(rv);
 }
 
+SDL_Surface *render_flak(date now)
+{
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
+	{
+		fprintf(stderr, "render_targets: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
+	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	for(unsigned int i=0;i<nflaks;i++)
+	{
+		if((diffdate(flaks[i].entry, now)>0)||(diffdate(flaks[i].exit, now)<0)) continue;
+		bool rad=(diffdate(flaks[i].radar, now)<0);
+		unsigned int x=flaks[i].lon, y=flaks[i].lat, str=flaks[i].strength;
+		pset(rv, x, y, (atg_colour){rad?255:191, 0, rad?127:255, ATG_ALPHA_OPAQUE});
+		if(str>5)
+		{
+			pset(rv, x+1, y, (atg_colour){191, 0, rad?127:255, ATG_ALPHA_OPAQUE});
+			if(str>10)
+			{
+				pset(rv, x, y+1, (atg_colour){191, 0, rad?127:255, ATG_ALPHA_OPAQUE});
+				if(str>20)
+				{
+					pset(rv, x-1, y, (atg_colour){191, 0, rad?127:255, ATG_ALPHA_OPAQUE});
+					if(str>30)
+					{
+						pset(rv, x, y-1, (atg_colour){191, 0, rad?127:255, ATG_ALPHA_OPAQUE});
+						if(str>40)
+						{
+							pset(rv, x+1, y+1, (atg_colour){127, 0, rad?127:191, ATG_ALPHA_OPAQUE});
+							if(str>50)
+							{
+								pset(rv, x-1, y+1, (atg_colour){127, 0, rad?127:191, ATG_ALPHA_OPAQUE});
+								if(str>60)
+								{
+									pset(rv, x+1, y-1, (atg_colour){127, 0, rad?127:191, ATG_ALPHA_OPAQUE});
+									if(str>80)
+									{
+										pset(rv, x+1, y-1, (atg_colour){127, 0, rad?127:191, ATG_ALPHA_OPAQUE});
+										if(str>=100)
+										{
+											pset(rv, x-1, y-1, (atg_colour){127, 0, rad?127:191, ATG_ALPHA_OPAQUE});
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return(rv);
+}
+
 SDL_Surface *render_ac_b(game state)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
@@ -3065,6 +3354,8 @@ SDL_Surface *render_ac_b(game state)
 			unsigned int x=floor(state.bombers[k].lon), y=floor(state.bombers[k].lat);
 			if(state.bombers[k].crashed)
 				pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+			else if(state.bombers[k].damage>1)
+				pset(rv, x, y, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
 			else if(state.bombers[k].failed)
 				pset(rv, x, y, (atg_colour){0, 255, 255, ATG_ALPHA_OPAQUE});
 			else if(state.bombers[k].bombed)

@@ -1,0 +1,31 @@
+# Format: dsv
+# STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
+# Strength is on a scale [0,100] where 100 is several heavy batteries and flak towers; a French village is about 2
+# Dates are DD-MM-YYYY:
+#  ENTRY is when this flak site starts
+#  RADAR is when it gets radar-prediction or radar-guided searchlights (blank=never)
+#  EXIT is when it stops (typically because the territory it's on is liberated, but there's also the dismantling of the Kammhuber line)
+
+# Early defenses on the German approaches
+ 8: 52:202:          :09-04-1940:
+10: 55:171:          :          :
+12: 50:176:03-10-1939:09-04-1940:
+10: 48:183:19-06-1940:          :
+10: 73:158:          :          :
+12: 75:165:          :12-05-1940:
+10: 68:168:07-06-1940:          :
+10: 81:150:15-07-1940:          :
+12: 89:149:09-04-1940:19-06-1940:
+10: 96:144:08-05-1940:          :
+10:113:141:21-07-1940:          :
+12:114:133:20-12-1939:09-04-1940:
+10:122:135:14-02-1940:          :
+10:141:136:24-06-1940:          :
+12:147:138:17-04-1940:08-07-1940:
+10:151:134:01-07-1940:          :
+10:166:141:21-05-1940:          :
+12:167:148:01-03-1940:21-07-1940:
+10:171:155:08-07-1940:          :
+10:181:160:18-03-1940:          :
+12:187:158:          :31-05-1940:
+10:193:155:11-06-1940:          :
