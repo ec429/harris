@@ -53,12 +53,12 @@ WURZBURG:09-04-1940
 KAMMHUBER:28-07-1940
 # Lichtenstein B/C (airborne radar)
 L_BC:12-02-1942
-# Naxos homes on H2S transmissions
-NAXOS:28-11-1943
 # Lichtenstein SN (better)
 L_SN:01-10-1943
+# Naxos homes on H2S transmissions
+NAXOS:28-11-1943
 # Schräge Musik
-MUSIK:
+MUSIK:17-08-1943
 # Jamming GEE
 GEEJAM:21-09-1942
 

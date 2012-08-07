@@ -1,0 +1,18 @@
+# Format: dsv
+# MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:DD-MM-YYYY:DD-MM-YYYY:FLAGS
+# Cost in £
+# Speed in mph (cruising, approx)
+# Armament is 'just a number', high is good
+# Maneuvrability also just a number (high good), ranges from ~20 for a converted bomber to 100 for a single-seat dogfighter
+# Dates are entry/exit from service
+# Flags is either DAY or NIGHT.  DAYfighters do not carry radar, and are single-seat.  Nightfighters have a navigator and (if it's been developed) an airborne intercept radar set (which reduces speed by about 30mph), and can be equipped with Schräge Musik
+
+Messerschmitt:Bf109E:5000:330: 40:100:          :07-04-1943:DAY
+Messerschmitt:Bf109G:6000:365: 50: 95:12-05-1942:          :DAY
+Focke-Wulf:Fw190A:   8000:360:100: 80:24-10-1941:          :DAY
+
+Dornier:Do17Z:      10000:205: 30: 20:          :30-06-1942:NIGHT
+Messerschmitt:Bf110:15000:280: 75: 45:17-09-1940:          :NIGHT
+Junkers:Ju88C:      13000:300: 60: 50:10-07-1940:          :NIGHT
+Dornier:Do217J:     10500:260: 50: 30:04-04-1942:19-04-1944:NIGHT
+Messerschmitt:Me262:40000:480: 72: 40:04-01-1945:          :NIGHT
