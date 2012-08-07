@@ -64,6 +64,21 @@ typedef struct
 }
 bombertype;
 
+typedef struct
+{
+	//MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:DD-MM-YYYY:DD-MM-YYYY:FLAGS
+	char *manu;
+	char *name;
+	unsigned int cost;
+	unsigned int speed;
+	unsigned char arm;
+	unsigned char mnv;
+	date entry;
+	date exit;
+	bool night;
+}
+fightertype;
+
 #define CITYSIZE	17
 #define HALFCITY	8
 
@@ -125,6 +140,7 @@ typedef struct
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk;
+	unsigned int *nfighters;
 	raid *raids;
 	struct
 	{
@@ -158,6 +174,8 @@ int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
 bombertype *types=NULL;
+unsigned int nftypes=0;
+fightertype *ftypes=NULL;
 unsigned int ntargs=0;
 target *targs=NULL;
 unsigned int nflaks=0;
@@ -257,6 +275,73 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		}
 		fprintf(stderr, "Loaded %u bomber types\n", ntypes);
+	}
+	
+	FILE *ftypefp=fopen("dat/fighters", "r");
+	if(!ftypefp)
+	{
+		fprintf(stderr, "Failed to open data file `fighters'!\n");
+		return(1);
+	}
+	else
+	{
+		char *ftypefile=slurp(ftypefp);
+		fclose(ftypefp);
+		char *next=ftypefile?strtok(ftypefile, "\n"):NULL;
+		while(next)
+		{
+			if(*next&&(*next!='#'))
+			{
+				fightertype this;
+				// MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:DD-MM-YYYY:DD-MM-YYYY:FLAGS
+				this.name=strdup(next); // guarantees that enough memory will be allocated
+				this.manu=(char *)malloc(strcspn(next, ":")+1);
+				ssize_t db;
+				int e;
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%hhu:%hhu:%zn", this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &db))!=6)
+				{
+					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
+				}
+				size_t nlen=strlen(this.name)+1;
+				this.name=realloc(this.name, nlen);
+				this.entry=readdate(next+db, (date){0, 0, 0});
+				const char *exit=strchr(next+db, ':');
+				if(!exit)
+				{
+					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
+					fprintf(stderr, "  missing :EXIT\n");
+					return(1);
+				}
+				exit++;
+				this.exit=readdate(exit, (date){9999, 99, 99});
+				const char *flag=strchr(exit, ':');
+				if(!flag)
+				{
+					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
+					fprintf(stderr, "  missing :FLAGS\n");
+					return(1);
+				}
+				flag++;
+				if(strstr(flag, "NIGHT"))
+					this.night=true;
+				else if(strstr(flag, "DAY"))
+					this.night=false;
+				else
+				{
+					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
+					fprintf(stderr, "  FLAGS has neither DAY not NIGHT\n");
+					return(1);
+				}
+				ftypes=realloc(ftypes, (nftypes+1)*sizeof(fightertype));
+				ftypes[nftypes]=this;
+				nftypes++;
+			}
+			next=strtok(NULL, "\n");
+		}
+		free(ftypefile);
+		fprintf(stderr, "Loaded %u fighter types\n", nftypes);
 	}
 	
 	FILE *targfp=fopen("dat/targets", "r");
@@ -1547,6 +1632,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.raids[i].nbombers=0;
 		state.raids[i].bombers=NULL;
 	}
+	if(!(state.nfighters=malloc(nftypes*sizeof(*state.nfighters))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	for(unsigned int i=0;i<nftypes;i++)
+		state.nfighters[i]=0;
 	state.roe.idtar=true;
 	
 	main_menu:
@@ -2888,6 +2980,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.cash-=types[m].cost;
 		types[m].pribuf-=8;
 	}
+	// TODO: Germans build fighters
 	if(++state.now.day>monthdays[state.now.month-1]+(((state.now.month==2)&&!(state.now.year%4))?1:0))
 	{
 		state.now.day=1;
@@ -3098,6 +3191,50 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				}
 			}
 		}
+		else if(strcmp(tag, "Fighters")==0)
+		{
+			unsigned int snftypes;
+			f=sscanf(dat, "%u\n", &snftypes);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(snftypes!=nftypes)
+			{
+				fprintf(stderr, "2 Value mismatch: different nftypes value\n");
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<nftypes;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j, count;
+					f=sscanf(line, "Type %u:%u\n", &j, &count);
+					if(f!=2)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+					state->nfighters[i]=count;
+				}
+			}
+		}
 		else if(strcmp(tag, "Targets init")==0)
 		{
 			double dmg,flk;
@@ -3245,7 +3382,7 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Budget:%u+%u\n", state.cash, state.cshr);
 	fprintf(fs, "Types:%u\n", ntypes);
 	for(unsigned int i=0;i<ntypes;i++)
-		fprintf(fs, "Prio %hhu:%u,%u\n", i, types[i].prio, types[i].pribuf);
+		fprintf(fs, "Prio %u:%u,%u\n", i, types[i].prio, types[i].pribuf);
 	fprintf(fs, "Bombers:%u\n", state.nbombers);
 	for(unsigned int i=0;i<state.nbombers;i++)
 	{
@@ -3254,6 +3391,9 @@ int savegame(const char *fn, game state)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		fprintf(fs, "Type %u:%u,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav);
 	}
+	fprintf(fs, "Fighters:%u\n", nftypes);
+	for(unsigned int i=0;i<nftypes;i++)
+		fprintf(fs, "Type %u:%u\n", i, state.nfighters[i]);
 	fprintf(fs, "Targets:%hhu\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
 		fprintf(fs, "Targ %hhu:%la,%la\n", i, state.dmg[i], state.flk[i]*100.0/(double)targs[i].flak);

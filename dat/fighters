@@ -7,6 +7,7 @@
 # Dates are entry/exit from service
 # Flags is either DAY or NIGHT.  DAYfighters do not carry radar, and are single-seat.  Nightfighters have a navigator and (if it's been developed) an airborne intercept radar set (which reduces speed by about 30mph), and can be equipped with Schräge Musik
 
+#                    COST SPD ARM MNV
 Messerschmitt:Bf109E:5000:330: 40:100:          :07-04-1943:DAY
 Messerschmitt:Bf109G:6000:365: 50: 95:12-05-1942:          :DAY
 Focke-Wulf:Fw190A:   8000:360:100: 80:24-10-1941:          :DAY

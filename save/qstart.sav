@@ -404,5 +404,14 @@ Type 3:1,0
 Type 3:1,0
 Type 3:1,0
 Type 3:1,0
+Fighters:8
+Type 0:57
+Type 1:0
+Type 2:0
+Type 3:33
+Type 4:0
+Type 5:0
+Type 6:0
+Type 7:0
 Targets init:100,100
 Weather rand:1441
