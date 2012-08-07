@@ -15,6 +15,7 @@
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
 	Implement Fighters
+	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
 	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
 		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
 	Implement Events
@@ -2271,6 +2272,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.bombers[k].damage+=irandu(types[type].defn);
 						}
 					}
+					// TODO: flak hitrate affected by weather
 					for(unsigned int i=0;i<nflaks;i++)
 					{
 						if(((diffdate(flaks[i].entry, state.now)>0)||(diffdate(flaks[i].exit, state.now)<0))) continue;
