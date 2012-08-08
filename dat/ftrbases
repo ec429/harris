@@ -1,0 +1,14 @@
+# Format: dsv
+# LAT:LONG:ENTRY:EXIT
+
+# Within Germany (TODO: exit when liberated during 1945)
+ 81:193:          :
+102:181:          :
+110:153:          :
+151:174:          :
+192:195:          :
+#  Berlin defense
+103:227:02-10-1940:
+ 85:232:11-11-1940:
+
+# TODO bases in France and the Low Countries

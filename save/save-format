@@ -14,12 +14,14 @@ for(i=0;i<ntypes;i++)
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[]
-"Fighters:%u\n", nftypes
-for(i=0;i<nftypes;i++)
-	"Type %u:%u\n", i, nfighters[i]
+"FTypes:%u\n", nftypes // should be a constant
+"FBases:%u\n", nfbases // should be a constant
+"Fighters:%u\n", nfighters
+for(i=0;i<nfighters;i++)
+	"Type %u:%u\n", fighter[i].type, fighter[i].base
 either
 {
-	"Targets:%hhu\n", ntargs
+	"Targets:%hhu\n", ntargs // should be a constant
 	for(i=0;i<ntargs;i++)
 		"Targ %hhu:%la,%la\n", i, targs[i].dmg, targs[i].flk
 }
