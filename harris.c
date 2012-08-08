@@ -3205,7 +3205,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				}
 			}
 		}
-		else if(strcmp(tag, "Fighters")==0)
+		else if(strcmp(tag, "FTypes")==0)
 		{
 			unsigned int snftypes;
 			f=sscanf(dat, "%u\n", &snftypes);
@@ -3219,9 +3219,35 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				fprintf(stderr, "2 Value mismatch: different nftypes value\n");
 				e|=2;
 			}
+		}
+		else if(strcmp(tag, "FBases")==0)
+		{
+			unsigned int snfbases;
+			f=sscanf(dat, "%u\n", &snfbases);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(snfbases!=nfbases)
+			{
+				fprintf(stderr, "2 Value mismatch: different nfbases value\n");
+				e|=2;
+			}
+		}
+		else if(strcmp(tag, "Fighters")==0)
+		{
+			f=sscanf(dat, "%u\n", &state->nfighters);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
 			else
 			{
-				for(unsigned int i=0;i<nftypes;i++)
+				free(state->fighters);
+				state->fighters=malloc(state->nfighters*sizeof(ac_fighter));
+				for(unsigned int i=0;i<state->nfighters;i++)
 				{
 					free(line);
 					line=fgetl(fs);
@@ -3231,21 +3257,22 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						e|=64;
 						break;
 					}
-					unsigned int j, count;
-					f=sscanf(line, "Type %u:%u\n", &j, &count);
+					unsigned int j;
+					unsigned int base;
+					f=sscanf(line, "Type %u:%u\n", &j, &base);
 					if(f!=2)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
 						break;
 					}
-					if(j!=i)
+					if(j>nftypes)
 					{
-						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						fprintf(stderr, "4 Index mismatch in part %u of tag \"%s\"\n", j, tag);
 						e|=4;
 						break;
 					}
-					state->nfighters[i]=count;
+					state->fighters[i]=(ac_fighter){.type=j, .base=base};
 				}
 			}
 		}
@@ -3405,9 +3432,11 @@ int savegame(const char *fn, game state)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		fprintf(fs, "Type %u:%u,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav);
 	}
-	fprintf(fs, "Fighters:%u\n", nftypes);
-	for(unsigned int i=0;i<nftypes;i++)
-		fprintf(fs, "Type %u:%u\n", i, state.nfighters[i]);
+	fprintf(fs, "FTypes:%u\n", nftypes);
+	fprintf(fs, "FBases:%u\n", nfbases);
+	fprintf(fs, "Fighters:%u\n", state.nfighters);
+	for(unsigned int i=0;i<state.nfighters;i++)
+		fprintf(fs, "Type %u:%u\n", state.fighters[i].type, state.fighters[i].base);
 	fprintf(fs, "Targets:%hhu\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
 		fprintf(fs, "Targ %hhu:%la,%la\n", i, state.dmg[i], state.flk[i]*100.0/(double)targs[i].flak);
