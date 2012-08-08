@@ -12,12 +12,12 @@ Format, sort of printfy
 for(i=0;i<ntypes;i++)
 	"Prio %hhu:%u,%u\n", i, types[i].prio, types[i].pribuf
 "Bombers:%u\n", nbombers
-for(i=0;i<nbombers;i++) // allow lines prefixed with n*
+for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[]
 "FTypes:%u\n", nftypes // should be a constant
 "FBases:%u\n", nfbases // should be a constant
 "Fighters:%u\n", nfighters
-for(i=0;i<nfighters;i++) // allow lines prefixed with n*
+for(i=0;i<nfighters;i++)
 	"Type %u:%u\n", fighter[i].type, fighter[i].base
 either
 {
