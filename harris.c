@@ -79,6 +79,14 @@ typedef struct
 }
 fightertype;
 
+typedef struct
+{
+	//LAT:LONG:ENTRY:EXIT
+	unsigned int lat, lon;
+	date entry, exit;
+}
+fighterbase;
+
 #define CITYSIZE	17
 #define HALFCITY	8
 
@@ -124,6 +132,18 @@ ac_bomber;
 
 typedef struct
 {
+	unsigned int type;
+	unsigned int base;
+	double lat, lon;
+	bool crashed;
+	bool landed;
+	double damage;
+	// TODO stuff for controlling /Himmelbett/ assignment (Kammhuber line stuff)
+}
+ac_fighter;
+
+typedef struct
+{
 	unsigned int nbombers;
 	unsigned int *bombers; // offsets into the game.bombers list
 	// TODO routing
@@ -140,7 +160,8 @@ typedef struct
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk;
-	unsigned int *nfighters;
+	unsigned int nfighters;
+	ac_fighter *fighters;
 	raid *raids;
 	struct
 	{
@@ -176,6 +197,8 @@ unsigned int ntypes=0;
 bombertype *types=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
+unsigned int nfbases=0;
+fighterbase *fbases=NULL;
 unsigned int ntargs=0;
 target *targs=NULL;
 unsigned int nflaks=0;
@@ -1606,11 +1629,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	fprintf(stderr, "GUI instantiated\n");
 	
 	game state;
-	if(!(state.bombers=malloc(state.nbombers*sizeof(*state.bombers))))
-	{
-		perror("malloc");
-		return(1);
-	}
+	state.nbombers=state.nfighters=0;
+	state.bombers=NULL;
+	state.fighters=NULL;
 	state.ntargs=ntargs;
 	if(!(state.dmg=malloc(ntargs*sizeof(*state.dmg))))
 	{
@@ -1632,13 +1653,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.raids[i].nbombers=0;
 		state.raids[i].bombers=NULL;
 	}
-	if(!(state.nfighters=malloc(nftypes*sizeof(*state.nfighters))))
-	{
-		perror("malloc");
-		return(1);
-	}
-	for(unsigned int i=0;i<nftypes;i++)
-		state.nfighters[i]=0;
 	state.roe.idtar=true;
 	
 	main_menu:
