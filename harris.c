@@ -85,7 +85,7 @@ typedef struct
 	unsigned int lat, lon;
 	date entry, exit;
 }
-fighterbase;
+ftrbase;
 
 #define CITYSIZE	17
 #define HALFCITY	8
@@ -198,7 +198,7 @@ bombertype *types=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
 unsigned int nfbases=0;
-fighterbase *fbases=NULL;
+ftrbase *fbases=NULL;
 unsigned int ntargs=0;
 target *targs=NULL;
 unsigned int nflaks=0;
@@ -367,6 +367,51 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "Loaded %u fighter types\n", nftypes);
 	}
 	
+	FILE *fbfp=fopen("dat/ftrbases", "r");
+	if(!fbfp)
+	{
+		fprintf(stderr, "Failed to open data file `ftrbases'!\n");
+		return(1);
+	}
+	else
+	{
+		char *fbfile=slurp(fbfp);
+		fclose(fbfp);
+		char *next=fbfile?strtok(fbfile, "\n"):NULL;
+		while(next)
+		{
+			if(*next!='#')
+			{
+				ftrbase this;
+				// LAT:LONG:ENTRY:EXIT
+				ssize_t db;
+				int e;
+				if((e=sscanf(next, "%u:%u:%zn", &this.lat, &this.lon, &db))!=2)
+				{
+					fprintf(stderr, "Malformed `ftrbases' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
+				}
+				this.entry=readdate(next+db, (date){0, 0, 0});
+				const char *exit=strchr(next+db, ':');
+				if(!exit)
+				{
+					fprintf(stderr, "Malformed `ftrbases' line `%s'\n", next);
+					fprintf(stderr, "  missing :EXIT\n");
+					return(1);
+				}
+				exit++;
+				this.exit=readdate(exit, (date){9999, 99, 99});
+				fbases=(ftrbase *)realloc(fbases, (nfbases+1)*sizeof(ftrbase));
+				fbases[nfbases]=this;
+				nfbases++;
+			}
+			next=strtok(NULL, "\n");
+		}
+		free(fbfile);
+		fprintf(stderr, "Loaded %u ftrbases\n", nfbases);
+	}
+	
 	FILE *targfp=fopen("dat/targets", "r");
 	if(!targfp)
 	{
@@ -512,6 +557,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		free(targfile);
 		fprintf(stderr, "Loaded %u targets\n", ntargs);
 	}
+	
 	FILE *flakfp=fopen("dat/flak", "r");
 	if(!flakfp)
 	{
