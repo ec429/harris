@@ -1,4 +1,9 @@
-# ID:DD-MM-YYYY
+# Format is ID:DD-MM-YYYY
+# Remarks.
+# For many of these events, only the month or even "early/late 19xx" are known or meaningful.
+# The overly precise dates for things like the introduction of Tame Boar (Zahme Sau) tactics, or the Battle of the Barges, are there purely for gameplay reasons.
+# It is of course unrealistic to have, for example, the German defences switch en masse from Himmelbett zones to Zahme Sau on a particular day; it's merely a simplification that makes both the game and its implementation less complicated.  Such things may be made more gradual later, but in the meantime the precise dates are thoroughly arbitrary.
+# The dates of things like navaids, RCM devices and German radars are currently a confusion; some of them refer to the first Service use of the device, others to when production became sufficiently great that it was available in meaningful quantity.
 
 # Permit attacks on civilian areas
 CIV:15-03-1940
@@ -28,6 +33,7 @@ PFF:15-08-1942
 
 #Navaids
 OBOE:25-12-1941
+# GEE also triggers bomberstream tactics
 GEE:05-03-1942
 H2S:26-01-1943
 GH:13-11-1943
@@ -51,6 +57,8 @@ SERRATE:16-12-1942
 WURZBURG:09-04-1940
 # Kammhuber line
 KAMMHUBER:28-07-1940
+# Zahme Sau tactics.  I'm not at all sure about this date, it perhaps should be in late '42 instead
+TAMEBOAR:11-02-1943
 # Lichtenstein B/C (airborne radar)
 L_BC:12-02-1942
 # Lichtenstein SN (better)
@@ -64,7 +72,7 @@ GEEJAM:21-09-1942
 
 #Intelligence reports
 # Warnings
-V_WEAPONS:
+V_WEAPONS:18-06-1943
 # Spurious
-SECRET:
-FLAKGAS:
+SECRET:17-10-1939
+FLAKGAS:22-08-1940

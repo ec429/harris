@@ -14,12 +14,14 @@
 	Implement stats tracking
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
-	Implement Fighters
+	Implement Fighter combat
+	Implement various forms of Fighter control
 	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
 	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
 		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
 	Implement Events
 	Implement Navaids
+	Implement POM
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
 */
 
@@ -98,6 +100,9 @@ typedef struct
 	date entry, exit;
 	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,} class;
 	SDL_Surface *picture;
+	/* for Type I fighter control */
+	double threat; // German-assessed threat level
+	unsigned int nfighters; // # of nfs covering this target
 }
 target;
 
@@ -138,6 +143,8 @@ typedef struct
 	bool crashed;
 	bool landed;
 	double damage;
+	unsigned int fuelt;
+	int targ; // which target this fighter is covering (-1 for none)
 	// TODO stuff for controlling /Himmelbett/ assignment (Kammhuber line stuff)
 }
 ac_fighter;
@@ -190,7 +197,7 @@ bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // tru
 SDL_Surface *render_weather(w_state weather);
 SDL_Surface *render_targets(date now);
 SDL_Surface *render_flak(date now);
-SDL_Surface *render_ac_b(game state);
+SDL_Surface *render_ac(game state);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
@@ -2266,10 +2273,23 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	
 	run_raid:;
-	unsigned int totalraids;
+	unsigned int totalraids, fightersleft;
 	totalraids=0;
+	fightersleft=state.nfighters;
 	for(unsigned int i=0;i<ntargs;i++)
+	{
 		totalraids+=state.raids[i].nbombers;
+		targs[i].threat=0;
+		targs[i].nfighters=0;
+	}
+	for(unsigned int i=0;i<state.nfighters;i++)
+	{
+		state.fighters[i].targ=-1;
+		state.fighters[i].damage=0;
+		state.fighters[i].landed=true;
+		state.fighters[i].lat=fbases[state.fighters[i].base].lat;
+		state.fighters[i].lon=fbases[state.fighters[i].base].lon;
+	}
 	if(totalraids)
 	{
 		canvas->box=raidbox;
@@ -2320,10 +2340,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					state.bombers[k].bmb*=(280-targs[i].lon)/100.0;
 				}
 			}
-		SDL_Surface *with_ac_b=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
-		SDL_Surface *ac_b_overlay=render_ac_b(state);
-		SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
-		SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
+		SDL_Surface *with_ac=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
+		SDL_Surface *ac_overlay=render_ac(state);
+		SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
+		SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
 		unsigned int inair=totalraids, t=0;
 		while(inair)
 		{
@@ -2423,6 +2443,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(brandp(state.flk[i]/600.0))
 								state.bombers[k].damage+=irandu(types[type].defn);
 						}
+						bool water=false;
+						int x=state.bombers[k].lon/2;
+						int y=state.bombers[k].lat/2;
+						if((x>=0)&&(y>=0)&&(x<128)&&(y<128))
+							water=lorw[x][y];
+						if(d<(water?8:30))
+							targs[i].threat+=sqrt(targs[i].prod)/(2.0+max(d, 0.5));
 					}
 					// TODO: flak hitrate affected by weather
 					for(unsigned int i=0;i<nflaks;i++)
@@ -2488,11 +2515,123 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 					}
 				}
-			SDL_FreeSurface(ac_b_overlay);
-			ac_b_overlay=render_ac_b(state);
-			SDL_BlitSurface(with_weather, NULL, with_ac_b, NULL);
-			SDL_BlitSurface(ac_b_overlay, NULL, with_ac_b, NULL);
-			SDL_BlitSurface(with_ac_b, NULL, RB_map->elem.image->data, NULL);
+			for(unsigned int j=0;j<state.nfighters;j++)
+			{
+				if(state.fighters[j].landed)
+					continue;
+				if(t>state.fighters[j].fuelt)
+				{
+					unsigned int t=state.fighters[j].targ;
+					targs[t].nfighters--;
+					fightersleft++;
+					state.fighters[j].targ=-1;
+				}
+				if(state.fighters[j].targ>=0)
+				{
+					double x=state.fighters[j].lon,
+						y=state.fighters[j].lat;
+					unsigned int t=state.fighters[j].targ;
+					int tx=targs[t].lon,
+						ty=targs[t].lat;
+					double d=hypot(x-tx, y-ty);
+					if(d)
+					{
+						unsigned int type=state.fighters[j].type;
+						double spd=ftypes[type].speed/300.0;
+						double cx=(tx-x)/d,
+							cy=(ty-y)/d;
+						state.fighters[j].lon+=cx*spd;
+						state.fighters[j].lat+=cy*spd;
+					}
+				}
+				else
+				{
+					unsigned int b=state.fighters[j].base;
+					double x=state.fighters[j].lon,
+						y=state.fighters[j].lat;
+					int bx=fbases[b].lon,
+						by=fbases[b].lat;
+					double d=hypot(x-bx, y-by);
+					if(d)
+					{
+						unsigned int type=state.fighters[j].type;
+						double spd=ftypes[type].speed/300.0;
+						double cx=(bx-x)/d,
+							cy=(by-y)/d;
+						state.fighters[j].lon+=cx*spd;
+						state.fighters[j].lat+=cy*spd;
+					}
+					else
+					{
+						state.fighters[j].landed=true;
+					}
+				}
+			}
+			for(unsigned int i=0;i<ntargs;i++)
+			{
+				double thresh=2e3*targs[i].nfighters/(double)fightersleft;
+				if(targs[i].threat>thresh)
+				{
+					double mind=1000;
+					int minj=-1;
+					for(unsigned int j=0;j<state.nfighters;j++)
+					{
+						if(state.fighters[j].landed)
+						{
+							const unsigned int base=state.fighters[j].base;
+							double d=hypot((signed)targs[i].lat-(signed)fbases[base].lat, (signed)targs[i].lon-(signed)fbases[base].lon);
+							if(d<mind)
+							{
+								mind=d;
+								minj=j;
+							}
+						}
+						else if(state.fighters[j].targ<0)
+						{
+							double d=hypot((signed)targs[i].lat-state.fighters[j].lat, (signed)targs[i].lon-state.fighters[j].lon);
+							if(d<mind)
+							{
+								mind=d;
+								minj=j;
+							}
+						}
+					}
+					if(minj>=0)
+					{
+						state.fighters[minj].landed=false;
+						state.fighters[minj].targ=i;
+						targs[i].threat-=(thresh*0.6);
+						fightersleft--;
+						targs[i].nfighters++;
+						state.fighters[minj].fuelt=t+96+irandu(32);
+						//fprintf(stderr, "Assigned fighter #%u to %s\n", targs[i].nfighters, targs[i].name);
+					}
+					else
+					{
+						/*fprintf(stderr, "Out of fighters (%s)\n", targs[i].name);
+						targs[i].threat=0;*/
+					}
+				}
+				targs[i].threat*=.99;
+				targs[i].threat-=targs[i].nfighters*0.01;
+				if(targs[i].nfighters&&(targs[i].threat<thresh/(2.0+max(fightersleft, 2))))
+				{
+					for(unsigned int j=0;j<state.nfighters;j++)
+						if(state.fighters[j].targ==(int)i)
+						{
+							//fprintf(stderr, "Released fighter #%u from %s\n", targs[i].nfighters, targs[i].name);
+							targs[i].nfighters--;
+							fightersleft++;
+							state.fighters[j].targ=-1;
+							break;
+						}
+				}
+			}
+			SDL_FreeSurface(ac_overlay);
+			ac_overlay=render_ac(state);
+			SDL_BlitSurface(with_weather, NULL, with_ac, NULL);
+			SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
+			SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
 			atg_flip(canvas);
 		}
 		// incorporate the results, and clear the raids ready for next cycle
@@ -3602,12 +3741,12 @@ SDL_Surface *render_flak(date now)
 	return(rv);
 }
 
-SDL_Surface *render_ac_b(game state)
+SDL_Surface *render_ac(game state)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
 	{
-		fprintf(stderr, "render_ac_b: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		fprintf(stderr, "render_ac: SDL_CreateRGBSurface: %s\n", SDL_GetError());
 		return(NULL);
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
@@ -3627,6 +3766,14 @@ SDL_Surface *render_ac_b(game state)
 			else
 				pset(rv, x, y, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 		}
+	for(unsigned int i=0;i<state.nfighters;i++)
+	{
+		unsigned int x=floor(state.fighters[i].lon), y=floor(state.fighters[i].lat);
+		if(state.fighters[i].landed)
+			pset(rv, x, y, (atg_colour){127, 0, 0, ATG_ALPHA_OPAQUE});
+		else
+			pset(rv, x, y, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
+	}
 	return(rv);
 }
 
