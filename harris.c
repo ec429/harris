@@ -17,13 +17,20 @@
 	Make Flak only be known to you after you've encountered it
 	Weather effects on flak, fighters
 	Implement later forms of Fighter control
+	Make Germans build fighters
 	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
 	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
 		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
 	Implement event texts
 	Implement Navaids
 	Implement POM
+	Implement PFF control
+	Implement Window & window-control (for diversions)
+	Implement Moonshine sorties
+	Implement Wurzburg siting (will need a dat/radars file)
+	Event effects on fighters (Radars, RCM, etc.)
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
+	Sack player if confid or morale too low
 */
 
 typedef struct
