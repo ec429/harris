@@ -97,9 +97,6 @@ typedef struct
 }
 ftrbase;
 
-#define CITYSIZE	17
-#define HALFCITY	8
-
 typedef struct
 {
 	//NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
@@ -513,27 +510,25 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						(this.picture=targs[ntargs-1].picture)->refcount++;
 					break;
-					case TCLASS_CITY:
-						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, CITYSIZE, CITYSIZE, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+					case TCLASS_CITY:;
+						int sz=((int)((this.esiz+1)/3))|1, hs=sz>>1;
+						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, sz, sz, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
 						{
 							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
 							return(1);
 						}
 						SDL_SetAlpha(this.picture, 0, 0);
 						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
+						for(unsigned int k=0;k<6;k++)
 						{
-							for(unsigned int k=0;k<6;k++)
+							int x=hs, y=hs;
+							for(unsigned int i=0;i<this.esiz>>1;i++)
 							{
-								int x=HALFCITY, y=HALFCITY;
-								for(unsigned int i=0;i<this.esiz>>1;i++)
-								{
-									pset(this.picture, x, y, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
-									unsigned int j=rand()&3;
-									if(j&1) y+=j-2;
-									else x+=j-1;
-									if((x<0)||(x>=CITYSIZE)) x=HALFCITY;
-									if((y<0)||(y>=CITYSIZE)) x=HALFCITY;
-								}
+								pset(this.picture, x, y, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+								unsigned int j=rand()&3;
+								if(j&1) y+=j-2;
+								else x+=j-1;
+								if((x<0)||(x>=sz)||(y<0)||(y>=sz)) x=y=hs;
 							}
 						}
 					break;
@@ -2671,6 +2666,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 			for(unsigned int i=0;i<ntargs;i++)
 			{
+				if(targs[i].class==TCLASS_MINING) continue;
 				double thresh=2e3*targs[i].nfighters/(double)fightersleft;
 				if(targs[i].threat>thresh)
 				{
@@ -2756,13 +2752,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						if((diffdate(targs[l].entry, state.now)>0)||(diffdate(targs[l].exit, state.now)<0)) continue;
 						int dx=state.bombers[k].bmblon-targs[l].lon, dy=state.bombers[k].bmblat-targs[l].lat;
+						int hx=targs[l].picture->w/2;
+						int hy=targs[l].picture->h/2;
 						switch(targs[l].class)
 						{
 							case TCLASS_CITY:
 								if(leaf) continue;
-								if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
+								if((abs(dx)<=hx)&&(abs(dy)<=hy))
 								{
-									if(pget(targs[l].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										cidam-=state.dmg[l];
 										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/100000.0);
@@ -2774,9 +2772,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							break;
 							case TCLASS_LEAFLET:
 								if(!leaf) continue;
-								if((abs(dx)<=HALFCITY)&&(abs(dy)<=HALFCITY))
+								if((abs(dx)<=hx)&&(abs(dy)<=hy))
 								{
-									if(pget(targs[l].picture, dx+HALFCITY, dy+HALFCITY).a==ATG_ALPHA_OPAQUE)
+									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										state.dmg[l]=max(0, state.dmg[l]-types[type].cap/400000.0);
 										nij[l][type]++;
@@ -3783,7 +3781,7 @@ SDL_Surface *render_targets(date now)
 		{
 			case TCLASS_CITY:
 			case TCLASS_LEAFLET:
-				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-HALFCITY, .y=targs[i].lat-HALFCITY});
+				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-targs[i].picture->w/2, .y=targs[i].lat-targs[i].picture->h/2});
 			break;
 			case TCLASS_SHIPPING:
 			case TCLASS_MINING:
