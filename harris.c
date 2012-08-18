@@ -12,7 +12,6 @@
 #include "events.h"
 
 /* TODO
-	Fix raids on western targets (eg. Biscay Mining)
 	Implement stats tracking
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
@@ -2139,11 +2138,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				case TCLASS_MINING: // for MINING shows how thoroughly mined the lane is
 				case TCLASS_BRIDGE:
 				case TCLASS_INDUSTRY:
+				case TCLASS_AIRFIELD:
+				case TCLASS_ROAD:
 					GB_ttdmg[i]->w=floor(state.dmg[i]);
 					GB_ttdmg[i]->hidden=false;
 				break;
-				case TCLASS_AIRFIELD:
-				case TCLASS_ROAD:
 				case TCLASS_SHIPPING:
 					GB_ttdmg[i]->w=0;
 				break;
@@ -2615,7 +2614,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					unsigned int x=state.bombers[k].lon, y=state.bombers[k].lat;
 					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 					double navp=types[type].accu*3.5/(double)(8+max(1008-wea, 0));
-					if(state.bombers[k].lon<64) navp=1;
+					if(home&&(state.bombers[k].lon<64)) navp=1;
 					if(brandp(navp))
 					{
 						state.bombers[k].navlon*=(256.0+state.bombers[k].lon)/512.0;
@@ -2952,7 +2951,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			unsigned int type=state.bombers[i].type;
 			if(state.bombers[i].crashed||((diffdate(types[type].entry, state.now)>0)||(diffdate(types[type].exit, state.now)<0)))
 			{
-				lij[state.bombers[i].targ][state.bombers[i].type]++;
+				if(state.bombers[i].crashed)
+					lij[state.bombers[i].targ][state.bombers[i].type]++;
 				state.nbombers--;
 				for(unsigned int j=i;j<state.nbombers;j++)
 					state.bombers[j]=state.bombers[j+1];
