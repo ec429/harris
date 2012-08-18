@@ -14,8 +14,8 @@
 	Implement stats tracking
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
-	Implement Fighter combat
-	Implement various forms of Fighter control
+	Weather effects on flak, fighters
+	Implement later forms of Fighter control
 	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
 	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
 		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
@@ -144,6 +144,7 @@ typedef struct
 	bool landed;
 	double damage;
 	unsigned int fuelt;
+	int k; // which bomber this fighter is attacking (-1 for none)
 	int targ; // which target this fighter is covering (-1 for none)
 	// TODO stuff for controlling /Himmelbett/ assignment (Kammhuber line stuff)
 }
@@ -2285,6 +2286,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	for(unsigned int i=0;i<state.nfighters;i++)
 	{
 		state.fighters[i].targ=-1;
+		state.fighters[i].k=-1;
 		state.fighters[i].damage=0;
 		state.fighters[i].landed=true;
 		state.fighters[i].lat=fbases[state.fighters[i].base].lat;
@@ -2449,7 +2451,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if((x>=0)&&(y>=0)&&(x<128)&&(y<128))
 							water=lorw[x][y];
 						if(d<(water?8:30))
-							targs[i].threat+=sqrt(targs[i].prod)/(2.0+max(d, 0.5));
+							targs[i].threat+=sqrt(targs[i].prod*types[type].cap/5000)/(2.0+max(d, 0.5));
 					}
 					// TODO: flak hitrate affected by weather
 					for(unsigned int i=0;i<nflaks;i++)
@@ -2461,6 +2463,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							if(brandp(flaks[i].strength*(rad?3:1)/1200.0))
 								state.bombers[k].damage+=irandu(types[type].defn)/2.0;
+						}
+					}
+					for(unsigned int j=0;j<state.nfighters;j++)
+					{
+						if(state.fighters[j].landed) continue;
+						if(state.fighters[j].k>=0) continue;
+						double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
+						if(d<0.8) // TODO make this bigger if fighter has A.I. radar
+						{
+							if(brandp(0.05)) // TODO make this bigger if fighter has A.I. radar 
+								state.fighters[j].k=k;
 						}
 					}
 					// TODO: navigation affected by moon, navaids...
@@ -2525,11 +2538,41 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					targs[t].nfighters--;
 					fightersleft++;
 					state.fighters[j].targ=-1;
+					state.fighters[j].k=-1;
 				}
-				if(state.fighters[j].targ>=0)
+				int k=state.fighters[j].k;
+				if(k>=0)
 				{
-					double x=state.fighters[j].lon,
+					unsigned int ft=state.fighters[j].type, bt=state.bombers[k].type;
+					double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
+					if(d>2.0) // TODO make this bigger if fighter has A.I. radar
+						state.fighters[j].k=-1;
+					else
+					{
+						double x=state.fighters[j].lon,
 						y=state.fighters[j].lat;
+						double tx=state.bombers[k].lon,
+							ty=state.bombers[k].lat;
+						double d=hypot(x-tx, y-ty);
+						if(d)
+						{
+							double spd=ftypes[ft].speed/300.0;
+							double cx=(tx-x)/d,
+								cy=(ty-y)/d;
+							state.fighters[j].lon+=cx*spd;
+							state.fighters[j].lat+=cy*spd;
+						}
+						if(d<0.2)
+						{
+							if(brandp(ftypes[ft].mnv/100.0))
+								state.bombers[k].damage+=irandu(ftypes[ft].arm)*types[bt].defn/30.0;
+						}
+					}
+				}
+				else if(state.fighters[j].targ>=0)
+				{
+					double x=state.fighters[j].lon+drandu(3.0)-1.5,
+						y=state.fighters[j].lat+drandu(3.0)-1.5;
 					unsigned int t=state.fighters[j].targ;
 					int tx=targs[t].lon,
 						ty=targs[t].lat;
@@ -2603,7 +2646,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						targs[i].threat-=(thresh*0.6);
 						fightersleft--;
 						targs[i].nfighters++;
-						state.fighters[minj].fuelt=t+96+irandu(32);
+						state.fighters[minj].fuelt=t+64+irandu(32);
 						//fprintf(stderr, "Assigned fighter #%u to %s\n", targs[i].nfighters, targs[i].name);
 					}
 					else
