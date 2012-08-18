@@ -6,7 +6,7 @@
 # Lat, long: where it is (within the 256x256 map)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
 # Class: what kind of target is it?  (CITY, SHIPPING, ...)
-# Flags: extra target flags (BB, ...)
+# Flags: extra target flags (BB, OIL, RAIL, ...)
 
 # Shipping targets.
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
@@ -15,7 +15,7 @@ Heligoland Bight:      6: 2: 8: 58:160:          :24-12-1939:SHIPPING
 Wilhelmshaven Docks:  10: 4: 7: 70:161:          :13-02-1942:SHIPPING
 Hörnum, Sylt:          7: 5: 6: 51:163:19-03-1940:31-05-1940:SHIPPING
 Norway Fleet:          5: 1:12: 48:152:09-04-1940:12-04-1940:SHIPPING
-Norway Fleet:          5: 1:12: 34:149:13-04-1940:26-04-1940:SHIPPING
+Norway Fleet:          5: 1:12: 34:149:13-04-1940:16-04-1940:SHIPPING
 Norway Fleet:          5: 1:12: 20:148:17-04-1940:20-04-1940:SHIPPING
 Norway Fleet:          5: 1:12:  9:149:21-04-1940:25-04-1940:SHIPPING
 

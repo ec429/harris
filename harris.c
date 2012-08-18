@@ -103,8 +103,10 @@ typedef struct
 	char * name;
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
-	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,} class;
+	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,} class;
 	bool bb; // contains ballbearing works (Pointblank Directive)
+	bool oil; // industry-type OIL refineries
+	bool rail; // industry-type RAIL yards
 	SDL_Surface *picture;
 	/* for Type I fighter control */
 	double threat; // German-assessed threat level
@@ -488,6 +490,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					this.class=TCLASS_LEAFLET;
 				}
+				else if(strstr(class, "AIRFIELD"))
+				{
+					this.class=TCLASS_AIRFIELD;
+				}
+				else if(strstr(class, "BRIDGE"))
+				{
+					this.class=TCLASS_BRIDGE;
+				}
+				else if(strstr(class, "ROAD"))
+				{
+					this.class=TCLASS_ROAD;
+				}
+				else if(strstr(class, "INDUSTRY"))
+				{
+					this.class=TCLASS_INDUSTRY;
+				}
 				else
 				{
 					fprintf(stderr, "Bad `targets' line `%s'\n", next);
@@ -495,6 +513,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					return(1);
 				}
 				this.bb=strstr(class, ",BB");
+				this.oil=strstr(class, ",OIL");
+				this.rail=strstr(class, ",RAIL");
 				switch(this.class)
 				{
 					case TCLASS_LEAFLET:
@@ -547,6 +567,47 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						pset(this.picture, 3, 1, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
 						pset(this.picture, 1, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
 						pset(this.picture, 2, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+					break;
+					case TCLASS_AIRFIELD:
+						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 3, 1, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+						{
+							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+							return(1);
+						}
+						SDL_SetAlpha(this.picture, 0, 0);
+						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 7));
+					break;
+					case TCLASS_BRIDGE:
+						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 3, 2, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+						{
+							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+							return(1);
+						}
+						SDL_SetAlpha(this.picture, 0, 0);
+						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
+						pset(this.picture, 0, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 1, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 2, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 0, 1, (atg_colour){.r=31, .g=31, .b=31, .a=ATG_ALPHA_OPAQUE});
+						pset(this.picture, 2, 1, (atg_colour){.r=31, .g=31, .b=31, .a=ATG_ALPHA_OPAQUE});
+					break;
+					case TCLASS_ROAD:
+						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 1, 3, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+						{
+							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+							return(1);
+						}
+						SDL_SetAlpha(this.picture, 0, 0);
+						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, SDL_MapRGB(this.picture->format, 47, 31, 0));
+					break;
+					case TCLASS_INDUSTRY:
+						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 1, 1, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+						{
+							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+							return(1);
+						}
+						SDL_SetAlpha(this.picture, 0, 0);
+						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, SDL_MapRGB(this.picture->format, 127, 127, 31));
 					break;
 					case TCLASS_MINING:
 						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 2, 4, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
@@ -2075,9 +2136,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				case TCLASS_CITY:
 				case TCLASS_LEAFLET: // for LEAFLET shows morale rather than damage
 				case TCLASS_MINING: // for MINING shows how thoroughly mined the lane is
+				case TCLASS_BRIDGE:
+				case TCLASS_INDUSTRY:
 					GB_ttdmg[i]->w=floor(state.dmg[i]);
 					GB_ttdmg[i]->hidden=false;
 				break;
+				case TCLASS_AIRFIELD:
+				case TCLASS_ROAD:
 				case TCLASS_SHIPPING:
 					GB_ttdmg[i]->w=0;
 				break;
@@ -2457,7 +2522,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						bool fuel=(t==state.bombers[k].fuelt);
 						bool damaged=(state.bombers[k].damage>=1);
-						bool roeok=state.bombers[k].idtar||!state.roe.idtar||brandp(0.005);
+						bool roeok=state.bombers[k].idtar||(!state.roe.idtar&&brandp(0.2))||brandp(0.005);
 						bool leaf=!state.bombers[k].bmb;
 						if(((cx<1.2)&&(cy<1.2)&&roeok)||((fuel||damaged)&&(roeok||leaf)))
 						{
@@ -2484,10 +2549,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								range=3.6;
 							break;
 							case TCLASS_SHIPPING:
+							case TCLASS_AIRFIELD:
+							case TCLASS_ROAD:
 								range=1.2;
 							break;
 							case TCLASS_MINING:
 								range=2.0;
+							break;
+							case TCLASS_BRIDGE:
+							case TCLASS_INDUSTRY:
+								range=0.7;
 							break;
 							default:
 								fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
@@ -2552,6 +2623,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							case TCLASS_CITY:
 							case TCLASS_LEAFLET:
 							case TCLASS_SHIPPING:
+							case TCLASS_AIRFIELD:
+							case TCLASS_ROAD:
+							case TCLASS_BRIDGE:
+							case TCLASS_INDUSTRY:
 								if(pget(target_overlay, state.bombers[k].lon, state.bombers[k].lat).a==ATG_ALPHA_OPAQUE)
 								{
 									state.bombers[k].idtar=true;
@@ -2763,10 +2838,40 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										cidam-=state.dmg[l];
-										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/100000.0);
+										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/250000.0);
 										cidam+=state.dmg[l];
 										nij[l][type]++;
 										tij[l][type]+=state.bombers[k].bmb;
+									}
+								}
+							break;
+							case TCLASS_INDUSTRY:
+								if(leaf) continue;
+								if((abs(dx)<=1)&&(abs(dy)<=1))
+								{
+									if(brandp(targs[l].esiz/40.0))
+									{
+										cidam-=state.dmg[l];
+										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/40000.0);
+										cidam+=state.dmg[l];
+										nij[l][type]++;
+										tij[l][type]+=state.bombers[k].bmb;
+									}
+								}
+							break;
+							case TCLASS_AIRFIELD:
+							case TCLASS_ROAD:
+							case TCLASS_BRIDGE:
+								if(leaf) continue;
+								if((abs(dx)<=hx)&&(abs(dy)<=hy))
+								{
+									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
+									{
+										if(brandp(targs[l].esiz/30.0))
+										{
+											nij[l][type]++;
+											tij[l][type]+=state.bombers[k].bmb;
+										}
 									}
 								}
 							break;
@@ -2855,6 +2960,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				switch(targs[i].class)
 				{
 					case TCLASS_CITY:
+					case TCLASS_AIRFIELD:
+					case TCLASS_ROAD:
+					case TCLASS_BRIDGE:
+					case TCLASS_INDUSTRY:
 						tbj[j]+=tij[i][j];
 					break;
 					case TCLASS_LEAFLET:
@@ -2959,6 +3068,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											switch(targs[i].class)
 											{
 												case TCLASS_CITY:
+												case TCLASS_AIRFIELD:
+												case TCLASS_ROAD:
+												case TCLASS_BRIDGE:
+												case TCLASS_INDUSTRY:
 													snprintf(tt, 20, "Bombs (lb): %u", tij[i][j]);
 												break;
 												case TCLASS_MINING:
@@ -3012,6 +3125,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											switch(targs[i].class)
 											{
 												case TCLASS_CITY:
+												case TCLASS_AIRFIELD:
+												case TCLASS_ROAD:
+												case TCLASS_BRIDGE:
+												case TCLASS_INDUSTRY:
 													snprintf(tt, 20, "Bombs (lb): %u", ti);
 												break;
 												case TCLASS_MINING:
@@ -3781,6 +3898,10 @@ SDL_Surface *render_targets(date now)
 		{
 			case TCLASS_CITY:
 			case TCLASS_LEAFLET:
+			case TCLASS_AIRFIELD:
+			case TCLASS_ROAD:
+			case TCLASS_BRIDGE:
+			case TCLASS_INDUSTRY:
 				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-targs[i].picture->w/2, .y=targs[i].lat-targs[i].picture->h/2});
 			break;
 			case TCLASS_SHIPPING:
