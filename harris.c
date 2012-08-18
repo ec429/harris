@@ -12,6 +12,7 @@
 #include "events.h"
 
 /* TODO
+	Fix raids on western targets (eg. Biscay Mining)
 	Implement stats tracking
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
@@ -2296,6 +2297,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						for(unsigned int i=0;i<ntargs;i++)
 						{
+							if((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0)) continue;
 							if(c.e==GB_ttrow[i])
 							{
 								seltarg=i;
@@ -2837,9 +2839,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
-										cidam-=state.dmg[l];
-										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/250000.0);
 										cidam+=state.dmg[l];
+										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/250000.0);
+										cidam-=state.dmg[l];
 										nij[l][type]++;
 										tij[l][type]+=state.bombers[k].bmb;
 									}
@@ -2851,9 +2853,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(brandp(targs[l].esiz/40.0))
 									{
-										cidam-=state.dmg[l];
-										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/40000.0);
 										cidam+=state.dmg[l];
+										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/40000.0);
+										cidam-=state.dmg[l];
 										nij[l][type]++;
 										tij[l][type]+=state.bombers[k].bmb;
 									}
@@ -2861,6 +2863,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							break;
 							case TCLASS_AIRFIELD:
 							case TCLASS_ROAD:
+								if(leaf) continue;
+								if((abs(dx)<=hx)&&(abs(dy)<=hy))
+								{
+									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
+									{
+										if(brandp(targs[l].esiz/30.0))
+										{
+											nij[l][type]++;
+											tij[l][type]+=state.bombers[k].bmb;
+											cidam+=state.dmg[l];
+											state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/10000.0);
+											cidam-=state.dmg[l];
+										}
+									}
+								}
+							break;
 							case TCLASS_BRIDGE:
 								if(leaf) continue;
 								if((abs(dx)<=hx)&&(abs(dy)<=hy))
@@ -2871,6 +2889,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										{
 											nij[l][type]++;
 											tij[l][type]+=state.bombers[k].bmb;
+											if(brandp(log2(state.bombers[k].bmb/25.0)/200.0))
+											{
+												cidam+=state.dmg[l];
+												state.dmg[l]=0;
+											}
 										}
 									}
 								}
