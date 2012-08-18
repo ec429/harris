@@ -6,8 +6,10 @@
 # It is of course unrealistic to have, for example, the German defences switch en masse from Himmelbett zones to Zahme Sau on a particular day; it's merely a simplification that makes both the game and its implementation less complicated.  Such things may be made more gradual later, but in the meantime the precise dates are thoroughly arbitrary.
 # The dates of things like navaids, RCM devices and German radars are currently a confusion; some of them refer to the first Service use of the device, others to when production became sufficiently great that it was available in meaningful quantity.
 
+# Norway Fleet
+NORWAY:09-04-1940
 # Permit attacks on civilian areas
-CIV:15-03-1940
+CIV:15-05-1940
 # Battle of the Barges
 BARGE:04-07-1940
 ENDBARGE:31-10-1940

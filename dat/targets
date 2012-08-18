@@ -9,10 +9,15 @@
 # Flags: extra target flags (BB, ...)
 
 # Shipping targets.
-Schillig Roads:        8: 3: 6: 67:158:          :31-03-1940:SHIPPING
+#NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
+Schillig Roads:        8: 3: 6: 67:158:          :31-05-1940:SHIPPING
 Heligoland Bight:      6: 2: 8: 58:160:          :24-12-1939:SHIPPING
 Wilhelmshaven Docks:  10: 4: 7: 70:161:          :13-02-1942:SHIPPING
-Hörnum, Sylt:          7: 5: 6: 51:163:          :31-03-1940:SHIPPING
+Hörnum, Sylt:          7: 5: 6: 51:163:19-03-1940:31-05-1940:SHIPPING
+Norway Fleet:          5: 1:12: 48:152:09-04-1940:12-04-1940:SHIPPING
+Norway Fleet:          5: 1:12: 34:149:13-04-1940:26-04-1940:SHIPPING
+Norway Fleet:          5: 1:12: 20:148:17-04-1940:20-04-1940:SHIPPING
+Norway Fleet:          5: 1:12:  9:149:21-04-1940:25-04-1940:SHIPPING
 
 # Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
 # TODO: end-dates from dates of liberation in 44/45
@@ -39,7 +44,22 @@ Leipzig:              30:15:22:124:219:14-02-1942:          :CITY,BB
 Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY
 Dresden:              16: 9:32:130:238:14-02-1942:          :CITY
 
+# France and the Low Countries (invasion time)
+#NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
+Waalhaven Airfield:   10:15:20:113:109:10-05-1940:15-05-1940:AIRFIELD
+Maastrichtweg Bridge:  8:18:14:135:125:11-05-1940:15-05-1940:BRIDGE
+Breda road junction:   6: 8: 7:118:114:14-05-1940:28-05-1940:ROAD
+Sedan bridge:          9:12: 9:162:116:14-05-1940:17-05-1940:BRIDGE
+Le Cateau road junction:8:14:6:152: 96:17-05-1940:21-05-1940:ROAD
+
+# Specific industrial targets (CIV-ABD)
+#NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
+München-Gladbach:      8: 8:20:130:136:11-05-1940:13-02-1942:INDUSTRY,RAIL
+Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:13-02-1942:INDUSTRY,OIL
+Dusseldorf Steel Mill:16: 4:30:128:142:15-05-1940:13-02-1942:INDUSTRY
+
 # Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
+#NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Forties Minelaying:    9: 0:99: 15:103:          :          :MINING
 Dogger Minelaying:    15: 0:99: 58:113:          :          :MINING
 Heligoland Minelaying:21: 2:99: 50:137:          :          :MINING
