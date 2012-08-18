@@ -2707,7 +2707,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					int tx=targs[t].lon,
 						ty=targs[t].lat;
 					double d=hypot(x-tx, y-ty);
-					if(d)
+					if(d>0.2)
 					{
 						unsigned int type=state.fighters[j].type;
 						double spd=ftypes[type].speed/300.0;
@@ -2725,7 +2725,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					int bx=fbases[b].lon,
 						by=fbases[b].lat;
 					double d=hypot(x-bx, y-by);
-					if(d)
+					if(d>0.5)
 					{
 						unsigned int type=state.fighters[j].type;
 						double spd=ftypes[type].speed/300.0;
@@ -2737,6 +2737,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					else
 					{
 						state.fighters[j].landed=true;
+						state.fighters[j].lon=bx;
+						state.fighters[j].lat=by;
 					}
 				}
 			}
@@ -2772,12 +2774,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 					if(minj>=0)
 					{
+						if(state.fighters[minj].landed)
+							state.fighters[minj].fuelt=t+64+irandu(32);
 						state.fighters[minj].landed=false;
 						state.fighters[minj].targ=i;
 						targs[i].threat-=(thresh*0.6);
 						fightersleft--;
 						targs[i].nfighters++;
-						state.fighters[minj].fuelt=t+64+irandu(32);
 						//fprintf(stderr, "Assigned fighter #%u to %s\n", targs[i].nfighters, targs[i].name);
 					}
 					else
