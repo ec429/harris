@@ -2599,7 +2599,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					unsigned int ft=state.fighters[j].type, bt=state.bombers[k].type;
 					double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
-					if(d>2.0) // TODO make this bigger if fighter has A.I. radar
+					if(state.bombers[k].crashed||(d>2.0)) // TODO make this bigger if fighter has A.I. radar
 						state.fighters[j].k=-1;
 					else
 					{
