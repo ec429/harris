@@ -6,7 +6,7 @@ CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
 LIBS := -latg
 OBJS := weather.o bits.o rand.o widgets.o
-INCLUDES := $(OBJS:.o=.h)
+INCLUDES := $(OBJS:.o=.h) events.h
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
@@ -18,6 +18,12 @@ harris: harris.o $(OBJS)
 
 harris.o: harris.c $(INCLUDES)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
+
+events.h: evh mkevh.sh
+	sh ./mkevh.sh <evh >events.h
+
+evh: dat/events mkevh.awk
+	awk -f mkevh.awk -- dat/events >evh
 
 widgets.o: widgets.c widgets.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<

@@ -9,6 +9,7 @@
 #include "weather.h"
 #include "rand.h"
 #include "widgets.h"
+#include "events.h"
 
 /* TODO
 	Implement stats tracking
@@ -19,7 +20,7 @@
 	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
 	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
 		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
-	Implement Events
+	Implement event texts
 	Implement Navaids
 	Implement POM
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
@@ -113,6 +114,8 @@ typedef struct
 	date entry, radar, exit;
 }
 flaksite;
+
+date event[NEVENTS];
 
 typedef struct
 {
@@ -618,6 +621,50 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		free(flakfile);
 		fprintf(stderr, "Loaded %u flaksites\n", nflaks);
+	}
+	
+	FILE *evfp=fopen("dat/events", "r");
+	if(!evfp)
+	{
+		fprintf(stderr, "Failed to open data file `events'!\n");
+		return(1);
+	}
+	else
+	{
+		unsigned int nevs=0;
+		char *evfile=slurp(evfp);
+		fclose(evfp);
+		char *next=evfile?strtok(evfile, "\n"):NULL;
+		while(next)
+		{
+			if(*next!='#')
+			{
+				// ID:DATE
+				char *colon=strchr(next, ':');
+				if(!colon)
+				{
+					fprintf(stderr, "Malformed `events' line `%s'\n", next);
+					fprintf(stderr, "  missing :DATE\n");
+					return(1);
+				}
+				*colon++=0;
+				if(strcmp(next, event_names[nevs]))
+				{
+					fprintf(stderr, "Out-of-order `events' line `%s'\n", next);
+					fprintf(stderr, "  expected ID=%s\n", event_names[nevs]);
+					return(1);
+				}
+				event[nevs++]=readdate(colon, (date){0, 0, 0});
+			}
+			next=strtok(NULL, "\n");
+		}
+		free(evfile);
+		fprintf(stderr, "Loaded %u events\n", nevs);
+		if(nevs!=NEVENTS)
+		{
+			fprintf(stderr, "  expected %u\n", NEVENTS);
+			return(1);
+		}
 	}
 	
 	bool lorw[128][128]; // TRUE for water
@@ -2118,6 +2165,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						for(unsigned int i=0;i<ntypes;i++)
 						{
+							if((diffdate(types[i].entry, state.now)>0)||(diffdate(types[i].exit, state.now)<0)) continue;
 							if(c.e==GB_btpic[i])
 							{
 								if(seltarg<0)
@@ -2273,7 +2321,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		#endif
 	}
 	
-	run_raid:;
+	run_raid:
+	state.roe.idtar=(diffdate(event[EVENT_CIV], state.now)>0);
 	unsigned int totalraids, fightersleft;
 	totalraids=0;
 	fightersleft=state.nfighters;
@@ -2405,7 +2454,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool fuel=(t==state.bombers[k].fuelt);
 						bool roeok=state.bombers[k].idtar||!state.roe.idtar||brandp(0.005);
 						bool leaf=!state.bombers[k].bmb;
-						if(((cx<1.2)&&roeok)||(fuel&&(roeok||leaf)))
+						if(((cx<1.2)&&(cy<1.2)&&roeok)||(fuel&&(roeok||leaf)))
 						{
 							state.bombers[k].bmblon=state.bombers[k].lon;
 							state.bombers[k].bmblat=state.bombers[k].lat;
@@ -2695,6 +2744,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					for(unsigned int l=0;l<ntargs;l++)
 					{
+						if((diffdate(targs[l].entry, state.now)>0)||(diffdate(targs[l].exit, state.now)<0)) continue;
 						int dx=state.bombers[k].bmblon-targs[l].lon, dy=state.bombers[k].bmblat-targs[l].lat;
 						switch(targs[l].class)
 						{
@@ -2763,7 +2813,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		for(unsigned int i=0;i<state.nbombers;i++)
 		{
-			if(state.bombers[i].crashed)
+			unsigned int type=state.bombers[i].type;
+			if(state.bombers[i].crashed||((diffdate(types[type].entry, state.now)>0)||(diffdate(types[type].exit, state.now)<0)))
 			{
 				lij[state.bombers[i].targ][state.bombers[i].type]++;
 				state.nbombers--;
@@ -3230,6 +3281,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			state.now.month=1;
 			state.now.year++;
+		}
+	}
+	for(unsigned int ev=0;ev<NEVENTS;ev++)
+	{
+		if(!diffdate(state.now, event[ev]))
+		{
+			fprintf(stderr, "Event: %s\n", event_names[ev]);
 		}
 	}
 	goto gameloop;

@@ -1,4 +1,5 @@
-# Format is ID:DD-MM-YYYY
+# Format is ID:DATE
+# ID must ~ [[:alnum:]_]+
 # Remarks.
 # For many of these events, only the month or even "early/late 19xx" are known or meaningful.
 # The overly precise dates for things like the introduction of Tame Boar (Zahme Sau) tactics, or the Battle of the Barges, are there purely for gameplay reasons.

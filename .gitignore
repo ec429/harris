@@ -2,4 +2,6 @@ harris
 gensave
 save/qstart.sav
 *.o
+events.h
+evh
 mysav
