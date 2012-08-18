@@ -2452,9 +2452,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					else
 					{
 						bool fuel=(t==state.bombers[k].fuelt);
+						bool damaged=(state.bombers[k].damage>=1);
 						bool roeok=state.bombers[k].idtar||!state.roe.idtar||brandp(0.005);
 						bool leaf=!state.bombers[k].bmb;
-						if(((cx<1.2)&&(cy<1.2)&&roeok)||(fuel&&(roeok||leaf)))
+						if(((cx<1.2)&&(cy<1.2)&&roeok)||((fuel||damaged)&&(roeok||leaf)))
 						{
 							state.bombers[k].bmblon=state.bombers[k].lon;
 							state.bombers[k].bmblat=state.bombers[k].lat;
