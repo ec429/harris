@@ -107,6 +107,7 @@ typedef struct
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
 	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,} class;
+	bool bb; // contains ballbearing works (Pointblank Directive)
 	SDL_Surface *picture;
 	/* for Type I fighter control */
 	double threat; // German-assessed threat level
@@ -474,19 +475,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					return(1);
 				}
 				class++;
-				if(strcmp(class, "CITY")==0)
+				if(strstr(class, "CITY"))
 				{
 					this.class=TCLASS_CITY;
 				}
-				else if(strcmp(class, "SHIPPING")==0)
+				else if(strstr(class, "SHIPPING"))
 				{
 					this.class=TCLASS_SHIPPING;
 				}
-				else if(strcmp(class, "MINING")==0)
+				else if(strstr(class, "MINING"))
 				{
 					this.class=TCLASS_MINING;
 				}
-				else if(strcmp(class, "LEAFLET")==0)
+				else if(strstr(class, "LEAFLET"))
 				{
 					this.class=TCLASS_LEAFLET;
 				}
@@ -496,6 +497,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					fprintf(stderr, "  unrecognised :CLASS `%s'\n", class);
 					return(1);
 				}
+				this.bb=strstr(class, ",BB");
 				switch(this.class)
 				{
 					case TCLASS_LEAFLET:

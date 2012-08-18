@@ -1,11 +1,12 @@
 # Format: dsv
-# NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
+# NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS[,Flags]
 # Prod: contributed production
 # Flak: strength of flak guns, predictors etc.
 # Esiz: 'effective' size, ease-to-hit.
 # Lat, long: where it is (within the 256x256 map)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
 # Class: what kind of target is it?  (CITY, SHIPPING, ...)
+# Flags: extra target flags (BB, ...)
 
 # Shipping targets.
 Schillig Roads:        8: 3: 6: 67:158:          :31-03-1940:SHIPPING
@@ -15,12 +16,28 @@ Hörnum, Sylt:          7: 5: 6: 51:163:          :31-03-1940:SHIPPING
 
 # Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
 # TODO: end-dates from dates of liberation in 44/45
+#NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Berlin:              100:20:50: 97:233:14-02-1942:          :CITY
 Berlin Leaflets:       8:10:50: 97:233:          :          :LEAFLET
 Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY
 Hamburg Leaflets:      5: 8:35: 73:185:          :          :LEAFLET
-Frankfurt:            50:13:30:151:168:14-02-1942:          :CITY
+Frankfurt:            40:13:30:151:168:14-02-1942:          :CITY
 Frankfurt Leaflets:    4: 7:30:151:168:          :          :LEAFLET
+Munich:               45:16:40:194:208:14-02-1942:          :CITY
+Munich Leaflets:       3: 9:40:194:208:          :          :LEAFLET
+Cologne:              35:12:25:133:144:14-02-1942:          :CITY
+Cologne Leaflets:      3: 6:25:133:144:          :          :LEAFLET
+Essen:                30:11:20:122:143:14-02-1942:          :CITY
+Essen Leaflets:        2: 5:20:122:143:          :          :LEAFLET
+Dusseldorf:           20: 9:18:125:142:14-02-1942:          :CITY
+Dusseldorf Leaflets:   2: 4:18:125:142:          :          :LEAFLET
+Bremen:               25:10:24: 85:169:14-02-1942:          :CITY
+Bremen Leaflets:       3: 3:24: 85:169:          :          :LEAFLET
+Nuremberg:            20:11:30:166:202:14-02-1942:          :CITY
+Nuremberg Leaflets:    6: 6:30:166:202:          :          :LEAFLET
+Leipzig:              30:15:22:124:219:14-02-1942:          :CITY,BB
+Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY
+Dresden:              16: 9:32:130:238:14-02-1942:          :CITY
 
 # Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
 Forties Minelaying:    9: 0:99: 15:103:          :          :MINING
@@ -33,30 +50,29 @@ Kattegat Minelaying:  16: 1:99: 11:201:09-04-1940:          :MINING
 Baltic Minelaying:    18: 1:99: 44:225:          :          :MINING
 
 # Target list from the old HARRIS; import guide
-# Berlin, 50 , 100 , 20 , 31 , 11 
-# Hamburg, 35 , 65 , 14 , 29 , 7 
-# Frankfurt, 30 , 50 , 13 , 27 , 16 
-# Königsberg, 30 , 45 , 10 , 33 , 18 
-# Munich, 40 , 35 , 14 , 31 , 19 
-# Cologne, 30 , 35 , 11 , 25 , 14 
-# Heidelberg, 24 , 30 , 10 , 25 , 17 
-# Essen, 16 , 20 , 12 , 25 , 15 
-# Hannover, 18 , 35 , 10 , 26 , 12 
-# Nuremberg, 12 , 35 , 8 , 29 , 16 
-# Leipzig (+), 14 , 18 , 20 , 30 , 14 
-# Bremen, 10 , 30 , 9 , 24 , 12 
-# Dresden, 9 , 25 , 7 , 32 , 15 
-# Brandenburg, 8 , 25 , 6 , 31 , 10 
-# Stuttgart, 8 , 23 , 7 , 27 , 18 
-# Wilhelmshaven, 10 , 30 , 5 , 26 , 9 
-# Dortmund, 8 , 25 , 7 , 27 , 13 
+# Berlin		, 50 ,100 , 20 , 31 , 11 
+# Hamburg		, 35 , 65 , 14 , 29 , 7 
+# Frankfurt		, 30 , 50 , 13 , 27 , 16 
+# Munich		, 40 , 35 , 14 , 31 , 19 
+# Cologne		, 30 , 35 , 11 , 25 , 14 
+# Heidelberg	, 24 , 30 , 10 , 25 , 17 
+# Essen			, 16 , 20 , 12 , 25 , 15 
+# Hannover		, 18 , 35 , 10 , 26 , 12 
+# Nuremberg		, 12 , 35 , 8 , 29 , 16 
+# Leipzig (+)	, 14 , 18 , 20 , 30 , 14 
+# Bremen		, 10 , 30 , 9 , 24 , 12 
+# Dresden		,  9 , 25 , 7 , 32 , 15 
+# Brandenburg	,  8 , 25 , 6 , 31 , 10 
+# Stuttgart		,  8 , 23 , 7 , 27 , 18 
+# Wilhelmshaven	, 10 , 30 , 5 , 26 , 9 
+# Dortmund		,  8 , 25 , 7 , 27 , 13 
 # Schweinfurt (+), 14 , 15 , 35 , 28 , 16 
-# Bonn, 6 , 25 , 5 , 24 , 15 
+# Bonn			,  6 , 25 , 5 , 24 , 15 
 # Regensburg (+), 12 , 12 , 12 , 30 , 17 
-# Brunswick (+), 10 , 10 , 15 , 28 , 12 
-# Salzburg, 6 , 20 , 5 , 33 , 13 
-# Augsburg (+), 9 , 7 , 8 , 29 , 19 
-# Peenemunde, 4 , 8 , 6 , 24 , 16 
-# Gotha (+), 8 , 6 , 10 , 28 , 14 
+# Brunswick (+)	, 10 , 10 , 15 , 28 , 12 
+# Salzburg		,  6 , 20 , 5 , 33 , 13 
+# Augsburg (+)	,  9 ,  7 , 8 , 29 , 19 
+# Peenemunde	,  4 ,  8 , 6 , 24 , 16 
+# Gotha (+)		,  8 ,  6 , 10 , 28 , 14 
 # Dortmund-Ems Canal, 30 , .00013 , 12 , 27 , 14 
 # Bielefeld Viaduct, 25 , .00017 , 8 , 26 , 18 
