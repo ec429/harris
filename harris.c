@@ -3450,6 +3450,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	atg_free_box_box(gamebox);
 	if(LB_btext) *LB_btext=NULL;
 	atg_free_box_box(loadbox);
+	atg_free_box_box(savebox);
 	SDL_FreeSurface(weather_overlay);
 	return(0);
 }
