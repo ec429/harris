@@ -60,14 +60,14 @@ Dusseldorf Steel Mill:16: 4:30:128:142:15-05-1940:13-02-1942:INDUSTRY
 
 # Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
-Forties Minelaying:    9: 0:99: 15:103:          :          :MINING
-Dogger Minelaying:    15: 0:99: 58:113:          :          :MINING
-Heligoland Minelaying:21: 2:99: 50:137:          :          :MINING
+Forties Minelaying:    4: 0:99: 15:103:          :          :MINING
+Dogger Minelaying:     6: 0:99: 58:113:          :          :MINING
+Heligoland Minelaying:11: 2:99: 50:137:          :          :MINING
 Biscay Minelaying:    12: 1:99:243: 10:25-06-1940:06-06-1944:MINING
-Fehmarn Minelaying:   16: 3:99: 48:203:          :          :MINING
-Øresund Minelaying:   19: 2:99: 19:224:09-04-1940:          :MINING
-Kattegat Minelaying:  16: 1:99: 11:201:09-04-1940:          :MINING
-Baltic Minelaying:    18: 1:99: 44:225:          :          :MINING
+Fehmarn Minelaying:   22: 3:99: 48:203:          :          :MINING
+Øresund Minelaying:   24: 2:99: 19:224:09-04-1940:          :MINING
+Kattegat Minelaying:  20: 1:99: 11:201:09-04-1940:          :MINING
+Baltic Minelaying:    14: 1:99: 44:225:          :          :MINING
 
 # Target list from the old HARRIS; import guide
 # Berlin		, 50 ,100 , 20 , 31 , 11 
