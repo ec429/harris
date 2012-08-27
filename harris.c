@@ -71,6 +71,8 @@ typedef struct
 	unsigned int prio;
 	unsigned int pribuf;
 	atg_element *prio_selector;
+	unsigned int pc;
+	unsigned int pcbuf;
 }
 bombertype;
 
@@ -3388,7 +3390,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	state.cshr+=state.morale/2.0;
 	state.cshr*=.96;
 	state.cash+=state.cshr;
-	// purchase additional planes based on priorities
+	// Update bomber prodn caps
+	for(unsigned int i=0;i<ntypes;i++)
+	{
+		if((diffdate(types[i].entry, state.now)>0)||(diffdate(types[i].exit, state.now)<0)) continue;
+		types[i].pcbuf=min(types[i].pcbuf, 180000)+types[i].pc;
+	}
+	// purchase additional planes based on priorities and subject to production capacity constraints
 	while(true)
 	{
 		unsigned int m=0;
@@ -3410,6 +3418,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			continue;
 		}
 		if(types[m].cost>state.cash) break;
+		if(types[m].cost>types[m].pcbuf) break;
 		unsigned int n=state.nbombers++;
 		ac_bomber *nb=realloc(state.bombers, state.nbombers*sizeof(ac_bomber));
 		if(!nb)
@@ -3422,6 +3431,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		for(unsigned int j=0;j<NNAVAIDS;j++)
 			nb[n].nav[j]=false;
 		state.cash-=types[m].cost;
+		types[m].pcbuf-=types[m].cost;
+		types[m].pc+=100;
 		types[m].pribuf-=8;
 	}
 	// TODO: Germans build fighters
@@ -3581,9 +3592,9 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						e|=64;
 						break;
 					}
-					unsigned int j, prio, pribuf;
-					f=sscanf(line, "Prio %u:%u,%u\n", &j, &prio, &pribuf);
-					if(f!=3)
+					unsigned int j, prio, pribuf, pc, pcbuf;
+					f=sscanf(line, "Prio %u:%u,%u,%u,%u\n", &j, &prio, &pribuf, &pc, &pcbuf);
+					if(f!=5)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -3597,6 +3608,8 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					}
 					types[j].prio=prio;
 					types[j].pribuf=pribuf;
+					types[j].pc=pc;
+					types[j].pcbuf=pcbuf;
 				}
 			}
 		}
@@ -3861,7 +3874,7 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Budget:%u+%u\n", state.cash, state.cshr);
 	fprintf(fs, "Types:%u\n", ntypes);
 	for(unsigned int i=0;i<ntypes;i++)
-		fprintf(fs, "Prio %u:%u,%u\n", i, types[i].prio, types[i].pribuf);
+		fprintf(fs, "Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf);
 	fprintf(fs, "Bombers:%u\n", state.nbombers);
 	for(unsigned int i=0;i<state.nbombers;i++)
 	{
