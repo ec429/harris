@@ -3507,7 +3507,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		unsigned int base;
 		do
 			base=irandu(nfbases);
-		while((diffdate(fbases[i].entry, state.now)>0)||(diffdate(fbases[i].exit, state.now)<0));
+		while((diffdate(fbases[base].entry, state.now)>0)||(diffdate(fbases[base].exit, state.now)<0));
 		(state.fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0};
 		state.gprod-=ftypes[i].cost;
 	}
