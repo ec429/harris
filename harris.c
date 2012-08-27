@@ -3462,10 +3462,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		if((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0)) continue;
-		state.flk[i]=(state.flk[i]*.95)+(state.dmg[i]*.05);
 		switch(targs[i].class)
 		{
 			case TCLASS_CITY:
+				state.flk[i]=(state.flk[i]*.95)+(state.dmg[i]*.05);
+				/* fallthrough */
 			case TCLASS_LEAFLET:
 				state.dmg[i]=min(state.dmg[i]*1.01, 100);
 				dprod+=state.dmg[i]*targs[i].prod;
@@ -3536,6 +3537,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	atg_free_box_box(gamebox);
 	if(LB_btext) *LB_btext=NULL;
 	atg_free_box_box(loadbox);
+	if(SA_btext) *SA_btext=NULL;
 	atg_free_box_box(savebox);
 	SDL_FreeSurface(weather_overlay);
 	SDL_FreeSurface(target_overlay);
