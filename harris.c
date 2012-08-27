@@ -17,7 +17,7 @@
 	Make Flak only be known to you after you've encountered it
 	Weather effects on flak, fighters
 	Implement later forms of Fighter control
-	Make Germans build fighters
+	Implement shooting back at Fighters
 	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
 	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
 		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
@@ -181,6 +181,7 @@ typedef struct
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk, *heat;
+	double gprod;
 	unsigned int nfighters;
 	ac_fighter *fighters;
 	raid *raids;
@@ -3448,7 +3449,68 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		types[m].pc+=100;
 		types[m].pribuf-=8;
 	}
-	// TODO: Germans build fighters
+	// German production
+	double dprod=0;
+	if(diffdate(event[EVENT_ABD], state.now)>0)
+	{
+		for(unsigned int i=0;i<ntargs;i++)
+		{
+			if(diffdate(targs[i].entry, state.now)<0) continue;
+			if(targs[i].class==TCLASS_CITY) dprod+=100.0*targs[i].prod;
+		}
+	}
+	for(unsigned int i=0;i<ntargs;i++)
+	{
+		if((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0)) continue;
+		state.flk[i]=(state.flk[i]*.95)+(state.dmg[i]*.05);
+		switch(targs[i].class)
+		{
+			case TCLASS_CITY:
+			case TCLASS_LEAFLET:
+				state.dmg[i]=min(state.dmg[i]*1.01, 100);
+				dprod+=state.dmg[i]*targs[i].prod;
+			break;
+			case TCLASS_SHIPPING:
+			break;
+			case TCLASS_MINING:
+				dprod+=state.dmg[i]*targs[i].prod/6.0;
+			break;
+			case TCLASS_AIRFIELD:
+			case TCLASS_BRIDGE:
+			case TCLASS_ROAD:
+				dprod+=state.dmg[i]*targs[i].prod/2.0;
+			break;
+			case TCLASS_INDUSTRY:
+				state.dmg[i]=min(state.dmg[i]*1.02, 100);
+				dprod+=state.dmg[i]*targs[i].prod/2.0;
+			break;
+			default: // shouldn't ever get here
+				fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
+			break;
+		}
+	}
+	// Germans build fighters
+	state.gprod+=dprod/4.0;
+	while(true)
+	{
+		unsigned int i=irandu(nftypes);
+		if((diffdate(ftypes[i].entry, state.now)>0)||(diffdate(ftypes[i].exit, state.now)<0)) continue;
+		if(ftypes[i].cost>state.gprod) break;
+		unsigned int n=state.nfighters++;
+		ac_fighter *newf=realloc(state.fighters, state.nfighters*sizeof(ac_fighter));
+		if(!newf)
+		{
+			perror("realloc"); // TODO more visible warning
+			state.nfighters=n;
+			break;
+		}
+		unsigned int base;
+		do
+			base=irandu(nfbases);
+		while((diffdate(fbases[i].entry, state.now)>0)||(diffdate(fbases[i].exit, state.now)<0));
+		(state.fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0};
+		state.gprod-=ftypes[i].cost;
+	}
 	if(++state.now.day>monthdays[state.now.month-1]+(((state.now.month==2)&&!(state.now.year%4))?1:0))
 	{
 		state.now.day=1;
@@ -3672,6 +3734,15 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						state->bombers[i].nav[n]=(nav>>n)&1;
 				}
+			}
+		}
+		else if(strcmp(tag, "GProd")==0)
+		{
+			f=sscanf(dat, "%la\n", &state->gprod);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
 			}
 		}
 		else if(strcmp(tag, "FTypes")==0)
@@ -3902,6 +3973,7 @@ int savegame(const char *fn, game state)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		fprintf(fs, "Type %u:%u,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav);
 	}
+	fprintf(fs, "GProd:%la\n", state.gprod);
 	fprintf(fs, "FTypes:%u\n", nftypes);
 	fprintf(fs, "FBases:%u\n", nfbases);
 	fprintf(fs, "Fighters:%u\n", state.nfighters);

@@ -10,10 +10,11 @@ Format, sort of printfy
 "Budget:%u+%u\n", cash, cshr
 "Types:%u\n", ntypes // should be a constant, but might change between versions/modpacks; if so, will need some code that's aware of old versions
 for(i=0;i<ntypes;i++)
-	"Prio %hhu:%u,%u\n", i, types[i].prio, types[i].pribuf
+	"Prio %hhu:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[]
+"GProd:%la\n", gprod
 "FTypes:%u\n", nftypes // should be a constant
 "FBases:%u\n", nfbases // should be a constant
 "Fighters:%u\n", nfighters
@@ -23,11 +24,11 @@ either
 {
 	"Targets:%hhu\n", ntargs // should be a constant
 	for(i=0;i<ntargs;i++)
-		"Targ %hhu:%la,%la\n", i, targs[i].dmg, targs[i].flk
+		"Targ %hhu:%la,%la,%la\n", i, targs[i].dmg, targs[i].flk, targs[i].heat
 }
 or
 {
-	"Targets init:%la,%la\n", targs[*].dmg, targs[*].flk
+	"Targets init:%la,%la,%la\n", targs[*].dmg, targs[*].flk, targs[*].heat
 }
 either
 {
