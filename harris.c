@@ -3463,6 +3463,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	atg_free_box_box(loadbox);
 	atg_free_box_box(savebox);
 	SDL_FreeSurface(weather_overlay);
+	SDL_FreeSurface(target_overlay);
+	SDL_FreeSurface(flak_overlay);
+	SDL_FreeSurface(terrain);
+	SDL_FreeSurface(map);
+	SDL_FreeSurface(location);
 	return(0);
 }
 
