@@ -2822,11 +2822,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			atg_flip(canvas);
 		}
 		// incorporate the results, and clear the raids ready for next cycle
-		unsigned int dij[ntargs][ntypes], nij[ntargs][ntypes], tij[ntargs][ntypes], lij[ntargs][ntypes];
+		unsigned int dij[ntargs][ntypes], nij[ntargs][ntypes], tij[ntargs][ntypes], lij[ntargs][ntypes], heat[ntargs];
 		double cidam=0;
 		for(unsigned int i=0;i<ntargs;i++)
+		{
+			heat[i]=0;
 			for(unsigned int j=0;j<ntypes;j++)
 				dij[i][j]=nij[i][j]=tij[i][j]=lij[i][j]=0;
+		}
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			for(unsigned int j=0;j<state.raids[i].nbombers;j++)
@@ -2849,7 +2852,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=hx)&&(abs(dy)<=hy))
 								{
-									state.heat[i]++;
+									heat[i]++;
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										cidam+=state.dmg[l];
@@ -2864,7 +2867,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=1)&&(abs(dy)<=1))
 								{
-									state.heat[i]++;
+									heat[i]++;
 									if(brandp(targs[l].esiz/40.0))
 									{
 										cidam+=state.dmg[l];
@@ -2880,7 +2883,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=hx)&&(abs(dy)<=hy))
 								{
-									state.heat[i]++;
+									heat[i]++;
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										if(brandp(targs[l].esiz/30.0))
@@ -2898,7 +2901,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=hx)&&(abs(dy)<=hy))
 								{
-									state.heat[i]++;
+									heat[i]++;
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										if(brandp(targs[l].esiz/30.0))
@@ -2930,7 +2933,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=2)&&(abs(dy)<=1))
 								{
-									state.heat[i]++;
+									heat[i]++;
 									if(brandp(targs[l].esiz/100.0))
 									{
 										nij[l][type]++;
@@ -3051,7 +3054,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		unsigned int ntrows=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
-			state.heat[i]/=(double)D;
+			state.heat[i]=state.heat[i]*.8+heat[i]/(double)D;
 			unsigned int di=0, ni=0, ti=0, li=0;
 			for(unsigned int j=0;j<ntypes;j++)
 			{
