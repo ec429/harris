@@ -2255,12 +2255,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									switch(b)
 									{
 										case ATG_MB_RIGHT:
+										case ATG_MB_SCROLLDN:
 											amount=1;
 										break;
 										case ATG_MB_MIDDLE:
 											amount=-1;
 										break;
 										case ATG_MB_LEFT:
+										case ATG_MB_SCROLLUP:
 										default:
 											amount=10;
 									}
@@ -2330,12 +2332,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									switch(b)
 									{
 										case ATG_MB_RIGHT:
+										case ATG_MB_SCROLLDN:
 											amount=1;
 										break;
 										case ATG_MB_MIDDLE:
 											amount=-1;
 										break;
 										case ATG_MB_LEFT:
+										case ATG_MB_SCROLLUP:
 										default:
 											amount=10;
 									}
