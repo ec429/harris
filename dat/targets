@@ -5,19 +5,35 @@
 # Esiz: 'effective' size, ease-to-hit.
 # Lat, long: where it is (within the 256x256 map)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
-# Class: what kind of target is it?  (CITY, SHIPPING, ...)
+# Class: what kind of target is it?  (CITY, SHIPPING, MINING, LEAFLET, AIRFIELD, BRIDGE, ROAD, INDUSTRY...)
 # Flags: extra target flags (BB, OIL, RAIL, ...)
+
+# Historicity notes:
+# Most of the "specific industrial targets" are completely arbitrary; names like 'Hanover Bauwerke' are for flavour rather than referring to some specific factory complex.
+# The same largely goes for the "France and the Low Countries" target group; while the names have been picked out of the Bomber Command Campaign Diary and the locations found on a map, the rest of the data are just arbitrary, as is the choice of targets.
+# In general the targets are meant to be a /representative sample/ of the kind of targets Bomber Command was attacking at various points; realistically we can't include every road and every building they ever bombed.
+# A more serious omission is the port of Brest; this is unfortunately off the western edge of the map, and changing the map would mean changing *all* of these targets (and the flaksites, and the fighterbases...).
 
 # Shipping targets.
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Schillig Roads:        8: 3: 6: 67:158:          :31-05-1940:SHIPPING
 Heligoland Bight:      6: 2: 8: 58:160:          :24-12-1939:SHIPPING
-Wilhelmshaven Docks:  10: 4: 7: 70:161:          :13-02-1942:SHIPPING
+Wilhelmshaven Docks:  10: 4: 7: 70:161:          :16-04-1941:SHIPPING
+Wilhelmshaven Docks:  12: 8: 7: 70:161:17-04-1941:13-02-1942:SHIPPING
 Hörnum, Sylt:          7: 5: 6: 51:163:19-03-1940:31-05-1940:SHIPPING
 Norway Fleet:          5: 1:12: 48:152:09-04-1940:12-04-1940:SHIPPING
 Norway Fleet:          5: 1:12: 34:149:13-04-1940:16-04-1940:SHIPPING
 Norway Fleet:          5: 1:12: 20:148:17-04-1940:20-04-1940:SHIPPING
 Norway Fleet:          5: 1:12:  9:149:21-04-1940:25-04-1940:SHIPPING
+Kiel Dockyards:       20:10: 8: 52:189:15-05-1940:13-02-1942:SHIPPING
+#  Scharnhorst and Gneisenau ("Salmon and Gluckstein") and the Prinz Eugen
+Channel Dash:          7: 1: 5:131: 68:12-02-1942:12-02-1942:SHIPPING
+Le Havre:             12: 6:10:165: 49:15-05-1940:13-02-1942:SHIPPING
+Lorient:               8: 5: 9:201:  1:15-05-1940:13-02-1942:SHIPPING
+# Canals
+Kiel Canal:           15: 7:14: 54:181:15-05-1940:13-02-1942:SHIPPING
+#  near Münster
+Dortmund-Ems Canal:   10: 8:20:112:150:15-05-1940:13-02-1942:SHIPPING
 
 # Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
 # TODO: end-dates from dates of liberation in 44/45
@@ -43,6 +59,8 @@ Nuremberg Leaflets:    6: 6:30:166:202:          :          :LEAFLET
 Leipzig:              30:15:22:124:219:14-02-1942:          :CITY,BB
 Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY
 Dresden:              16: 9:32:130:238:14-02-1942:          :CITY
+Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY
+Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY
 
 # France and the Low Countries (invasion time)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
@@ -51,12 +69,29 @@ Maastrichtweg Bridge:  8:18:14:135:125:11-05-1940:15-05-1940:BRIDGE
 Breda road junction:   6: 8: 7:118:114:14-05-1940:28-05-1940:ROAD
 Sedan bridge:          9:12: 9:162:116:14-05-1940:17-05-1940:BRIDGE
 Le Cateau road junction:8:14:6:152: 96:17-05-1940:21-05-1940:ROAD
+Soesterberg Airfield: 12:16:15:105:120:20-05-1940:13-02-1942:AIRFIELD
 
 # Specific industrial targets (CIV-ABD)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
+Berlin U-boat Works:  20:12:15: 98:233:24-05-1940:13-02-1942:INDUSTRY,UBOOT
 München-Gladbach:      8: 8:20:130:136:11-05-1940:13-02-1942:INDUSTRY,RAIL
 Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:13-02-1942:INDUSTRY,OIL
 Dusseldorf Steel Mill:16: 4:30:128:142:15-05-1940:13-02-1942:INDUSTRY
+Krupps, Essen:        30:10:15:122:145:15-05-1940:13-02-1942:INDUSTRY
+Hamburg Oil Refinery: 18: 6:18: 72:185:15-05-1940:13-02-1942:INDUSTRY,OIL
+Blohm + Voss:         12: 4:13: 73:184:16-05-1940:13-02-1942:INDUSTRY
+Bremen Oil Refinery:  12: 5:16: 85:169:16-05-1940:13-02-1942:INDUSTRY,OIL
+Focke-Wulf, Bremen:   20: 8:10: 84:170:17-05-1940:13-02-1942:INDUSTRY
+Antwerp Oil Depot:     6: 3:16:126:108:21-05-1940:13-02-1942:INDUSTRY,OIL
+Bielefeld Jagdwerke:  15:10:12:109:165:18-05-1940:13-02-1942:INDUSTRY
+Gelsenkirchen Oil:     9: 6:13:120:143:16-05-1940:13-02-1942:INDUSTRY,OIL
+Hüls Chemical Works:  12: 8:14:124:139:15-05-1940:13-02-1942:INDUSTRY
+Bremerhaven Shipyards:12: 6:22: 74:167:18-05-1940:13-02-1942:INDUSTRY,UBOOT
+Stuttgart U-boat Works:9: 6:12:180:174:17-05-1940:13-02-1942:INDUSTRY,UBOOT
+Hamm Railyards:       10: 5:18:117:154:19-05-1940:13-02-1942:INDUSTRY,RAIL
+Duisburg Ironworks:   11: 5:26:122:141:16-05-1940:13-02-1942:INDUSTRY
+Hanover Bauwerke:     10: 6:14:101:182:18-05-1940:13-02-1942:INDUSTRY
+Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:13-02-1942:INDUSTRY
 
 # Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS

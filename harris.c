@@ -109,6 +109,7 @@ typedef struct
 	bool bb; // contains ballbearing works (Pointblank Directive)
 	bool oil; // industry-type OIL refineries
 	bool rail; // industry-type RAIL yards
+	bool uboot; // industry-type UBOOT factories
 	SDL_Surface *picture;
 	/* for Type I fighter control */
 	double threat; // German-assessed threat level
@@ -517,6 +518,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				this.bb=strstr(class, ",BB");
 				this.oil=strstr(class, ",OIL");
 				this.rail=strstr(class, ",RAIL");
+				this.rail=strstr(class, ",UBOOT");
 				switch(this.class)
 				{
 					case TCLASS_LEAFLET:
