@@ -180,7 +180,7 @@ typedef struct
 	ac_bomber *bombers;
 	w_state weather;
 	unsigned int ntargs;
-	double *dmg, *flk;
+	double *dmg, *flk, *heat;
 	unsigned int nfighters;
 	ac_fighter *fighters;
 	raid *raids;
@@ -1813,6 +1813,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("malloc");
 		return(1);
 	}
+	if(!(state.heat=malloc(ntargs*sizeof(*state.heat))))
+	{
+		perror("malloc");
+		return(1);
+	}
 	if(!(state.raids=malloc(ntargs*sizeof(*state.raids))))
 	{
 		perror("malloc");
@@ -2750,7 +2755,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			{
 				if(targs[i].class==TCLASS_MINING) continue;
 				double thresh=2e3*targs[i].nfighters/(double)fightersleft;
-				if(targs[i].threat>thresh)
+				if(targs[i].threat+state.heat[i]*10.0>thresh)
 				{
 					double mind=1000;
 					int minj=-1;
@@ -2843,6 +2848,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=hx)&&(abs(dy)<=hy))
 								{
+									state.heat[i]++;
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										cidam+=state.dmg[l];
@@ -2857,6 +2863,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=1)&&(abs(dy)<=1))
 								{
+									state.heat[i]++;
 									if(brandp(targs[l].esiz/40.0))
 									{
 										cidam+=state.dmg[l];
@@ -2872,6 +2879,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=hx)&&(abs(dy)<=hy))
 								{
+									state.heat[i]++;
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										if(brandp(targs[l].esiz/30.0))
@@ -2889,6 +2897,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=hx)&&(abs(dy)<=hy))
 								{
+									state.heat[i]++;
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
 										if(brandp(targs[l].esiz/30.0))
@@ -2920,6 +2929,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(leaf) continue;
 								if((abs(dx)<=2)&&(abs(dy)<=1))
 								{
+									state.heat[i]++;
 									if(brandp(targs[l].esiz/100.0))
 									{
 										nij[l][type]++;
@@ -3040,6 +3050,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		unsigned int ntrows=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
+			state.heat[i]/=(double)D;
 			unsigned int di=0, ni=0, ti=0, li=0;
 			for(unsigned int j=0;j<ntypes;j++)
 			{
@@ -3736,9 +3747,9 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 		}
 		else if(strcmp(tag, "Targets init")==0)
 		{
-			double dmg,flk;
-			f=sscanf(dat, "%la,%la\n", &dmg, &flk);
-			if(f!=2)
+			double dmg,flk,heat;
+			f=sscanf(dat, "%la,%la,%la\n", &dmg, &flk, &heat);
+			if(f!=3)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 				e|=1;
@@ -3748,6 +3759,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 			{
 				state->dmg[i]=dmg;
 				state->flk[i]=flk*targs[i].flak/100.0;
+				state->heat[i]=heat;
 			}
 		}
 		else if(strcmp(tag, "Targets")==0)
@@ -3777,8 +3789,8 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						break;
 					}
 					unsigned int j;
-					f=sscanf(line, "Targ %u:%la,%la\n", &j, &state->dmg[i], &state->flk[i]);
-					if(f!=3)
+					f=sscanf(line, "Targ %u:%la,%la,%la\n", &j, &state->dmg[i], &state->flk[i], &state->heat[i]);
+					if(f!=4)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -3897,7 +3909,7 @@ int savegame(const char *fn, game state)
 		fprintf(fs, "Type %u:%u\n", state.fighters[i].type, state.fighters[i].base);
 	fprintf(fs, "Targets:%hhu\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
-		fprintf(fs, "Targ %hhu:%la,%la\n", i, state.dmg[i], targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0);
+		fprintf(fs, "Targ %hhu:%la,%la,%la\n", i, state.dmg[i], targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0, state.heat[i]);
 	fprintf(fs, "Weather state:%la,%la\n", state.weather.push, state.weather.slant);
 	for(unsigned int x=0;x<256;x++)
 	{
