@@ -2909,7 +2909,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					for(unsigned int l=0;l<ntargs;l++)
 					{
 						if((diffdate(targs[l].entry, state.now)>0)||(diffdate(targs[l].exit, state.now)<0)) continue;
-						int dx=state.bombers[k].bmblon-targs[l].lon, dy=state.bombers[k].bmblat-targs[l].lat;
+						int dx=floor(state.bombers[k].bmblon+.5)-targs[l].lon, dy=floor(state.bombers[k].bmblat+.5)-targs[l].lat;
 						int hx=targs[l].picture->w/2;
 						int hy=targs[l].picture->h/2;
 						switch(targs[l].class)
