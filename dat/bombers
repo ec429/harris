@@ -1,5 +1,5 @@
 # Format: dsv
-# MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
+# MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
 # Cost in £
 # Speed in mph (cruising, approx)
 # Capacity in lb (approx)
@@ -9,6 +9,7 @@
 # Accuracy is an approximate percentage loads-on-target for a moderate raid to about the Ruhr...
 # Dates are entry and exit from service (null in either case means open-ended)
 # Navaids lists which navigational aids this bomber can carry (a big set won't fit in a small bomber)
+# Flags: NOARM,...
 
 #                            COST SPD CAPAC SV DE FA AC BY BX
 Bristol:Blenheim:            5000:180: 1200:55:14: 6:60:96:61:          :10-01-1941:
@@ -19,6 +20,6 @@ Avro:Manchester:            20000:210:10350:50:12:16:45:81:45:05-11-1940:26-06-1
 Short:Stirling:             25000:200:14000:40: 9: 7:40:96:55:16-01-1941:08-02-1944:GEE,H2S,OBOE
 Handley Page:Halifax I:     30000:225:13000:75:12: 6:65:63:38:14-05-1941:31-03-1944:GEE,H2S,OBOE,GH
 Avro:Lancaster I:           40000:235:14000:80: 6: 4:80:84:44:07-03-1942:          :GEE,H2S,OBOE,GH
-de Havilland:Mosquito:      15000:340: 4000:80: 2: 4:90:98:44:12-08-1942:          :GEE,OBOE,GH
+de Havilland:Mosquito:      15000:340: 4000:80: 2: 4:90:98:44:12-08-1942:          :GEE,OBOE,GH,NOARM
 Handley Page:Halifax III:   32000:230:13500:90: 7: 5:75:63:38:30-04-1943:          :GEE,H2S,OBOE,GH
 Avro:Lancaster X:           45000:245:16000:90: 5: 3:85:81:41:13-02-1944:          :GEE,H2S,OBOE,GH

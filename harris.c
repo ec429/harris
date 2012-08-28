@@ -18,7 +18,6 @@
 	Make Flak only be known to you after you've encountered it
 	Weather effects on flak, fighters
 	Implement later forms of Fighter control
-	Implement shooting back at Fighters
 	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
 	Implement event texts
 	Implement Navaids
@@ -64,6 +63,7 @@ typedef struct
 	date entry;
 	date exit;
 	bool nav[NNAVAIDS];
+	bool noarm;
 	unsigned int blat, blon;
 	SDL_Surface *picture;
 	
@@ -294,6 +294,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				nav++;
 				for(unsigned int i=0;i<NNAVAIDS;i++)
 					this.nav[i]=strstr(nav, navaids[i]);
+				this.noarm=strstr(nav, "NOARM");
 				char pn[12+nlen+4];
 				strcpy(pn, "art/bombers/");
 				for(size_t p=0;p<=nlen;p++) pn[12+p]=tolower(this.name[p]);
@@ -2546,7 +2547,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
 					if(state.bombers[k].crashed||state.bombers[k].landed) continue;
-					if((state.bombers[k].damage>=100)||(brandp((types[type].fail+state.bombers[k].damage)/10000.0)))
+					if((state.bombers[k].damage>=100)||(brandp((types[type].fail+2.5*state.bombers[k].damage)/10000.0)))
 					{
 						state.bombers[k].failed=true;
 						if(brandp(0.02))
@@ -2738,6 +2739,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			{
 				if(state.fighters[j].landed)
 					continue;
+				if(state.fighters[j].crashed) continue;
+				if((state.fighters[j].damage>=100)||brandp(state.fighters[j].damage/4000.0))
+				{
+					state.fighters[j].crashed=true;
+					continue;
+				}
 				if(t>state.fighters[j].fuelt)
 				{
 					unsigned int t=state.fighters[j].targ;
@@ -2768,10 +2775,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[j].lon+=cx*spd;
 							state.fighters[j].lat+=cy*spd;
 						}
-						if(d<0.2)
+						if(d<0.3)
 						{
 							if(brandp(ftypes[ft].mnv/100.0))
-								state.bombers[k].damage+=irandu(ftypes[ft].arm)*types[bt].defn/30.0;
+							{
+								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/30.0;
+								state.bombers[k].damage+=dmg;
+								//fprintf(stderr, "F%u hit B%u for %u (%g)\n", ft, bt, dmg, state.bombers[k].damage);
+							}
+							if(!types[bt].noarm&&(brandp(1.0/types[bt].defn)))
+							{
+								unsigned int dmg=irandu(20);
+								state.fighters[j].damage+=dmg;
+								//fprintf(stderr, "B%u hit F%u for %u (%g)\n", bt, ft, dmg, state.fighters[j].damage);
+							}
 						}
 					}
 				}
@@ -2828,6 +2845,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					int minj=-1;
 					for(unsigned int j=0;j<state.nfighters;j++)
 					{
+						if(state.fighters[j].damage>=1) continue;
 						if(state.fighters[j].landed)
 						{
 							const unsigned int base=state.fighters[j].base;
@@ -2937,7 +2955,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if(brandp(targs[l].esiz/40.0))
 									{
 										cidam+=state.dmg[l];
-										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/6000.0);
+										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/12000.0);
 										cidam-=state.dmg[l];
 										nij[l][type]++;
 										tij[l][type]+=state.bombers[k].bmb;
@@ -3559,9 +3577,28 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			break;
 		}
 	}
-	// Germans build fighters
-	state.gprod+=dprod/4.0;
-	while(true)
+	// German fighters
+	for(unsigned int i=0;i<state.nfighters;i++)
+	{
+		unsigned int type=state.fighters[i].type;
+		if(state.fighters[i].crashed||((diffdate(ftypes[type].entry, state.now)>0)||(diffdate(ftypes[type].exit, state.now)<0)))
+		{
+			//fprintf(stderr, "Killed a fighter, type %u\n", type);
+			state.nfighters--;
+			for(unsigned int j=i;j<state.nfighters;j++)
+				state.fighters[j]=state.fighters[j+1];
+			i--;
+			continue;
+		}
+	}
+	unsigned int mfcost=0;
+	for(unsigned int i=0;i<nftypes;i++)
+	{
+		if((diffdate(ftypes[i].entry, state.now)>0)||(diffdate(ftypes[i].exit, state.now)<0)) continue;
+		mfcost=max(mfcost, ftypes[i].cost);
+	}
+	state.gprod+=dprod/12.0;
+	while(state.gprod>=mfcost)
 	{
 		unsigned int i=irandu(nftypes);
 		if((diffdate(ftypes[i].entry, state.now)>0)||(diffdate(ftypes[i].exit, state.now)<0)) continue;
@@ -4201,7 +4238,9 @@ SDL_Surface *render_ac(game state)
 	for(unsigned int i=0;i<state.nfighters;i++)
 	{
 		unsigned int x=floor(state.fighters[i].lon), y=floor(state.fighters[i].lat);
-		if(state.fighters[i].landed)
+		if(state.fighters[i].crashed)
+			pset(rv, x, y, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+		else if(state.fighters[i].landed)
 			pset(rv, x, y, (atg_colour){127, 0, 0, ATG_ALPHA_OPAQUE});
 		else
 			pset(rv, x, y, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
