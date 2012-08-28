@@ -3534,7 +3534,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		switch(targs[i].class)
 		{
 			case TCLASS_CITY:
-				state.flk[i]=(state.flk[i]*.95)+(state.dmg[i]*.05);
+				state.flk[i]=(state.flk[i]*.95)+(targs[i].flak*state.dmg[i]*.05);
 				/* fallthrough */
 			case TCLASS_LEAFLET:
 				state.dmg[i]=min(state.dmg[i]*1.01, 100);
