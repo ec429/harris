@@ -2937,7 +2937,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if(brandp(targs[l].esiz/40.0))
 									{
 										cidam+=state.dmg[l];
-										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/40000.0);
+										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/6000.0);
 										cidam-=state.dmg[l];
 										nij[l][type]++;
 										tij[l][type]+=state.bombers[k].bmb;
@@ -2957,7 +2957,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											nij[l][type]++;
 											tij[l][type]+=state.bombers[k].bmb;
 											cidam+=state.dmg[l];
-											state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/10000.0);
+											state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/2000.0);
 											cidam-=state.dmg[l];
 										}
 									}
@@ -2989,7 +2989,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 									{
-										state.dmg[l]=max(0, state.dmg[l]-types[type].cap/400000.0);
+										state.dmg[l]=max(0, state.dmg[l]-types[type].cap/100000.0);
 										nij[l][type]++;
 										tij[l][type]+=types[type].cap*3;
 									}
