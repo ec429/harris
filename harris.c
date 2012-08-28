@@ -19,7 +19,7 @@
 	Implement later forms of Fighter control
 	Implement shooting back at Fighters
 	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
-	Make the bombers' self-chosen routes avoid known flak (currently, they follow the straight line there and back).
+	Make the bombers' self-chosen routes avoid known flak
 		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
 	Implement event texts
 	Implement Navaids
@@ -135,6 +135,8 @@ typedef struct
 	double navlat, navlon; // error in "believed position" relative to true position
 	double driftlat, driftlon; // rate of error
 	unsigned int bmblat, bmblon; // true position where bombs were dropped (if any)
+	unsigned int route[8][2]; // [0123 out, 4 bmb, 567 in][0 lat, 1 lon]. {0, 0} indicates "not used, skip to next routestage"
+	unsigned int routestage; // 8 means "passed route[7], heading for base"
 	bool nav[NNAVAIDS];
 	unsigned int bmb; // bombload carried.  0 means leaflets
 	bool bombed;
@@ -2453,6 +2455,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].targ=i;
 				state.bombers[k].lat=types[type].blat;
 				state.bombers[k].lon=types[type].blon;
+				state.bombers[k].routestage=0;
+				for(unsigned int l=0;l<8;l++)
+					state.bombers[k].route[l][0]=state.bombers[k].route[l][1]=0;
+				state.bombers[k].route[4][0]=targs[i].lat;
+				state.bombers[k].route[4][1]=targs[i].lon;
+				/*state.bombers[k].
+				state.bombers[k].*/
 				if(targs[i].class==TCLASS_LEAFLET)
 					state.bombers[k].bmb=0;
 				else
@@ -2508,9 +2517,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							continue;
 						}
 					}
-					bool home=state.bombers[k].bombed||state.bombers[k].failed||(t>state.bombers[k].fuelt);
-					int destx=home?types[type].blon:targs[i].lon,
-						desty=home?types[type].blat:targs[i].lat;
+					unsigned int stage=state.bombers[k].routestage;
+					while((stage<8)&&!(state.bombers[k].route[stage][0]||state.bombers[k].route[stage][1]))
+						stage=++state.bombers[k].routestage;
+					bool home=state.bombers[k].failed||(stage>=8);
+					//state.bombers[k].bombed||state.bombers[k].failed||(t>state.bombers[k].fuelt);
+					int destx=home?types[type].blon:state.bombers[k].route[stage][1],
+						desty=home?types[type].blat:state.bombers[k].route[stage][0];
 					double cx=destx-(state.bombers[k].lon+state.bombers[k].navlon), cy=desty-(state.bombers[k].lat+state.bombers[k].navlat);
 					double d=hypot(cx, cy);
 					if(home)
@@ -2533,19 +2546,28 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.bombers[k].lon=min(state.bombers[k].lon, 127);
 						}
 					}
-					else
+					else if(stage==4)
 					{
 						bool fuel=(t==state.bombers[k].fuelt);
 						bool damaged=(state.bombers[k].damage>=1);
 						bool roeok=state.bombers[k].idtar||(!state.roe.idtar&&brandp(0.2))||brandp(0.005);
 						bool leaf=!state.bombers[k].bmb;
-						if(((cx<1.2)&&(cy<1.2)&&roeok)||((fuel||damaged)&&(roeok||leaf)))
+						if(((fabs(cx)<1.2)&&(fabs(cy)<1.2)&&roeok)||((fuel||damaged)&&(roeok||leaf)))
 						{
 							state.bombers[k].bmblon=state.bombers[k].lon;
 							state.bombers[k].bmblat=state.bombers[k].lat;
 							state.bombers[k].bombed=true;
+							stage=++state.bombers[k].routestage;
 						}
 					}
+					else if(stage<4)
+					{
+						if(cx<0.2)
+							stage=++state.bombers[k].routestage;
+					}
+					else
+						if(cx>-0.4)
+							stage=++state.bombers[k].routestage;
 					state.bombers[k].idtar=false;
 					double dx=cx*state.bombers[k].speed/d,
 						dy=cy*state.bombers[k].speed/d;
