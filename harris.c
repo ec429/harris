@@ -2560,7 +2560,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					while((stage<8)&&!(state.bombers[k].route[stage][0]||state.bombers[k].route[stage][1]))
 						stage=++state.bombers[k].routestage;
 					bool home=state.bombers[k].failed||(stage>=8);
-					//state.bombers[k].bombed||state.bombers[k].failed||(t>state.bombers[k].fuelt);
 					int destx=home?types[type].blon:state.bombers[k].route[stage][1],
 						desty=home?types[type].blat:state.bombers[k].route[stage][0];
 					double cx=destx-(state.bombers[k].lon+state.bombers[k].navlon), cy=desty-(state.bombers[k].lat+state.bombers[k].navlat);
@@ -2587,7 +2586,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 					else if(stage==4)
 					{
-						bool fuel=(t==state.bombers[k].fuelt);
+						bool fuel=(t>=state.bombers[k].fuelt);
 						bool damaged=(state.bombers[k].damage>=1);
 						bool roeok=state.bombers[k].idtar||(!state.roe.idtar&&brandp(0.2))||brandp(0.005);
 						bool leaf=!state.bombers[k].bmb;
@@ -2598,6 +2597,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.bombers[k].bombed=true;
 							stage=++state.bombers[k].routestage;
 						}
+						else if(fuel)
+							stage=++state.bombers[k].routestage;
 					}
 					else if(stage<4)
 					{
