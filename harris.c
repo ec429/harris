@@ -2456,10 +2456,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].lat=types[type].blat;
 				state.bombers[k].lon=types[type].blon;
 				state.bombers[k].routestage=0;
-				for(unsigned int l=0;l<8;l++)
-					state.bombers[k].route[l][0]=state.bombers[k].route[l][1]=0;
 				state.bombers[k].route[4][0]=targs[i].lat;
 				state.bombers[k].route[4][1]=targs[i].lon;
+				for(unsigned int l=0;l<4;l++)
+				{
+					state.bombers[k].route[l][0]=((types[type].blat*(4-l)+targs[i].lat*(1+l))/5)+irandu(13)-6;
+					state.bombers[k].route[l][1]=((types[type].blon*(4-l)+targs[i].lon*(1+l))/5)+irandu(9)-4;
+				}
+				for(unsigned int l=5;l<8;l++)
+				{
+					state.bombers[k].route[l][0]=((types[type].blat*(l-4)+targs[i].lat*(8-l))/4)+irandu(17)-8;
+					state.bombers[k].route[l][1]=((types[type].blon*(l-4)+targs[i].lon*(8-l))/4)+irandu(11)-5;
+				}
 				/*state.bombers[k].
 				state.bombers[k].*/
 				if(targs[i].class==TCLASS_LEAFLET)
