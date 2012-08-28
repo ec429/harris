@@ -8,6 +8,7 @@
 #include "bits.h"
 #include "weather.h"
 #include "rand.h"
+#include "geom.h"
 #include "widgets.h"
 #include "events.h"
 
@@ -19,8 +20,6 @@
 	Implement later forms of Fighter control
 	Implement shooting back at Fighters
 	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
-	Make the bombers' self-chosen routes avoid known flak
-		Note: this may necessitate an increase in the 'fuelt' values as the routes are less direct.
 	Implement event texts
 	Implement Navaids
 	Implement POM
@@ -2460,16 +2459,48 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].route[4][1]=targs[i].lon;
 				for(unsigned int l=0;l<4;l++)
 				{
-					state.bombers[k].route[l][0]=((types[type].blat*(4-l)+targs[i].lat*(1+l))/5)+irandu(13)-6;
-					state.bombers[k].route[l][1]=((types[type].blon*(4-l)+targs[i].lon*(1+l))/5)+irandu(9)-4;
+					state.bombers[k].route[l][0]=((types[type].blat*(4-l)+targs[i].lat*(3+l))/7)+irandu(13)-6;
+					state.bombers[k].route[l][1]=((types[type].blon*(4-l)+targs[i].lon*(3+l))/7)+irandu(9)-4;
 				}
 				for(unsigned int l=5;l<8;l++)
 				{
-					state.bombers[k].route[l][0]=((types[type].blat*(l-4)+targs[i].lat*(8-l))/4)+irandu(17)-8;
-					state.bombers[k].route[l][1]=((types[type].blon*(l-4)+targs[i].lon*(8-l))/4)+irandu(11)-5;
+					state.bombers[k].route[l][0]=((types[type].blat*(l-4)+targs[i].lat*(10-l))/6)+irandu(17)-8;
+					state.bombers[k].route[l][1]=((types[type].blon*(l-4)+targs[i].lon*(10-l))/6)+irandu(11)-5;
 				}
-				/*state.bombers[k].
-				state.bombers[k].*/
+				for(unsigned int l=0;l<7;l++)
+				{
+					double z=1;
+					while(true)
+					{
+						double scare=0;
+						for(unsigned int t=0;t<ntargs;t++)
+						{
+							if(t==i) continue;
+							if(((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0))) continue;
+							double d=linedist(state.bombers[k].route[l+1][1]-state.bombers[k].route[l][1],
+								state.bombers[k].route[l+1][0]-state.bombers[k].route[l][0],
+								targs[t].lon-state.bombers[k].route[l][1],
+								targs[t].lat-state.bombers[k].route[l][0]);
+							if(d<6)
+								scare+=targs[t].flak*0.18/(3.0+d);
+						}
+						for(unsigned int f=0;f<nflaks;f++)
+						{
+							if(((diffdate(flaks[f].entry, state.now)>0)||(diffdate(flaks[f].exit, state.now)<0))) continue;
+							double d=linedist(state.bombers[k].route[l+1][1]-state.bombers[k].route[l][1],
+								state.bombers[k].route[l+1][0]-state.bombers[k].route[l][0],
+								flaks[f].lon-state.bombers[k].route[l][1],
+								flaks[f].lat-state.bombers[k].route[l][0]);
+							if(d<2)
+								scare+=flaks[f].strength*0.01/(1.0+d);
+						}
+						z*=scare/(double)(1+scare);
+						if(z<0.2) break;
+						unsigned int m=(l==3)?l:l+1;
+						state.bombers[k].route[m][0]+=z*(irandu(17)-8);
+						state.bombers[k].route[m][1]+=z*(irandu(11)-5);
+					}
+				}
 				if(targs[i].class==TCLASS_LEAFLET)
 					state.bombers[k].bmb=0;
 				else

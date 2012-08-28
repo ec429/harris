@@ -4,8 +4,8 @@ PREFIX := /usr/local
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
-LIBS := -latg
-OBJS := weather.o bits.o rand.o widgets.o
+LIBS := -latg -lm
+OBJS := weather.o bits.o rand.o geom.o widgets.o
 INCLUDES := $(OBJS:.o=.h) events.h
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_image
