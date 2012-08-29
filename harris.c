@@ -16,7 +16,6 @@
 	Implement stats tracking
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
-	Weather effects on fighters
 	Implement later forms of Fighter control
 	Don't gain anything by mining lanes which are already full, bombing targets that are already destroyed, etc. (state.dmg<epsilon)
 	Implement event texts
@@ -2694,10 +2693,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(state.fighters[j].landed) continue;
 						if(state.fighters[j].k>=0) continue;
 						if(state.fighters[j].hflak>=0) continue;
+						unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
+						double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
+						double seerange=8.0/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar
 						double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
-						if(d<0.8) // TODO make this bigger if fighter has A.I. radar
+						if(d<seerange)
 						{
-							if(brandp(0.05)) // TODO make this bigger if fighter has A.I. radar 
+							double findp=0.6/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar 
+							if(brandp(findp))
 								state.fighters[j].k=k;
 						}
 					}
