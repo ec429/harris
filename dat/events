@@ -60,14 +60,14 @@ SERRATE:16-12-1942
 WURZBURG:09-04-1940
 # Kammhuber line
 KAMMHUBER:28-07-1940
-# Zahme Sau tactics.  I'm not at all sure about this date, it perhaps should be in late '42 instead
-TAMEBOAR:11-02-1943
+# Zahme Sau tactics.  I'm not at all sure about this date
+TAMEBOAR:11-10-1943
 # Lichtenstein B/C (airborne radar)
 L_BC:12-02-1942
-# Lichtenstein SN (better)
-L_SN:01-10-1943
 # Naxos homes on H2S transmissions
 NAXOS:28-11-1943
+# Lichtenstein SN (better)
+L_SN:01-12-1943
 # Schräge Musik
 MUSIK:17-08-1943
 # Jamming GEE

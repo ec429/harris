@@ -2796,6 +2796,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						double fd=hypot((signed)flaks[f].lat-state.fighters[j].lat, (signed)flaks[f].lon-state.fighters[j].lon);
 						if(fd<12) radcon=true;
 					}
+					if(diffdate(event[EVENT_WINDOW], state.now)<=0) radcon=false;
 					if(state.bombers[k].crashed||(d>(radcon?12.0:2.0))) // TODO make this bigger if fighter has A.I. radar
 						state.fighters[j].k=-1;
 					else
@@ -4360,7 +4361,7 @@ SDL_Surface *render_ac(game state)
 			if(state.bombers[k].crashed)
 				pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 			else if(state.bombers[k].damage>1)
-				pset(rv, x, y, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+				pset(rv, x, y, (atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE});
 			else if(state.bombers[k].failed)
 				pset(rv, x, y, (atg_colour){0, 255, 255, ATG_ALPHA_OPAQUE});
 			else if(state.bombers[k].bombed)
