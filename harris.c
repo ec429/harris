@@ -30,7 +30,7 @@
 
 typedef struct
 {
-	unsigned int year;
+	int year;
 	unsigned int month; // 1-based
 	unsigned int day; // also 1-based
 }
@@ -209,6 +209,8 @@ int loadgame(const char *fn, game *state, bool lorw[128][128]);
 int savegame(const char *fn, game state);
 date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
+double pom(date when); // returns in [0,1); 0 for new moon, 0.5 for full moon
+void drawmoon(SDL_Surface *s, double phase);
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
 SDL_Surface *render_weather(w_state weather);
 SDL_Surface *render_targets(date now);
@@ -862,13 +864,30 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("malloc");
 		return(1);
 	}
+	atg_element *GB_datetimebox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!GB_datetimebox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_btb, GB_datetimebox))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_box *GB_dtb=GB_datetimebox->elem.box;
+	if(!GB_dtb)
+	{
+		fprintf(stderr, "GB_datetimebox->elem.box==NULL\n");
+		return(1);
+	}
 	atg_element *GB_date=atg_create_element_label("", 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
 	if(!GB_date)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(atg_pack_element(GB_btb, GB_date))
+	if(atg_pack_element(GB_dtb, GB_date))
 	{
 		perror("atg_pack_element");
 		return(1);
@@ -883,6 +902,33 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "GB_date->elem.label==NULL\n");
 			return(1);
 		}
+	}
+	SDL_Surface *GB_moonimg=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 14, 14, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!GB_moonimg)
+	{
+		fprintf(stderr, "moonimg: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(1);
+	}
+	atg_element *GB_moonpic=atg_create_element_image(NULL);
+	if(!GB_moonpic)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_dtb, GB_moonpic))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	else
+	{
+		atg_image *i=GB_moonpic->elem.image;
+		if(!i)
+		{
+			fprintf(stderr, "GB_moonpic->elem.image==NULL\n");
+			return(1);
+		}
+		i->data=GB_moonimg;
 	}
 	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btnum[ntypes];
 	for(unsigned int i=0;i<ntypes;i++)
@@ -2117,6 +2163,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	snprintf(GB_budget_label, 32, "Budget: £%u/day", state.cshr);
 	snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state.confid+0.5));
 	snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state.morale+0.5));
+	double moonphase=pom(state.now);
+	drawmoon(GB_moonimg, moonphase);
 	for(unsigned int j=0;j<state.nbombers;j++)
 	{
 		state.bombers[j].landed=true;
@@ -3810,17 +3858,49 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 date readdate(const char *t, date nulldate)
 {
 	date d;
-	if(t&&*t&&(sscanf(t, "%u-%u-%u", &d.day, &d.month, &d.year)==3)) return(d);
+	if(t&&*t&&(sscanf(t, "%u-%u-%d", &d.day, &d.month, &d.year)==3)) return(d);
 	return(nulldate);
 }
 
-int diffdate(date date1, date date2) // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
+int diffdate(date date1, date date2) // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2.  Value is difference in days
 {
-	int d=date1.year-date2.year;
-	if(d) return(d);
-	d=date1.month-date2.month;
-	if(d) return(d);
-	return(date1.day-date2.day);
+	if(date1.month<3)
+	{
+		date1.month+=12;
+		date1.year--;
+	}
+	if(date2.month<3)
+	{
+		date2.month+=12;
+		date2.year--;
+	}
+	int days1=365*date1.year + floor(date1.year/4) - floor(date1.year/100) + floor(date1.year/400) + floor(date1.day) + floor((153*date1.month+8)/5);
+	int days2=365*date2.year + floor(date2.year/4) - floor(date2.year/100) + floor(date2.year/400) + floor(date2.day) + floor((153*date2.month+8)/5);
+	return(days1-days2);
+}
+
+double pom(date when)
+{
+	// new moon at 14/08/1939
+	// synodic month 29.530588853 days
+	return(fmod(diffdate(when, (date){.day=14, .month=8, .year=1939})/29.530588853, 1));
+}
+
+void drawmoon(SDL_Surface *s, double phase)
+{
+	SDL_FillRect(s, &(SDL_Rect){.x=0, .y=0, .w=s->w, .h=s->h}, SDL_MapRGB(s->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b));
+	double left=(phase>0.5)?phase*2-1:1,
+	      right=(phase<0.5)?phase*2:0;
+	double halfx=(s->w-1)/2.0,
+	       halfy=(s->h-1)/2.0;
+	for(int y=1;y<s->h-1;y++)
+	{
+		double width=sqrt(((s->w/2)-1)*((s->w/2)-1)-(y-halfy)*(y-halfy));
+		unsigned int leftx=width*cos( left*M_PI)+halfx,
+		            rightx=width*cos(right*M_PI)+halfx;
+		for(unsigned int x=leftx;x<=rightx;x++)
+			pset(s, x, y, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+	}
 }
 
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3])
