@@ -17,7 +17,6 @@
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
 	Implement later forms of Fighter control
-	Don't gain anything by mining lanes which are already full, bombing targets that are already destroyed, etc. (state.dmg<epsilon)
 	Implement event texts
 	Implement Navaids
 	Implement POM
@@ -3051,10 +3050,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		// incorporate the results, and clear the raids ready for next cycle
 		unsigned int dij[ntargs][ntypes], nij[ntargs][ntypes], tij[ntargs][ntypes], lij[ntargs][ntypes], heat[ntargs];
+		bool canscore[ntargs];
 		double cidam=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			heat[i]=0;
+			canscore[i]=(state.dmg[i]>0.1);
 			for(unsigned int j=0;j<ntypes;j++)
 				dij[i][j]=nij[i][j]=tij[i][j]=lij[i][j]=0;
 		}
@@ -3221,10 +3222,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		rstatbox->nelems=2;
 		unsigned int dj[ntypes], nj[ntypes], tbj[ntypes], tlj[ntypes], tsj[ntypes], tmj[ntypes], lj[ntypes];
 		unsigned int D=0, N=0, Tb=0, Tl=0, Ts=0, Tm=0, L=0;
+		unsigned int scoreTb=0, scoreTl=0, scoreTm=0;
 		unsigned int ntcols=0;
 		for(unsigned int j=0;j<ntypes;j++)
 		{
 			dj[j]=nj[j]=tbj[j]=tlj[j]=tsj[j]=tmj[j]=lj[j]=0;
+			unsigned int scoretbj=0, scoretlj=0, scoretmj=0;
 			for(unsigned int i=0;i<ntargs;i++)
 			{
 				dj[j]+=dij[i][j];
@@ -3237,15 +3240,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					case TCLASS_BRIDGE:
 					case TCLASS_INDUSTRY:
 						tbj[j]+=tij[i][j];
+						if(canscore[i]) scoretbj+=tij[i][j];
 					break;
 					case TCLASS_LEAFLET:
 						tlj[j]+=tij[i][j];
+						if(canscore[i]) scoretlj+=tij[i][j];
 					break;
 					case TCLASS_SHIPPING:
 						tsj[j]+=tij[i][j];
 					break;
 					case TCLASS_MINING:
 						tmj[j]+=tij[i][j];
+						if(canscore[i]) scoretmj+=tij[i][j];
 					break;
 					default: // shouldn't ever get here
 						fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
@@ -3256,17 +3262,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			D+=dj[j];
 			N+=nj[j];
 			Tb+=tbj[j];
+			scoreTb+=scoretbj;
 			Tl+=tlj[j];
+			scoreTl+=scoretlj;
 			Ts+=tsj[j];
 			Tm+=tmj[j];
+			scoreTm+=scoretmj;
 			L+=lj[j];
 			RS_typecol[j]->hidden=!dj[j];
 			if(dj[j]) ntcols++;
 		}
-		state.cshr+=Tb/50;
-		state.cshr+=Tl/10000;
+		state.cshr+=scoreTb/50;
+		state.cshr+=scoreTl/10000;
 		state.cshr+=Ts*1200;
-		state.cshr+=Tm/2000;
+		state.cshr+=scoreTm/2000;
 		double par=0.2+((state.now.year-1939)*0.1);
 		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0);
 		state.confid+=Ts*0.25;
