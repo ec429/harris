@@ -25,7 +25,6 @@
 	Implement PFF control
 	Implement Window & window-control (for diversions)
 	Implement Moonshine sorties
-	Implement Wurzburg siting (will need a dat/radars file)
 	Event effects on fighters (Radars, RCM, etc.)
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
 	Sack player if confid or morale too low
@@ -112,7 +111,7 @@ typedef struct
 	SDL_Surface *picture;
 	/* for Type I fighter control */
 	double threat; // German-assessed threat level
-	unsigned int nfighters; // # of nfs covering this target
+	unsigned int nfighters; // # of fighters covering this target
 }
 target;
 
@@ -121,6 +120,8 @@ typedef struct
 	//STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
 	unsigned int strength, lat, lon;
 	date entry, radar, exit;
+	/* for Himmelbett fighter control */
+	int ftr; // index of fighter under this radar's control (-1 for none)
 }
 flaksite;
 
@@ -160,15 +161,16 @@ typedef struct
 	unsigned int fuelt;
 	int k; // which bomber this fighter is attacking (-1 for none)
 	int targ; // which target this fighter is covering (-1 for none)
-	// TODO stuff for controlling /Himmelbett/ assignment (Kammhuber line stuff)
+	int hflak; // which flaksite's radar is controlling this fighter? (Himmelbett/Kammhuber line) (-1 for none)
 }
 ac_fighter;
+
+#define ftr_free(f)	(((f).targ<0)&&((f).hflak<0)&&((f).fuelt>t)) // f is of type ac_fighter
 
 typedef struct
 {
 	unsigned int nbombers;
 	unsigned int *bombers; // offsets into the game.bombers list
-	// TODO routing
 }
 raid;
 
@@ -2418,10 +2420,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		targs[i].threat=0;
 		targs[i].nfighters=0;
 	}
+	for(unsigned int i=0;i<nflaks;i++)
+		flaks[i].ftr=-1;
 	for(unsigned int i=0;i<state.nfighters;i++)
 	{
 		state.fighters[i].targ=-1;
 		state.fighters[i].k=-1;
+		state.fighters[i].hflak=-1;
 		state.fighters[i].damage=0;
 		state.fighters[i].landed=true;
 		state.fighters[i].lat=fbases[state.fighters[i].base].lat;
@@ -2667,11 +2672,26 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(brandp(flaks[i].strength*(rad?3:1)/1200.0))
 								state.bombers[k].damage+=irandu(types[type].defn)/2.0;
 						}
+						if(brandp(0.1))
+						{
+							if(rad&&(d<12)) // 36 miles range for Würzburg radar (Wikipedia gives range as "up to 43mi")
+								if(flaks[i].ftr>=0)
+								{
+									unsigned int ftr=flaks[i].ftr;
+									double d=hypot(state.fighters[ftr].lon-(signed)flaks[i].lon, state.fighters[ftr].lat-(signed)flaks[i].lat);
+									if((d<10)&&(state.fighters[ftr].k<0))
+									{
+										state.fighters[ftr].k=k;
+										//fprintf(stderr, "ftr%u k%u\n", ftr, k);
+									}
+								}
+							}
 					}
 					for(unsigned int j=0;j<state.nfighters;j++)
 					{
 						if(state.fighters[j].landed) continue;
 						if(state.fighters[j].k>=0) continue;
+						if(state.fighters[j].hflak>=0) continue;
 						double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
 						if(d<0.8) // TODO make this bigger if fighter has A.I. radar
 						{
@@ -2743,14 +2763,25 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				if((state.fighters[j].damage>=100)||brandp(state.fighters[j].damage/4000.0))
 				{
 					state.fighters[j].crashed=true;
+					int t=state.fighters[j].targ;
+					if(t>=0)
+						targs[t].nfighters--;
+					int f=state.fighters[j].hflak;
+					if(f>=0)
+						flaks[f].ftr=-1;
 					continue;
 				}
 				if(t>state.fighters[j].fuelt)
 				{
-					unsigned int t=state.fighters[j].targ;
-					targs[t].nfighters--;
+					int t=state.fighters[j].targ;
+					if(t>=0)
+						targs[t].nfighters--;
+					int f=state.fighters[j].hflak;
+					if(f>=0)
+						flaks[f].ftr=-1;
 					fightersleft++;
 					state.fighters[j].targ=-1;
+					state.fighters[j].hflak=-1;
 					state.fighters[j].k=-1;
 				}
 				int k=state.fighters[j].k;
@@ -2758,7 +2789,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					unsigned int ft=state.fighters[j].type, bt=state.bombers[k].type;
 					double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
-					if(state.bombers[k].crashed||(d>2.0)) // TODO make this bigger if fighter has A.I. radar
+					bool radcon=false; // radar controlled
+					if(state.fighters[j].hflak>=0)
+					{
+						unsigned int f=state.fighters[j].hflak;
+						double fd=hypot((signed)flaks[f].lat-state.fighters[j].lat, (signed)flaks[f].lon-state.fighters[j].lon);
+						if(fd<12) radcon=true;
+					}
+					if(state.bombers[k].crashed||(d>(radcon?12.0:2.0))) // TODO make this bigger if fighter has A.I. radar
 						state.fighters[j].k=-1;
 					else
 					{
@@ -2775,7 +2813,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[j].lon+=cx*spd;
 							state.fighters[j].lat+=cy*spd;
 						}
-						if(d<0.3)
+						if(d<(radcon?0.6:0.3))
 						{
 							if(brandp(ftypes[ft].mnv/100.0))
 							{
@@ -2800,12 +2838,44 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					int tx=targs[t].lon,
 						ty=targs[t].lat;
 					double d=hypot(x-tx, y-ty);
+					unsigned int type=state.fighters[j].type;
+					double spd=ftypes[type].speed/300.0;
 					if(d>0.2)
 					{
-						unsigned int type=state.fighters[j].type;
-						double spd=ftypes[type].speed/300.0;
 						double cx=(tx-x)/d,
 							cy=(ty-y)/d;
+						state.fighters[j].lon+=cx*spd;
+						state.fighters[j].lat+=cy*spd;
+					}
+					else
+					{
+						double theta=drandu(2*M_PI);
+						double cx=cos(theta), cy=sin(theta);
+						state.fighters[j].lon+=cx*spd;
+						state.fighters[j].lat+=cy*spd;
+					}
+				}
+				else if(state.fighters[j].hflak>=0)
+				{
+					double x=state.fighters[j].lon+drandu(3.0)-1.5,
+						y=state.fighters[j].lat+drandu(3.0)-1.5;
+					unsigned int f=state.fighters[j].hflak;
+					int fx=flaks[f].lon,
+						fy=flaks[f].lat;
+					double d=hypot(x-fx, y-fy);
+					unsigned int type=state.fighters[j].type;
+					double spd=ftypes[type].speed/300.0;
+					if(d>0.2)
+					{
+						double cx=(fx-x)/d,
+							cy=(fy-y)/d;
+						state.fighters[j].lon+=cx*spd;
+						state.fighters[j].lat+=cy*spd;
+					}
+					else
+					{
+						double theta=drandu(2*M_PI);
+						double cx=cos(theta), cy=sin(theta);
 						state.fighters[j].lon+=cx*spd;
 						state.fighters[j].lat+=cy*spd;
 					}
@@ -2835,9 +2905,72 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 				}
 			}
+			if((diffdate(event[EVENT_WURZBURG], state.now)<=0)&&(diffdate(event[EVENT_TAMEBOAR], state.now)>0))
+			{
+				for(unsigned int i=0;i<nflaks;i++)
+				{
+					if(flaks[i].ftr>=0)
+					{
+						unsigned int ftr=flaks[i].ftr;
+						if(state.fighters[ftr].k>=0)
+						{
+							unsigned int k=state.fighters[ftr].k;
+							double d=hypot((signed)flaks[i].lat-state.bombers[k].lat, (signed)flaks[i].lon-state.bombers[k].lon);
+							if(d>12)
+								state.fighters[ftr].k=-1;
+						}
+						continue;
+					}
+					if((diffdate(flaks[i].radar, state.now)>0)||(diffdate(flaks[i].exit, state.now)<0)) continue;
+					if(fightersleft>20)
+					{
+						double mind=1000;
+						int minj=-1;
+						for(unsigned int j=0;j<state.nfighters;j++)
+						{
+							if(state.fighters[j].damage>=1) continue;
+							if(state.fighters[j].landed)
+							{
+								const unsigned int base=state.fighters[j].base;
+								double d=hypot((signed)flaks[i].lat-(signed)fbases[base].lat, (signed)flaks[i].lon-(signed)fbases[base].lon);
+								if(d<mind)
+								{
+									mind=d;
+									minj=j;
+								}
+							}
+							else if(ftr_free(state.fighters[j]))
+							{
+								double d=hypot((signed)flaks[i].lat-state.fighters[j].lat, (signed)flaks[i].lon-state.fighters[j].lon);
+								if(d<mind)
+								{
+									mind=d;
+									minj=j;
+								}
+							}
+						}
+						if(minj>=0)
+						{
+							if(state.fighters[minj].landed)
+								state.fighters[minj].fuelt=t+64+irandu(32);
+							state.fighters[minj].landed=false;
+							state.fighters[minj].hflak=i;
+							fightersleft--;
+							flaks[i].ftr=minj;
+							//fprintf(stderr, "Assigned fighter #%u to %s\n", targs[i].nfighters, targs[i].name);
+						}
+						else
+						{
+							/*fprintf(stderr, "Out of fighters (%s)\n", targs[i].name);
+							targs[i].threat=0;*/
+						}
+					}
+				}
+			}
 			for(unsigned int i=0;i<ntargs;i++)
 			{
 				if(targs[i].class==TCLASS_MINING) continue;
+				if((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0)) continue;
 				double thresh=2e3*targs[i].nfighters/(double)fightersleft;
 				if(targs[i].threat+state.heat[i]*10.0>thresh)
 				{
@@ -2856,7 +2989,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								minj=j;
 							}
 						}
-						else if(state.fighters[j].targ<0)
+						else if(ftr_free(state.fighters[j]))
 						{
 							double d=hypot((signed)targs[i].lat-state.fighters[j].lat, (signed)targs[i].lon-state.fighters[j].lon);
 							if(d<mind)
