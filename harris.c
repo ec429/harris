@@ -16,9 +16,9 @@
 	Implement stats tracking
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
-	Weather effects on flak, fighters
+	Weather effects on fighters
 	Implement later forms of Fighter control
-	Don't gain anything by mining lanes which are already full (state.dmg<epsilon)
+	Don't gain anything by mining lanes which are already full, bombing targets that are already destroyed, etc. (state.dmg<epsilon)
 	Implement event texts
 	Implement Navaids
 	Implement POM
@@ -2661,7 +2661,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(d<(water?8:30))
 							targs[i].threat+=sqrt(targs[i].prod*types[type].cap/5000)/(2.0+max(d, 0.5));
 					}
-					// TODO: flak hitrate affected by weather
 					for(unsigned int i=0;i<nflaks;i++)
 					{
 						if(((diffdate(flaks[i].entry, state.now)>0)||(diffdate(flaks[i].exit, state.now)<0))) continue;
@@ -2669,7 +2668,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						double d=hypot(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat);
 						if(d<0.8)
 						{
-							if(brandp(flaks[i].strength*(rad?3:1)/1200.0))
+							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
+							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0, wf=8.0/(double)(8+max(4-wea, 0));
+							if(rad) wf=sqrt(wf);
+							if(brandp(flaks[i].strength*(rad?3:1)*wf/1200.0))
 								state.bombers[k].damage+=irandu(types[type].defn)/2.0;
 						}
 						if(brandp(0.1))
@@ -2708,14 +2710,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					state.bombers[k].lat+=state.bombers[k].driftlat;
 					state.bombers[k].navlon-=state.bombers[k].driftlon;
 					state.bombers[k].navlat-=state.bombers[k].driftlat;
-					unsigned int x=state.bombers[k].lon, y=state.bombers[k].lat;
+					unsigned int x=state.bombers[k].lon/2, y=state.bombers[k].lat/2;
 					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-					double navp=types[type].accu*3.5/(double)(8+max(1008-wea, 0));
+					double navp=types[type].accu*0.06/(double)(8+max(16-wea, 0));
 					if(home&&(state.bombers[k].lon<64)) navp=1;
 					if(brandp(navp))
 					{
 						state.bombers[k].navlon*=(256.0+state.bombers[k].lon)/512.0;
 						state.bombers[k].navlat*=(256.0+state.bombers[k].lon)/512.0;
+						state.bombers[k].driftlon*=(256.0+state.bombers[k].lon)/512.0;
+						state.bombers[k].driftlat*=(256.0+state.bombers[k].lon)/512.0;
 						switch(targs[i].class)
 						{
 							case TCLASS_CITY:
