@@ -2715,7 +2715,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					state.bombers[k].navlat-=state.bombers[k].driftlat;
 					unsigned int x=state.bombers[k].lon/2, y=state.bombers[k].lat/2;
 					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-					double navp=types[type].accu*0.06/(double)(8+max(16-wea, 0));
+					double navp=types[type].accu*0.05/(double)(8+max(16-wea, 8));
 					if(home&&(state.bombers[k].lon<64)) navp=1;
 					if(brandp(navp))
 					{
@@ -2804,7 +2804,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(fd<12) radcon=true;
 					}
 					if(diffdate(event[EVENT_WINDOW], state.now)<=0) radcon=false;
-					if(state.bombers[k].crashed||(d>(radcon?12.0:2.0))) // TODO make this bigger if fighter has A.I. radar
+					unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
+					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
+					double seerange=16.0/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar
+					if(state.bombers[k].crashed||(d>(radcon?12.0:seerange)))
 						state.fighters[j].k=-1;
 					else
 					{
@@ -2821,11 +2824,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[j].lon+=cx*spd;
 							state.fighters[j].lat+=cy*spd;
 						}
-						if(d<(radcon?0.6:0.3))
+						if(d<(radcon?0.5:0.3))
 						{
 							if(brandp(ftypes[ft].mnv/100.0))
 							{
-								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/30.0;
+								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/15.0;
 								state.bombers[k].damage+=dmg;
 								//fprintf(stderr, "F%u hit B%u for %u (%g)\n", ft, bt, dmg, state.bombers[k].damage);
 							}
