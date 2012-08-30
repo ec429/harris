@@ -3744,7 +3744,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		for(unsigned int i=0;i<ntargs;i++)
 		{
-			if(diffdate(targs[i].entry, state.now)<0) continue;
+			if(diffdate(targs[i].entry, state.now)<=0) continue;
 			if(targs[i].class==TCLASS_CITY) dprod+=100.0*targs[i].prod;
 		}
 	}
