@@ -210,6 +210,7 @@ int savegame(const char *fn, game state);
 date readdate(const char *t, date nulldate);
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 double pom(date when); // returns in [0,1); 0 for new moon, 0.5 for full moon
+double foldpom(double pom); // returns illumination in [0,1]
 void drawmoon(SDL_Surface *s, double phase);
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
 SDL_Surface *render_weather(w_state weather);
@@ -3886,11 +3887,16 @@ double pom(date when)
 	return(fmod(diffdate(when, (date){.day=14, .month=8, .year=1939})/29.530588853, 1));
 }
 
+double foldpom(double pom)
+{
+	return((1-cos(pom*M_PI*2))/2.0);
+}
+
 void drawmoon(SDL_Surface *s, double phase)
 {
 	SDL_FillRect(s, &(SDL_Rect){.x=0, .y=0, .w=s->w, .h=s->h}, SDL_MapRGB(s->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b));
-	double left=(phase>0.5)?phase*2-1:1,
-	      right=(phase<0.5)?phase*2:0;
+	double left=(phase<0.5)?phase*2:1,
+	      right=(phase>0.5)?phase*2-1:0;
 	double halfx=(s->w-1)/2.0,
 	       halfy=(s->h-1)/2.0;
 	for(int y=1;y<s->h-1;y++)
@@ -3900,6 +3906,8 @@ void drawmoon(SDL_Surface *s, double phase)
 		            rightx=width*cos(right*M_PI)+halfx;
 		for(unsigned int x=leftx;x<=rightx;x++)
 			pset(s, x, y, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+		/*pset(s, leftx, y, (atg_colour){223, 0, 0, ATG_ALPHA_OPAQUE});
+		pset(s, rightx, y, (atg_colour){0, 0, 223, ATG_ALPHA_OPAQUE});*/
 	}
 }
 
