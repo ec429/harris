@@ -2599,7 +2599,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
 					if(state.bombers[k].crashed||state.bombers[k].landed) continue;
-					if((state.bombers[k].damage>=100)||(brandp((types[type].fail+2.5*state.bombers[k].damage)/10000.0)))
+					if((state.bombers[k].damage>=100)||(brandp((types[type].fail+2.0*state.bombers[k].damage)/10000.0)))
 					{
 						state.bombers[k].failed=true;
 						if(brandp(0.02))
@@ -2743,7 +2743,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(state.fighters[j].hflak>=0) continue;
 						unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-						double seerange=8.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar
+						double seerange=6.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar
 						double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
 						if(d<seerange)
 						{
@@ -2876,7 +2876,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							if(brandp(ftypes[ft].mnv/100.0))
 							{
-								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/15.0;
+								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/20.0;
 								state.bombers[k].damage+=dmg;
 								//fprintf(stderr, "F%u hit B%u for %u (%g)\n", ft, bt, dmg, state.bombers[k].damage);
 							}
@@ -3075,7 +3075,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						targs[i].threat=0;*/
 					}
 				}
-				targs[i].threat*=.99;
+				targs[i].threat*=.98;
 				targs[i].threat-=targs[i].nfighters*0.01;
 				if(targs[i].nfighters&&(targs[i].threat<thresh/(2.0+max(fightersleft, 2))))
 				{
