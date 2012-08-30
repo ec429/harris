@@ -3902,10 +3902,19 @@ void drawmoon(SDL_Surface *s, double phase)
 	for(int y=1;y<s->h-1;y++)
 	{
 		double width=sqrt(((s->w/2)-1)*((s->w/2)-1)-(y-halfy)*(y-halfy));
-		unsigned int leftx=width*cos( left*M_PI)+halfx,
-		            rightx=width*cos(right*M_PI)+halfx;
-		for(unsigned int x=leftx;x<=rightx;x++)
-			pset(s, x, y, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+		double leftx=width*cos( left*M_PI)+halfx,
+		      rightx=width*cos(right*M_PI)+halfx;
+		for(unsigned int x=halfx-width;x<=halfx+width;x++)
+		{
+			if((leftx<x)&&(x<rightx))
+				pset(s, x, y, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+			else if((floor(leftx)<=x)&&(x<rightx))
+				pset(s, x, y, (atg_colour){223*(1+x-floor(leftx)), 223*(1+x-floor(leftx)), 223*(1+x-floor(leftx)), ATG_ALPHA_OPAQUE});
+			else if((leftx<x)&&(x<ceil(rightx)))
+				pset(s, x, y, (atg_colour){223*(1-fmod(rightx, 1)), 223*(1-fmod(rightx, 1)), 223*(1-fmod(rightx, 1)), ATG_ALPHA_OPAQUE});
+			else
+				pset(s, x, y, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+		}
 		/*pset(s, leftx, y, (atg_colour){223, 0, 0, ATG_ALPHA_OPAQUE});
 		pset(s, rightx, y, (atg_colour){0, 0, 223, ATG_ALPHA_OPAQUE});*/
 	}
