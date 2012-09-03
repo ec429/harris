@@ -3321,7 +3321,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			RS_typecol[j]->hidden=!dj[j];
 			if(dj[j]) ntcols++;
 		}
-		state.cshr+=scoreTb/50;
+		state.cshr+=scoreTb/200;
 		state.cshr+=scoreTl/10000;
 		state.cshr+=Ts*1200;
 		state.cshr+=scoreTm/2000;
