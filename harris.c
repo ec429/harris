@@ -2981,7 +2981,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						continue;
 					}
 					if((diffdate(flaks[i].radar, state.now)>0)||(diffdate(flaks[i].exit, state.now)<0)) continue;
-					if(fightersleft>20)
+					if(fightersleft)
 					{
 						double mind=1000;
 						int minj=-1;
@@ -3030,7 +3030,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			{
 				if(targs[i].class==TCLASS_MINING) continue;
 				if((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0)) continue;
-				double thresh=2e3*targs[i].nfighters/(double)fightersleft;
+				double thresh=3e3*targs[i].nfighters/(double)fightersleft;
 				if(targs[i].threat+state.heat[i]*10.0>thresh)
 				{
 					double mind=1000;
