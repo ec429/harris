@@ -2670,7 +2670,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					for(unsigned int i=0;i<ntargs;i++)
 					{
 						if(((diffdate(targs[i].entry, state.now)>0)||(diffdate(targs[i].exit, state.now)<0))) continue;
-						double d=hypot(state.bombers[k].lon-targs[i].lon, state.bombers[k].lat-targs[i].lat);
+						double dx=state.bombers[k].lon-targs[i].lon, dy=state.bombers[k].lat-targs[i].lat, dd=dx*dx+dy*dy;
 						double range;
 						switch(targs[i].class)
 						{
@@ -2695,7 +2695,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								range=0.6;
 							break;
 						}
-						if(d<range)
+						if(dd<range*range)
 						{
 							if(brandp(state.flk[i]/600.0))
 								state.bombers[k].damage+=irandu(types[type].defn);
@@ -2705,15 +2705,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						int y=state.bombers[k].lat/2;
 						if((x>=0)&&(y>=0)&&(x<128)&&(y<128))
 							water=lorw[x][y];
-						if(d<(water?8:30))
-							targs[i].threat+=sqrt(targs[i].prod*types[type].cap/5000)/(2.0+max(d, 0.5));
+						if(dd<(water?8*8:30*30))
+							targs[i].threat+=sqrt(targs[i].prod*types[type].cap/5000/(6.0+max(dd, 0.25)));
 					}
 					for(unsigned int i=0;i<nflaks;i++)
 					{
 						if(((diffdate(flaks[i].entry, state.now)>0)||(diffdate(flaks[i].exit, state.now)<0))) continue;
 						bool rad=(diffdate(flaks[i].radar, state.now)<0);
-						double d=hypot(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat);
-						if(d<0.8)
+						if(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 0.8))
 						{
 							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
 							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0, wf=8.0/(double)(8+max(4-wea, 0));
@@ -2723,12 +2722,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(brandp(0.1))
 						{
-							if(rad&&(d<12)) // 36 miles range for Würzburg radar (Wikipedia gives range as "up to 43mi")
+							if(rad&&(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 12))) // 36 miles range for Würzburg radar (Wikipedia gives range as "up to 43mi")
 								if(flaks[i].ftr>=0)
 								{
 									unsigned int ftr=flaks[i].ftr;
-									double d=hypot(state.fighters[ftr].lon-(signed)flaks[i].lon, state.fighters[ftr].lat-(signed)flaks[i].lat);
-									if((d<10)&&(state.fighters[ftr].k<0))
+									if((xyr(state.fighters[ftr].lon-(signed)flaks[i].lon, state.fighters[ftr].lat-(signed)flaks[i].lat, 10))&&(state.fighters[ftr].k<0))
 									{
 										state.fighters[ftr].k=k;
 										//fprintf(stderr, "ftr%u k%u\n", ftr, k);
@@ -2744,8 +2742,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 						double seerange=6.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar
-						double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
-						if(d<seerange)
+						if(xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, seerange))
 						{
 							double findp=0.6/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar 
 							if(brandp(findp))
@@ -2784,13 +2781,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									state.bombers[k].idtar=true;
 									unsigned int dm=0;
-									double mind=1000;
+									double mind=1e6;
 									for(unsigned int i=0;i<ntargs;i++)
 									{
-										double d=hypot(state.bombers[k].lon+state.bombers[k].navlon-targs[i].lon, state.bombers[k].lat+state.bombers[k].navlat-targs[i].lat);
-										if(d<mind)
+										double dx=state.bombers[k].lon+state.bombers[k].navlon-targs[i].lon, dy=state.bombers[k].lat+state.bombers[k].navlat-targs[i].lat, dd=dx*dx+dy*dy;
+										if(dd<mind)
 										{
-											mind=d;
+											mind=dd;
 											dm=i;
 										}
 									}
@@ -2843,24 +2840,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				if(k>=0)
 				{
 					unsigned int ft=state.fighters[j].type, bt=state.bombers[k].type;
-					double d=hypot(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat);
 					bool radcon=false; // radar controlled
 					if(state.fighters[j].hflak>=0)
 					{
 						unsigned int f=state.fighters[j].hflak;
-						double fd=hypot((signed)flaks[f].lat-state.fighters[j].lat, (signed)flaks[f].lon-state.fighters[j].lon);
-						if(fd<12) radcon=true;
+						radcon=xyr((signed)flaks[f].lat-state.fighters[j].lat, (signed)flaks[f].lon-state.fighters[j].lon, 12);
 					}
 					if(diffdate(event[EVENT_WINDOW], state.now)<=0) radcon=false;
 					unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 					double seerange=16.0/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar
-					if(state.bombers[k].crashed||(d>(radcon?12.0:seerange)))
+					if(state.bombers[k].crashed||!xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, (radcon?12.0:seerange)))
 						state.fighters[j].k=-1;
 					else
 					{
 						double x=state.fighters[j].lon,
-						y=state.fighters[j].lat;
+							y=state.fighters[j].lat;
 						double tx=state.bombers[k].lon,
 							ty=state.bombers[k].lat;
 						double d=hypot(x-tx, y-ty);
@@ -2974,8 +2969,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(state.fighters[ftr].k>=0)
 						{
 							unsigned int k=state.fighters[ftr].k;
-							double d=hypot((signed)flaks[i].lat-state.bombers[k].lat, (signed)flaks[i].lon-state.bombers[k].lon);
-							if(d>12)
+							if(xyr((signed)flaks[i].lat-state.bombers[k].lat, (signed)flaks[i].lon-state.bombers[k].lon, 12))
 								state.fighters[ftr].k=-1;
 						}
 						continue;
@@ -2983,7 +2977,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					if((diffdate(flaks[i].radar, state.now)>0)||(diffdate(flaks[i].exit, state.now)<0)) continue;
 					if(fightersleft)
 					{
-						double mind=1000;
+						unsigned int mind=1000000;
 						int minj=-1;
 						for(unsigned int j=0;j<state.nfighters;j++)
 						{
@@ -2991,19 +2985,21 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(state.fighters[j].landed)
 							{
 								const unsigned int base=state.fighters[j].base;
-								double d=hypot((signed)flaks[i].lat-(signed)fbases[base].lat, (signed)flaks[i].lon-(signed)fbases[base].lon);
-								if(d<mind)
+								signed int dx=(signed)flaks[i].lat-(signed)fbases[base].lat, dy=(signed)flaks[i].lon-(signed)fbases[base].lon;
+								unsigned int dd=dx*dx+dy*dy;
+								if(dd<mind)
 								{
-									mind=d;
+									mind=dd;
 									minj=j;
 								}
 							}
 							else if(ftr_free(state.fighters[j]))
 							{
-								double d=hypot((signed)flaks[i].lat-state.fighters[j].lat, (signed)flaks[i].lon-state.fighters[j].lon);
-								if(d<mind)
+								signed int dx=(signed)flaks[i].lat-state.fighters[j].lat, dy=(signed)flaks[i].lon-state.fighters[j].lon;
+								unsigned int dd=dx*dx+dy*dy;
+								if(dd<mind)
 								{
-									mind=d;
+									mind=dd;
 									minj=j;
 								}
 							}
@@ -3033,7 +3029,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				double thresh=3e3*targs[i].nfighters/(double)fightersleft;
 				if(targs[i].threat+state.heat[i]*10.0>thresh)
 				{
-					double mind=1000;
+					unsigned int mind=1000000;
 					int minj=-1;
 					for(unsigned int j=0;j<state.nfighters;j++)
 					{
@@ -3041,19 +3037,21 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(state.fighters[j].landed)
 						{
 							const unsigned int base=state.fighters[j].base;
-							double d=hypot((signed)targs[i].lat-(signed)fbases[base].lat, (signed)targs[i].lon-(signed)fbases[base].lon);
-							if(d<mind)
+							signed int dx=(signed)targs[i].lat-(signed)fbases[base].lat, dy=(signed)targs[i].lon-(signed)fbases[base].lon;
+							unsigned int dd=dx*dx+dy*dy;
+							if(dd<mind)
 							{
-								mind=d;
+								mind=dd;
 								minj=j;
 							}
 						}
 						else if(ftr_free(state.fighters[j]))
 						{
-							double d=hypot((signed)targs[i].lat-state.fighters[j].lat, (signed)targs[i].lon-state.fighters[j].lon);
-							if(d<mind)
+							signed int dx=(signed)targs[i].lat-state.fighters[j].lat, dy=(signed)targs[i].lon-state.fighters[j].lon;
+							unsigned int dd=dx*dx+dy*dy;
+							if(dd<mind)
 							{
-								mind=d;
+								mind=dd;
 								minj=j;
 							}
 						}

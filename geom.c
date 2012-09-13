@@ -15,3 +15,10 @@ double linedist(int ldx, int ldy, int pdx, int pdy)
 	else if(t>1) t=1;
 	return(sqrt(xxyy(pdx-t*ldx, pdy-t*ldy)));
 }
+
+inline bool xyr(double x, double y, double r)
+{
+	if(fabs(x)>fabs(r)) return(false);
+	if(fabs(y)>fabs(r)) return(false);
+	return(x*x+y*y<r*r);
+}
