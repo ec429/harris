@@ -6,14 +6,20 @@ unsigned int xxyy(int dx, int dy)
 	return(dx*dx+dy*dy);
 }
 
-double linedist(int ldx, int ldy, int pdx, int pdy)
+void linedist(int ldx, int ldy, int pdx, int pdy, double *d, double *lambda)
 {
 	unsigned int l=xxyy(ldx, ldy);
-	if(!l) return(sqrt(xxyy(pdx, pdy)));
+	if(!l)
+	{
+		if(d) *d=sqrt(xxyy(pdx, pdy));
+		if(lambda) *lambda=0;
+		return;
+	}
 	double t=(pdx*ldx+pdy*ldy)/l;
 	if(t<0) t=0;
 	else if(t>1) t=1;
-	return(sqrt(xxyy(pdx-t*ldx, pdy-t*ldy)));
+	if(d) *d=sqrt(xxyy(pdx-t*ldx, pdy-t*ldy));
+	if(lambda) *lambda=t;
 }
 
 inline bool xyr(double x, double y, double r)
