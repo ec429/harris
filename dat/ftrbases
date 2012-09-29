@@ -1,6 +1,8 @@
 # Format: dsv
 # LAT:LONG:ENTRY:EXIT
 
+# Historicity: All of these airfields are made-up, except for Soesterberg
+
 # Within Germany (TODO: exit when liberated during 1945)
  81:193:          :
 102:181:          :
@@ -11,4 +13,12 @@
 103:227:02-10-1940:
  85:232:11-11-1940:
 
-# TODO bases in France and the Low Countries
+# bases in France and the Low Countries
+#  Paris
+178: 80:22-06-1940:24-08-1944
+#  Calais
+138: 77:02-07-1940:24-09-1944
+#  Caen
+172: 41:11-07-1940:08-07-1944
+#  Soesterberg.  "by September 1944 the Luftwaffe acknowledged Soesterberg airfield to be more or less useless" -- Wiki.  Actually liberated in May '45
+105:120:23-05-1940:12-09-1944
