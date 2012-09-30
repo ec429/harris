@@ -13,12 +13,12 @@
 # Flags: NOARM,...
 
 #                            COST SPD CAPAC SV DE FA AC RAN BY BX
-Bristol:Blenheim:            5000:180: 1200:55:14: 6:60:190:96:61:          :10-01-1941:
-Armstrong-Whitworth:Whitley: 8000:160: 7000:70:17: 9:30:320:81:45:          :18-06-1941:GEE,H2S
-Handley Page:Hampden:       10000:200: 4000:65:12: 8:48:265:63:40:          :02-10-1941:GEE
-Vickers:Wellington:         12000:190: 4500:85: 8: 3:36:285:87:39:          :21-04-1943:GEE,H2S
+Bristol:Blenheim:            5000:198: 1200:55:14: 6:60:190:96:61:          :10-01-1941:
+Armstrong-Whitworth:Whitley: 8000:165: 7000:70:17: 9:30:320:81:45:          :18-06-1941:GEE,H2S
+Handley Page:Hampden:       10000:202: 4000:65:12: 8:48:265:63:40:          :02-10-1941:GEE
+Vickers:Wellington:         12000:190: 4500:85: 8: 3:36:311:87:39:          :21-04-1943:GEE,H2S
 Avro:Manchester:            20000:210:10350:50:12:16:45:325:81:45:05-11-1940:26-06-1942:GEE,H2S,OBOE
-Short:Stirling:             25000:200:14000:40: 9: 7:40:260:96:55:16-01-1941:08-02-1944:GEE,H2S,OBOE
+Short:Stirling:             25000:200:14000:40: 9: 7:40:280:96:55:16-01-1941:08-02-1944:GEE,H2S,OBOE
 Handley Page:Halifax I:     30000:225:13000:75:12: 6:65:330:63:38:14-05-1941:31-03-1944:GEE,H2S,OBOE,GH
 Avro:Lancaster I:           40000:235:14000:80: 6: 4:80:350:84:44:07-02-1942:          :GEE,H2S,OBOE,GH
 de Havilland:Mosquito:      15000:340: 4000:80: 2: 4:90:400:98:44:12-08-1942:          :GEE,OBOE,GH,NOARM

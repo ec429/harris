@@ -9,10 +9,10 @@ You are also notified that the Political Warfare department wishes you to drop t
 The Navy have asked you to drop mines in strategic sea lanes; such operations are code-named "Gardening".
 
 Your front-line forces consist of the following types:
-Bristol Blenheim: A light bomber for attacking coastal targets and tactical bombing.
-Armstrong-Whitworth Whitley: Designed as a night bomber, the Whitley carries the heaviest load.
-Handley Page Hampden: A high-performance bomber with good bombing accuracy.
-Vickers Wellington: A rugged and reliable all-rounder.
+Bristol Blenheim: A light bomber for attacking coastal targets and tactical bombing.  It can't penetrate deep into Germany though.
+Armstrong-Whitworth Whitley: Designed as a night bomber, the Whitley carries the heaviest load, and has the range to reach Berlin.
+Handley Page Hampden: A high-performance bomber with good bombing accuracy, the Hampden can reach well beyond the Ruhr.
+Vickers Wellington: A rugged and reliable all-rounder.  It's just able to reach Berlin with a maximum fuel load.
 
 The Third Reich is known to be operating the following fighter types:
 Messerschmitt Bf109: A high-performance day-fighter pressed into interceptor service.
@@ -190,7 +190,7 @@ A new type of bomber has been developed and is now going into production.  The A
 
 ==Stirling==
 
-The Short S.29 Stirling is the first four-engined heavy bomber available.  It's fairly slow with a low ceiling, but good manoeuvrability gives it a decent chance of survival.  It carries a heavy 14,000lb load, but isn't great for accuracy.  It also has poor reliability and serviceability.  Nonetheless, it's a welcome addition to the heavy striking force.
+The Short S.29 Stirling is the first four-engined heavy bomber available.  It's fairly slow with a low ceiling, but good manoeuvrability gives it a decent chance of survival.  It carries a heavy 14,000lb load, but isn't great for accuracy.  It also has poor reliability and serviceability, and a limited range.  Nonetheless, it's a welcome addition to the heavy striking force.
 
 ==NEW_Stirling==
 
@@ -202,7 +202,7 @@ The Handley Page H.P.57 Halifax I is a four-engined heavy.  Its load of 13,000lb
 
 ==NEW_Halifax I==
 
-A new type of bomber has been developed and is now going into production.  The Handley Page Halifax is generally an improvement over the Stirling, but it does carry slightly less.
+A new type of bomber has been developed and is now going into production.  The Handley Page Halifax is generally an improvement over the Stirling and has a longer range, but it does carry slightly less ordnance.
 
 ==Lancaster I==
 
