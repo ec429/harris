@@ -17,6 +17,7 @@
 	Seasonal effects on weather
 	Make Flak only be known to you after you've encountered it
 	Implement later forms of Fighter control
+	Better algorithm for building German fighters
 	Implement event texts
 	Implement Navaids
 	Implement PFF control
