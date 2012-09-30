@@ -196,8 +196,8 @@ game;
 
 #define GAME_BG_COLOUR	(atg_colour){31, 31, 15, ATG_ALPHA_OPAQUE}
 
-#define RS_cell_w		120
-#define RS_firstcol_w	150
+#define RS_cell_w		112
+#define RS_firstcol_w	128
 #define RS_cell_h		56
 #define RS_lastrow_h	100
 
@@ -3391,10 +3391,33 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							tncol->w=RS_firstcol_w;
 							atg_pack_element(b, tncol);
 							atg_box *b2=tncol->elem.box;
-							if(b2)
+							if(b2&&targs[i].name)
 							{
-								atg_element *tname=atg_create_element_label(targs[i].name, 12, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
-								if(tname) atg_pack_element(b2, tname);
+								const char *np=targs[i].name;
+								char line[17]="";
+								size_t x=0, y;
+								while(*np)
+								{
+									y=strcspn(np, " ");
+									if(x&&(x+y>15))
+									{
+										atg_element *tname=atg_create_element_label(line, 12, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+										if(tname) atg_pack_element(b2, tname);
+										line[x=0]=0;
+									}
+									if(x)
+										line[x++]=' ';
+									strncpy(line+x, np, y);
+									x+=y;
+									np+=y;
+									while(*np==' ') np++;
+									line[x]=0;
+								}
+								if(x)
+								{
+									atg_element *tname=atg_create_element_label(line, 12, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+									if(tname) atg_pack_element(b2, tname);
+								}
 							}
 						}
 						for(unsigned int j=0;j<ntypes;j++)
