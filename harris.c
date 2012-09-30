@@ -3347,7 +3347,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		state.cshr+=scoreTb/200;
 		state.cshr+=scoreTl/10000;
-		state.cshr+=Ts*1200;
+		state.cshr+=Ts*800;
 		state.cshr+=scoreTm/2000;
 		double par=0.2+((state.now.year-1939)*0.1);
 		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0);
@@ -3782,7 +3782,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			nb[n].nav[j]=false;
 		state.cash-=types[m].cost;
 		types[m].pcbuf-=types[m].cost;
-		types[m].pc+=100;
+		types[m].pc+=types[m].cost/100;
 		types[m].pribuf-=8;
 	}
 	// German production
@@ -3818,7 +3818,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				dprod+=state.dmg[i]*targs[i].prod/2.0;
 			break;
 			case TCLASS_INDUSTRY:
-				state.dmg[i]=min(state.dmg[i]*1.02, 100);
+				state.dmg[i]=min(state.dmg[i]*1.05, 100);
 				dprod+=state.dmg[i]*targs[i].prod/2.0;
 			break;
 			default: // shouldn't ever get here

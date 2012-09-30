@@ -28,12 +28,17 @@ Norway Fleet:          5: 2:12:  9:149:21-04-1940:26-04-1940:SHIPPING
 Kiel Dockyards:       20:10: 8: 52:189:15-05-1940:14-02-1942:SHIPPING
 #  Scharnhorst and Gneisenau ("Salmon and Gluckstein") and the Prinz Eugen
 Channel Dash:          7: 3: 5:131: 68:12-02-1942:12-02-1942:SHIPPING
-Le Havre:             12:10:10:165: 49:15-05-1940:14-02-1942:SHIPPING
-Lorient:               8: 8: 9:201:  1:15-05-1940:14-02-1942:SHIPPING
+Le Havre:             12:10:10:165: 49:15-09-1940:14-02-1942:SHIPPING
+Lorient:               8: 8: 9:201:  1:05-11-1940:14-02-1942:SHIPPING
 # Canals
-Kiel Canal:           15: 9:14: 54:181:15-05-1940:14-02-1942:SHIPPING
+Kiel Canal:           15: 9:14: 54:181:11-06-1941:14-02-1942:SHIPPING
 #  near Münster
-Dortmund-Ems Canal:   10: 6:20:112:150:15-05-1940:14-02-1942:SHIPPING
+Dortmund-Ems Canal:   10: 6:20:112:150:12-02-1941:14-02-1942:SHIPPING
+#  Battle of the Barges
+Ostende Barges:       14:16:25:127: 86:04-07-1940:31-10-1940:SHIPPING
+Calais Barges:        13:20:25:132: 73:04-07-1940:31-10-1940:SHIPPING
+Dunkerque Barges:     15:17:25:130: 79:04-07-1940:31-10-1940:SHIPPING
+Boulogne Barges:      14:15:25:136: 70:04-07-1940:31-10-1940:SHIPPING
 
 # Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
 # TODO: end-dates from dates of liberation in 44/45
@@ -58,7 +63,12 @@ Nuremberg:            20:11:30:166:202:14-02-1942:          :CITY
 Nuremberg Leaflets:    6: 6:30:166:202:          :          :LEAFLET
 Leipzig:              30:15:22:124:219:14-02-1942:          :CITY,BB
 Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY
+Hanover:              22:10:27: 98:182:14-02-1942:          :CITY
 Dresden:              16: 9:32:130:238:14-02-1942:          :CITY
+Magdeburg:            15: 8:25:105:208:14-02-1942:          :CITY
+Schweinfurt:          24:14:16:152:189:14-02-1942:          :CITY,BB
+Kassel:               11: 7:14:127:178:14-02-1942:          :CITY
+Kassel Leaflets:       1: 2:14:127:178:          :          :LEAFLET
 Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY
 Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY
 
@@ -70,6 +80,7 @@ Breda road junction:   6: 8: 7:118:114:14-05-1940:28-05-1940:ROAD
 Sedan bridge:          9:12: 9:162:116:14-05-1940:17-05-1940:BRIDGE
 Le Cateau road junction:8:14:6:152: 96:17-05-1940:21-05-1940:ROAD
 Soesterberg Airfield: 12:16:15:105:120:20-05-1940:14-02-1942:AIRFIELD
+Wesel road bridge:     8:16:10:115:139:10-05-1940:14-05-1940:BRIDGE
 
 # Specific industrial targets (CIV-ABD)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
