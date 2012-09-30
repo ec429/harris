@@ -2853,12 +2853,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				if(t>state.fighters[j].fuelt)
 				{
 					int t=state.fighters[j].targ;
+					int f=state.fighters[j].hflak;
 					if(t>=0)
 						targs[t].nfighters--;
-					int f=state.fighters[j].hflak;
 					if(f>=0)
 						flaks[f].ftr=-1;
-					fightersleft++;
+					if((t>=0)||(f>=0))
+						fightersleft++;
 					state.fighters[j].targ=-1;
 					state.fighters[j].hflak=-1;
 					state.fighters[j].k=-1;
@@ -2963,11 +2964,26 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				else
 				{
-					unsigned int b=state.fighters[j].base;
+					double mrr=1e6;
+					unsigned int mb=0;
+					for(unsigned int b=0;b<nfbases;b++)
+					{
+						int bx=fbases[b].lon,
+							by=fbases[b].lat;
+						double dx=state.fighters[j].lon-bx,
+							dy=state.fighters[j].lat-by;
+						double rr=dx*dx+dy*dy;
+						if(rr<mrr)
+						{
+							mb=b;
+							mrr=rr;
+						}
+					}
+					state.fighters[j].base=mb;
 					double x=state.fighters[j].lon,
 						y=state.fighters[j].lat;
-					int bx=fbases[b].lon,
-						by=fbases[b].lat;
+					int bx=fbases[mb].lon,
+						by=fbases[mb].lat;
 					double d=hypot(x-bx, y-by);
 					if(d>0.5)
 					{
