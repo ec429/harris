@@ -34,6 +34,11 @@ Lorient:               8: 8: 9:201:  1:15-05-1940:14-02-1942:SHIPPING
 Kiel Canal:           15: 9:14: 54:181:15-05-1940:14-02-1942:SHIPPING
 #  near Münster
 Dortmund-Ems Canal:   10: 6:20:112:150:15-05-1940:14-02-1942:SHIPPING
+#  Battle of the Barges
+Ostende Barges:       14:16:25:127: 86:04-07-1940:31-10-1940:SHIPPING
+Calais Barges:        13:20:25:132: 73:04-07-1940:31-10-1940:SHIPPING
+Dunkerque Barges:     15:17:25:130: 79:04-07-1940:31-10-1940:SHIPPING
+Boulogne Barges:      14:15:25:136: 70:04-07-1940:31-10-1940:SHIPPING
 
 # Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
 # TODO: end-dates from dates of liberation in 44/45
@@ -58,7 +63,11 @@ Nuremberg:            20:11:30:166:202:14-02-1942:          :CITY
 Nuremberg Leaflets:    6: 6:30:166:202:          :          :LEAFLET
 Leipzig:              30:15:22:124:219:14-02-1942:          :CITY,BB
 Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY
+Hanover:              22:10:27: 98:182:14-02-1942:          :CITY
 Dresden:              16: 9:32:130:238:14-02-1942:          :CITY
+Magdeburg:            15: 8:25:105:208:14-02-1942:          :CITY
+Schweinfurt:          24:14:16:152:189:14-02-1942:          :CITY,BB
+Kassel:               11: 7:14:127:178:14-02-1942:          :CITY
 Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY
 Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY
 
