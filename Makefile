@@ -34,6 +34,8 @@ save/qstart.sav: gensave save/qstart.sav.in
 gensave: gensave.c bits.h bits.o
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< $(LDFLAGS) bits.o -o $@
 
+weather.o: rand.h rand.o
+
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
