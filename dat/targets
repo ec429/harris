@@ -6,7 +6,7 @@
 # Lat, long: where it is (within the 256x256 map)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
 # Class: what kind of target is it?  (CITY, SHIPPING, MINING, LEAFLET, AIRFIELD, BRIDGE, ROAD, INDUSTRY...)
-# Flags: extra target flags (BB, OIL, RAIL, ...)
+# Flags: extra target flags (BB, OIL, RAIL, UBOOT, ...)
 
 # Historicity notes:
 # Most of the "specific industrial targets" are completely arbitrary; names like 'Hanover Bauwerke' are for flavour rather than referring to some specific factory complex.
