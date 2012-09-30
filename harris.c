@@ -47,7 +47,7 @@ const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH"};
 
 typedef struct
 {
-	//MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
+	//MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
 	char * manu;
 	char * name;
 	unsigned int cost;
@@ -57,6 +57,7 @@ typedef struct
 	unsigned int defn;
 	unsigned int fail;
 	unsigned int accu;
+	unsigned int range;
 	date entry;
 	date exit;
 	bool nav[NNAVAIDS];
@@ -267,12 +268,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(*next&&(*next!='#'))
 			{
 				bombertype this;
-				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
+				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.blat, &this.blon, &db))!=11)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=12)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -2306,45 +2307,51 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									fprintf(stderr, "btrow %d\n", i);
 								else
 								{
-									unsigned int amount;
-									switch(b)
+									double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.6;
+									if(types[i].range<dist)
+										fprintf(stderr, "insufficient range: %u<%g\n", types[i].range, dist);
+									else
 									{
-										case ATG_MB_RIGHT:
-										case ATG_MB_SCROLLDN:
-											amount=1;
-										break;
-										case ATG_MB_MIDDLE:
-											amount=-1;
-										break;
-										case ATG_MB_LEFT:
-										case ATG_MB_SCROLLUP:
-										default:
-											amount=10;
-									}
-									for(unsigned int j=0;j<state.nbombers;j++)
-									{
-										if(state.bombers[j].type!=i) continue;
-										if(state.bombers[j].failed) continue;
-										if(!state.bombers[j].landed) continue;
-										state.bombers[j].landed=false;
-										amount--;
-										unsigned int n=state.raids[seltarg].nbombers++;
-										unsigned int *new=realloc(state.raids[seltarg].bombers, state.raids[seltarg].nbombers*sizeof(unsigned int));
-										if(!new)
+										unsigned int amount;
+										switch(b)
 										{
-											perror("realloc");
-											state.raids[seltarg].nbombers=n;
+											case ATG_MB_RIGHT:
+											case ATG_MB_SCROLLDN:
+												amount=1;
 											break;
+											case ATG_MB_MIDDLE:
+												amount=-1;
+											break;
+											case ATG_MB_LEFT:
+											case ATG_MB_SCROLLUP:
+											default:
+												amount=10;
 										}
-										(state.raids[seltarg].bombers=new)[n]=j;
-										if(!amount) break;
-									}
-									if(GB_raidnum[seltarg][i]&&GB_raidnum[seltarg][i]->elem.label&&GB_raidnum[seltarg][i]->elem.label->text)
-									{
-										unsigned int count=0;
-										for(unsigned int j=0;j<state.raids[seltarg].nbombers;j++)
-											if(state.bombers[state.raids[seltarg].bombers[j]].type==i) count++;
-										snprintf(GB_raidnum[seltarg][i]->elem.label->text, 9, "%u", count);
+										for(unsigned int j=0;j<state.nbombers;j++)
+										{
+											if(state.bombers[j].type!=i) continue;
+											if(state.bombers[j].failed) continue;
+											if(!state.bombers[j].landed) continue;
+											state.bombers[j].landed=false;
+											amount--;
+											unsigned int n=state.raids[seltarg].nbombers++;
+											unsigned int *new=realloc(state.raids[seltarg].bombers, state.raids[seltarg].nbombers*sizeof(unsigned int));
+											if(!new)
+											{
+												perror("realloc");
+												state.raids[seltarg].nbombers=n;
+												break;
+											}
+											(state.raids[seltarg].bombers=new)[n]=j;
+											if(!amount) break;
+										}
+										if(GB_raidnum[seltarg][i]&&GB_raidnum[seltarg][i]->elem.label&&GB_raidnum[seltarg][i]->elem.label->text)
+										{
+											unsigned int count=0;
+											for(unsigned int j=0;j<state.raids[seltarg].nbombers;j++)
+												if(state.bombers[state.raids[seltarg].bombers[j]].type==i) count++;
+											snprintf(GB_raidnum[seltarg][i]->elem.label->text, 9, "%u", count);
+										}
 									}
 								}
 							}
@@ -2579,6 +2586,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 					}
 				}
+				double dist=hypot((signed)types[type].blat-(signed)state.bombers[k].route[0][0], (signed)types[type].blon-(signed)state.bombers[k].route[0][1]);
+				for(unsigned int l=0;l<7;l++)
+					dist+=hypot((signed)state.bombers[k].route[l+1][0]-(signed)state.bombers[k].route[l][0], (signed)state.bombers[k].route[l+1][1]-(signed)state.bombers[k].route[l][1]);
 				if(targs[i].class==TCLASS_LEAFLET)
 					state.bombers[k].bmb=0;
 				else
@@ -2593,13 +2603,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].navlon=0;
 				state.bombers[k].driftlat=0;
 				state.bombers[k].driftlon=0;
-				state.bombers[k].speed=(types[type].speed+irandu(16)-8)/300.0;
+				state.bombers[k].speed=(types[type].speed+irandu(4)-2)/300.0;
 				state.bombers[k].startt=irandu(90);
 				state.bombers[k].fuelt=state.bombers[k].startt+256+irandu(64);
-				if(targs[i].lon>180)
+				if(dist>types[type].range*.85)
 				{
-					state.bombers[k].fuelt+=3*(targs[i].lon-180);
-					state.bombers[k].bmb*=(280-targs[i].lon)/100.0;
+					unsigned int fu=600*(dist-types[type].range*.85)/(double)types[type].speed;
+					state.bombers[k].fuelt+=fu;
+					state.bombers[k].bmb*=120/(120.0+fu);
 				}
 			}
 		SDL_Surface *with_ac=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
