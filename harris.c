@@ -2968,6 +2968,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					unsigned int mb=0;
 					for(unsigned int b=0;b<nfbases;b++)
 					{
+						if(!datewithin(state.now, fbases[b].entry, fbases[b].exit)) continue;
 						int bx=fbases[b].lon,
 							by=fbases[b].lat;
 						double dx=state.fighters[j].lon-bx,
