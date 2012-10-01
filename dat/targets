@@ -35,10 +35,10 @@ Kiel Canal:           15: 9:14: 54:181:11-06-1941:14-02-1942:SHIPPING
 #  near Münster
 Dortmund-Ems Canal:   10: 6:20:112:150:12-02-1941:14-02-1942:SHIPPING
 #  Battle of the Barges
-Ostende Barges:       14:16:25:127: 86:04-07-1940:31-10-1940:SHIPPING
-Calais Barges:        13:20:25:132: 73:04-07-1940:31-10-1940:SHIPPING
-Dunkerque Barges:     15:17:25:130: 79:04-07-1940:31-10-1940:SHIPPING
-Boulogne Barges:      14:15:25:136: 70:04-07-1940:31-10-1940:SHIPPING
+Ostende Barges:       14:32:25:127: 86:04-07-1940:31-10-1940:SHIPPING
+Calais Barges:        13:40:25:132: 73:04-07-1940:31-10-1940:SHIPPING
+Dunkerque Barges:     15:36:25:130: 79:04-07-1940:31-10-1940:SHIPPING
+Boulogne Barges:      14:30:25:136: 70:04-07-1940:31-10-1940:SHIPPING
 
 # Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
 # TODO: end-dates from dates of liberation in 44/45

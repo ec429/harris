@@ -2717,6 +2717,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								range=3.6;
 							break;
 							case TCLASS_SHIPPING:
+								range=2.2;
+							break;
 							case TCLASS_AIRFIELD:
 							case TCLASS_ROAD:
 								range=1.6;
@@ -2735,8 +2737,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(dd<range*range)
 						{
-							if(brandp(state.flk[i]/500.0))
-								state.bombers[k].damage+=irandu(types[type].defn);
+							if(brandp(state.flk[i]/200.0))
+							{
+								if(brandp(types[type].defn/200.0))
+									state.bombers[k].damage+=100;
+								else
+									state.bombers[k].damage+=irandu(types[type].defn);
+							}
 						}
 						bool water=false;
 						int x=state.bombers[k].lon/2;
