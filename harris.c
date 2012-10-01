@@ -2750,9 +2750,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						if(!datewithin(state.now, flaks[i].entry, flaks[i].exit)) continue;
 						bool rad=!datebefore(state.now, flaks[i].radar);
-						if(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 2.0))
+						if(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 3.0))
 						{
-							if(brandp(flaks[i].strength*(rad?3:1)/1200.0))
+							if(brandp(flaks[i].strength*(rad?3:1)/900.0))
 								state.bombers[k].damage+=irandu(types[type].defn)/2.0;
 						}
 						if(brandp(0.1))
@@ -2781,7 +2781,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						double seerange=airad?1.5:(3.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)));
 						if(xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, seerange))
 						{
-							double findp=airad?0.12:0.6/(double)(8+max(4-wea, 0));
+							double findp=airad?0.16:0.6/(double)(8+max(4-wea, 0));
 							if(brandp(findp))
 								state.fighters[j].k=k;
 						}
