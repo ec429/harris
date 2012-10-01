@@ -23,7 +23,7 @@
 	Implement PFF control
 	Implement Window & window-control (for diversions)
 	Implement Moonshine sorties
-	Event effects on fighters (Radars, RCM, etc.)
+	Event effects on fighters (New radars, RCM, etc.)
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
 	Sack player if confid or morale too low
 */
@@ -2752,10 +2752,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool rad=!datebefore(state.now, flaks[i].radar);
 						if(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 2.0))
 						{
-							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
-							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0, wf=8.0/(double)(8+max(4-wea, 0));
-							if(rad) wf=sqrt(wf);
-							if(brandp(flaks[i].strength*(rad?3:1)*wf*(.6*moonillum+.7)/1200.0))
+							if(brandp(flaks[i].strength*(rad?3:1)/1200.0))
 								state.bombers[k].damage+=irandu(types[type].defn)/2.0;
 						}
 						if(brandp(0.1))
@@ -2777,12 +2774,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(state.fighters[j].landed) continue;
 						if(state.fighters[j].k>=0) continue;
 						if(state.fighters[j].hflak>=0) continue;
+						unsigned int type=state.fighters[j].type;
+						bool airad=ftypes[type].night&&!datebefore(state.now, event[EVENT_L_BC]);
 						unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-						double seerange=6.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar
+						double seerange=airad?1.5:(3.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)));
 						if(xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, seerange))
 						{
-							double findp=0.6/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar 
+							double findp=airad?0.12:0.6/(double)(8+max(4-wea, 0));
 							if(brandp(findp))
 								state.fighters[j].k=k;
 						}
@@ -2886,10 +2885,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						radcon=xyr((signed)flaks[f].lat-state.fighters[j].lat, (signed)flaks[f].lon-state.fighters[j].lon, 12);
 					}
 					if(!datebefore(state.now, event[EVENT_WINDOW])) radcon=false;
+					bool airad=ftypes[ft].night&&!datebefore(state.now, event[EVENT_L_BC]);
 					unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-					double seerange=16.0/(double)(8+max(4-wea, 0)); // TODO make this bigger if fighter has A.I. radar
-					if(state.bombers[k].crashed||!xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, (radcon?12.0:seerange)))
+					double seerange=airad?2.0:7.0/(double)(8+max(4-wea, 0));
+					if(state.bombers[k].crashed||!xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, (radcon?12.0:seerange))||brandp(airad?0.03:0.12))
 						state.fighters[j].k=-1;
 					else
 					{
@@ -2906,7 +2906,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[j].lon+=cx*spd;
 							state.fighters[j].lat+=cy*spd;
 						}
-						if(d<(radcon?0.5:0.3)*(.4*moonillum+.8))
+						if(d<(radcon?0.4:0.25)*(.8*moonillum+.6))
 						{
 							if(brandp(ftypes[ft].mnv/100.0))
 							{
@@ -3061,8 +3061,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(minj>=0)
 						{
+							unsigned int ft=state.fighters[minj].type;
 							if(state.fighters[minj].landed)
-								state.fighters[minj].fuelt=t+64+irandu(32);
+								state.fighters[minj].fuelt=t+(ftypes[ft].night?(72+irandu(28)):(35+irandu(15)));
 							state.fighters[minj].landed=false;
 							state.fighters[minj].hflak=i;
 							fightersleft--;
@@ -3113,8 +3114,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 					if(minj>=0)
 					{
+						unsigned int ft=state.fighters[minj].type;
 						if(state.fighters[minj].landed)
-							state.fighters[minj].fuelt=t+64+irandu(32);
+							state.fighters[minj].fuelt=t+(ftypes[ft].night?(72+irandu(28)):(35+irandu(15)));
 						state.fighters[minj].landed=false;
 						state.fighters[minj].targ=i;
 						targs[i].threat-=(thresh*0.6);
@@ -3154,6 +3156,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		unsigned int dij[ntargs][ntypes], nij[ntargs][ntypes], tij[ntargs][ntypes], lij[ntargs][ntypes], heat[ntargs];
 		bool canscore[ntargs];
 		double cidam=0;
+		double bridge=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			heat[i]=0;
@@ -3242,6 +3245,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											if(brandp(log2(state.bombers[k].bmb/25.0)/200.0))
 											{
 												cidam+=state.dmg[l];
+												bridge+=state.dmg[l];
 												state.dmg[l]=0;
 											}
 										}
@@ -3378,6 +3382,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.cshr+=scoreTl/10000;
 		state.cshr+=Ts*800;
 		state.cshr+=scoreTm/2000;
+		state.cshr+=bridge*16;
 		double par=0.2+((state.now.year-1939)*0.1);
 		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0);
 		state.confid+=Ts*0.25;
@@ -3867,6 +3872,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.fighters[j]=state.fighters[j+1];
 			i--;
 			continue;
+		}
+		if(brandp(0.1))
+		{
+			unsigned int base;
+			do
+				base=state.fighters[i].base=irandu(nfbases);
+			while(!datewithin(state.now, fbases[base].entry, fbases[base].exit));
 		}
 	}
 	unsigned int mfcost=0;
