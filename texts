@@ -92,7 +92,7 @@ A new navigation aid has been developed.  H2S is an air-to-ground radar which en
 
 ==GH==
 
-A new blind bombing aid, Gee-H, has been developed.  Based on OBOE technology, it retains that system's accuracy but can be used by several aircraft at the same time.  A pair of ground stations can typically support about twenty concurrent users.
+A new blind bombing aid, Gee-H, has been developed.  Based on the OBOE principle, it retains that system's accuracy but can be used by several aircraft at the same time.  A pair of ground stations can typically support about twenty concurrent users.
 
 ==BOOZER==
 
@@ -107,6 +107,7 @@ The War Office advises that the first use is likely to cause extra confusion and
 ==MOONSHINE==
 
 A new radio countermeasure, codenamed "Moonshine", is now being installed into your bombers.  It picks up German ground radar and sends back delayed echoes, causing the aircraft to appear further away than it really is.  This should reduce losses to nightfighter attack.
+#Yes, I'm well aware that this isn't quite an accurate description of either the operation or the use of Moonshine.  However, making the player control 'bomber support' operations too would make things too complicated.
 
 ==ABC==
 

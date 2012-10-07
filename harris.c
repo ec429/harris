@@ -22,7 +22,6 @@
 	Implement Navaids
 	Implement PFF control
 	Implement Window & window-control (for diversions)
-	Implement Moonshine sorties
 	Event effects on fighters (New radars, RCM, etc.)
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
 	Sack player if confid or morale too low
