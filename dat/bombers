@@ -3,7 +3,7 @@
 # Cost in £
 # Speed in mph (cruising, approx)
 # Capacity in lb (approx)
-# Serviceability proportion (works up to this value, log)
+# Serviceability proportion
 # Defence is 'just a number', high is bad.  In fact it controls the amount of damage done by a 'hit' from flak or a fighter
 # Failure represents the chance of mech. fail. crashes and early returns, 'just a number', high is bad
 # Accuracy is an approximate percentage loads-on-target for a moderate raid to about the Ruhr...
@@ -11,6 +11,8 @@
 # Dates are entry and exit from service (null in either case means open-ended)
 # Navaids lists which navigational aids this bomber can carry (a big set won't fit in a small bomber)
 # Flags: NOARM,...
+
+# When changing this file, **Remember to update howtoplay** (section Reference/Bomber types)
 
 #                            COST SPD CAPAC SV DE FA AC RAN BY BX
 Bristol:Blenheim:            5000:198: 1200:55:14: 6:60:190:96:61:          :10-01-1941:
