@@ -2253,6 +2253,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			snprintf(GB_btnum[i]->elem.label->text, 12, "%u/%u", svble, total);
 		}
 	}
+	if(GB_go&&GB_go->elem.button&&GB_go->elem.button->content)
+		GB_go->elem.button->content->bgcolour=(atg_colour){31, 63, 31, ATG_ALPHA_OPAQUE};
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		if(GB_ttrow[i])
@@ -2520,6 +2522,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						if(trigger.e==GB_go)
 						{
+							if(GB_go&&GB_go->elem.button&&GB_go->elem.button->content)
+								GB_go->elem.button->content->bgcolour=(atg_colour){55, 55, 55, ATG_ALPHA_OPAQUE};
+							atg_flip(canvas);
 							goto run_raid;
 						}
 						else if(trigger.e==GB_save)
