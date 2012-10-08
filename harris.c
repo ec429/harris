@@ -777,6 +777,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	
+	SDL_Surface *grey_overlay=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!grey_overlay)
+	{
+		fprintf(stderr, "Grey overlay: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(1);
+	}
+	SDL_FillRect(grey_overlay, &(SDL_Rect){.x=0, .y=0, .w=grey_overlay->w, .h=grey_overlay->h}, SDL_MapRGBA(grey_overlay->format, 127, 127, 127, 128));
+	
 	fprintf(stderr, "Data files loaded\n");
 	
 	fprintf(stderr, "Instantiating GUI elements...\n");
@@ -971,7 +979,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		GB_btpic[i]->w=38;
 		GB_btpic[i]->clickable=true;
-		GB_btpic[i]->cache=true;
 		if(atg_pack_element(b, GB_btpic[i]))
 		{
 			perror("atg_pack_element");
@@ -2292,8 +2299,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state.weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
-	/*if(seltarg>=0)
-		SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[seltarg].lon, .y=targs[seltarg].lat});*/
 	int seltarg=-1;
 	free(GB_raid_label->elem.label->text);
 	GB_raid_label->elem.label->text=strdup("Select a Target");
@@ -2330,6 +2335,25 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 			}
 			GB_raid->elem.box=(seltarg<0)?GB_raidbox_empty:GB_raidbox[seltarg];
+			for(unsigned int i=0;i<ntypes;i++)
+			{
+				if(!GB_btrow[i]->hidden&&GB_btpic[i])
+				{
+					atg_image *img=GB_btpic[i]->elem.image;
+					if(img)
+					{
+						SDL_Surface *pic=img->data;
+						SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
+						SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
+						if(seltarg>=0)
+						{
+							double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.6;
+							if(types[i].range<dist)
+								SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
+						}
+					}
+				}
+			}
 			atg_flip(canvas);
 			rfsh=false;
 		}
@@ -3999,6 +4023,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	SDL_FreeSurface(weather_overlay);
 	SDL_FreeSurface(target_overlay);
 	SDL_FreeSurface(flak_overlay);
+	SDL_FreeSurface(grey_overlay);
 	SDL_FreeSurface(terrain);
 	SDL_FreeSurface(map);
 	SDL_FreeSurface(location);
