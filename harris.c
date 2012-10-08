@@ -3566,10 +3566,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									char dt[20],nt[20],tt[20],lt[20];
 									if(dij[i][j]||nij[i][j])
 									{
-										snprintf(dt, 20, "Dispatched: %u", dij[i][j]);
+										snprintf(dt, 20, "Dispatched:%u", dij[i][j]);
 										atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){191, 191, 0, ATG_ALPHA_OPAQUE});
 										if(dl) atg_pack_element(b2, dl);
-										snprintf(nt, 20, "Hit Target: %u", nij[i][j]);
+										snprintf(nt, 20, "Hit Target:%u", nij[i][j]);
 										atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){191, 191, 0, ATG_ALPHA_OPAQUE});
 										if(nl) atg_pack_element(b2, nl);
 										if(nij[i][j])
@@ -3581,16 +3581,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 												case TCLASS_ROAD:
 												case TCLASS_BRIDGE:
 												case TCLASS_INDUSTRY:
-													snprintf(tt, 20, "Bombs (lb): %u", tij[i][j]);
+													snprintf(tt, 20, "Bombs (lb):%u", tij[i][j]);
 												break;
 												case TCLASS_MINING:
-													snprintf(tt, 20, "Mines (lb): %u", tij[i][j]);
+													snprintf(tt, 20, "Mines (lb):%u", tij[i][j]);
 												break;
 												case TCLASS_LEAFLET:
-													snprintf(tt, 20, "Leaflets  : %u", tij[i][j]);
+													snprintf(tt, 20, "Leaflets  :%u", tij[i][j]);
 												break;
 												case TCLASS_SHIPPING:
-													snprintf(tt, 20, "Ships sunk: %u", tij[i][j]);
+													snprintf(tt, 20, "Ships sunk:%u", tij[i][j]);
 												break;
 												default: // shouldn't ever get here
 													fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
@@ -3601,7 +3601,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										}
 										if(lij[i][j])
 										{
-											snprintf(lt, 20, "A/c Lost  : %u", lij[i][j]);
+											snprintf(lt, 20, "A/c Lost  :%u", lij[i][j]);
 											atg_element *ll=atg_create_element_label(lt, 10, (atg_colour){191, 0, 0, ATG_ALPHA_OPAQUE});
 											if(ll) atg_pack_element(b2, ll);
 										}
@@ -3623,10 +3623,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									char dt[20],nt[20],tt[20],lt[20];
 									if(di||ni)
 									{
-										snprintf(dt, 20, "Dispatched: %u", di);
+										snprintf(dt, 20, "Dispatched:%u", di);
 										atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 										if(dl) atg_pack_element(b2, dl);
-										snprintf(nt, 20, "Hit Target: %u", ni);
+										snprintf(nt, 20, "Hit Target:%u", ni);
 										atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 										if(nl) atg_pack_element(b2, nl);
 										if(ni)
@@ -3638,16 +3638,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 												case TCLASS_ROAD:
 												case TCLASS_BRIDGE:
 												case TCLASS_INDUSTRY:
-													snprintf(tt, 20, "Bombs (lb): %u", ti);
+													snprintf(tt, 20, "Bombs (lb):%u", ti);
 												break;
 												case TCLASS_MINING:
-													snprintf(tt, 20, "Mines (lb): %u", ti);
+													snprintf(tt, 20, "Mines (lb):%u", ti);
 												break;
 												case TCLASS_LEAFLET:
-													snprintf(tt, 20, "Leaflets  : %u", ti);
+													snprintf(tt, 20, "Leaflets  :%u", ti);
 												break;
 												case TCLASS_SHIPPING:
-													snprintf(tt, 20, "Ships sunk: %u", ti);
+													snprintf(tt, 20, "Ships sunk:%u", ti);
 												break;
 												default: // shouldn't ever get here
 													fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
@@ -3658,7 +3658,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										}
 										if(li)
 										{
-											snprintf(lt, 20, "A/c Lost  : %u", li);
+											snprintf(lt, 20, "A/c Lost  :%u", li);
 											atg_element *ll=atg_create_element_label(lt, 10, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
 											if(ll) atg_pack_element(b2, ll);
 										}
@@ -3708,42 +3708,42 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								char dt[20],nt[20],tt[20],lt[20];
 								if(dj[j]||nj[j])
 								{
-									snprintf(dt, 20, "Dispatched: %u", dj[j]);
+									snprintf(dt, 20, "Dispatched:%u", dj[j]);
 									atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 									if(dl) atg_pack_element(b2, dl);
-									snprintf(nt, 20, "Hit Target: %u", nj[j]);
+									snprintf(nt, 20, "Hit Target:%u", nj[j]);
 									atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 									if(nl) atg_pack_element(b2, nl);
 									if(nj[j])
 									{
 										if(tbj[j])
 										{
-											snprintf(tt, 20, "Bombs (lb): %u", tbj[j]);
+											snprintf(tt, 20, "Bombs (lb):%u", tbj[j]);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
 										if(tmj[j])
 										{
-											snprintf(tt, 20, "Mines (lb): %u", tmj[j]);
+											snprintf(tt, 20, "Mines (lb):%u", tmj[j]);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
 										if(tlj[j])
 										{
-											snprintf(tt, 20, "Leaflets  : %u", tlj[j]);
+											snprintf(tt, 20, "Leaflets  :%u", tlj[j]);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
 										if(tsj[j])
 										{
-											snprintf(tt, 20, "Ships sunk: %u", tsj[j]);
+											snprintf(tt, 20, "Ships sunk:%u", tsj[j]);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
 									}
 									if(lj[j])
 									{
-										snprintf(lt, 20, "A/c Lost  : %u", lj[j]);
+										snprintf(lt, 20, "A/c Lost  :%u", lj[j]);
 										atg_element *ll=atg_create_element_label(lt, 10, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
 										if(ll) atg_pack_element(b2, ll);
 									}
@@ -3765,42 +3765,42 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								char dt[20],nt[20],tt[20],lt[20];
 								if(D||N)
 								{
-									snprintf(dt, 20, "Dispatched: %u", D);
+									snprintf(dt, 20, "Dispatched:%u", D);
 									atg_element *dl=atg_create_element_label(dt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 									if(dl) atg_pack_element(b2, dl);
-									snprintf(nt, 20, "Hit Target: %u", N);
+									snprintf(nt, 20, "Hit Target:%u", N);
 									atg_element *nl=atg_create_element_label(nt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 									if(nl) atg_pack_element(b2, nl);
 									if(N)
 									{
 										if(Tb)
 										{
-											snprintf(tt, 20, "Bombs (lb): %u", Tb);
+											snprintf(tt, 20, "Bombs (lb):%u", Tb);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
 										if(Tm)
 										{
-											snprintf(tt, 20, "Mines (lb): %u", Tm);
+											snprintf(tt, 20, "Mines (lb):%u", Tm);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
 										if(Tl)
 										{
-											snprintf(tt, 20, "Leaflets  : %u", Tl);
+											snprintf(tt, 20, "Leaflets  :%u", Tl);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
 										if(Ts)
 										{
-											snprintf(tt, 20, "Ships sunk: %u", Ts);
+											snprintf(tt, 20, "Ships sunk:%u", Ts);
 											atg_element *tl=atg_create_element_label(tt, 10, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 											if(tl) atg_pack_element(b2, tl);
 										}
 									}
 									if(L)
 									{
-										snprintf(lt, 20, "A/c Lost  : %u", L);
+										snprintf(lt, 20, "A/c Lost  :%u", L);
 										atg_element *ll=atg_create_element_label(lt, 10, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
 										if(ll) atg_pack_element(b2, ll);
 									}
