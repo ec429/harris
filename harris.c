@@ -934,7 +934,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		i->data=GB_moonimg;
 	}
-	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btnum[ntypes];
+	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btnum[ntypes], *GB_btpc[ntypes], *GB_btp[ntypes];
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!(GB_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
@@ -1037,7 +1037,58 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			perror("atg_pack_element");
 			return(1);
 		}
-		if(atg_pack_element(vb, types[i].prio_selector))
+		atg_element *hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!hbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_pack_element(vb, hbox))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_box *hb=hbox->elem.box;
+		if(!hb)
+		{
+			fprintf(stderr, "hbox->elem.box==NULL\n");
+			return(1);
+		}
+		if(atg_pack_element(hb, types[i].prio_selector))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_element *pcbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 79, 31, ATG_ALPHA_OPAQUE});
+		if(!pcbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		pcbox->w=3;
+		pcbox->h=18;
+		if(atg_pack_element(hb, pcbox))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		if(!(GB_btpc[i]=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		GB_btpc[i]->w=3;
+		if(atg_ebox_pack(pcbox, GB_btpc[i]))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		if(!(GB_btp[i]=atg_create_element_label("P!", 12, (atg_colour){191, 159, 31, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_pack_element(hb, GB_btp[i]))
 		{
 			perror("atg_pack_element");
 			return(1);
@@ -2179,6 +2230,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		if(GB_btrow[i])
 			GB_btrow[i]->hidden=!datewithin(state.now, types[i].entry, types[i].exit);
+		if(GB_btpc[i])
+			GB_btpc[i]->h=18-min(types[i].pcbuf/10000, 18);
+		if(GB_btp[i])
+			GB_btp[i]->hidden=(types[i].pribuf<8)||(state.cash<types[i].cost)||(types[i].pcbuf>=types[i].cost);
 		if(GB_btnum[i]&&GB_btnum[i]->elem.label&&GB_btnum[i]->elem.label->text)
 		{
 			unsigned int svble=0,total=0;
