@@ -2285,8 +2285,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(GB_rbrow[i][j])
 				GB_rbrow[i][j]->hidden=GB_btrow[j]?GB_btrow[j]->hidden:true;
 			if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
-				snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", 0);
+			{
+				unsigned int count=0;
+				for(unsigned int k=0;k<state.raids[i].nbombers;k++)
+					if(state.bombers[state.raids[i].bombers[k]].type==j) count++;
+				snprintf(GB_raidnum[i][j]->elem.label->text, 9, "%u", count);
+			}
 		}
+		for(unsigned int j=0;j<state.raids[i].nbombers;j++)
+			state.bombers[state.raids[i].bombers[j]].landed=false;
 	}
 	SDL_FreeSurface(GB_map->elem.image->data);
 	GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
