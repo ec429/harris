@@ -43,6 +43,8 @@ const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 #define NAV_GH		3
 #define NNAVAIDS	4
 const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH"};
+const char * const navpicfn[NNAVAIDS]={"art/navaids/gee.png", "art/navaids/h2s.png", "art/navaids/oboe.png", "art/navaids/g-h.png"};
+unsigned int navevent[NNAVAIDS]={EVENT_GEE, EVENT_H2S, EVENT_OBOE, EVENT_GH};
 
 typedef struct
 {
@@ -64,6 +66,8 @@ typedef struct
 	unsigned int blat, blon;
 	SDL_Surface *picture;
 	
+	unsigned int count;
+	unsigned int navcount[NNAVAIDS];
 	unsigned int prio;
 	unsigned int pribuf;
 	atg_element *prio_selector;
@@ -234,6 +238,7 @@ unsigned int nflaks=0;
 flaksite *flaks=NULL;
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
+SDL_Surface *navpic[NNAVAIDS];
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
@@ -776,6 +781,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "Location icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	for(unsigned int n=0;n<NNAVAIDS;n++)
+	{
+		if(!(navpic[n]=IMG_Load(navpicfn[n])))
+		{
+			fprintf(stderr, "Navaid icon %u: IMG_Load: %s\n", n, IMG_GetError());
+			return(1);
+		}
+		SDL_SetAlpha(navpic[n], 0, SDL_ALPHA_OPAQUE);
+	}
 	
 	SDL_Surface *grey_overlay=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!grey_overlay)
@@ -942,7 +956,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		i->data=GB_moonimg;
 	}
-	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btnum[ntypes], *GB_btpc[ntypes], *GB_btp[ntypes];
+	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btnum[ntypes], *GB_btpc[ntypes], *GB_btp[ntypes], *GB_navrow[ntypes], *GB_navbtn[ntypes][NNAVAIDS], *GB_navgraph[ntypes][NNAVAIDS];
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!(GB_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
@@ -1087,7 +1101,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		GB_btpc[i]->w=3;
 		if(atg_ebox_pack(pcbox, GB_btpc[i]))
 		{
-			perror("atg_pack_element");
+			perror("atg_ebox_pack");
 			return(1);
 		}
 		if(!(GB_btp[i]=atg_create_element_label("P!", 12, (atg_colour){191, 159, 31, ATG_ALPHA_OPAQUE})))
@@ -1099,6 +1113,66 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			perror("atg_pack_element");
 			return(1);
+		}
+		GB_navrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!GB_navrow[i])
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_pack_element(vb, GB_navrow[i]))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		for(unsigned int n=0;n<NNAVAIDS;n++)
+		{
+			SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 16, 16, navpic[n]->format->BitsPerPixel, navpic[n]->format->Rmask, navpic[n]->format->Gmask, navpic[n]->format->Bmask, navpic[n]->format->Amask);
+			if(!pic)
+			{
+				fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+				return(1);
+			}
+			SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 0, 0, 0, SDL_ALPHA_TRANSPARENT));
+			SDL_BlitSurface(navpic[n], NULL, pic, NULL);
+			if(!(GB_navbtn[i][n]=atg_create_element_image(pic)))
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+				return(1);
+			}
+			GB_navbtn[i][n]->w=GB_navbtn[i][n]->h=16;
+			GB_navbtn[i][n]->clickable=true;
+			if(!types[i].nav[n])
+				SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 63, 63, 63, SDL_ALPHA_OPAQUE));
+			if(atg_ebox_pack(GB_navrow[i], GB_navbtn[i][n]))
+			{
+				perror("atg_ebox_pack");
+				return(1);
+			}
+			atg_element *graphbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 79, 31, ATG_ALPHA_OPAQUE});
+			if(!graphbox)
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
+			graphbox->w=3;
+			graphbox->h=16;
+			if(atg_ebox_pack(GB_navrow[i], graphbox))
+			{
+				perror("atg_ebox_pack");
+				return(1);
+			}
+			if(!(GB_navgraph[i][n]=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
+			GB_navgraph[i][n]->w=3;
+			if(atg_ebox_pack(graphbox, GB_navgraph[i][n]))
+			{
+				perror("atg_ebox_pack");
+				return(1);
+			}
 		}
 	}
 	atg_element *GB_go=atg_create_element_button("Run tonight's raids", (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE}, (atg_colour){31, 63, 31, ATG_ALPHA_OPAQUE});
@@ -2233,6 +2307,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.bombers[j].landed=true;
 		state.bombers[j].damage=0;
 	}
+	bool shownav=false;
+	for(unsigned int n=0;n<NNAVAIDS;n++)
+		if(!datebefore(state.now, event[navevent[n]])) shownav=true;
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
@@ -2249,8 +2326,32 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					total++;
 					if(!state.bombers[j].failed) svble++;
+					types[i].count++;
+					for(unsigned int n=0;n<NNAVAIDS;n++)
+						if(state.bombers[j].nav[n]) types[i].navcount[n]++;
 				}
 			snprintf(GB_btnum[i]->elem.label->text, 12, "%u/%u", svble, total);
+		}
+		GB_navrow[i]->hidden=!shownav;
+		for(unsigned int n=0;n<NNAVAIDS;n++)
+		{
+			if(GB_navbtn[i][n]&&GB_navbtn[i][n]->elem.image)
+			{
+				SDL_Surface *pic=GB_navbtn[i][n]->elem.image->data;
+				if(pic)
+				{
+					if(!types[i].nav[n])
+						SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 63, 63, 63, SDL_ALPHA_OPAQUE));
+					else
+					{
+						SDL_BlitSurface(navpic[n], NULL, pic, NULL);
+						if(datebefore(state.now, event[navevent[n]]))
+							SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
+					}
+				}
+			}
+			if(GB_navgraph[i][n])
+				GB_navgraph[i][n]->h=16-(types[i].count?(types[i].navcount[n]*16)/types[i].count:0);
 		}
 	}
 	if(GB_go&&GB_go->elem.button&&GB_go->elem.button->content)
