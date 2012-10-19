@@ -184,6 +184,7 @@ typedef struct
 	double confid, morale;
 	unsigned int nbombers;
 	ac_bomber *bombers;
+	unsigned int nap[NNAVAIDS];
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk, *heat;
@@ -227,6 +228,7 @@ SDL_Surface *render_ac(game state);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
+void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
 bombertype *types=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
@@ -798,6 +800,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	SDL_FillRect(grey_overlay, &(SDL_Rect){.x=0, .y=0, .w=grey_overlay->w, .h=grey_overlay->h}, SDL_MapRGBA(grey_overlay->format, 127, 127, 127, 128));
+	
+	SDL_Surface *yellow_overlay=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 16, 16, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!yellow_overlay)
+	{
+		fprintf(stderr, "Yellow overlay: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(1);
+	}
+	SDL_FillRect(yellow_overlay, &(SDL_Rect){.x=0, .y=0, .w=yellow_overlay->w, .h=yellow_overlay->h}, SDL_MapRGBA(yellow_overlay->format, 255, 255, 0, 63));
 	
 	fprintf(stderr, "Data files loaded\n");
 	
@@ -2008,6 +2018,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("malloc");
 		return(1);
 	}
+	for(unsigned int n=0;n<NNAVAIDS;n++)
+		state.nap[n]=0;
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		state.raids[i].nbombers=0;
@@ -2335,21 +2347,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		GB_navrow[i]->hidden=!shownav;
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 		{
-			if(GB_navbtn[i][n]&&GB_navbtn[i][n]->elem.image)
-			{
-				SDL_Surface *pic=GB_navbtn[i][n]->elem.image->data;
-				if(pic)
-				{
-					if(!types[i].nav[n])
-						SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 63, 63, 63, SDL_ALPHA_OPAQUE));
-					else
-					{
-						SDL_BlitSurface(navpic[n], NULL, pic, NULL);
-						if(datebefore(state.now, event[navevent[n]]))
-							SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
-					}
-				}
-			}
+			update_navbtn(state, GB_navbtn, i, n, grey_overlay, yellow_overlay);
 			if(GB_navgraph[i][n])
 				GB_navgraph[i][n]->h=16-(types[i].count?(types[i].navcount[n]*16)/types[i].count:0);
 		}
@@ -2489,6 +2487,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						for(unsigned int i=0;i<ntypes;i++)
 						{
 							if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
+							for(unsigned int n=0;n<NNAVAIDS;n++)
+							{
+								if(c.e==GB_navbtn[i][n])
+								{
+									if(types[i].nav[n]&&!datebefore(state.now, event[navevent[n]]))
+									{
+										state.nap[n]=i;
+										for(unsigned int j=0;j<ntypes;j++)
+											update_navbtn(state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
+									}
+								}
+							}
 							if(c.e==GB_btpic[i])
 							{
 								if(seltarg<0)
@@ -4345,6 +4355,50 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				}
 			}
 		}
+		else if(strcmp(tag, "Navaids")==0)
+		{
+			unsigned int snnav;
+			f=sscanf(dat, "%u\n", &snnav);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(snnav!=NNAVAIDS)
+			{
+				fprintf(stderr, "2 Value mismatch: different nnav value\n");
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<NNAVAIDS;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j, prio;
+					f=sscanf(line, "NPrio %u:%u\n", &j, &prio);
+					if(f!=2)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+					state->nap[j]=prio;
+				}
+			}
+		}
 		else if(strcmp(tag, "Bombers")==0)
 		{
 			f=sscanf(dat, "%u\n", &state->nbombers);
@@ -4617,6 +4671,9 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Types:%u\n", ntypes);
 	for(unsigned int i=0;i<ntypes;i++)
 		fprintf(fs, "Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf);
+	fprintf(fs, "Navaids:%u\n", NNAVAIDS);
+	for(unsigned int n=0;n<NNAVAIDS;n++)
+		fprintf(fs, "NPrio %u:%u\n", n, state.nap[n]);
 	fprintf(fs, "Bombers:%u\n", state.nbombers);
 	for(unsigned int i=0;i<state.nbombers;i++)
 	{
@@ -4815,4 +4872,25 @@ atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y)
 	atg_colour c;
 	SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
 	return(c);
+}
+
+void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay)
+{
+	if(GB_navbtn[i][n]&&GB_navbtn[i][n]->elem.image)
+	{
+		SDL_Surface *pic=GB_navbtn[i][n]->elem.image->data;
+		if(pic)
+		{
+			if(!types[i].nav[n])
+				SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 63, 63, 63, SDL_ALPHA_OPAQUE));
+			else
+			{
+				SDL_BlitSurface(navpic[n], NULL, pic, NULL);
+				if(datebefore(state.now, event[navevent[n]]))
+					SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
+				if(state.nap[n]==i)
+					SDL_BlitSurface(yellow_overlay, NULL, pic, NULL);
+			}
+		}
+	}
 }
