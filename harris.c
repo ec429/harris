@@ -23,7 +23,6 @@
 	Implement event texts
 	Implement the remaining Navaids
 	Make Navaid range (except H2S) dependent upon altitude.
-	Implement 'Attack Timing Graph' during raid
 	Implement Window & window-control (for diversions)
 	Event effects on fighters (New radars, RCM, etc.)
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
@@ -48,7 +47,7 @@ const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH"};
 const char * const navpicfn[NNAVAIDS]={"art/navaids/gee.png", "art/navaids/h2s.png", "art/navaids/oboe.png", "art/navaids/g-h.png"};
 unsigned int navevent[NNAVAIDS]={EVENT_GEE, EVENT_H2S, EVENT_OBOE, EVENT_GH};
-unsigned int navprod[NNAVAIDS]={8, 14, 40, 25}; // 10/productionrate
+unsigned int navprod[NNAVAIDS]={5, 9, 22, 12}; // 10/productionrate
 
 typedef struct
 {
@@ -251,6 +250,7 @@ SDL_Surface *render_targets(date now);
 SDL_Surface *render_flak(date now);
 SDL_Surface *render_ac(game state);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
+int line(SDL_Surface *s, unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
 void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
@@ -1613,10 +1613,21 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	
-	atg_box *raidbox=atg_create_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	atg_box *raidbox=atg_create_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!raidbox)
 	{
 		fprintf(stderr, "atg_create_box failed\n");
+		return(1);
+	}
+	atg_element *RB_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!RB_hbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(raidbox, RB_hbox))
+	{
+		perror("atg_pack_element");
 		return(1);
 	}
 	atg_element *RB_time=atg_create_element_label("--:--", 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
@@ -1637,9 +1648,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	RB_time->w=239;
-	if(atg_pack_element(raidbox, RB_time))
+	if(atg_ebox_pack(RB_hbox, RB_time))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *RB_map=atg_create_element_image(map);
@@ -1649,7 +1660,24 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	RB_map->h=map->h+2;
-	if(atg_pack_element(raidbox, RB_map))
+	if(atg_ebox_pack(RB_hbox, RB_map))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	SDL_Surface *RB_atime_image=SDL_CreateRGBSurface(SDL_HWSURFACE, 600, 240, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!RB_atime_image)
+	{
+		fprintf(stderr, "RB_atime_image: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(1);
+	}
+	atg_element *RB_atime=atg_create_element_image(RB_atime_image);
+	if(!RB_atime)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	if(atg_pack_element(raidbox, RB_atime))
 	{
 		perror("atg_pack_element");
 		return(1);
@@ -2754,6 +2782,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_BlitSurface(with_weather, NULL, RB_map->elem.image->data, NULL);
 		unsigned int it=0, startt=768;
+		unsigned int plan[60], act[60][2];
+		double fire[120];
+		for(unsigned int dt=0;dt<60;dt++)
+			plan[dt]=act[dt][0]=act[dt][1]=0;
+		for(unsigned int dt=0;dt<120;dt++)
+			fire[dt]=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			if(state.raids[i].nbombers)
@@ -2940,8 +2974,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					// PFF should arrive at Zero minus 8, and be finished by Zero minus 2
 					// Zero Hour is t=480, and a minute is two t-steps
 					int tt=state.bombers[k].pff?(464+irandu(12)):(480+irandu(20));
-					int st=tt-(outward/state.bombers[k].speed);
+					int st=tt-(outward/state.bombers[k].speed)-3;
+					if(state.bombers[k].pff) st-=2;
 					state.bombers[k].startt=max(0, st);
+					if((tt>=450)&&(tt<570)&&(targs[i].class==TCLASS_CITY))
+						plan[(tt-450)/2]++;
 				}
 				startt=min(startt, state.bombers[k].startt);
 				state.bombers[k].fuelt=state.bombers[k].startt+256+irandu(64);
@@ -2972,6 +3009,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		weather_overlay=render_weather(state.weather);
 		SDL_BlitSurface(with_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
+		SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGBA(RB_atime_image->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b, GAME_BG_COLOUR.a));
+		bool stream=!datebefore(state.now, event[EVENT_GEE]);
 		while(inair)
 		{
 			if(RB_time_label) snprintf(RB_time_label, 6, "%02u:%02u", (21+(t/120))%24, (t/2)%60);
@@ -2984,6 +3023,41 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				SDL_BlitSurface(with_target, NULL, with_weather, NULL);
 				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 				it++;
+			}
+			if(stream&&(t>=450)&&(t<571))
+			{
+				SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGB(RB_atime_image->format, 15, 15, 15));
+				SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=239, .w=600, .h=1}, SDL_MapRGB(RB_atime_image->format, 255, 255, 255));
+				unsigned int nrt=0;
+				for(unsigned int i=0;i<ntargs;i++)
+				{
+					if(state.raids[i].nbombers&&(targs[i].class==TCLASS_CITY))
+					{
+						nrt++;
+						fire[t-450]+=targs[i].fires;
+					}
+				}
+				if(nrt)
+					fire[t-450]/=nrt;
+				for(unsigned int dt=0;dt<60;dt++)
+				{
+					unsigned int x=dt*10, ph=min(plan[dt]*1200/totalraids, 240);
+					bool pff=(dt<15);
+					SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x, .y=240-ph, .w=10, .h=ph}, SDL_MapRGB(RB_atime_image->format, pff?0:127, 0, pff?127:0));
+					if(ph>2)
+						SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x+1, .y=241-ph, .w=8, .h=ph-2}, SDL_MapRGB(RB_atime_image->format, 15, 15, 15));
+					unsigned int h[2];
+					for(unsigned int i=0;i<2;i++)
+						h[i]=min(act[dt][i]*1200/totalraids, 240);
+					h[1]=min(h[1], 240-h[0]);
+					SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x+1, .y=240-h[0], .w=8, .h=h[0]}, SDL_MapRGB(RB_atime_image->format, 0, 0, 255));
+					SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x+1, .y=240-h[0]-h[1], .w=8, .h=h[1]}, SDL_MapRGB(RB_atime_image->format, 255, 0, 0));
+				}
+				for(unsigned int dt=0;dt<min(119, t-451);dt++)
+				{
+					unsigned int x=dt*5+2, y[2]={max(240-fire[dt]/6, 0), max(240-fire[dt+1]/6, 0)};
+					line(RB_atime_image, x, y[0], x+5, y[1], (atg_colour){127, 127, 0, ATG_ALPHA_OPAQUE});
+				}
 			}
 			for(unsigned int i=0;i<ntargs;i++)
 				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
@@ -3047,30 +3121,34 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					else if(stage==4)
 					{
 						bool fuel=(t>=state.bombers[k].fuelt);
-						bool damaged=(state.bombers[k].damage>=1);
+						bool damaged=(state.bombers[k].damage>=8);
 						bool roeok=state.bombers[k].idtar||(!state.roe.idtar&&brandp(0.2))||brandp(0.005);
 						bool leaf=!state.bombers[k].bmb;
+						bool pffstop=stream&&(t<(state.bombers[k].pff?464:480));
 						double cr=1.2;
 						if(oboe.k==(int)k) cr=0.3;
-						if(((fabs(cx)<cr)&&(fabs(cy)<cr)&&roeok)||((fuel||damaged)&&(roeok||leaf)))
+						if(((fabs(cx)<cr)&&(fabs(cy)<cr)&&roeok&&!pffstop)||((fuel||damaged)&&(roeok||leaf)))
 						{
 							state.bombers[k].bmblon=state.bombers[k].lon;
 							state.bombers[k].bmblat=state.bombers[k].lat;
 							state.bombers[k].bombed=true;
 							if(!leaf)
 							{
-								for(unsigned int t=0;t<ntargs;t++)
+								for(unsigned int ta=0;ta<ntargs;ta++)
 								{
-									if(targs[t].class!=TCLASS_CITY) continue;
-									int dx=floor(state.bombers[k].bmblon+.5)-targs[t].lon, dy=floor(state.bombers[k].bmblat+.5)-targs[t].lat;
-									int hx=targs[t].picture->w/2;
-									int hy=targs[t].picture->h/2;
-									if((abs(dx)<=hx)&&(abs(dy)<=hy)&&(pget(targs[t].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE))
+									if(targs[ta].class!=TCLASS_CITY) continue;
+									int dx=floor(state.bombers[k].bmblon+.5)-targs[ta].lon, dy=floor(state.bombers[k].bmblat+.5)-targs[ta].lat;
+									int hx=targs[ta].picture->w/2;
+									int hy=targs[ta].picture->h/2;
+									if((abs(dx)<=hx)&&(abs(dy)<=hy)&&(pget(targs[ta].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE))
 									{
+										int dt=(t-450)/2;
+										if((dt>=0)&&(dt<60))
+											act[dt][state.bombers[k].pff?0:1]++;
 										if(state.bombers[k].pff)
-											targs[t].fires+=50;
+											targs[ta].fires+=30;
 										else
-											targs[t].fires+=state.bombers[k].bmb/4000;
+											targs[ta].fires+=state.bombers[k].bmb/6000;
 									}
 								}
 							}
@@ -3502,7 +3580,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			for(unsigned int i=0;i<ntargs;i++)
 			{
 				if(targs[i].class==TCLASS_MINING) continue;
-				targs[i].fires*=.98;
+				targs[i].fires*=.92;
 				if(!datewithin(state.now, targs[i].entry, targs[i].exit)) continue;
 				double thresh=3e3*targs[i].nfighters/(double)fightersleft;
 				if(targs[i].threat+state.heat[i]*10.0>thresh)
@@ -4948,7 +5026,7 @@ int savegame(const char *fn, game state)
 		unsigned int nav=0;
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
-		fprintf(fs, "Type %u:%u,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav);
+		fprintf(fs, "Type %u:%u,%u,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0);
 	}
 	fprintf(fs, "GProd:%la\n", state.gprod);
 	fprintf(fs, "FTypes:%u\n", nftypes);
@@ -5126,6 +5204,41 @@ int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c)
 	size_t s_off = (y*s->pitch) + (x*s->format->BytesPerPixel);
 	uint32_t pixval = SDL_MapRGBA(s->format, c.r, c.g, c.b, c.a);
 	*(uint32_t *)((char *)s->pixels + s_off)=pixval;
+	return(0);
+}
+
+int line(SDL_Surface *s, unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1, atg_colour c)
+{
+	// Bresenham's line algorithm, based on http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+	int e=0;
+	if((e=pset(s, x0, y0, c)))
+		return(e);
+	bool steep = abs(y1 - y0) > abs(x1 - x0);
+	int tmp;
+	if(steep)
+	{
+		tmp=x0;x0=y0;y0=tmp;
+		tmp=x1;x1=y1;y1=tmp;
+	}
+	if(x0>x1)
+	{
+		tmp=x0;x0=x1;x1=tmp;
+		tmp=y0;y0=y1;y1=tmp;
+	}
+	int dx=x1-x0,dy=abs(y1-y0);
+	int ey=dx>>1;
+	int dely=(y0<y1?1:-1),y=y0;
+	for(int x=x0;x<(int)x1;x++)
+	{
+		if((e=pset(s, steep?y:x, steep?x:y, c)))
+			return(e);
+		ey-=dy;
+		if(ey<0)
+		{
+			y+=dely;
+			ey+=dx;
+		}
+	}
 	return(0);
 }
 
