@@ -2,7 +2,7 @@
 by Edward Cree
 --How to play--
 
-NOTE: Harris is considerably unfinished; several gameplay mechanics are still entirely missing.  At present, the first unimplemented feature (OBOE radionavigation) comes in at the end of 1941, so you can play at least that far without experiencing problems.  Be warned, however, that future versions of Harris may not preserve savegame compatibility.
+NOTE: Harris is considerably unfinished; several gameplay mechanics are still entirely missing.  At present, the first unimplemented feature (H2S terrain radar) comes in January 1943, so you can play at least that far without experiencing problems.  Be warned, however, that future versions of Harris may not preserve savegame compatibility.
 
 Contents
 ~~~~~~~~
@@ -12,6 +12,10 @@ Contents
 * Flak
 * Fighters
 * Navaids
+ - Gee
+ - Oboe
+ - H2S
+ - G-H
 * PFF
 * Window
 * Budget
@@ -42,7 +46,7 @@ Geographically, the target map can be partitioned somewhat: (Todo - a labelled m
 
 Bombers
 ~~~~~~~
-You start with an assortment of light and medium bombers - Blenheims, Whitleys, Hampdens and Wellingtons.  You can direct, in broad terms, the priorities for further production, by means of a control on each bomber type labelled "NONE", "LOW", "MED" and "HIGH".  For every bomber built of a type with LOW priority, 3 will be built on MED and 6 on HIGH.  The total volume produced depends on your Budget, which is an abstraction of the amount of resources the Government is willing to devote to building up the bomber force.  This is increased by successfully attacking, and otherwise gradually diminishes over time.
+You start with an assortment of light and medium bombers - Blenheims, Whitleys, Hampdens and Wellingtons.  You can direct, in broad terms, the priorities for further production, by means of a control on each bomber type labelled "NONE", "LOW", "MED" and "HIGH".  For every bomber built of a type with LOW priority, 3 will be built on MED and 6 on HIGH.  The total volume produced depends on your Budget, which is an abstraction of the amount of resources the Government is willing to devote to building up the bomber force.  This is increased by successfully attacking, and otherwise gradually diminishes over time.  (See the section "Budget" below for details)
 As the months and years pass, new types of bomber are developed, and older ones become obsolete and are retired from the front line.  Each type of bomber has its own combination of (among other factors) speed, payload, serviceability, survivability and range.
 
 Flak
@@ -56,11 +60,29 @@ German fighters are the /other/ threat to your bombers.  The Germans will deploy
 
 Navaids
 ~~~~~~~
-Navigational aids have not been implemented yet.  When they have, they will help guide your bombers to the target.
+Navigational aids help guide your bombers to the target.  There are four different systems: Gee, Oboe, H2S and G-H.  All except for H2S are reliant on ground-based transmissions [and thus their range should depend on altitude, but that's not implemented yet].
+When a navaid becomes available, sets will begin to be installed in your bombers.  You can control which type of bomber should receive sets by clicking on the appropriate navaid icon; the selected icon will be highlighted yellow.
+
+Gee
+---
+Gee gives your bombers a rough 'fix' of their position at ranges up to 360mi.  It is available from March 1942.  The introduction of GEE also triggers 'bomber stream' tactics: instead of choosing their own routes and times on target, every aircraft is fitted into a large-scale plan.  All aircraft raiding a given target will follow the same route, and they will be timed to bomb from Zero Hour (01:00) until "Zero plus ten" (01:10).
+Later (September 1942) the Germans will jam GEE, reducing the range to 180mi.
+
+Oboe
+----
+Oboe is a precision blind-bombing device.  By its nature a pair of Oboe stations can only be used by one aircraft at once.  The disposition of Oboe stations is made automatically, with priority given to Pathfinders.  It is invented in November 1941.
+
+H2S
+---
+H2S has not been implemented yet.  When it has, it will enable your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.
+
+G-H
+---
+G-H has not been implemented yet.  When it has, it will provide blind-bombing capability similar to Oboe but without the restriction on concurrent users.  It is available from November 1943.
 
 PFF
 ~~~
-The Pathfinder Force has not been implemented yet.  When it has, it will mark the target to direct the bombing of the Main Force.
+After the 15th of August 1942, your Mosquitoes and one in five of your Lancasters will be assigned to the Pathfinder Force (PFF).  They will mark the target, about 5 minutes before Zero Hour, with TIs and incendiaries, in order to direct the bombing of the Main Force.  You don't need to do anything (this is handled automatically), but you probably want to make sure the Pathfinders have the best navigational aids, to make sure they mark the right target and mark it well.
 
 Window
 ~~~~~~

@@ -35,7 +35,7 @@ VE:08-05-1945
 PFF:15-08-1942
 
 #Navaids
-OBOE:25-12-1941
+OBOE:20-11-1941
 # GEE also triggers bomberstream tactics
 GEE:05-03-1942
 H2S:26-01-1943
@@ -70,7 +70,7 @@ NAXOS:28-11-1943
 L_SN:01-12-1943
 # Schräge Musik
 MUSIK:17-08-1943
-# Jamming GEE.  "no jamming was experienced for nearly five months [after large-scale Gee operations began]" - Jones
+# Jamming GEE.  "no jamming was experienced for nearly five months [after large-scale Gee operations began]" - Jones.  But Wikipedia says "The first serious jamming was encountered on the night of 4/5 August 1942." so maybe I should take that date instead
 GEEJAM:21-09-1942
 
 #Intelligence reports
