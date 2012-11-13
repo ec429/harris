@@ -4325,9 +4325,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(datebefore(state.now, event[navevent[n]])) continue;
+		state.napb[n]+=10;
 		unsigned int i=state.nap[n];
 		if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
-		state.napb[n]+=10;
 		unsigned int j=state.nbombers;
 		unsigned int nac=0;
 		while((state.napb[n]>=navprod[n])&&j--)
@@ -4341,29 +4341,32 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	// assign PFF
-	for(unsigned int j=0;j<ntypes;j++)
-		types[j].count=types[j].pffcount=0;
-	for(unsigned int i=0;i<state.nbombers;i++)
+	if(!datebefore(state.now, event[EVENT_PFF]))
 	{
-		unsigned int type=state.bombers[i].type;
-		if(types[type].pff&&types[type].noarm)
+		for(unsigned int j=0;j<ntypes;j++)
+			types[j].count=types[j].pffcount=0;
+		for(unsigned int i=0;i<state.nbombers;i++)
 		{
-			state.bombers[i].pff=true;
-			continue;
+			unsigned int type=state.bombers[i].type;
+			if(types[type].pff&&types[type].noarm)
+			{
+				state.bombers[i].pff=true;
+				continue;
+			}
+			types[type].count++;
+			if(state.bombers[i].pff) types[type].pffcount++;
 		}
-		types[type].count++;
-		if(state.bombers[i].pff) types[type].pffcount++;
-	}
-	for(unsigned int j=0;j<ntypes;j++)
-	{
-		if(!types[j].pff) continue;
-		int pffneed=ceil(types[j].count*0.2)-types[j].pffcount;
-		for(unsigned int i=0;(pffneed>0)&&(i<state.nbombers);i++)
+		for(unsigned int j=0;j<ntypes;j++)
 		{
-			if(state.bombers[i].type!=j) continue;
-			if(state.bombers[i].pff) continue;
-			state.bombers[i].pff=true;
-			pffneed--;
+			if(!types[j].pff) continue;
+			int pffneed=ceil(types[j].count*0.2)-types[j].pffcount;
+			for(unsigned int i=0;(pffneed>0)&&(i<state.nbombers);i++)
+			{
+				if(state.bombers[i].type!=j) continue;
+				if(state.bombers[i].pff) continue;
+				state.bombers[i].pff=true;
+				pffneed--;
+			}
 		}
 	}
 	// German production
