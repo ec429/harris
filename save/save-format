@@ -46,3 +46,6 @@ or
 {
 	"Weather rand:%d\n", seed
 }
+"Messages:%u\n", nmsgs
+for(i=0;i<nmsgs;i++)
+	"%s\n.\n", msg[i]

@@ -68,6 +68,7 @@ typedef struct
 	bool noarm, pff;
 	unsigned int blat, blon;
 	SDL_Surface *picture;
+	char *text, *newtext;
 	
 	unsigned int count;
 	unsigned int navcount[NNAVAIDS];
@@ -92,6 +93,7 @@ typedef struct
 	date entry;
 	date exit;
 	bool night;
+	char *text, *newtext;
 }
 fightertype;
 
@@ -110,10 +112,11 @@ typedef struct
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
 	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,} class;
-	bool bb; // contains ballbearing works (Pointblank Directive)
+	bool bb; // contains aircraft or ballbearing works (Pointblank Directive)
 	bool oil; // industry-type OIL refineries
 	bool rail; // industry-type RAIL yards
 	bool uboot; // industry-type UBOOT factories
+	bool arm; // industry-type ARMament production (incl. steel etc.)
 	SDL_Surface *picture;
 	/* for Type I fighter control */
 	double threat; // German-assessed threat level
@@ -135,6 +138,7 @@ typedef struct
 flaksite;
 
 date event[NEVENTS];
+char *evtext[NEVENTS];
 
 typedef struct
 {
@@ -185,6 +189,8 @@ typedef struct
 }
 raid;
 
+#define MAXMSGS	5
+
 typedef struct
 {
 	date now;
@@ -206,6 +212,7 @@ typedef struct
 		bool idtar;
 	}
 	roe;
+	char *msg[MAXMSGS];
 }
 game;
 
@@ -557,10 +564,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					fprintf(stderr, "  unrecognised :CLASS `%s'\n", class);
 					return(1);
 				}
-				this.bb=strstr(class, ",BB");
+				this.bb=strstr(class, ",BB")||strstr(class, ",AC");
 				this.oil=strstr(class, ",OIL");
 				this.rail=strstr(class, ",RAIL");
-				this.rail=strstr(class, ",UBOOT");
+				this.uboot=strstr(class, ",UBOOT");
+				this.arm=strstr(class, ",ARM");
 				switch(this.class)
 				{
 					case TCLASS_LEAFLET:
@@ -1319,6 +1327,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 	}
+	atg_element *GB_msgrow[MAXMSGS];
+	for(unsigned int i=0;i<MAXMSGS;i++)
+	{
+		if(!(GB_msgrow[i]=atg_create_element_button(NULL, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		GB_msgrow[i]->hidden=true;
+		GB_msgrow[i]->w=GB_btrow[0]->w;
+		if(atg_pack_element(GB_btb, GB_msgrow[i]))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+	}
 	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 	if(!map)
 	{
@@ -1612,6 +1636,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 	}
+	
+	atg_box *msgbox=NULL;
 	
 	atg_box *raidbox=atg_create_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!raidbox)
@@ -2083,6 +2109,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.raids[i].bombers=NULL;
 	}
 	state.roe.idtar=true;
+	for(unsigned int i=0;i<MAXMSGS;i++)
+		state.msg[i]=NULL;
 	
 	main_menu:
 	canvas->box=mainbox;
@@ -2414,6 +2442,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	if(GB_go&&GB_go->elem.button&&GB_go->elem.button->content)
 		GB_go->elem.button->content->bgcolour=(atg_colour){31, 63, 31, ATG_ALPHA_OPAQUE};
+	for(unsigned int i=0;i<MAXMSGS;i++)
+	{
+		if(!GB_msgrow[i]) continue;
+		GB_msgrow[i]->hidden=!state.msg[i];
+		if(state.msg[i])
+			if(GB_msgrow[i]->elem.button&&GB_msgrow[i]->elem.button->content)
+			{
+				atg_box *c=GB_msgrow[i]->elem.button->content;
+				if(c->nelems&&c->elems[0]&&(c->elems[0]->type==ATG_LABEL)&&c->elems[0]->elem.label)
+				{
+					atg_label *l=c->elems[0]->elem.label;
+					free(l->text);
+					l->text=strndup(state.msg[i], min(strcspn(state.msg[i], "\n"), 12));
+				}
+			}
+	}
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		if(GB_ttrow[i])
@@ -2711,6 +2755,79 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							goto saver;
 						}
+						for(unsigned int i=0;i<MAXMSGS;i++)
+							if((trigger.e==GB_msgrow[i])&&state.msg[i])
+							{
+								atg_free_box_box(msgbox);
+								msgbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+								if(!msgbox)
+									fprintf(stderr, "atg_create_box failed\n");
+								else
+								{
+									atg_element *title=atg_create_element_label("To the Commander-in-Chief, Bomber Command:", 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+									if(!title)
+										fprintf(stderr, "atg_create_element_label failed\n");
+									else
+									{
+										if(atg_pack_element(msgbox, title))
+											perror("atg_pack_element");
+										else
+										{
+											size_t x=0;
+											while(state.msg[i][x])
+											{
+												size_t l=strcspn(state.msg[i]+x, "\n");
+												char *t=strndup(state.msg[i]+x, l);
+												atg_element *r=atg_create_element_label(t, 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+												free(t);
+												if(!r)
+												{
+													fprintf(stderr, "atg_create_element_label failed\n");
+													break;
+												}
+												if(atg_pack_element(msgbox, r))
+												{
+													perror("atg_pack_element");
+													break;
+												}
+												x+=l;
+												if(state.msg[i][x]=='\n') x++;
+											}
+											if(!state.msg[i][x])
+											{
+												atg_element *cont=atg_create_element_button("Air Chief Marshal C. F. A. Portal, CAS", (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+												if(!cont)
+													fprintf(stderr, "atg_create_element_button failed\n");
+												else
+												{
+													if(atg_pack_element(msgbox, cont))
+														perror("atg_pack_element");
+													else
+													{
+														canvas->box=msgbox;
+														atg_flip(canvas);
+														atg_event e;
+														while(1)
+														{
+															if(atg_poll_event(&e, canvas))
+															{
+																if(e.type==ATG_EV_TRIGGER) break;
+																if(e.type==ATG_EV_RAW)
+																{
+																	SDL_Event s=e.event.raw;
+																	if(s.type==SDL_QUIT) break;
+																}
+															}
+															atg_flip(canvas);
+														}
+														canvas->box=gamebox;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
 					}
 				break;
 				case ATG_EV_VALUE:
@@ -3149,10 +3266,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											targs[ta].fires+=30;
 										else
 											targs[ta].fires+=state.bombers[k].bmb/6000;
+										break;
 									}
 								}
+								stage=++state.bombers[k].routestage;
 							}
-							stage=++state.bombers[k].routestage;
 						}
 						else if(fuel)
 							stage=++state.bombers[k].routestage;
@@ -3672,129 +3790,134 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				dij[i][type]++;
 				bool leaf=!state.bombers[k].bmb;
 				bool mine=(targs[i].class==TCLASS_MINING);
-				if(state.bombers[k].bombed)
+				for(unsigned int l=0;l<ntargs;l++)
 				{
-					for(unsigned int l=0;l<ntargs;l++)
+					if(!state.bombers[k].bombed) break;
+					if(!datewithin(state.now, targs[l].entry, targs[l].exit)) continue;
+					int dx=floor(state.bombers[k].bmblon+.5)-targs[l].lon, dy=floor(state.bombers[k].bmblat+.5)-targs[l].lat;
+					int hx=targs[l].picture->w/2;
+					int hy=targs[l].picture->h/2;
+					switch(targs[l].class)
 					{
-						if(!datewithin(state.now, targs[l].entry, targs[l].exit)) continue;
-						int dx=floor(state.bombers[k].bmblon+.5)-targs[l].lon, dy=floor(state.bombers[k].bmblat+.5)-targs[l].lat;
-						int hx=targs[l].picture->w/2;
-						int hy=targs[l].picture->h/2;
-						switch(targs[l].class)
-						{
-							case TCLASS_CITY:
-								if(leaf) continue;
-								if((abs(dx)<=hx)&&(abs(dy)<=hy))
+						case TCLASS_CITY:
+							if(leaf) continue;
+							if((abs(dx)<=hx)&&(abs(dy)<=hy))
+							{
+								heat[i]++;
+								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
-									heat[i]++;
-									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
-									{
-										cidam+=state.dmg[l];
-										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/250000.0);
-										cidam-=state.dmg[l];
-										nij[l][type]++;
-										tij[l][type]+=state.bombers[k].bmb;
-									}
+									cidam+=state.dmg[l];
+									state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/250000.0);
+									cidam-=state.dmg[l];
+									nij[l][type]++;
+									tij[l][type]+=state.bombers[k].bmb;
+									state.bombers[k].bombed=false;
 								}
-							break;
-							case TCLASS_INDUSTRY:
-								if(leaf) continue;
-								if((abs(dx)<=1)&&(abs(dy)<=1))
+							}
+						break;
+						case TCLASS_INDUSTRY:
+							if(leaf) continue;
+							if((abs(dx)<=1)&&(abs(dy)<=1))
+							{
+								heat[i]++;
+								if(brandp(targs[l].esiz/40.0))
 								{
-									heat[i]++;
-									if(brandp(targs[l].esiz/40.0))
-									{
-										cidam+=state.dmg[l];
-										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/12000.0);
-										cidam-=state.dmg[l];
-										nij[l][type]++;
-										tij[l][type]+=state.bombers[k].bmb;
-									}
-								}
-							break;
-							case TCLASS_AIRFIELD:
-							case TCLASS_ROAD:
-								if(leaf) continue;
-								if((abs(dx)<=hx)&&(abs(dy)<=hy))
-								{
-									heat[i]++;
-									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
-									{
-										if(brandp(targs[l].esiz/30.0))
-										{
-											nij[l][type]++;
-											tij[l][type]+=state.bombers[k].bmb;
-											cidam+=state.dmg[l];
-											state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/2000.0);
-											cidam-=state.dmg[l];
-										}
-									}
-								}
-							break;
-							case TCLASS_BRIDGE:
-								if(leaf) continue;
-								if((abs(dx)<=hx)&&(abs(dy)<=hy))
-								{
-									heat[i]++;
-									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
-									{
-										if(brandp(targs[l].esiz/30.0))
-										{
-											nij[l][type]++;
-											tij[l][type]+=state.bombers[k].bmb;
-											if(brandp(log2(state.bombers[k].bmb/25.0)/200.0))
-											{
-												cidam+=state.dmg[l];
-												bridge+=state.dmg[l];
-												state.dmg[l]=0;
-											}
-										}
-									}
-								}
-							break;
-							case TCLASS_LEAFLET:
-								if(!leaf) continue;
-								if((abs(dx)<=hx)&&(abs(dy)<=hy))
-								{
-									if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
-									{
-										state.dmg[l]=max(0, state.dmg[l]-types[type].cap/100000.0);
-										nij[l][type]++;
-										tij[l][type]+=types[type].cap*3;
-									}
-								}
-							break;
-							case TCLASS_SHIPPING:
-								if(leaf) continue;
-								if((abs(dx)<=2)&&(abs(dy)<=1))
-								{
-									heat[i]++;
-									if(brandp(targs[l].esiz/100.0))
-									{
-										nij[l][type]++;
-										if(brandp(log2(state.bombers[k].bmb/500.0)/8.0))
-										{
-											tij[l][type]++;
-										}
-									}
-								}
-							break;
-							case TCLASS_MINING:
-								if(leaf||!mine) continue;
-								int x=state.bombers[k].bmblon/2;
-								int y=state.bombers[k].bmblat/2;
-								bool water=(x>=0)&&(y>=0)&&(x<128)&&(y<128)&&lorw[x][y];
-								if((abs(dx)<=8)&&(abs(dy)<=8)&&water)
-								{
-									state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/400000.0);
+									cidam+=state.dmg[l];
+									state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/12000.0);
+									cidam-=state.dmg[l];
 									nij[l][type]++;
 									tij[l][type]+=state.bombers[k].bmb;
 								}
-							break;
-							default: // shouldn't ever get here
-								fprintf(stderr, "Bad targs[%d].class = %d\n", l, targs[l].class);
-							break;
-						}
+								state.bombers[k].bombed=false;
+							}
+						break;
+						case TCLASS_AIRFIELD:
+						case TCLASS_ROAD:
+							if(leaf) continue;
+							if((abs(dx)<=hx)&&(abs(dy)<=hy))
+							{
+								heat[i]++;
+								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
+								{
+									if(brandp(targs[l].esiz/30.0))
+									{
+										nij[l][type]++;
+										tij[l][type]+=state.bombers[k].bmb;
+										cidam+=state.dmg[l];
+										state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/2000.0);
+										cidam-=state.dmg[l];
+									}
+									state.bombers[k].bombed=false;
+								}
+							}
+						break;
+						case TCLASS_BRIDGE:
+							if(leaf) continue;
+							if((abs(dx)<=hx)&&(abs(dy)<=hy))
+							{
+								heat[i]++;
+								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
+								{
+									if(brandp(targs[l].esiz/30.0))
+									{
+										nij[l][type]++;
+										tij[l][type]+=state.bombers[k].bmb;
+										if(brandp(log2(state.bombers[k].bmb/25.0)/200.0))
+										{
+											cidam+=state.dmg[l];
+											bridge+=state.dmg[l];
+											state.dmg[l]=0;
+										}
+									}
+									state.bombers[k].bombed=false;
+								}
+							}
+						break;
+						case TCLASS_LEAFLET:
+							if(!leaf) continue;
+							if((abs(dx)<=hx)&&(abs(dy)<=hy))
+							{
+								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
+								{
+									state.dmg[l]=max(0, state.dmg[l]-types[type].cap/100000.0);
+									nij[l][type]++;
+									tij[l][type]+=types[type].cap*3;
+									state.bombers[k].bombed=false;
+								}
+							}
+						break;
+						case TCLASS_SHIPPING:
+							if(leaf) continue;
+							if((abs(dx)<=2)&&(abs(dy)<=1))
+							{
+								heat[i]++;
+								if(brandp(targs[l].esiz/100.0))
+								{
+									nij[l][type]++;
+									if(brandp(log2(state.bombers[k].bmb/500.0)/8.0))
+									{
+										tij[l][type]++;
+									}
+								}
+								state.bombers[k].bombed=false;
+							}
+						break;
+						case TCLASS_MINING:
+							if(leaf||!mine) continue;
+							int x=state.bombers[k].bmblon/2;
+							int y=state.bombers[k].bmblat/2;
+							bool water=(x>=0)&&(y>=0)&&(x<128)&&(y<128)&&lorw[x][y];
+							if((abs(dx)<=8)&&(abs(dy)<=8)&&water)
+							{
+								state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/400000.0);
+								nij[l][type]++;
+								tij[l][type]+=state.bombers[k].bmb;
+								state.bombers[k].bombed=false;
+							}
+						break;
+						default: // shouldn't ever get here
+							fprintf(stderr, "Bad targs[%d].class = %d\n", l, targs[l].class);
+						break;
 					}
 				}
 			}
@@ -4987,6 +5110,64 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 			srand(seed);
 			w_init(&state->weather, 256, lorw);
 		}
+		else if(strcmp(tag, "Messages")==0)
+		{
+			unsigned int snmsgs;
+			f=sscanf(dat, "%u\n", &snmsgs);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(snmsgs > MAXMSGS)
+			{
+				fprintf(stderr, "2 Value mismatch: too many messages\n");
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<MAXMSGS;i++)
+				{
+					free(state->msg[i]);
+					state->msg[i]=NULL;
+				}
+				unsigned int msg=0;
+				size_t len=0;
+				while(msg<snmsgs)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					if(strcmp(line, ".")==0)
+					{
+						msg++;
+						len=0;
+					}
+					else
+					{
+						size_t nl=len+strlen(line);
+						char *nmsg=realloc(state->msg[msg], nl+2);
+						if(!nmsg)
+						{
+							perror("16 realloc");
+							e|=16;
+						}
+						else
+						{
+							state->msg[msg]=nmsg;
+							strcpy(state->msg[msg]+len, line);
+							strcpy(state->msg[msg]+nl, "\n");
+							len=nl+1;
+						}
+					}
+				}
+			}
+		}
 		else
 		{
 			fprintf(stderr, "128 Bad tag \"%s\"\n", tag);
@@ -5047,6 +5228,16 @@ int savegame(const char *fn, game state)
 			fprintf(fs, "%la,%la,", state.weather.p[x][y], state.weather.t[x][y]);
 		fprintf(fs, "\n");
 	}
+	unsigned int msgs=0;
+	for(unsigned int i=0;i<MAXMSGS;i++)
+		if(state.msg[i]) msgs++;
+	fprintf(fs, "Messages: %u\n", msgs);
+	for(unsigned int i=0;i<MAXMSGS;i++)
+		if(state.msg[i])
+		{
+			fputs(state.msg[i], fs);
+			fputs(".\n", fs);
+		}
 	fclose(fs);
 	return(0);
 }
