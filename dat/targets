@@ -6,7 +6,7 @@
 # Lat, long: where it is (within the 256x256 map)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
 # Class: what kind of target is it?  (CITY, SHIPPING, MINING, LEAFLET, AIRFIELD, BRIDGE, ROAD, INDUSTRY...)
-# Flags: extra target flags (BB, OIL, RAIL, UBOOT, ...)
+# Flags: extra target flags (BB, OIL, RAIL, UBOOT, AC, ARM...)
 
 # Historicity notes:
 # Most of the "specific industrial targets" are completely arbitrary; names like 'Hanover Bauwerke' are for flavour rather than referring to some specific factory complex.
@@ -32,6 +32,7 @@ Le Havre:             12:10:10:165: 49:15-09-1940:14-02-1942:SHIPPING
 Lorient:               8: 8: 9:201:  1:05-11-1940:14-02-1942:SHIPPING
 # Canals
 Kiel Canal:           15: 9:14: 54:181:11-06-1941:14-02-1942:SHIPPING
+Mittelland Canal:     12: 8:15: 98:174:17-01-1941:30-11-1941:SHIPPING
 #  near Münster
 Dortmund-Ems Canal:   10: 6:20:112:150:12-02-1941:14-02-1942:SHIPPING
 #  Battle of the Barges
@@ -44,36 +45,45 @@ Boulogne Barges:      14:30:25:136: 70:04-07-1940:31-10-1940:SHIPPING
 # TODO: end-dates from dates of liberation in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Berlin:              100:20:50: 97:233:14-02-1942:          :CITY
-Berlin Leaflets:       8:10:50: 97:233:          :          :LEAFLET
-Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY
-Hamburg Leaflets:      5: 8:35: 73:185:          :          :LEAFLET
+Berlin Leaflets:       8:10:50: 97:233:          :14-02-1942:LEAFLET
+Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY,OIL
+Hamburg Leaflets:      5: 8:35: 73:185:          :14-02-1942:LEAFLET
 Frankfurt:            40:13:30:151:168:14-02-1942:          :CITY
-Frankfurt Leaflets:    4: 7:30:151:168:          :          :LEAFLET
+Frankfurt Leaflets:    4: 7:30:151:168:          :14-02-1942:LEAFLET
 Munich:               45:16:40:194:208:14-02-1942:          :CITY
-Munich Leaflets:       3: 9:40:194:208:          :          :LEAFLET
-Cologne:              35:12:25:133:144:14-02-1942:          :CITY
-Cologne Leaflets:      3: 6:25:133:144:          :          :LEAFLET
-Essen:                30:11:20:122:145:14-02-1942:          :CITY
-Essen Leaflets:        2: 5:20:122:145:          :          :LEAFLET
+Munich Leaflets:       3: 9:40:194:208:          :14-02-1942:LEAFLET
+Cologne:              35:12:25:133:144:14-02-1942:          :CITY,OIL
+Cologne Leaflets:      3: 6:25:133:144:          :14-02-1942:LEAFLET
+Essen:                30:11:20:122:145:14-02-1942:          :CITY,ARM
+Essen Leaflets:        2: 5:20:122:145:          :14-02-1942:LEAFLET
 Dusseldorf:           20: 9:18:127:142:14-02-1942:          :CITY
-Dusseldorf Leaflets:   2: 4:18:127:142:          :          :LEAFLET
-Bremen:               25:10:24: 85:169:14-02-1942:          :CITY
-Bremen Leaflets:       3: 3:24: 85:169:          :          :LEAFLET
+Dortmund:             25:12:20:121:151:14-02-1942:          :CITY
+Bochum:               20: 8:16:122:148:14-02-1942:          :CITY,ARM
+Duisburg:             14: 7:12:123:141:14-02-1942:          :CITY,ARM
+Hagen:                10: 6: 9:124:151:14-02-1942:          :CITY,RAIL
+Wuppertal:            15: 8:14:126:147:14-02-1942:          :CITY
+Hamm:                 12: 6:12:118:154:14-02-1942:          :CITY
+Bremen:               25:10:24: 85:169:14-02-1942:          :CITY,UBOOT
+Bremen Leaflets:       3: 3:24: 85:169:          :14-02-1942:LEAFLET
+Kiel:                 18:13:21: 54:190:14-02-1942:          :CITY,UBOOT
 Nuremberg:            20:11:30:166:202:14-02-1942:          :CITY
-Nuremberg Leaflets:    6: 6:30:166:202:          :          :LEAFLET
+Nuremberg Leaflets:    6: 6:30:166:202:          :14-02-1942:LEAFLET
 Leipzig:              30:15:22:124:219:14-02-1942:          :CITY,BB
-Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY
+Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY,UBOOT
+Stuttgart Leaflets:    3: 4:20:180:175:          :14-02-1942:LEAFLET
 Hanover:              22:10:27: 98:182:14-02-1942:          :CITY
-Dresden:              16: 9:32:130:238:14-02-1942:          :CITY
+Dresden:              16: 9:32:130:238:14-02-1942:          :CITY,RAIL
 Magdeburg:            15: 8:25:105:208:14-02-1942:          :CITY
 Schweinfurt:          24:14:16:152:189:14-02-1942:          :CITY,BB
 Kassel:               11: 7:14:127:178:14-02-1942:          :CITY
-Kassel Leaflets:       1: 2:14:127:178:          :          :LEAFLET
+Kassel Leaflets:       1: 2:14:127:178:          :14-02-1942:LEAFLET
 Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY
 Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY
+Rostock:              13: 6:16: 60:211:14-02-1942:          :CITY,UBOOT
 
 # France and the Low Countries (invasion time)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
+Aalborg Airfield:     13:16:18:  1:183:18-04-1940:27-04-1940:AIRFIELD
 Waalhaven Airfield:   10:15:20:113:109:10-05-1940:15-05-1940:AIRFIELD
 Maastrichtweg Bridge:  8:18:14:135:125:11-05-1940:14-05-1940:BRIDGE
 Breda road junction:   6: 8: 7:118:114:14-05-1940:28-05-1940:ROAD
@@ -85,24 +95,30 @@ Wesel road bridge:     8:16:10:115:139:10-05-1940:14-05-1940:BRIDGE
 # Specific industrial targets (CIV-ABD)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Berlin U-boat Works:  20:12:15: 98:233:24-05-1940:14-02-1942:INDUSTRY,UBOOT
+Tempelhof Airport:     5:14:12: 96:235:02-08-1940:14-02-1942:AIRFIELD
+Berlin Rail Junction: 10: 8:16: 96:231:24-05-1940:14-02-1942:INDUSTRY,RAIL
+Siemens, Berlin:      14: 9:10: 97:237:24-05-1940:14-02-1942:INDUSTRY
 München-Gladbach:      8: 8:20:130:136:11-05-1940:14-02-1942:INDUSTRY,RAIL
 Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:14-02-1942:INDUSTRY,OIL
 Dusseldorf Steel Mill:16: 4:30:128:142:15-05-1940:14-02-1942:INDUSTRY
-Krupps, Essen:        30:10:15:122:145:15-05-1940:14-02-1942:INDUSTRY
+Krupps, Essen:        30:10:15:122:145:15-05-1940:14-02-1942:INDUSTRY,ARM
 Hamburg Oil Refinery: 18: 6:18: 72:185:15-05-1940:14-02-1942:INDUSTRY,OIL
-Blohm + Voss:         12: 4:13: 73:184:16-05-1940:14-02-1942:INDUSTRY
+Blohm + Voss:         12: 4:13: 73:184:16-05-1940:14-02-1942:INDUSTRY,AC
 Bremen Oil Refinery:  12: 5:16: 85:169:16-05-1940:14-02-1942:INDUSTRY,OIL
-Focke-Wulf, Bremen:   20: 8:10: 84:170:17-05-1940:14-02-1942:INDUSTRY
+Focke-Wulf, Bremen:   20: 8:10: 84:170:17-05-1940:14-02-1942:INDUSTRY,AC
 Antwerp Oil Depot:     6: 3:16:126:108:21-05-1940:14-02-1942:INDUSTRY,OIL
-Bielefeld Jagdwerke:  15:10:12:109:165:18-05-1940:14-02-1942:INDUSTRY
+Bielefeld Jagdwerke:  15:10:12:109:165:18-05-1940:14-02-1942:INDUSTRY,AC
 Gelsenkirchen Oil:     9: 6:13:120:143:16-05-1940:14-02-1942:INDUSTRY,OIL
 Hüls Chemical Works:  12: 8:14:124:139:15-05-1940:14-02-1942:INDUSTRY
 Bremerhaven Shipyards:12: 6:22: 74:167:18-05-1940:14-02-1942:INDUSTRY,UBOOT
+Dorniers, Wismar:      8: 7:11: 65:206:21-05-1940:14-02-1942:INDUSTRY,AC
 Stuttgart U-boat Works:9: 6:12:180:174:17-05-1940:14-02-1942:INDUSTRY,UBOOT
+Munich Railyards:     11:15:21:192:208:15-05-1940:14-02-1942:INDUSTRY,RAIL
+Siemens, Munich:      16: 9:15:194:207:18-05-1940:14-02-1942:INDUSTRY
 Hamm Railyards:       10: 5:18:117:154:19-05-1940:14-02-1942:INDUSTRY,RAIL
-Duisburg Ironworks:   11: 5:26:122:141:16-05-1940:14-02-1942:INDUSTRY
-Hanover Bauwerke:     10: 6:14:101:182:18-05-1940:14-02-1942:INDUSTRY
-Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:14-02-1942:INDUSTRY
+Duisburg Ironworks:   11: 5:26:122:141:16-05-1940:14-02-1942:INDUSTRY,ARM
+Hanover Bauwerke:     10: 6:14:101:182:18-05-1940:14-02-1942:INDUSTRY,ARM
+Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:14-02-1942:INDUSTRY,UBOOT
 
 # Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
@@ -114,31 +130,3 @@ Fehmarn Minelaying:   22: 3:99: 48:203:          :          :MINING
 Øresund Minelaying:   24: 2:99: 19:224:09-04-1940:          :MINING
 Kattegat Minelaying:  20: 1:99: 11:201:09-04-1940:          :MINING
 Baltic Minelaying:    14: 1:99: 44:225:          :          :MINING
-
-# Target list from the old HARRIS; import guide
-# Berlin		, 50 ,100 , 20 , 31 , 11 
-# Hamburg		, 35 , 65 , 14 , 29 , 7 
-# Frankfurt		, 30 , 50 , 13 , 27 , 16 
-# Munich		, 40 , 35 , 14 , 31 , 19 
-# Cologne		, 30 , 35 , 11 , 25 , 14 
-# Heidelberg	, 24 , 30 , 10 , 25 , 17 
-# Essen			, 16 , 20 , 12 , 25 , 15 
-# Hannover		, 18 , 35 , 10 , 26 , 12 
-# Nuremberg		, 12 , 35 , 8 , 29 , 16 
-# Leipzig (+)	, 14 , 18 , 20 , 30 , 14 
-# Bremen		, 10 , 30 , 9 , 24 , 12 
-# Dresden		,  9 , 25 , 7 , 32 , 15 
-# Brandenburg	,  8 , 25 , 6 , 31 , 10 
-# Stuttgart		,  8 , 23 , 7 , 27 , 18 
-# Wilhelmshaven	, 10 , 30 , 5 , 26 , 9 
-# Dortmund		,  8 , 25 , 7 , 27 , 13 
-# Schweinfurt (+), 14 , 15 , 35 , 28 , 16 
-# Bonn			,  6 , 25 , 5 , 24 , 15 
-# Regensburg (+), 12 , 12 , 12 , 30 , 17 
-# Brunswick (+)	, 10 , 10 , 15 , 28 , 12 
-# Salzburg		,  6 , 20 , 5 , 33 , 13 
-# Augsburg (+)	,  9 ,  7 , 8 , 29 , 19 
-# Peenemunde	,  4 ,  8 , 6 , 24 , 16 
-# Gotha (+)		,  8 ,  6 , 10 , 28 , 14 
-# Dortmund-Ems Canal, 30 , .00013 , 12 , 27 , 14 
-# Bielefeld Viaduct, 25 , .00017 , 8 , 26 , 18 
