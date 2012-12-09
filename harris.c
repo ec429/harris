@@ -5352,7 +5352,7 @@ int savegame(const char *fn, game state)
 	unsigned int msgs=0;
 	for(unsigned int i=0;i<MAXMSGS;i++)
 		if(state.msg[i]) msgs++;
-	fprintf(fs, "Messages: %u\n", msgs);
+	fprintf(fs, "Messages:%u\n", msgs);
 	for(unsigned int i=0;i<MAXMSGS;i++)
 		if(state.msg[i])
 		{
