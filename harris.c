@@ -2921,6 +2921,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 																}
 															}
 															atg_flip(canvas);
+															SDL_Delay(50);
 														}
 														canvas->box=gamebox;
 													}
