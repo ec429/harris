@@ -3933,7 +3933,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if((abs(dx)<=1)&&(abs(dy)<=1))
 							{
 								heat[i]++;
-								if(brandp(targs[l].esiz/40.0))
+								if(brandp(targs[l].esiz/30.0))
 								{
 									cidam+=state.dmg[l];
 									state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/12000.0);
