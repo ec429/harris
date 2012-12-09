@@ -21,8 +21,7 @@
 	Implement later forms of Fighter control
 	Better algorithm for building German fighters
 	Implement event texts
-	Implement the remaining Navaids
-	Make Navaid range (except H2S) dependent upon altitude.
+	Implement the remaining Navaids (just Gee-H now)
 	Implement Window & window-control (for diversions)
 	Event effects on fighters (New radars, RCM, etc.)
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
@@ -51,11 +50,12 @@ unsigned int navprod[NNAVAIDS]={5, 9, 22, 12}; // 10/productionrate
 
 typedef struct
 {
-	//MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
+	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
 	char * manu;
 	char * name;
 	unsigned int cost;
 	unsigned int speed;
+	unsigned int alt;
 	unsigned int cap;
 	unsigned int svp;
 	unsigned int defn;
@@ -189,7 +189,7 @@ typedef struct
 }
 raid;
 
-#define MAXMSGS	5
+#define MAXMSGS	8
 
 typedef struct
 {
@@ -219,17 +219,16 @@ game;
 struct oboe
 {
 	signed int lat, lon;
-	unsigned int range;
 	signed int k; // bomber number, or -1 for none
 }
-oboe={.lat=95, .lon=63, .range=107, .k=-1};
+oboe={.lat=95, .lon=63, .k=-1};
 
 struct gee
 {
 	signed int lat, lon;
 	unsigned int range, jrange;
 }
-gee={.lat=107, .lon=64, .range=120, .jrange=60};
+gee={.lat=107, .lon=64, .jrange=65};
 
 #define GAME_BG_COLOUR	(atg_colour){31, 31, 15, ATG_ALPHA_OPAQUE}
 
@@ -244,6 +243,7 @@ gee={.lat=107, .lon=64, .range=120, .jrange=60};
 
 int loadgame(const char *fn, game *state, bool lorw[128][128]);
 int savegame(const char *fn, game state);
+int msgadd(game *state, date when, const char *ref, const char *msg);
 date readdate(const char *t, date nulldate);
 bool datebefore(date date1, date date2); // returns true if date1 is strictly before date2
 #define datewithin(now, start, end)		((!datebefore((now), (start)))&&datebefore((now), (end)))
@@ -306,12 +306,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(*next&&(*next!='#'))
 			{
 				bombertype this;
-				// MANUFACTURER:NAME:COST:SPEED:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
+				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=12)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.alt, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=13)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -786,6 +786,80 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	
+	FILE *txfp=fopen("dat/texts", "r");
+	if(!txfp)
+	{
+		fprintf(stderr, "Failed to open data file `texts'!\n");
+		return(1);
+	}
+	else
+	{
+		char *txfile=slurp(txfp);
+		fclose(txfp);
+		char *next=txfile?strtok(txfile, "=="):NULL;
+		char *item=NULL;
+		while(next)
+		{
+			if(item)
+			{
+				while(*next=='\n') next++;
+				unsigned int event;
+				for(event=0;event<NEVENTS;event++)
+					if(!strcmp(event_names[event], item)) break;
+				if(event<NEVENTS)
+				{
+					evtext[event]=strdup(next);
+				}
+				else if(!strcmp(item, "beginning")); // pass
+				else
+				{
+					unsigned int i;
+					bool new=false;
+					if(!strncmp(item, "NEW_", 4))
+					{
+						new=true;
+						item+=4;
+					}
+					for(i=0;i<ntypes;i++)
+						if(!strcmp(types[i].name, item)) break;
+					if(i<ntypes)
+					{
+						if(new)
+							types[i].newtext=strdup(next);
+						else
+							types[i].text=strdup(next);
+					}
+					else
+					{
+						for(i=0;i<nftypes;i++)
+							if(!strcmp(ftypes[i].name, item)) break;
+						if(i<nftypes)
+						{
+							if(new)
+								ftypes[i].newtext=strdup(next);
+							else
+								ftypes[i].text=strdup(next);
+						}
+						else
+						{
+							fprintf(stderr, "Unrecognised item in dat/texts\n%s\n", item);
+							return(1);
+						}
+					}
+				}
+				item=NULL;
+			}
+			else
+				item=next;
+			next=strtok(NULL, "==");
+		}
+		if(item)
+		{
+			fprintf(stderr, "Leftover item in dat/texts\n%s\n", item);
+			return(1);
+		}
+	}
+	
 	bool lorw[128][128]; // TRUE for water
 	{
 		SDL_Surface *water;
@@ -806,6 +880,27 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		}
 		SDL_FreeSurface(water);
+	}
+	unsigned char tnav[128][128]; // Recognisability of terrain.  High for rivers, even higher for coastline
+	{
+		SDL_Surface *coast;
+		if(!(coast=IMG_Load("map/overlay_coast.png")))
+		{
+			fprintf(stderr, "Coastline overlay: IMG_Load: %s\n", IMG_GetError());
+			return(1);
+		}
+		for(unsigned int x=0;x<128;x++)
+		{
+			for(unsigned int y=0;y<128;y++)
+			{
+				size_t s_off = (y*coast->pitch) + (x*coast->format->BytesPerPixel);
+				uint32_t pixval = *(uint32_t *)((char *)coast->pixels + s_off);
+				Uint8 r,g,b;
+				SDL_GetRGB(pixval, coast->format, &r, &g, &b);
+				tnav[x][y]=(r+g+b)/3;
+			}
+		}
+		SDL_FreeSurface(coast);
 	}
 	if(!(terrain=IMG_Load("map/overlay_terrain.png")))
 	{
@@ -1326,6 +1421,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			perror("atg_pack_element");
 			return(1);
 		}
+	}
+	atg_element *GB_msglbl=atg_create_element_label("Messages:", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+	if(!GB_msglbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_btb, GB_msglbl))
+	{
+		perror("atg_pack_element");
+		return(1);
 	}
 	atg_element *GB_msgrow[MAXMSGS];
 	for(unsigned int i=0;i<MAXMSGS;i++)
@@ -2454,7 +2560,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					atg_label *l=c->elems[0]->elem.label;
 					free(l->text);
-					l->text=strndup(state.msg[i], min(strcspn(state.msg[i], "\n"), 12));
+					l->text=strndup(state.msg[i], min(strcspn(state.msg[i], "\n"), 33));
 				}
 			}
 	}
@@ -2680,10 +2786,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(!datewithin(state.now, targs[i].entry, targs[i].exit)) continue;
 							if(c.e==GB_ttrow[i])
 							{
-								int dx=targs[i].lon-oboe.lon,
-									dy=targs[i].lat-oboe.lat;
-								double range=hypot(dx, dy);
-								fprintf(stderr, "OBOE-Range %g - %s\n", range, (range<oboe.range)?"OK":"NO");
 								seltarg=i;
 								SDL_FreeSurface(GB_map->elem.image->data);
 								GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
@@ -2777,8 +2879,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											while(state.msg[i][x])
 											{
 												size_t l=strcspn(state.msg[i]+x, "\n");
-												char *t=strndup(state.msg[i]+x, l);
-												atg_element *r=atg_create_element_label(t, 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+												char *t=l?strndup(state.msg[i]+x, l):strdup(" ");
+												atg_element *r=atg_create_element_label(t, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 												free(t);
 												if(!r)
 												{
@@ -3196,7 +3298,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					while((stage<8)&&!(state.bombers[k].route[stage][0]||state.bombers[k].route[stage][1]))
 						stage=++state.bombers[k].routestage;
 					bool home=state.bombers[k].failed||(stage>=8);
-					if((stage==4)&&state.bombers[k].nav[NAV_OBOE]&&xyr(state.bombers[k].lon-oboe.lon, state.bombers[k].lat-oboe.lat, oboe.range)) // OBOE
+					if((stage==4)&&state.bombers[k].nav[NAV_OBOE]&&xyr(state.bombers[k].lon-oboe.lon, state.bombers[k].lat-oboe.lat, 50+types[type].alt*.3)) // OBOE
 					{
 						if(oboe.k==-1)
 							oboe.k=k;
@@ -3386,22 +3488,29 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					state.bombers[k].lat+=state.bombers[k].driftlat;
 					state.bombers[k].navlon-=state.bombers[k].driftlon;
 					state.bombers[k].navlat-=state.bombers[k].driftlat;
-					if(state.bombers[k].nav[NAV_GEE]&&xyr(state.bombers[k].lon-gee.lon, state.bombers[k].lat-gee.lat, datebefore(state.now, event[EVENT_GEEJAM])?gee.range:gee.jrange))
+					if(state.bombers[k].nav[NAV_GEE]&&xyr(state.bombers[k].lon-gee.lon, state.bombers[k].lat-gee.lat, datebefore(state.now, event[EVENT_GEEJAM])?56+(types[type].alt*.3):gee.jrange))
 					{
 						state.bombers[k].navlon=(state.bombers[k].navlon>0?1:-1)*min(fabs(state.bombers[k].navlon), 0.4);
 						state.bombers[k].navlat=(state.bombers[k].navlat>0?1:-1)*min(fabs(state.bombers[k].navlat), 2.4);
 					}
 					unsigned int x=state.bombers[k].lon/2, y=state.bombers[k].lat/2;
 					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
+					if(state.bombers[k].nav[NAV_H2S]) // TODO: restrict usage after NAXOS
+					{
+						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
+						wea=max(wea, h*0.08-12);
+					}
 					double navp=types[type].accu*0.05*(sqrt(moonillum)*.8+.5)/(double)(8+max(16-wea, 8));
 					if(home&&(state.bombers[k].lon<64)) navp=1;
 					bool b=brandp(navp);
 					if(b)
 					{
-						state.bombers[k].navlon*=(256.0+state.bombers[k].lon)/512.0;
-						state.bombers[k].navlat*=(256.0+state.bombers[k].lon)/512.0;
-						state.bombers[k].driftlon*=(256.0+state.bombers[k].lon)/512.0;
-						state.bombers[k].driftlat*=(256.0+state.bombers[k].lon)/512.0;
+						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
+						double cf=270.0-h*0.3;
+						state.bombers[k].navlon*=(cf+state.bombers[k].lon)/512.0;
+						state.bombers[k].navlat*=(cf+state.bombers[k].lon)/512.0;
+						state.bombers[k].driftlon*=(cf+state.bombers[k].lon)/512.0;
+						state.bombers[k].driftlat*=(cf+state.bombers[k].lon)/512.0;
 					}
 					unsigned int dtm=0;
 					double mind=1e6;
@@ -4402,6 +4511,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	// Update bomber prodn caps
 	for(unsigned int i=0;i<ntypes;i++)
 	{
+		if(!diffdate(state.now, types[i].entry))
+		{
+			if(msgadd(&state, state.now, types[i].name, types[i].newtext))
+				fprintf(stderr, "failed to msgadd newtype: %s\n", types[i].name);
+		}
 		if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
 		types[i].pcbuf=min(types[i].pcbuf, 180000)+types[i].pc;
 	}
@@ -4557,6 +4671,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	unsigned int mfcost=0;
 	for(unsigned int i=0;i<nftypes;i++)
 	{
+		if(!diffdate(state.now, ftypes[i].entry))
+		{
+			if(msgadd(&state, state.now, ftypes[i].name, ftypes[i].newtext))
+				fprintf(stderr, "failed to msgadd newftype: %s\n", ftypes[i].name);
+		}
 		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue;
 		mfcost=max(mfcost, ftypes[i].cost);
 	}
@@ -4594,7 +4713,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		if(!diffdate(state.now, event[ev]))
 		{
-			fprintf(stderr, "Event: %s\n", event_names[ev]);
+			if(msgadd(&state, state.now, event_names[ev], evtext[ev]))
+				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
 		}
 	}
 	goto gameloop;
@@ -5468,4 +5588,38 @@ void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigne
 			}
 		}
 	}
+}
+
+int msgadd(game *state, date when, const char *ref, const char *msg)
+{
+	if(!state) return(1);
+	if(!ref) return(2);
+	if(!msg) return(2);
+	size_t rl=strlen(ref);
+	char *res=malloc(13+rl+strlen(msg));
+	if(!res)
+		return(-1);
+	snprintf(res, 12, "%02u-%02u-%04u:", when.day, when.month, when.year);
+	strcpy(res+11, ref);
+	strcat(res+11+rl, "\n");
+	strcat(res+12+rl, msg);
+	unsigned int in=0, out=0;
+	while(in<MAXMSGS)
+	{
+		if(state->msg[in])
+			state->msg[out++]=state->msg[in];
+		in++;
+	}
+	unsigned int fill=out;
+	while(fill<MAXMSGS)
+		state->msg[fill++]=NULL;
+	if(out<MAXMSGS)
+		state->msg[out]=res;
+	else
+	{
+		for(in=1;in<MAXMSGS;in++)
+			state->msg[in-1]=state->msg[in];
+		state->msg[MAXMSGS-1]=res;
+	}
+	return(0);
 }

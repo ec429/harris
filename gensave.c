@@ -7,11 +7,11 @@ int main(void)
 	char *line;
 	while(!feof(stdin)&&(line=fgetl(stdin)))
 	{
-		if(isdigit(line[0]))
+		if((line[0]=='*')&&isdigit(line[1]))
 		{
 			size_t count;
 			int n;
-			if(sscanf(line, "%zu*%n", &count, &n)!=1)
+			if(sscanf(line, "*%zu*%n", &count, &n)!=1)
 			{
 				fprintf(stderr, "gensave: Error on line: %s\n", line);
 				return(1);

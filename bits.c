@@ -1,18 +1,30 @@
 #include "bits.h"
+#include <stdbool.h>
 
 char *fgetl(FILE *fp)
 {
+	bool eof=false;
 	string s=init_string();
 	signed int c;
 	while(!feof(fp))
 	{
 		c=fgetc(fp);
-		if((c==EOF)||(c=='\n'))
+		if(c==EOF)
+		{
+			eof=true;
+			break;
+		}
+		if(c=='\n')
 			break;
 		if(c!=0)
 		{
 			append_char(&s, c);
 		}
+	}
+	if(eof&&!s.i)
+	{
+		free(s.buf);
+		return(NULL);
 	}
 	return(s.buf);
 }

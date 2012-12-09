@@ -2,7 +2,7 @@
 by Edward Cree
 --How to play--
 
-NOTE: Harris is considerably unfinished; several gameplay mechanics are still entirely missing.  At present, the first unimplemented feature (H2S terrain radar) comes in January 1943, so you can play at least that far without experiencing problems.  Be warned, however, that future versions of Harris may not preserve savegame compatibility.
+NOTE: Harris is considerably unfinished; several gameplay mechanics are still entirely missing.  At present, the first unimplemented feature (the electronic countermeasure "Window") comes in July 1943, so you can play at least that far without experiencing problems.  Be warned, however, that future versions of Harris may not preserve savegame compatibility.
 
 Contents
 ~~~~~~~~
@@ -60,13 +60,13 @@ German fighters are the /other/ threat to your bombers.  The Germans will deploy
 
 Navaids
 ~~~~~~~
-Navigational aids help guide your bombers to the target.  There are four different systems: Gee, Oboe, H2S and G-H.  All except for H2S are reliant on ground-based transmissions [and thus their range should depend on altitude, but that's not implemented yet].
+Navigational aids help guide your bombers to the target.  There are four different systems: Gee, Oboe, H2S and G-H.  All except for H2S are reliant on ground-based transmissions, and thus their range depends on altitude.
 When a navaid becomes available, sets will begin to be installed in your bombers.  You can control which type of bomber should receive sets by clicking on the appropriate navaid icon; the selected icon will be highlighted yellow.
 
 Gee
 ---
-Gee gives your bombers a rough 'fix' of their position at ranges up to 360mi.  It is available from March 1942.  The introduction of GEE also triggers 'bomber stream' tactics: instead of choosing their own routes and times on target, every aircraft is fitted into a large-scale plan.  All aircraft raiding a given target will follow the same route, and they will be timed to bomb from Zero Hour (01:00) until "Zero plus ten" (01:10).
-Later (September 1942) the Germans will jam GEE, reducing the range to 180mi.
+Gee gives your bombers a rough 'fix' of their position at ranges up to about 360mi.  It is available from March 1942.  The introduction of GEE also triggers 'bomber stream' tactics: instead of choosing their own routes and times on target, every aircraft is fitted into a large-scale plan.  All aircraft raiding a given target will follow the same route, and they will be timed to bomb from Zero Hour (01:00) until "Zero plus ten" (01:10).
+Later (September 1942) the Germans will jam GEE, reducing the range to 200mi.
 
 Oboe
 ----
@@ -74,7 +74,7 @@ Oboe is a precision blind-bombing device.  By its nature a pair of Oboe stations
 
 H2S
 ---
-H2S has not been implemented yet.  When it has, it will enable your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.
+H2S is a terrain radar.  It enables your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.
 
 G-H
 ---
@@ -104,19 +104,19 @@ Reference
 ~~~~~~~~~
 Bomber types
 ------------
-Manufacturer & Type           Cost Speed  Payload Sv De Fa Ac Range Available  Obsolete
- Bristol Blenheim            £5000 198mph  1200lb 55 14  6 60 190   From start 10-01-1941
- Armstrong-Whitworth Whitley £8000 165mph  7000lb 70 17  9 32 320   From start 18-06-1941
- Handley Page Hampden       £10000 202mph  4000lb 65 12  8 48 265   From start 02-10-1941
- Vickers Wellington         £12000 190mph  4500lb 85  8  3 36 311   From start 21-04-1943
- Avro Manchester            £20000 210mph 10350lb 50 12 16 45 325   05-11-1940 26-06-1942
- Short Stirling             £25000 200mph 14000lb 40  9  7 40 280   16-01-1941 08-02-1944
- Handley Page Halifax I     £30000 225mph 13000lb 75 12  6 65 330   14-05-1941 31-03-1944
- Avro Lancaster I           £40000 235mph 14000lb 80  6  4 80 350   07-02-1942   Never
- de Havilland Mosquito      £15000 340mph  4000lb 80  2  4 90 400   12-08-1942   Never
- Handley Page Halifax III   £32000 230mph 13500lb 90  7  5 75 335   30-04-1943   Never
- Avro Lancaster X           £45000 245mph 16000lb 90  5  3 85 360   13-02-1944   Never
-Column index: "Sv" is serviceability, "De" is defence (bigger = more likely to be shot down), "Fa" is failure (bigger = more likely to turn back with mechanical trouble), "Ac" is accuracy (bigger = better navigation and bombing), "Range" is measured in map pixels which are about 3 miles.
+Manufacturer & Type           Cost Speed  Ceiling Payload Sv De Fa Ac Range Available  Obsolete
+ Bristol Blenheim            £5000 198mph 20500ft  1200lb 55 14  6 60 190   From start 10-01-1941
+ Armstrong-Whitworth Whitley £8000 165mph 17600ft  7000lb 70 17  9 32 320   From start 18-06-1941
+ Handley Page Hampden       £10000 202mph 19000ft  4000lb 65 12  8 48 265   From start 02-11-1941
+ Vickers Wellington         £12000 190mph 18000ft  4500lb 85  8  3 36 311   From start 21-10-1943
+ Avro Manchester            £20000 210mph 18500ft 10350lb 50 12 16 45 325   05-11-1940 26-06-1942
+ Short Stirling             £25000 200mph 17500ft 14000lb 40  9  7 40 280   16-01-1941 08-02-1944
+ Handley Page Halifax I     £30000 225mph 20000ft 13000lb 75 12  6 65 330   14-05-1941 31-03-1944
+ Avro Lancaster I           £40000 235mph 22500ft 14000lb 80  6  4 80 350   07-02-1942   Never
+ de Havilland Mosquito      £15000 340mph 30000ft  4000lb 80  2  4 90 400   12-08-1942   Never
+ Handley Page Halifax III   £32000 230mph 22000ft 13500lb 90  7  5 75 335   30-04-1943   Never
+ Avro Lancaster X           £45000 245mph 24000ft 16000lb 90  5  3 85 360   13-02-1944   Never
+Column index: "Sv" is serviceability, "De" is defence (bigger = more likely to be shot down), "Fa" is failure (bigger = more likely to turn back with mechanical trouble), "Ac" is accuracy (bigger = better navigation and bombing), "Range" is measured in map pixels which are about 3 miles.  "Ceiling" is only important for navaid range.
 The authoritative version of this information is the file "dat/bombers".
 
 General
@@ -129,6 +129,7 @@ The files are:
  dat/flak     - details of flak sites (location, strength, dates, etc.)
  dat/ftrbases - details of fighter bases (location, dates)
  dat/targets  - details of targets (location, dates, target class, size, etc.)
+ dat/texts    - text content of messages to display on events, new a/c types, etc.
 Note that changes to most of these files will break save-compatibility if the number of records is changed.
 
 Tutorial

@@ -21,24 +21,57 @@ NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
 Bombers:396
-43*Type 0:0,0,0
-80*Type 0:1,0,0
-47*Type 1:0,0,0
-70*Type 1:1,0,0
-42*Type 2:0,0,0
-41*Type 2:1,0,0
-50*Type 3:0,0,0
-23*Type 3:1,0,0
+*43*Type 0:0,0,0
+*80*Type 0:1,0,0
+*47*Type 1:0,0,0
+*70*Type 1:1,0,0
+*42*Type 2:0,0,0
+*41*Type 2:1,0,0
+*50*Type 3:0,0,0
+*23*Type 3:1,0,0
 GProd:0
 FTypes:8
 FBases:11
 Fighters:90
-19*Type 0:0
-19*Type 0:1
-19*Type 0:2
-11*Type 3:1
-11*Type 3:3
-11*Type 3:4
+*19*Type 0:0
+*19*Type 0:1
+*19*Type 0:2
+*11*Type 3:1
+*11*Type 3:3
+*11*Type 3:4
 Targets init:100,100,0
 Weather rand:14410
-Messages:0
+Messages:1
+03-09-1939:ORDERS
+You have been appointed Commander-in-Chief of RAF Bomber Command.  The Air Ministry have instructed you to employ
+ your forces on attacks upon enemy shipping and upon purely military targets; your crews are under standing orders
+ not to bomb if there is any danger to civilians, and in particular not to drop their bombs without visual
+ identification of the target.
+
+The Air Ministry further reminds you that due to the shortage of industrial capacity, and the lack of trained
+ aircrews, losses must be conserved as much as possible.  Nonetheless you are expected to strike against the enemy
+ with as much force as these restrictions allow.
+
+You are also notified that the Political Warfare department wishes you to drop their propaganda leaflets
+ (Operation "Nickel") over Germany whenever you can spare the forces to do so, in order to sow dissent and
+ discontent amongst the German people.
+
+The Navy have asked you to drop mines in strategic sea lanes; such operations are code-named "Gardening".
+
+Your front-line forces consist of the following types:
+Bristol Blenheim:
+ A light bomber for attacking coastal targets and tactical bombing.  It can't penetrate deep into Germany though.
+Armstrong-Whitworth Whitley:
+ Designed as a night bomber, the Whitley carries the heaviest load, and has the range to reach Berlin.
+Handley Page Hampden:
+ A high-performance bomber with good bombing accuracy, the Hampden can reach well beyond the Ruhr.
+Vickers Wellington:
+ A rugged and reliable all-rounder.  It's just able to reach Berlin with a maximum fuel load.
+
+The Third Reich is known to be operating the following fighter types:
+Messerschmitt Bf109:
+ A high-performance day-fighter pressed into interceptor service.
+Dornier Do17Z:
+ A converted bomber with infrared equipment for night-time target finding.
+
+.
