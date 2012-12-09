@@ -5208,6 +5208,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						p+=bytes;
 					}
 					if(e) break;
+					if(x==255) break;
 					free(line);
 					line=fgetl(fs);
 					if(!line)
