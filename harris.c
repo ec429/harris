@@ -3202,10 +3202,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						plan[(tt-450)/2]++;
 				}
 				startt=min(startt, state.bombers[k].startt);
-				state.bombers[k].fuelt=state.bombers[k].startt+256+irandu(64);
-				if(dist>types[type].range*.85)
+				state.bombers[k].fuelt=state.bombers[k].startt+types[type].range*0.6/(double)state.bombers[k].speed;
+				unsigned int eta=state.bombers[k].startt+outward*1.2/(double)state.bombers[k].speed;
+				if(datebefore(state.now, event[EVENT_GEE])) eta+=24;
+				if(eta>state.bombers[k].fuelt)
 				{
-					unsigned int fu=600*(dist-types[type].range*.85)/(double)types[type].speed;
+					unsigned int fu=eta-state.bombers[k].fuelt;
 					state.bombers[k].fuelt+=fu;
 					state.bombers[k].bmb*=120/(120.0+fu);
 				}
