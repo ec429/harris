@@ -3371,8 +3371,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										break;
 									}
 								}
-								stage=++state.bombers[k].routestage;
 							}
+							stage=++state.bombers[k].routestage;
 						}
 						else if(fuel)
 							stage=++state.bombers[k].routestage;
