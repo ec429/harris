@@ -1096,7 +1096,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		i->data=GB_moonimg;
 	}
-	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btnum[ntypes], *GB_btpc[ntypes], *GB_btp[ntypes], *GB_navrow[ntypes], *GB_navbtn[ntypes][NNAVAIDS], *GB_navgraph[ntypes][NNAVAIDS];
+	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btdesc[ntypes], *GB_btnum[ntypes], *GB_btpc[ntypes], *GB_btp[ntypes], *GB_navrow[ntypes], *GB_navbtn[ntypes][NNAVAIDS], *GB_navgraph[ntypes][NNAVAIDS];
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!(GB_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
@@ -1162,15 +1162,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(fullname)
 			{
 				snprintf(fullname, len, "%s %s", types[i].manu, types[i].name);
-				atg_element *name=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
-				if(!name)
+				if(!(GB_btdesc[i]=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE})))
 				{
 					fprintf(stderr, "atg_create_element_label failed\n");
 					return(1);
 				}
-				name->w=201;
-				name->cache=true;
-				if(atg_pack_element(vb, name))
+				GB_btdesc[i]->w=201;
+				GB_btdesc[i]->cache=true;
+				GB_btdesc[i]->clickable=true;
+				if(atg_pack_element(vb, GB_btdesc[i]))
 				{
 					perror("atg_pack_element");
 					return(1);
@@ -2766,6 +2766,80 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											for(unsigned int j=0;j<state.raids[seltarg].nbombers;j++)
 												if(state.bombers[state.raids[seltarg].bombers[j]].type==i) count++;
 											snprintf(GB_raidnum[seltarg][i]->elem.label->text, 9, "%u", count);
+										}
+									}
+								}
+							}
+							if(c.e==GB_btdesc[i])
+							{
+								atg_free_box_box(msgbox);
+								msgbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+								if(!msgbox)
+									fprintf(stderr, "atg_create_box failed\n");
+								else
+								{
+									atg_element *title=atg_create_element_label("From the Bomber Command files:", 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+									if(!title)
+										fprintf(stderr, "atg_create_element_label failed\n");
+									else
+									{
+										if(atg_pack_element(msgbox, title))
+											perror("atg_pack_element");
+										else
+										{
+											size_t x=0;
+											while(types[i].text[x])
+											{
+												size_t l=strcspn(types[i].text+x, "\n");
+												char *t=l?strndup(types[i].text+x, l):strdup(" ");
+												atg_element *r=atg_create_element_label(t, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+												free(t);
+												if(!r)
+												{
+													fprintf(stderr, "atg_create_element_label failed\n");
+													break;
+												}
+												if(atg_pack_element(msgbox, r))
+												{
+													perror("atg_pack_element");
+													break;
+												}
+												x+=l;
+												if(types[i].text[x]=='\n') x++;
+											}
+											if(!types[i].text[x])
+											{
+												atg_element *cont=atg_create_element_button("R.H.M.S. Saundby, SASO", (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+												if(!cont)
+													fprintf(stderr, "atg_create_element_button failed\n");
+												else
+												{
+													if(atg_pack_element(msgbox, cont))
+														perror("atg_pack_element");
+													else
+													{
+														canvas->box=msgbox;
+														atg_flip(canvas);
+														atg_event e;
+														while(1)
+														{
+															if(atg_poll_event(&e, canvas))
+															{
+																if(e.type==ATG_EV_TRIGGER) break;
+																if(e.type==ATG_EV_RAW)
+																{
+																	SDL_Event s=e.event.raw;
+																	if(s.type==SDL_QUIT) break;
+																}
+															}
+															else
+																SDL_Delay(50);
+															atg_flip(canvas);
+														}
+														canvas->box=gamebox;
+													}
+												}
+											}
 										}
 									}
 								}
