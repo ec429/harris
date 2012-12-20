@@ -159,6 +159,7 @@ typedef struct
 	bool landed; // for forces, read as !assigned
 	double speed;
 	double damage; // increases the probability of mech.fail and of consequent crashes
+	double df; // damage (by) fighters
 	bool idtar; // identified target?  (for use if RoE require it)
 	unsigned int startt; // take-off time
 	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
@@ -2509,6 +2510,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		state.bombers[j].landed=true;
 		state.bombers[j].damage=0;
+		state.bombers[j].df=0;
 	}
 	bool shownav=false;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
@@ -3219,6 +3221,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
 		SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
 		unsigned int inair=totalraids, t=0;
+		double kills[2]={0, 0};
 		while(t<startt)
 		{
 			t++;
@@ -3294,6 +3297,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(brandp(0.02))
 						{
 							state.bombers[k].crashed=true;
+							if(state.bombers[k].damage)
+							{
+								double kf=state.bombers[k].df/state.bombers[k].damage;
+								kills[0]+=(1-kf);
+								kills[1]+=kf;
+							}
 							inair--;
 							continue;
 						}
@@ -3642,6 +3651,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							{
 								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/20.0;
 								state.bombers[k].damage+=dmg;
+								state.bombers[k].df+=dmg;
 								//fprintf(stderr, "F%u hit B%u for %u (%g)\n", ft, bt, dmg, state.bombers[k].damage);
 							}
 							if(!types[bt].noarm&&(brandp(1.0/types[bt].defn)))
@@ -3884,6 +3894,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			atg_flip(canvas);
 		}
 		// incorporate the results, and clear the raids ready for next cycle
+		if(kills[0]+kills[1]>0)
+			fprintf(stderr, "Kills: flak %.3g, fighters %.3g\n", kills[0], kills[1]);
 		unsigned int dij[ntargs][ntypes], nij[ntargs][ntypes], tij[ntargs][ntypes], lij[ntargs][ntypes], heat[ntargs];
 		bool canscore[ntargs];
 		double cidam=0;
@@ -4515,11 +4527,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	// Update bomber prodn caps
 	for(unsigned int i=0;i<ntypes;i++)
 	{
-		if(!diffdate(state.now, types[i].entry))
-		{
-			if(msgadd(&state, state.now, types[i].name, types[i].newtext))
-				fprintf(stderr, "failed to msgadd newtype: %s\n", types[i].name);
-		}
 		if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
 		types[i].pcbuf=min(types[i].pcbuf, 180000)+types[i].pc;
 	}
@@ -4675,11 +4682,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	unsigned int mfcost=0;
 	for(unsigned int i=0;i<nftypes;i++)
 	{
-		if(!diffdate(state.now, ftypes[i].entry))
-		{
-			if(msgadd(&state, state.now, ftypes[i].name, ftypes[i].newtext))
-				fprintf(stderr, "failed to msgadd newftype: %s\n", ftypes[i].name);
-		}
 		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue;
 		mfcost=max(mfcost, ftypes[i].cost);
 	}
@@ -4713,6 +4715,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			state.now.year++;
 		}
 	}
+	for(unsigned int i=0;i<ntypes;i++)
+		if(!diffdate(state.now, types[i].entry))
+		{
+			if(msgadd(&state, state.now, types[i].name, types[i].newtext))
+				fprintf(stderr, "failed to msgadd newtype: %s\n", types[i].name);
+		}
+	for(unsigned int i=0;i<nftypes;i++)
+		if(!diffdate(state.now, ftypes[i].entry))
+		{
+			if(msgadd(&state, state.now, ftypes[i].name, ftypes[i].newtext))
+				fprintf(stderr, "failed to msgadd newftype: %s\n", ftypes[i].name);
+		}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{
 		if(!diffdate(state.now, event[ev]))
