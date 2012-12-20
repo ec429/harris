@@ -245,6 +245,7 @@ gee={.lat=107, .lon=64, .jrange=65};
 int loadgame(const char *fn, game *state, bool lorw[128][128]);
 int savegame(const char *fn, game state);
 int msgadd(game *state, date when, const char *ref, const char *msg);
+void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext);
 date readdate(const char *t, date nulldate);
 bool datebefore(date date1, date date2); // returns true if date1 is strictly before date2
 #define datewithin(now, start, end)		((!datebefore((now), (start)))&&datebefore((now), (end)))
@@ -1744,8 +1745,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	
-	atg_box *msgbox=NULL;
-	
 	atg_box *raidbox=atg_create_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!raidbox)
 	{
@@ -2772,77 +2771,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							}
 							if(c.e==GB_btdesc[i])
 							{
-								atg_free_box_box(msgbox);
-								msgbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
-								if(!msgbox)
-									fprintf(stderr, "atg_create_box failed\n");
-								else
-								{
-									atg_element *title=atg_create_element_label("From the Bomber Command files:", 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-									if(!title)
-										fprintf(stderr, "atg_create_element_label failed\n");
-									else
-									{
-										if(atg_pack_element(msgbox, title))
-											perror("atg_pack_element");
-										else
-										{
-											size_t x=0;
-											while(types[i].text[x])
-											{
-												size_t l=strcspn(types[i].text+x, "\n");
-												char *t=l?strndup(types[i].text+x, l):strdup(" ");
-												atg_element *r=atg_create_element_label(t, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-												free(t);
-												if(!r)
-												{
-													fprintf(stderr, "atg_create_element_label failed\n");
-													break;
-												}
-												if(atg_pack_element(msgbox, r))
-												{
-													perror("atg_pack_element");
-													break;
-												}
-												x+=l;
-												if(types[i].text[x]=='\n') x++;
-											}
-											if(!types[i].text[x])
-											{
-												atg_element *cont=atg_create_element_button("R.H.M.S. Saundby, SASO", (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
-												if(!cont)
-													fprintf(stderr, "atg_create_element_button failed\n");
-												else
-												{
-													if(atg_pack_element(msgbox, cont))
-														perror("atg_pack_element");
-													else
-													{
-														canvas->box=msgbox;
-														atg_flip(canvas);
-														atg_event e;
-														while(1)
-														{
-															if(atg_poll_event(&e, canvas))
-															{
-																if(e.type==ATG_EV_TRIGGER) break;
-																if(e.type==ATG_EV_RAW)
-																{
-																	SDL_Event s=e.event.raw;
-																	if(s.type==SDL_QUIT) break;
-																}
-															}
-															else
-																SDL_Delay(50);
-															atg_flip(canvas);
-														}
-														canvas->box=gamebox;
-													}
-												}
-											}
-										}
-									}
-								}
+								message_box(canvas, "From the Bomber Command files:", types[i].text, "R.H.M.S. Saundby, SASO");
 							}
 						}
 						if(c.e==GB_ttl)
@@ -2936,77 +2865,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						for(unsigned int i=0;i<MAXMSGS;i++)
 							if((trigger.e==GB_msgrow[i])&&state.msg[i])
 							{
-								atg_free_box_box(msgbox);
-								msgbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
-								if(!msgbox)
-									fprintf(stderr, "atg_create_box failed\n");
-								else
-								{
-									atg_element *title=atg_create_element_label("To the Commander-in-Chief, Bomber Command:", 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-									if(!title)
-										fprintf(stderr, "atg_create_element_label failed\n");
-									else
-									{
-										if(atg_pack_element(msgbox, title))
-											perror("atg_pack_element");
-										else
-										{
-											size_t x=0;
-											while(state.msg[i][x])
-											{
-												size_t l=strcspn(state.msg[i]+x, "\n");
-												char *t=l?strndup(state.msg[i]+x, l):strdup(" ");
-												atg_element *r=atg_create_element_label(t, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-												free(t);
-												if(!r)
-												{
-													fprintf(stderr, "atg_create_element_label failed\n");
-													break;
-												}
-												if(atg_pack_element(msgbox, r))
-												{
-													perror("atg_pack_element");
-													break;
-												}
-												x+=l;
-												if(state.msg[i][x]=='\n') x++;
-											}
-											if(!state.msg[i][x])
-											{
-												atg_element *cont=atg_create_element_button("Air Chief Marshal C. F. A. Portal, CAS", (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
-												if(!cont)
-													fprintf(stderr, "atg_create_element_button failed\n");
-												else
-												{
-													if(atg_pack_element(msgbox, cont))
-														perror("atg_pack_element");
-													else
-													{
-														canvas->box=msgbox;
-														atg_flip(canvas);
-														atg_event e;
-														while(1)
-														{
-															if(atg_poll_event(&e, canvas))
-															{
-																if(e.type==ATG_EV_TRIGGER) break;
-																if(e.type==ATG_EV_RAW)
-																{
-																	SDL_Event s=e.event.raw;
-																	if(s.type==SDL_QUIT) break;
-																}
-															}
-															else
-																SDL_Delay(50);
-															atg_flip(canvas);
-														}
-														canvas->box=gamebox;
-													}
-												}
-											}
-										}
-									}
-								}
+								message_box(canvas, "To the Commander-in-Chief, Bomber Command:", state.msg[i], "Air Chief Marshal C. F. A. Portal, CAS");
 							}
 					}
 				break;
@@ -5715,4 +5574,80 @@ int msgadd(game *state, date when, const char *ref, const char *msg)
 		state->msg[MAXMSGS-1]=res;
 	}
 	return(0);
+}
+
+void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext)
+{
+	atg_box *oldbox=canvas->box;
+	atg_box *msgbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+	if(!msgbox)
+	{
+		fprintf(stderr, "atg_create_box failed\n");
+		return;
+	}
+	atg_element *title=atg_create_element_label(titletext, 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+	if(!title)
+		fprintf(stderr, "atg_create_element_label failed\n");
+	else
+	{
+		if(atg_pack_element(msgbox, title))
+			perror("atg_pack_element");
+		else
+		{
+			size_t x=0;
+			while(bodytext[x])
+			{
+				size_t l=strcspn(bodytext+x, "\n");
+				char *t=l?strndup(bodytext+x, l):strdup(" ");
+				atg_element *r=atg_create_element_label(t, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+				free(t);
+				if(!r)
+				{
+					fprintf(stderr, "atg_create_element_label failed\n");
+					break;
+				}
+				if(atg_pack_element(msgbox, r))
+				{
+					perror("atg_pack_element");
+					break;
+				}
+				x+=l;
+				if(bodytext[x]=='\n') x++;
+			}
+			if(!bodytext[x])
+			{
+				atg_element *cont=atg_create_element_button(signtext, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+				if(!cont)
+					fprintf(stderr, "atg_create_element_button failed\n");
+				else
+				{
+					if(atg_pack_element(msgbox, cont))
+						perror("atg_pack_element");
+					else
+					{
+						canvas->box=msgbox;
+						atg_flip(canvas);
+						atg_event e;
+						while(1)
+						{
+							if(atg_poll_event(&e, canvas))
+							{
+								if(e.type==ATG_EV_TRIGGER) break;
+								if(e.type==ATG_EV_RAW)
+								{
+									SDL_Event s=e.event.raw;
+									if(s.type==SDL_QUIT) break;
+								}
+							}
+							else
+								SDL_Delay(50);
+							atg_flip(canvas);
+						}
+						canvas->box=oldbox;
+					}
+				}
+			}
+		}
+	}
+	atg_free_box_box(msgbox);
 }
