@@ -20,7 +20,6 @@
 	Make Flak only be known to you after you've encountered it
 	Implement later forms of Fighter control
 	Better algorithm for building German fighters
-	Implement event texts
 	Implement the remaining Navaids (just Gee-H now)
 	Implement Window & window-control (for diversions)
 	Event effects on fighters (New radars, RCM, etc.)
