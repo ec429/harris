@@ -3144,12 +3144,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				else
 				{
 					// aim for Zero Hour 01:00 plus up to 10 minutes
-					// PFF should arrive at Zero minus 8, and be finished by Zero minus 2
+					// PFF should arrive at Zero minus 6, and be finished by Zero minus 2
 					// Zero Hour is t=480, and a minute is two t-steps
-					int tt=state.bombers[k].pff?(464+irandu(12)):(480+irandu(20));
+					int tt=state.bombers[k].pff?(468+irandu(8)):(480+irandu(20));
 					int st=tt-(outward/state.bombers[k].speed)-3;
 					if(state.bombers[k].pff) st-=2;
-					state.bombers[k].startt=max(0, st);
+					if(st<0)
+					{
+						tt-=st;
+						st=0;
+					}
+					state.bombers[k].startt=st;
 					if((tt>=450)&&(tt<570)&&(targs[i].class==TCLASS_CITY))
 						plan[(tt-450)/2]++;
 				}
@@ -3475,7 +3480,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						state.bombers[k].driftlon*=(cf+state.bombers[k].lon)/512.0;
 						state.bombers[k].driftlat*=(cf+state.bombers[k].lon)/512.0;
 					}
-					unsigned int dtm=0;
+					unsigned int dtm=0; // target nearest to bomber
 					double mind=1e6;
 					for(unsigned int i=0;i<ntargs;i++)
 					{
@@ -3489,7 +3494,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					bool c=brandp(targs[dtm].fires/2e3);
 					if(b||c)
 					{
-						unsigned int dm=0;
+						unsigned int dm=0; // target crew believes is nearest
 						double mind=1e6;
 						for(unsigned int i=0;i<ntargs;i++)
 						{
