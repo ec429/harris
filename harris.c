@@ -3267,7 +3267,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
 					if(t<state.bombers[k].startt) continue;
 					if(state.bombers[k].crashed||state.bombers[k].landed) continue;
-					if((state.bombers[k].damage>=100)||(brandp((types[type].fail+2.0*state.bombers[k].damage)/10000.0)))
+					if(state.bombers[k].damage>=100)
+					{
+						state.bombers[k].crashed=true;
+						if(state.bombers[k].damage)
+						{
+							double kf=state.bombers[k].df/state.bombers[k].damage;
+							kills[0]+=(1-kf);
+							kills[1]+=kf;
+						}
+						inair--;
+						continue;
+					}
+					if(brandp((types[type].fail+2.0*state.bombers[k].damage)/4000.0))
 					{
 						state.bombers[k].failed=true;
 						if(brandp(0.02))
@@ -3430,7 +3442,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(brandp(types[type].defn/200.0))
 									state.bombers[k].damage+=100;
 								else
-									state.bombers[k].damage+=irandu(types[type].defn);
+									state.bombers[k].damage+=irandu(types[type].defn)/2.5;
 							}
 						}
 						bool water=false;
@@ -3448,7 +3460,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 3.0))
 						{
 							if(brandp(flaks[i].strength*(rad?3:1)/900.0))
-								state.bombers[k].damage+=irandu(types[type].defn)/2.0;
+								state.bombers[k].damage+=irandu(types[type].defn)/5.0;
 						}
 						if(brandp(0.1))
 						{
@@ -3632,7 +3644,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[j].lon+=cx*spd;
 							state.fighters[j].lat+=cy*spd;
 						}
-						if(d<(radcon?0.4:0.25)*(.8*moonillum+.6))
+						if(d<(radcon?0.6:0.38)*(.8*moonillum+.6))
 						{
 							if(brandp(ftypes[ft].mnv/100.0))
 							{
@@ -3647,6 +3659,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.fighters[j].damage+=dmg;
 								//fprintf(stderr, "B%u hit F%u for %u (%g)\n", bt, ft, dmg, state.fighters[j].damage);
 							}
+							if(brandp(0.6))
+								state.fighters[j].k=-1;
 						}
 					}
 				}
