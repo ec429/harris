@@ -3809,12 +3809,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[minj].hflak=i;
 							fightersleft--;
 							flaks[i].ftr=minj;
-							//fprintf(stderr, "Assigned fighter #%u to %s\n", targs[i].nfighters, targs[i].name);
+							//fprintf(stderr, "Assigned fighter to hflak %u\n", i);
 						}
 						else
 						{
-							/*fprintf(stderr, "Out of fighters (%s)\n", targs[i].name);
-							targs[i].threat=0;*/
+							//fprintf(stderr, "Out of fighters (hflak %u)\n", i);
 						}
 					}
 				}
