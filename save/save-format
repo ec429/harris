@@ -13,7 +13,7 @@ for(i=0;i<ntypes;i++)
 	"Prio %hhu:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
-	"Type %u:%u,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[]
+	"Type %u:%u,%u,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff
 "GProd:%la\n", gprod
 "FTypes:%u\n", nftypes // should be a constant
 "FBases:%u\n", nfbases // should be a constant
@@ -24,7 +24,8 @@ either
 {
 	"Targets:%hhu\n", ntargs // should be a constant
 	for(i=0;i<ntargs;i++)
-		"Targ %hhu:%la,%la,%la\n", i, targs[i].dmg, targs[i].flk, targs[i].heat
+		optionally // otherwise assume 100, 100, 0; cannot omit last Targ line
+			"Targ %hhu:%la,%la,%la\n", i, targs[i].dmg, targs[i].flk, targs[i].heat
 }
 or
 {

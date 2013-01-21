@@ -11,7 +11,7 @@ INCLUDES := $(OBJS:.o=.h) events.h
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
 
-all: harris save/qstart.sav
+all: harris save/qstart.sav save/civ.sav save/abd.sav
 
 harris: harris.o $(OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(SDL) $(OBJS) $(LIBS) harris.o -o $@
@@ -28,8 +28,8 @@ evh: dat/events mkevh.awk
 widgets.o: widgets.c widgets.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
-save/qstart.sav: gensave save/qstart.sav.in
-	./gensave <save/qstart.sav.in >$@
+save/%.sav: save/%.sav.in gensave
+	./gensave <$< >$@
 
 gensave: gensave.c bits.h bits.o
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< $(LDFLAGS) bits.o -o $@

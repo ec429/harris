@@ -4852,7 +4852,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 	{
 		char *line=fgetl(fs);
 		if(!line) break;
-		if(!*line)
+		if((!*line)||(*line=='#'))
 		{
 			free(line);
 			continue;
@@ -5175,13 +5175,26 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						e|=64;
 						break;
 					}
+					if(*line=='#')
+					{
+						i--;
+						continue;
+					}
 					unsigned int j;
-					f=sscanf(line, "Targ %u:%la,%la,%la\n", &j, &state->dmg[i], &state->flk[i], &state->heat[i]);
+					double dmg, flk, heat;
+					f=sscanf(line, "Targ %u:%la,%la,%la\n", &j, &dmg, &flk, &heat);
 					if(f!=4)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
 						break;
+					}
+					while((i<j)&&(i<ntargs))
+					{
+						state->dmg[i]=100;
+						state->flk[i]=targs[i].flak;
+						state->heat[i]=0;
+						i++;
 					}
 					if(j!=i)
 					{
@@ -5189,7 +5202,9 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						e|=4;
 						break;
 					}
-					state->flk[i]*=targs[i].flak/100.0;
+					state->dmg[i]=dmg;
+					state->flk[i]=flk*targs[i].flak/100.0;
+					state->heat[i]=heat;
 				}
 			}
 		}

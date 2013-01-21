@@ -1,6 +1,6 @@
 harris
 gensave
-save/qstart.sav
+save/*.sav
 *.o
 events.h
 evh
