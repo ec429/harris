@@ -588,115 +588,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				this.rail=strstr(class, ",RAIL");
 				this.uboot=strstr(class, ",UBOOT");
 				this.arm=strstr(class, ",ARM");
-				switch(this.class)
-				{
-					case TCLASS_LEAFLET:
-						if(!ntargs)
-						{
-							fprintf(stderr, "Error: First target is a TCLASS_LEAFLET\n");
-							return(1);
-						}
-						if(targs[ntargs-1].class!=TCLASS_CITY)
-						{
-							fprintf(stderr, "Error: TCLASS_LEAFLET not preceded by its CITY\n");
-							return(1);
-						}
-						(this.picture=targs[ntargs-1].picture)->refcount++;
-					break;
-					case TCLASS_CITY:;
-						int sz=((int)((this.esiz+1)/3))|1, hs=sz>>1;
-						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, sz, sz, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
-						{
-							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-							return(1);
-						}
-						SDL_SetAlpha(this.picture, 0, 0);
-						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
-						for(unsigned int k=0;k<6;k++)
-						{
-							int x=hs, y=hs;
-							for(unsigned int i=0;i<this.esiz>>1;i++)
-							{
-								pset(this.picture, x, y, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
-								unsigned int j=rand()&3;
-								if(j&1) y+=j-2;
-								else x+=j-1;
-								if((x<0)||(x>=sz)||(y<0)||(y>=sz)) x=y=hs;
-							}
-						}
-					break;
-					case TCLASS_SHIPPING:
-						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 4, 3, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
-						{
-							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-							return(1);
-						}
-						SDL_SetAlpha(this.picture, 0, 0);
-						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
-						pset(this.picture, 1, 0, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 0, 1, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 1, 1, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 2, 1, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 3, 1, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 1, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 2, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
-					break;
-					case TCLASS_AIRFIELD:
-						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 3, 1, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
-						{
-							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-							return(1);
-						}
-						SDL_SetAlpha(this.picture, 0, 0);
-						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 7));
-					break;
-					case TCLASS_BRIDGE:
-						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 3, 2, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
-						{
-							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-							return(1);
-						}
-						SDL_SetAlpha(this.picture, 0, 0);
-						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
-						pset(this.picture, 0, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 1, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 2, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 0, 1, (atg_colour){.r=31, .g=31, .b=31, .a=ATG_ALPHA_OPAQUE});
-						pset(this.picture, 2, 1, (atg_colour){.r=31, .g=31, .b=31, .a=ATG_ALPHA_OPAQUE});
-					break;
-					case TCLASS_ROAD:
-						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 1, 3, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
-						{
-							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-							return(1);
-						}
-						SDL_SetAlpha(this.picture, 0, 0);
-						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, SDL_MapRGB(this.picture->format, 47, 31, 0));
-					break;
-					case TCLASS_INDUSTRY:
-						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 1, 1, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
-						{
-							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-							return(1);
-						}
-						SDL_SetAlpha(this.picture, 0, 0);
-						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, SDL_MapRGB(this.picture->format, 127, 127, 31));
-					break;
-					case TCLASS_MINING:
-						if(!(this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 2, 4, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
-						{
-							fprintf(stderr, "this.picture: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-							return(1);
-						}
-						SDL_SetAlpha(this.picture, 0, 0);
-						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 0));
-						SDL_FillRect(this.picture, &(SDL_Rect){.x=0, .y=0, .w=this.picture->w, .h=1}, SDL_MapRGB(this.picture->format, 63, 63, 63));
-					break;
-					default: // shouldn't ever get here
-						fprintf(stderr, "Bad this.class = %d\n", this.class);
-						return(1);
-					break;
-				}
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
@@ -705,6 +596,136 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		free(targfile);
 		fprintf(stderr, "Loaded %u targets\n", ntargs);
+		unsigned int citymap[256][256];
+		memset(citymap, 0xff, sizeof(citymap)); // XXX non-portable way to set all elems to UINT_MAX
+		for(unsigned int t=0;t<ntargs;t++)
+		{
+			if(targs[t].class==TCLASS_CITY)
+				citymap[targs[t].lon][targs[t].lat]=t;
+		}
+		for(unsigned int t=0;t<ntargs;t++)
+		{
+			switch(targs[t].class)
+			{
+				case TCLASS_LEAFLET:
+					if(!t)
+					{
+						fprintf(stderr, "Error: First target is a TCLASS_LEAFLET\n");
+						return(1);
+					}
+					if(targs[t-1].class!=TCLASS_CITY)
+					{
+						fprintf(stderr, "Error: TCLASS_LEAFLET not preceded by its CITY\n");
+						fprintf(stderr, "\t(targs[%u].name == \"%s\")\n", t, targs[t].name);
+						return(1);
+					}
+					(targs[t].picture=targs[t-1].picture)->refcount++;
+				break;
+				case TCLASS_CITY:;
+					int sz=((int)((targs[t].esiz+1)/3))|1, hs=sz>>1;
+					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, sz, sz, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+					{
+						fprintf(stderr, "targs[%u].picture: SDL_CreateRGBSurface: %s\n", t, SDL_GetError());
+						return(1);
+					}
+					SDL_SetAlpha(targs[t].picture, 0, 0);
+					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=targs[t].picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
+					for(unsigned int k=0;k<6;k++)
+					{
+						int x=hs, y=hs;
+						for(unsigned int i=0;i<targs[t].esiz>>1;i++)
+						{
+							int gx=x+targs[t].lon, gy=y+targs[t].lat;
+							if((gx>=0)&&(gx<256)&&(gy>=0)&&(gy<256))
+							{
+								if((citymap[gx][gy]<ntargs)&&(citymap[gx][gy]!=t)) {x=y=hs;i--;}
+								gx=x+targs[t].lon;
+								gy=y+targs[t].lat;
+							}
+							pset(targs[t].picture, x, y, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+							if((gx>=0)&&(gx<256)&&(gy>=0)&&(gy<256))
+								citymap[gx][gy]=t;
+							unsigned int j=rand()&3;
+							if(j&1) y+=j-2;
+							else x+=j-1;
+							if((x<0)||(x>=sz)||(y<0)||(y>=sz)) x=y=hs;
+						}
+					}
+				break;
+				case TCLASS_SHIPPING:
+					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 4, 3, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+					{
+						fprintf(stderr, "targs[%u].picture: SDL_CreateRGBSurface: %s\n", t, SDL_GetError());
+						return(1);
+					}
+					SDL_SetAlpha(targs[t].picture, 0, 0);
+					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=targs[t].picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
+					pset(targs[t].picture, 1, 0, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 0, 1, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 1, 1, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 2, 1, (atg_colour){.r=47, .g=51, .b=47, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 3, 1, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 1, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 2, 2, (atg_colour){.r=39, .g=43, .b=39, .a=ATG_ALPHA_OPAQUE});
+				break;
+				case TCLASS_AIRFIELD:
+					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 3, 1, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+					{
+						fprintf(stderr, "targs[%u].picture: SDL_CreateRGBSurface: %s\n", t, SDL_GetError());
+						return(1);
+					}
+					SDL_SetAlpha(targs[t].picture, 0, 0);
+					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=targs[t].picture->h}, SDL_MapRGB(targs[t].picture->format, 0, 0, 7));
+				break;
+				case TCLASS_BRIDGE:
+					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 3, 2, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+					{
+						fprintf(stderr, "targs[%u].picture: SDL_CreateRGBSurface: %s\n", t, SDL_GetError());
+						return(1);
+					}
+					SDL_SetAlpha(targs[t].picture, 0, 0);
+					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=targs[t].picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
+					pset(targs[t].picture, 0, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 1, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 2, 0, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 0, 1, (atg_colour){.r=31, .g=31, .b=31, .a=ATG_ALPHA_OPAQUE});
+					pset(targs[t].picture, 2, 1, (atg_colour){.r=31, .g=31, .b=31, .a=ATG_ALPHA_OPAQUE});
+				break;
+				case TCLASS_ROAD:
+					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 1, 3, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+					{
+						fprintf(stderr, "targs[%u].picture: SDL_CreateRGBSurface: %s\n", t, SDL_GetError());
+						return(1);
+					}
+					SDL_SetAlpha(targs[t].picture, 0, 0);
+					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=targs[t].picture->h}, SDL_MapRGB(targs[t].picture->format, 47, 31, 0));
+				break;
+				case TCLASS_INDUSTRY:
+					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 1, 1, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+					{
+						fprintf(stderr, "targs[%u].picture: SDL_CreateRGBSurface: %s\n", t, SDL_GetError());
+						return(1);
+					}
+					SDL_SetAlpha(targs[t].picture, 0, 0);
+					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=targs[t].picture->h}, SDL_MapRGB(targs[t].picture->format, 127, 127, 31));
+				break;
+				case TCLASS_MINING:
+					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 2, 4, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
+					{
+						fprintf(stderr, "targs[%u].picture: SDL_CreateRGBSurface: %s\n", t, SDL_GetError());
+						return(1);
+					}
+					SDL_SetAlpha(targs[t].picture, 0, 0);
+					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=targs[t].picture->h}, SDL_MapRGB(targs[t].picture->format, 0, 0, 0));
+					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=1}, SDL_MapRGB(targs[t].picture->format, 63, 63, 63));
+				break;
+				default: // shouldn't ever get here
+					fprintf(stderr, "Bad targs[%u].class = %d\n", t, targs[t].class);
+					return(1);
+				break;
+			}
+		}
+		fprintf(stderr, "Generated target images\n");
 	}
 	
 	FILE *flakfp=fopen("dat/flak", "r");
@@ -3314,10 +3335,23 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool pffstop=stream&&(t<(state.bombers[k].pff?464:480));
 						double cr=1.2;
 						if(oboe.k==(int)k) cr=0.3;
-						if(((fabs(cx)<cr)&&(fabs(cy)<cr)&&roeok&&!pffstop)||((fuel||damaged)&&(roeok||leaf)))
+						unsigned int dm=0; // target crew believes is nearest
+						double mind=1e6;
+						for(unsigned int i=0;i<ntargs;i++)
+						{
+							double dx=state.bombers[k].lon+state.bombers[k].navlon-targs[i].lon, dy=state.bombers[k].lat+state.bombers[k].navlat-targs[i].lat, dd=dx*dx+dy*dy;
+							if(dd<mind)
+							{
+								mind=dd;
+								dm=i;
+							}
+						}
+						if(((fabs(cx)<cr)&&(fabs(cy)<cr)&&roeok&&!pffstop&&(dm==state.bombers[k].targ))||((fuel||damaged)&&(roeok||leaf)))
 						{
 							state.bombers[k].bmblon=state.bombers[k].lon;
 							state.bombers[k].bmblat=state.bombers[k].lat;
+							state.bombers[k].navlon=targs[dm].lon-state.bombers[k].lon;
+							state.bombers[k].navlat=targs[dm].lat-state.bombers[k].lat;
 							state.bombers[k].bombed=true;
 							if(!leaf)
 							{
@@ -3517,8 +3551,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(pget(target_overlay, state.bombers[k].lon, state.bombers[k].lat).a==ATG_ALPHA_OPAQUE)
 								{
 									state.bombers[k].idtar=true;
-									state.bombers[k].navlon=targs[dm].lon-state.bombers[k].lon;
-									state.bombers[k].navlat=targs[dm].lat-state.bombers[k].lat;
 								}
 								else if(c&&(targs[dm].class==TCLASS_CITY)&&(targs[dtm].class==TCLASS_CITY))
 								{
