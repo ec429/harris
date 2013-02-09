@@ -6,7 +6,7 @@
 # Lat, long: where it is (within the 256x256 map)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
 # Class: what kind of target is it?  (CITY, SHIPPING, MINING, LEAFLET, AIRFIELD, BRIDGE, ROAD, INDUSTRY...)
-# Flags: extra target flags (BB, OIL, RAIL, UBOOT, AC, ARM...)
+# Flags: extra target flags (BB, OIL, RAIL, UBOOT, AC, ARM, BERLIN...)
 
 # Historicity notes:
 # Most of the "specific industrial targets" are completely arbitrary; names like 'Hanover Bauwerke' are for flavour rather than referring to some specific factory complex.
@@ -18,8 +18,8 @@
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Schillig Roads:        8: 5: 6: 67:158:          :31-05-1940:SHIPPING
 Heligoland Bight:      6: 4: 8: 58:160:          :24-12-1939:SHIPPING
-Wilhelmshaven Docks:  10: 7: 7: 70:161:          :17-04-1941:SHIPPING
-Wilhelmshaven Docks:  12: 9: 7: 70:161:17-04-1941:15-05-1940:SHIPPING
+Wilhelmshaven Docks:  10: 7: 7: 70:161:          :17-04-1940:SHIPPING
+Wilhelmshaven Docks:  12: 9: 7: 70:161:17-04-1940:15-05-1940:SHIPPING
 Hörnum, Sylt:          7: 6: 6: 51:163:19-03-1940:31-05-1940:SHIPPING
 Norway Fleet:          5: 5:12: 48:152:09-04-1940:13-04-1940:SHIPPING
 Norway Fleet:          5: 4:12: 34:149:13-04-1940:17-04-1940:SHIPPING
@@ -44,8 +44,8 @@ Boulogne Barges:      14:30:25:136: 70:04-07-1940:31-10-1940:SHIPPING
 # Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
 # TODO: end-dates from dates of liberation in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
-Berlin:              100:20:50: 97:233:14-02-1942:          :CITY
-Berlin Leaflets:       8:10:50: 97:233:          :14-02-1942:LEAFLET
+Berlin:              100:20:50: 97:233:14-02-1942:          :CITY,BERLIN
+Berlin Leaflets:       8:10:50: 97:233:          :14-02-1942:LEAFLET,BERLIN
 Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY,OIL
 Hamburg Leaflets:      5: 8:35: 73:185:          :14-02-1942:LEAFLET
 Frankfurt:            40:13:30:151:168:14-02-1942:          :CITY
@@ -94,10 +94,10 @@ Wesel road bridge:     8:16:10:115:139:10-05-1940:14-05-1940:BRIDGE
 
 # Specific industrial targets (CIV-ABD)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
-Berlin U-boat Works:  20:12:15: 98:233:24-05-1940:14-02-1942:INDUSTRY,UBOOT
-Tempelhof Airport:     5:14:12: 96:235:02-08-1940:14-02-1942:AIRFIELD
-Berlin Rail Junction: 10: 8:16: 96:231:24-05-1940:14-02-1942:INDUSTRY,RAIL
-Siemens, Berlin:      14: 9:10: 97:237:24-05-1940:14-02-1942:INDUSTRY
+Berlin U-boat Works:  20:12:15: 98:233:24-05-1940:14-02-1942:INDUSTRY,UBOOT,BERLIN
+Tempelhof Airport:     5:14:12: 96:235:02-08-1940:14-02-1942:AIRFIELD,BERLIN
+Berlin Rail Junction: 10: 8:16: 96:231:24-05-1940:14-02-1942:INDUSTRY,RAIL,BERLIN
+Siemens, Berlin:      14: 9:10: 97:237:24-05-1940:14-02-1942:INDUSTRY,BERLIN
 München-Gladbach:      8: 8:20:130:136:11-05-1940:14-02-1942:INDUSTRY,RAIL
 Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:14-02-1942:INDUSTRY,OIL
 Dusseldorf Steel Mill:16: 4:30:128:142:15-05-1940:14-02-1942:INDUSTRY
@@ -122,10 +122,8 @@ Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:14-02-1942:INDUSTRY,UBOOT
 
 # Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
-Forties Minelaying:    4: 0:99: 15:103:          :          :MINING
-Dogger Minelaying:     6: 0:99: 58:113:          :          :MINING
-Heligoland Minelaying:11: 2:99: 50:137:          :          :MINING
-Biscay Minelaying:    12: 1:99:243: 10:25-06-1940:05-06-1944:MINING
+Heligoland Minelaying:11: 2:99: 56:157:          :          :MINING
+Biscay Minelaying:    12: 1:99:235: 24:25-06-1940:05-06-1944:MINING
 Fehmarn Minelaying:   22: 3:99: 48:203:          :          :MINING
 Øresund Minelaying:   24: 2:99: 19:224:09-04-1940:          :MINING
 Kattegat Minelaying:  20: 1:99: 11:201:09-04-1940:          :MINING
