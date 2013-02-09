@@ -3291,7 +3291,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					if(brandp((types[type].fail+2.0*state.bombers[k].damage)/4000.0))
 					{
 						state.bombers[k].failed=true;
-						if(brandp(0.02))
+						if(brandp((1.0+state.bombers[k].damage/100.0)/100.0))
 						{
 							state.bombers[k].crashed=true;
 							if(state.bombers[k].damage)
