@@ -93,8 +93,8 @@ Budget
 The budget decreases by 4% each day, and is increased by successful raids as follows:
 Item            Per day   Total
 10,000lb bombs     £50    £1250
-10,000 leaflets     £1      £25
-10,000lb mines      £5     £125
+10,000 leaflets     £2      £50
+10,000lb mines     £10     £250
 Ship sunk         £800   £20000
 Bridge destroyed £1600   £40000
 In the above table, the extra column headed "Total" gives the (approximate) total payout, based on the formula for the sum of a geometric progression.  Since the common ratio is 0.96, this is (1/1-0.96) = 25 times the value in the "Per day" column.

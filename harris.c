@@ -134,7 +134,9 @@ typedef struct
 	bool rail; // industry-type RAIL yards
 	bool uboot; // industry-type UBOOT factories
 	bool arm; // industry-type ARMament production (incl. steel etc.)
+	bool berlin; // raids on Berlin are more valuable
 	SDL_Surface *picture;
+	unsigned int psiz; // 'physical' size (cities only) - #pixels in picture
 	/* for Type I fighter control */
 	double threat; // German-assessed threat level
 	unsigned int nfighters; // # of fighters covering this target
@@ -588,6 +590,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				this.rail=strstr(class, ",RAIL");
 				this.uboot=strstr(class, ",UBOOT");
 				this.arm=strstr(class, ",ARM");
+				this.berlin=strstr(class, ",BERLIN");
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
@@ -620,6 +623,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						return(1);
 					}
 					(targs[t].picture=targs[t-1].picture)->refcount++;
+					targs[t].psiz=targs[t-1].psiz;
 				break;
 				case TCLASS_CITY:;
 					int sz=((int)((targs[t].esiz+1)/3))|1, hs=sz>>1;
@@ -651,6 +655,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if((x<0)||(x>=sz)||(y<0)||(y>=sz)) x=y=hs;
 						}
 					}
+					targs[t].psiz=0;
+					for(int x=0;x<sz;x++)
+						for(int y=0;y<sz;y++)
+							if(pget(targs[t].picture, x, y).a==ATG_ALPHA_OPAQUE)
+								targs[t].psiz++;
 				break;
 				case TCLASS_SHIPPING:
 					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 4, 3, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
@@ -3932,7 +3941,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
 									cidam+=state.dmg[l];
-									state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/250000.0);
+									state.dmg[l]=max(0, state.dmg[l]-state.bombers[k].bmb/(targs[i].psiz*10000.0));
 									cidam-=state.dmg[l];
 									nij[l][type]++;
 									tij[l][type]+=state.bombers[k].bmb;
@@ -4004,7 +4013,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							{
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
-									state.dmg[l]=max(0, state.dmg[l]-types[type].cap/100000.0);
+									state.dmg[l]=max(0, state.dmg[l]-types[type].cap/(targs[i].psiz*4000.0));
 									nij[l][type]++;
 									tij[l][type]+=types[type].cap*3;
 									state.bombers[k].bombed=false;
@@ -4094,7 +4103,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					case TCLASS_BRIDGE:
 					case TCLASS_INDUSTRY:
 						tbj[j]+=tij[i][j];
-						if(canscore[i]) scoretbj+=tij[i][j];
+						unsigned int sf=1;
+						if(targs[i].berlin) sf*=2;
+						if(targs[i].class==TCLASS_INDUSTRY) sf*=2;
+						if(canscore[i]) scoretbj+=tij[i][j]*sf;
 					break;
 					case TCLASS_LEAFLET:
 						tlj[j]+=tij[i][j];
@@ -4127,16 +4139,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(dj[j]) ntcols++;
 		}
 		state.cshr+=scoreTb/200;
-		state.cshr+=scoreTl/10000;
+		state.cshr+=scoreTl/5000;
 		state.cshr+=Ts*800;
-		state.cshr+=scoreTm/2000;
+		state.cshr+=scoreTm/1000;
 		state.cshr+=bridge*16;
-		double par=0.2+((state.now.year-1939)*0.1);
+		double par=0.2+((state.now.year-1939)*0.15);
 		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0);
 		state.confid+=Ts*0.25;
 		state.confid+=cidam*0.1;
 		state.confid=min(max(state.confid, 0), 100);
-		state.morale+=(1.5-L*100.0/(double)D)/3.0;
+		state.morale+=(1.8-L*100.0/(double)D)/3.0;
 		if(L==0) state.morale+=0.25;
 		if(D>=100) state.morale+=0.2;
 		if(D>=1000) state.morale+=1.0;
