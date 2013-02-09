@@ -4110,7 +4110,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					break;
 					case TCLASS_LEAFLET:
 						tlj[j]+=tij[i][j];
-						if(canscore[i]) scoretlj+=tij[i][j];
+						if(canscore[i]) scoretlj+=tij[i][j]*(targs[i].berlin?2:1);
 					break;
 					case TCLASS_SHIPPING:
 						tsj[j]+=tij[i][j];

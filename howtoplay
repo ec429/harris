@@ -93,7 +93,7 @@ Budget
 The budget decreases by 4% each day, and is increased by successful raids as follows:
 Item            Per day   Total
 10,000lb bombs     £50    £1250  Note: This is doubled for 'specific industrial targets', and doubled for Berlin
-10,000 leaflets     £2      £50
+10,000 leaflets     £2      £50  Note: This is doubled for Berlin
 10,000lb mines     £10     £250
 Ship sunk         £800   £20000
 Bridge destroyed £1600   £40000
