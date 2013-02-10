@@ -14,7 +14,7 @@ SDLFLAGS := `sdl-config --cflags`
 all: harris save/qstart.sav save/civ.sav save/abd.sav
 
 harris: harris.o $(OBJS)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(SDL) $(OBJS) $(LIBS) harris.o -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) harris.o -o $@ $(SDL)
 
 harris.o: harris.c $(INCLUDES)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<

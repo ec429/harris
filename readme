@@ -10,7 +10,7 @@ Harris is licensed under the GPLv3+ (see the file COPYING).
 
 The game manual is in the file 'howtoplay', and includes a short tutorial.
 
-Harris uses SDL and a simple graphics toolkit called "libatg" (for A Tiny Gui).  The former can be found at <http://www.libsdl.org> and the latter at <https://github.com/ec429/libatg>.  It also depends (via atg) on the Liberation Mono font, which Debian users can get from the package "fonts-liberation".
+Harris uses SDL and a simple graphics toolkit called "libatg" (for A Tiny Gui).  The former can be found at <http://www.libsdl.org> and the latter at <https://github.com/ec429/libatg>.  It also depends (via atg) on the Liberation Mono font, which Debian users can get from the package "fonts-liberation".  SDL packages needed: sdl, sdl-devel, sdl-image, sdl-image-devel, sdl-ttf, sdl-ttf-dev.
 
 For project info (roadmap, how you can help, etc.) see the wiki, <https://github.com/ec429/harris/wiki>.
 
