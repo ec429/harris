@@ -1,3 +1,11 @@
+/*
+	harris - a strategy game
+	Copyright (C) 2012-2013 Edward Cree
+
+	licensed under GPLv3+ - see top of harris.c for details
+	
+	gensave: converts '.sav.in' startfiles to '.sav' savefiles
+*/
 #include <stdio.h>
 #include <ctype.h>
 #include "bits.h"

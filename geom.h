@@ -1,3 +1,11 @@
+/*
+	harris - a strategy game
+	Copyright (C) 2012-2013 Edward Cree
+
+	licensed under GPLv3+ - see top of harris.c for details
+	
+	geom: geometry functions
+*/
 #pragma once
 #include <stdbool.h>
 

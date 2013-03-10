@@ -1,9 +1,18 @@
+/*
+	harris - a strategy game
+	Copyright (C) 2012-2013 Edward Cree
+
+	licensed under GPLv3+ - see top of harris.c for details
+	
+	rand: random-number functions
+*/
 #include "rand.h"
 #include <stdlib.h>
 #include <math.h>
 
 int irandu(int n)
 {
+	// This is poor quality randomness, but that doesn't really matter here
 	return(rand()%n);
 }
 

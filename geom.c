@@ -1,7 +1,16 @@
+/*
+	harris - a strategy game
+	Copyright (C) 2012-2013 Edward Cree
+
+	licensed under GPLv3+ - see top of harris.c for details
+	
+	geom: geometry functions
+*/
+
 #include "geom.h"
 #include <math.h>
 
-unsigned int xxyy(int dx, int dy)
+unsigned int xxyy(int dx, int dy) // computes dx**2+dy**2
 {
 	return(dx*dx+dy*dy);
 }

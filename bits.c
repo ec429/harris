@@ -1,3 +1,11 @@
+/*
+	harris - a strategy game
+	Copyright (C) 2012-2013 Edward Cree
+
+	licensed under GPLv3+ - see top of harris.c for details
+	
+	bits: misc. functions, mostly for string buffers
+*/
 #include "bits.h"
 #include <stdbool.h>
 

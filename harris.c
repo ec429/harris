@@ -1,6 +1,6 @@
 /*
 	harris - a strategy game
-	Copyright (C) 2012 Edward Cree
+	Copyright (C) 2012-2013 Edward Cree
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by

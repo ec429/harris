@@ -1,3 +1,11 @@
+/*
+	harris - a strategy game
+	Copyright (C) 2012-2013 Edward Cree
+
+	licensed under GPLv3+ - see top of harris.c for details
+	
+	weather: simulates weather patterns
+*/
 #include <stdlib.h>
 #include <math.h>
 #include "weather.h"
