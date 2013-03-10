@@ -37,5 +37,5 @@ void free_string(string *s); // frees a string (is just free(s->buf); really)
 
 typedef uint32_t acid; // a/c ID
 
-void pacid(acid id, char buf[8]); // print an a/c id as hex
+void pacid(acid id, char buf[9]); // print an a/c id as hex
 int gacid(const char from[8], acid *buf); // parse an a/c id from hex

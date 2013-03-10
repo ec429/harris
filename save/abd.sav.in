@@ -21,29 +21,29 @@ NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
 Bombers:664
-*298*Type 3:0,0,0
-*114*Type 3:1,0,0
-*20*Type 4:0,0,0
-*85*Type 4:1,0,0
-*36*Type 5:0,0,0
-*6*Type 5:0,4,0
-*47*Type 5:1,0,0
-*4*Type 5:1,4,0
-*26*Type 6:0,0,0
-*18*Type 6:1,0,0
-*9*Type 7:0,0,0
-*1*Type 7:1,0,0
+*298*Type 3:0,0,0,NOID
+*114*Type 3:1,0,0,NOID
+*20*Type 4:0,0,0,NOID
+*85*Type 4:1,0,0,NOID
+*36*Type 5:0,0,0,NOID
+*6*Type 5:0,4,0,NOID
+*47*Type 5:1,0,0,NOID
+*4*Type 5:1,4,0,NOID
+*26*Type 6:0,0,0,NOID
+*18*Type 6:1,0,0,NOID
+*9*Type 7:0,0,0,NOID
+*1*Type 7:1,0,0,NOID
 GProd:0
 FTypes:8
 FBases:11
 Fighters:131
-*29*Type 0:0
-*24*Type 2:1
-*34*Type 0:2
-*14*Type 3:1
-*12*Type 3:3
-*10*Type 4:4
-*8*Type 5:3
+*29*Type 0:0,NOID
+*24*Type 2:1,NOID
+*34*Type 0:2,NOID
+*14*Type 3:1,NOID
+*12*Type 3:3,NOID
+*10*Type 4:4,NOID
+*8*Type 5:3,NOID
 Targets:97
 #Berlin
 Targ 20:100,120,0

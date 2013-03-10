@@ -4575,7 +4575,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			state.nbombers=n;
 			break;
 		}
-		(state.bombers=nb)[n]=(ac_bomber){.type=m, .failed=false};
+		(state.bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid()};
 		for(unsigned int j=0;j<NNAVAIDS;j++)
 			nb[n].nav[j]=false;
 		state.cash-=types[m].cost;
@@ -4717,7 +4717,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		do
 			base=irandu(nfbases);
 		while(!datewithin(state.now, fbases[base].entry, fbases[base].exit));
-		(state.fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0};
+		(state.fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0, .id=rand_acid()};
 		state.gprod-=ftypes[i].cost;
 	}
 	if(++state.now.day>monthdays[state.now.month-1]+(((state.now.month==2)&&!(state.now.year%4))?1:0))
@@ -5041,14 +5041,20 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					}
 					unsigned int j;
 					unsigned int failed,nav,pff;
-					f=sscanf(line, "Type %u:%u,%u,%u\n", &j, &failed, &nav, &pff);
+					char p_id[9];
+					f=sscanf(line, "Type %u:%u,%u,%u,%8s\n", &j, &failed, &nav, &pff, p_id);
 					// TODO: this is for oldsave compat and should probably be removed later
 					if(f==3)
 					{
 						f=4;
 						pff=0;
 					}
-					if(f!=4)
+					if(f==4)
+					{
+						f=5;
+						strcpy(p_id, "NOID");
+					}
+					if(f!=5)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -5063,6 +5069,14 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff};
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						state->bombers[i].nav[n]=(nav>>n)&1;
+					if(strcmp(p_id, "NOID")==0)
+						state->bombers[i].id=rand_acid();
+					else if(gacid(p_id, &state->bombers[i].id))
+					{
+						fprintf(stderr, "32 Invalid value \"%s\" for a/c ID in tag \"%s\"\n", p_id, tag);
+						e|=32;
+						break;
+					}
 				}
 			}
 		}
@@ -5129,8 +5143,15 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					}
 					unsigned int j;
 					unsigned int base;
-					f=sscanf(line, "Type %u:%u\n", &j, &base);
-					if(f!=2)
+					char p_id[9];
+					f=sscanf(line, "Type %u:%u,%8s\n", &j, &base, p_id);
+					// TODO: this is for oldsave compat and should probably be removed later
+					if(f==2)
+					{
+						f=3;
+						strcpy(p_id, "NOID");
+					}
+					if(f!=3)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -5143,6 +5164,14 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						break;
 					}
 					state->fighters[i]=(ac_fighter){.type=j, .base=base};
+					if(strcmp(p_id, "NOID")==0)
+						state->fighters[i].id=rand_acid();
+					else if(gacid(p_id, &state->fighters[i].id))
+					{
+						fprintf(stderr, "32 Invalid value \"%s\" for a/c ID in tag \"%s\"\n", p_id, tag);
+						e|=32;
+						break;
+					}
 				}
 			}
 		}
@@ -5361,6 +5390,7 @@ int savegame(const char *fn, game state)
 		perror("fopen");
 		return(1);
 	}
+	char p_id[9];
 	fprintf(fs, "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV);
 	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
 	fprintf(fs, "Confid:%la\n", state.confid);
@@ -5378,14 +5408,18 @@ int savegame(const char *fn, game state)
 		unsigned int nav=0;
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
-		fprintf(fs, "Type %u:%u,%u,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0);
+		pacid(state.bombers[i].id, p_id);
+		fprintf(fs, "Type %u:%u,%u,%u,%s\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id);
 	}
 	fprintf(fs, "GProd:%la\n", state.gprod);
 	fprintf(fs, "FTypes:%u\n", nftypes);
 	fprintf(fs, "FBases:%u\n", nfbases);
 	fprintf(fs, "Fighters:%u\n", state.nfighters);
 	for(unsigned int i=0;i<state.nfighters;i++)
-		fprintf(fs, "Type %u:%u\n", state.fighters[i].type, state.fighters[i].base);
+	{
+		pacid(state.fighters[i].id, p_id);
+		fprintf(fs, "Type %u:%u,%s\n", state.fighters[i].type, state.fighters[i].base, p_id);
+	}
 	fprintf(fs, "Targets:%hhu\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
 		fprintf(fs, "Targ %hhu:%la,%la,%la\n", i, state.dmg[i], targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0, state.heat[i]);

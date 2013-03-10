@@ -155,10 +155,11 @@ void free_string(string *s)
 
 const char hex[16]="0123456789abcdef";
 
-void pacid(acid id, char buf[8])
+void pacid(acid id, char buf[9])
 {
 	for(size_t i=0;i<8;i++)
 		buf[i]=hex[(id>>(i<<2))&0xf];
+	buf[8]=0;
 }
 
 int gacid(const char from[8], acid *buf)

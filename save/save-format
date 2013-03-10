@@ -13,13 +13,19 @@ for(i=0;i<ntypes;i++)
 	"Prio %hhu:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
-	"Type %u:%u,%u,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff
+	either
+		"Type %u:%u,%u,%u,NOID\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff
+	or
+		"Type %u:%u,%u,%u,%s\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id)
 "GProd:%la\n", gprod
 "FTypes:%u\n", nftypes // should be a constant
 "FBases:%u\n", nfbases // should be a constant
 "Fighters:%u\n", nfighters
 for(i=0;i<nfighters;i++)
-	"Type %u:%u\n", fighter[i].type, fighter[i].base
+	either
+		"Type %u:%u,NOID\n", fighter[i].type, fighter[i].base
+	or
+		"Type %u:%u,%s\n", fighter[i].type, fighter[i].base, pacid(fighter[i].id)
 either
 {
 	"Targets:%hhu\n", ntargs // should be a constant

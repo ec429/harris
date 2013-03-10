@@ -25,3 +25,10 @@ bool brandp(double p)
 {
 	return(rand()<RAND_MAX*p);
 }
+
+acid rand_acid(void)
+{
+	// Again, lazy and rubbish implementation,
+	// but 0xffffffff is probably RAND_MAX anyway
+	return(rand()&0xffffffff);
+}

@@ -3,8 +3,10 @@
 <time>   ::= <hh>:<mm> # pre-raid is 20:00, post-raid is 12:00
 <ac-uid> ::= <hex>*8 # randomly generated token.  P(match) = 2^-32 ~= 1/4.2e9
 <b-or-f> ::= B | F
-<event>  ::= <ct-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
+<event>  ::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
 <ct-ev>  ::= CT
+<nav-ev> ::= NA <navaid:int> # installation of a navaid
+<pff-ev> ::= PF # assignment to PFF - not reversible
 <raid-ev>::= RA <targ-id:int>
 <hit-ev> ::= HI <bmb:int>
 <dmg-ev> ::= DM <delta-dmg:float> (AC <from:ac-uid> | FK <flak-id:int>)

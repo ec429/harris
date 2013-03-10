@@ -21,24 +21,24 @@ NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
 Bombers:396
-*43*Type 0:0,0,0
-*80*Type 0:1,0,0
-*47*Type 1:0,0,0
-*70*Type 1:1,0,0
-*42*Type 2:0,0,0
-*41*Type 2:1,0,0
-*50*Type 3:0,0,0
-*23*Type 3:1,0,0
+*43*Type 0:0,0,0,NOID
+*80*Type 0:1,0,0,NOID
+*47*Type 1:0,0,0,NOID
+*70*Type 1:1,0,0,NOID
+*42*Type 2:0,0,0,NOID
+*41*Type 2:1,0,0,NOID
+*50*Type 3:0,0,0,NOID
+*23*Type 3:1,0,0,NOID
 GProd:0
 FTypes:8
 FBases:11
 Fighters:90
-*19*Type 0:0
-*19*Type 0:1
-*19*Type 0:2
-*11*Type 3:1
-*11*Type 3:3
-*11*Type 3:4
+*19*Type 0:0,NOID
+*19*Type 0:1,NOID
+*19*Type 0:2,NOID
+*11*Type 3:1,NOID
+*11*Type 3:3,NOID
+*11*Type 3:4,NOID
 Targets init:100,100,0
 Weather rand:14410
 Messages:1
