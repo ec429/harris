@@ -1,9 +1,10 @@
 <record> ::= <date> <time> <ac-uid> <b-or-f><type:int> <event>
-<date>   ::= <day>-<month>-<year> # as save file
+<date>   ::= <day>-<month>-<year> # as save file; times <= 12:00 are saved under the previous day
 <time>   ::= <hh>:<mm> # pre-raid is 20:00, post-raid is 12:00
 <ac-uid> ::= <hex>*8 # randomly generated token.  P(match) = 2^-32 ~= 1/4.2e9
 <b-or-f> ::= B | F
-<event>  ::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
+<event>  ::= <init-ev> | <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
+<init-ev>::= INIT <filename:str> # has a dummy ac-uid/b-or-f/type.  Never generated, but should appear in all startpoints (*.sav.in)
 <ct-ev>  ::= CT
 <nav-ev> ::= NA <navaid:int> # installation of a navaid
 <pff-ev> ::= PF # assignment to PFF - not reversible

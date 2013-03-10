@@ -29,6 +29,8 @@
 #include "geom.h"
 #include "widgets.h"
 #include "events.h"
+#include "history.h"
+#include "date.h"
 
 //#define NOWEATHER	1	// skips weather phase of 'next-day' (w/o raid), allowing quicker time passage.  For testing/debugging
 
@@ -44,14 +46,6 @@
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
 	Sack player if confid or morale too low
 */
-
-typedef struct
-{
-	int year;
-	unsigned int month; // 1-based
-	unsigned int day; // also 1-based
-}
-date;
 
 const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -235,6 +229,7 @@ typedef struct
 	}
 	roe;
 	char *msg[MAXMSGS];
+	history hist;
 }
 game;
 
@@ -267,12 +262,6 @@ int loadgame(const char *fn, game *state, bool lorw[128][128]);
 int savegame(const char *fn, game state);
 int msgadd(game *state, date when, const char *ref, const char *msg);
 void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext);
-date readdate(const char *t, date nulldate);
-bool datebefore(date date1, date date2); // returns true if date1 is strictly before date2
-#define datewithin(now, start, end)		((!datebefore((now), (start)))&&datebefore((now), (end)))
-int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
-double pom(date when); // returns in [0,1); 0 for new moon, 0.5 for full moon
-double foldpom(double pom); // returns illumination in [0,1]
 void drawmoon(SDL_Surface *s, double phase);
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
 SDL_Surface *render_weather(w_state weather);
@@ -2266,6 +2255,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	state.roe.idtar=true;
 	for(unsigned int i=0;i<MAXMSGS;i++)
 		state.msg[i]=NULL;
+	
+	state.hist.nents=0;
+	state.hist.nalloc=0;
+	state.hist.ents=NULL;
 	
 	main_menu:
 	canvas->box=mainbox;
@@ -4770,49 +4763,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	return(0);
 }
 
-date readdate(const char *t, date nulldate)
-{
-	date d;
-	if(t&&*t&&(sscanf(t, "%u-%u-%d", &d.day, &d.month, &d.year)==3)) return(d);
-	return(nulldate);
-}
-
-bool datebefore(date date1, date date2) // returns true if date1 is strictly before date2
-{
-	if(date1.year!=date2.year) return(date1.year<date2.year);
-	if(date1.month!=date2.month) return(date1.month<date2.month);
-	return(date1.day<date2.day);
-}
-
-int diffdate(date date1, date date2) // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2.  Value is difference in days
-{
-	if(date1.month<3)
-	{
-		date1.month+=12;
-		date1.year--;
-	}
-	if(date2.month<3)
-	{
-		date2.month+=12;
-		date2.year--;
-	}
-	int days1=365*date1.year + floor(date1.year/4) - floor(date1.year/100) + floor(date1.year/400) + floor(date1.day) + floor((153*date1.month+8)/5);
-	int days2=365*date2.year + floor(date2.year/4) - floor(date2.year/100) + floor(date2.year/400) + floor(date2.day) + floor((153*date2.month+8)/5);
-	return(days1-days2);
-}
-
-double pom(date when)
-{
-	// new moon at 14/08/1939
-	// synodic month 29.530588853 days
-	return(fmod(diffdate(when, (date){.day=14, .month=8, .year=1939})/29.530588853, 1));
-}
-
-double foldpom(double pom)
-{
-	return((1-cos(pom*M_PI*2))/2.0);
-}
-
 void drawmoon(SDL_Surface *s, double phase)
 {
 	SDL_FillRect(s, &(SDL_Rect){.x=0, .y=0, .w=s->w, .h=s->h}, SDL_MapRGB(s->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b));
@@ -5365,6 +5315,21 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				}
 			}
 		}
+		else if(strcmp(tag, "History")==0)
+		{
+			size_t nents;
+			f=sscanf(dat, "%zu\n", &nents);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if((f=hist_load(fs, nents, &state->hist)))
+			{
+				fprintf(stderr, "32 Invalid value: error %d somewhere in hist_load, in tag \"%s\"\n", f, tag);
+				e|=32;
+			}
+		}
 		else
 		{
 			fprintf(stderr, "128 Bad tag \"%s\"\n", tag);
@@ -5440,6 +5405,7 @@ int savegame(const char *fn, game state)
 			fputs(state.msg[i], fs);
 			fputs(".\n", fs);
 		}
+	hist_save(state.hist, fs);
 	fclose(fs);
 	return(0);
 }

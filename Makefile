@@ -5,7 +5,7 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
 LIBS := -latg -lm
-OBJS := weather.o bits.o rand.o geom.o widgets.o
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o
 INCLUDES := $(OBJS:.o=.h) events.h
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_image
@@ -34,7 +34,9 @@ save/%.sav: save/%.sav.in gensave
 gensave: gensave.c bits.h bits.o
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< $(LDFLAGS) bits.o -o $@
 
-weather.o: rand.h rand.o
+weather.o: rand.h
+
+history.o: bits.h date.h
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
