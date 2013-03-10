@@ -161,6 +161,7 @@ char *evtext[NEVENTS];
 
 typedef struct
 {
+	acid id;
 	unsigned int type;
 	unsigned int targ;
 	double lat, lon;
@@ -187,6 +188,7 @@ ac_bomber;
 
 typedef struct
 {
+	acid id;
 	unsigned int type;
 	unsigned int base;
 	double lat, lon;

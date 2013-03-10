@@ -1,0 +1,12 @@
+<record> ::= <date> <time> <ac-uid> <b-or-f><type:int> <event>
+<date>   ::= <day>-<month>-<year> # as save file
+<time>   ::= <hh>:<mm> # pre-raid is 20:00, post-raid is 12:00
+<ac-uid> ::= <hex>*8 # randomly generated token.  P(match) = 2^-32 ~= 1/4.2e9
+<b-or-f> ::= B | F
+<event>  ::= <ct-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
+<ct-ev>  ::= CT
+<raid-ev>::= RA <targ-id:int>
+<hit-ev> ::= HI <bmb:int>
+<dmg-ev> ::= DM <delta-dmg:float> (AC <from:ac-uid> | FK <flak-id:int>)
+<fail-ev>::= FA
+<crsh-ev>::= CR

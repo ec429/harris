@@ -8,6 +8,7 @@
 */
 #include "bits.h"
 #include <stdbool.h>
+#include <ctype.h>
 
 char *fgetl(FILE *fp)
 {
@@ -150,4 +151,28 @@ string make_string(const char *str)
 void free_string(string *s)
 {
 	free(s->buf);
+}
+
+const char hex[16]="0123456789abcdef";
+
+void pacid(acid id, char buf[8])
+{
+	for(size_t i=0;i<8;i++)
+		buf[i]=hex[(id>>(i<<2))&0xf];
+}
+
+int gacid(const char from[8], acid *buf)
+{
+	if(!buf) return(1);
+	*buf=0;
+	unsigned int val;
+	char fbuf[2]={0, 0};
+	for(size_t i=0;i<8;i++)
+	{
+		if(!isxdigit(from[i])) return(1);
+		fbuf[0]=from[i];
+		sscanf(fbuf, "%x", &val);
+		*buf|=val<<(i<<2);
+	}
+	return(0);
 }
