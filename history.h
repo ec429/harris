@@ -39,3 +39,5 @@ int cr_append(history *hist, date d, time t, acid id, bool ftr, unsigned int typ
 int evt_append(history *hist, date d, time t, unsigned int tid, const char *ev); // Append a target event to the history
 int tdm_append(history *hist, date d, time t, unsigned int tid, double ddmg, double cdmg); // Append a DM (damaged or repaired) event to the history
 int tfk_append(history *hist, date d, time t, unsigned int tid, double dflk, double cflk); // Append a FK (flak-change) event to the history
+
+int ca_append(history *hist, date d, time t, unsigned int cshr, unsigned int cash); // Append a CA (cash) event to the history

@@ -1,5 +1,5 @@
 <record> ::= <date> <time> <data>
-<data>   ::= A <ac-uid> <b-or-f><type:int> <a-event> | T <targ-id:int> <t-event> | I <init-ev>
+<data>   ::= A <ac-uid> <b-or-f><type:int> <a-event> | T <targ-id:int> <t-event> | I <init-ev> | M <misc-ev>
 <date>   ::= <day>-<month>-<year> # as save file; times <= 12:00 are saved under the previous day
 <time>   ::= <hh>:<mm> # pre-raid is 20:00, post-raid is 12:00
 <ac-uid> ::= <hex>*8 # randomly generated token.  P(match) = 2^-32 ~= 1/4.2e9
@@ -17,3 +17,5 @@
 <t-event>::= <t-dmg> | <t-flk>
 <t-dmg>  ::= DM <delta-dmg:float> <current-dmg:float>
 <t-flk>  ::= FK <delta-flk:float> <current-flk:float>
+<misc-ev>::= <cash-ev>
+<cash-ev>::= CA <delta-cash:int> <current-cash:int> # Only for Budget payments, as CT costs are known

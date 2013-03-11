@@ -105,20 +105,28 @@ int hist_load(FILE *in, size_t nents, history *hist)
 	return(0);
 }
 
-int eva_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, const char *ev)
+int ev_append(history *hist, date d, time t, const char *ev)
 {
 	char *p=hist_alloc(hist);
 	if(!p) return(1);
 	size_t i=0;
 	i+=writedate(d, p+i);
 	p[i++]=' ';
-	i+=sprintf(p+i, "%02u:%02u A ", t.hour, t.minute);
-	pacid(id, p+i);i+=8;
-	p[i++]=' ';
-	p[i++]=ftr?'F':'B';
-	i+=sprintf(p+i, "%d ", type);
+	i+=sprintf(p+i, "%02u:%02u ", t.hour, t.minute);
 	strncpy(p+i, ev, 80-i);
 	return(0);
+}
+
+int eva_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, const char *ev)
+{
+	char buf[80];
+	size_t i=sprintf(buf, "A ");
+	pacid(id, buf+i);i+=8;
+	buf[i++]=' ';
+	buf[i++]=ftr?'F':'B';
+	i+=sprintf(buf+i, "%d ", type);
+	strncpy(buf+i, ev, 80-i);
+	return(ev_append(hist, d, t, buf));
 }
 
 int ct_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type)
@@ -179,14 +187,10 @@ int cr_append(history *hist, date d, time t, acid id, bool ftr, unsigned int typ
 
 int evt_append(history *hist, date d, time t, unsigned int tid, const char *ev)
 {
-	char *p=hist_alloc(hist);
-	if(!p) return(1);
-	size_t i=0;
-	i+=writedate(d, p+i);
-	p[i++]=' ';
-	i+=sprintf(p+i, "%02u:%02u T %u ", t.hour, t.minute, tid);
-	strncpy(p+i, ev, 80-i);
-	return(0);
+	char buf[80];
+	size_t i=snprintf(buf, 80, "T %u ", tid);
+	strncpy(buf+i, ev, 80-i);
+	return(ev_append(hist, d, t, buf));
 }
 
 int tdm_append(history *hist, date d, time t, unsigned int tid, double ddmg, double cdmg)
@@ -201,4 +205,11 @@ int tfk_append(history *hist, date d, time t, unsigned int tid, double dflk, dou
 	char buf[80];
 	snprintf(buf, 80, "FK %a %a", dflk, cflk);
 	return(evt_append(hist, d, t, tid, buf));
+}
+
+int ca_append(history *hist, date d, time t, unsigned int cshr, unsigned int cash)
+{
+	char buf[80];
+	snprintf(buf, 80, "CA %u %u", cshr, cash);
+	return(ev_append(hist, d, t, buf));
 }
