@@ -12,16 +12,18 @@
 #include "bits.h"
 #include "date.h"
 
+#define HIST_LINE	240
+
 typedef struct
 {
 	size_t nents;
 	size_t nalloc;
-	char (*ents)[80];
+	char (*ents)[HIST_LINE];
 }
 history;
 
 char *hist_alloc(history *hist); // Create a new history line, return a pointer for writing
-int hist_append(history *hist, const char line[80]); // Append a line to the history
+int hist_append(history *hist, const char line[HIST_LINE]); // Append a line to the history
 int hist_save(history hist, FILE *out); // Write history out to file
 int hist_load(FILE *in, size_t nents, history *hist); // Read history in from file.  Not a mirror of hist_save, since it doesn't read nents itself (this is for reasons related to how loadgame functions)
 
