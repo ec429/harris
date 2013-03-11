@@ -32,3 +32,4 @@ bool datebefore(date date1, date date2); // returns true if date1 is strictly be
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 double pom(date when); // returns in [0,1); 0 for new moon, 0.5 for full moon
 double foldpom(double pom); // returns illumination in [0,1]
+time maketime(int t); // converts run_raid time to clock time

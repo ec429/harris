@@ -216,9 +216,22 @@ int tfk_append(history *hist, date d, time t, unsigned int tid, double dflk, dou
 	return(evt_append(hist, d, t, tid, buf));
 }
 
+int tsh_append(history *hist, date d, time t, unsigned int tid)
+{
+	return(evt_append(hist, d, t, tid, "SH"));
+}
+
+int evm_append(history *hist, date d, time t, const char *ev)
+{
+	char buf[80];
+	size_t i=sprintf(buf, "M ");
+	strncpy(buf+i, ev, 80-i);
+	return(ev_append(hist, d, t, buf));
+}
+
 int ca_append(history *hist, date d, time t, unsigned int cshr, unsigned int cash)
 {
 	char buf[80];
 	snprintf(buf, 80, "CA %u %u", cshr, cash);
-	return(ev_append(hist, d, t, buf));
+	return(evm_append(hist, d, t, buf));
 }

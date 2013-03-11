@@ -1,7 +1,7 @@
 <record> ::= <date> <time> <data>
 <data>   ::= A <ac-uid> <b-or-f><type:int> <a-event> | T <targ-id:int> <t-event> | I <init-ev> | M <misc-ev>
-<date>   ::= <day>-<month>-<year> # as save file; times <= 12:00 are saved under the previous day
-<time>   ::= <hh>:<mm> # pre-raid is 20:00, post-raid is 12:00
+<date>   ::= <day>-<month>-<year> # as save file; times < 12:00 are saved under the previous day
+<time>   ::= <hh>:<mm> # pre-raid is 20:00, post-raid is 11:00 thru 11:59
 <ac-uid> ::= <hex>*8 # randomly generated token.  P(match) = 2^-32 ~= 1/4.2e9
 <b-or-f> ::= B | F
 <a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
@@ -9,13 +9,14 @@
 <nav-ev> ::= NA <navaid:int> # installation of a navaid
 <pff-ev> ::= PF # assignment to PFF - not reversible
 <raid-ev>::= RA <targ-id:int>
-<hit-ev> ::= HI <bmb:int>
+<hit-ev> ::= HI <bmb:int> # bmb is either lb of bombs, lb of mines, or # of leaflets
 <dmg-ev> ::= DM <delta-dmg:float> <current-dmg:float> (AC <from:ac-uid> | FK <flak-id:int> | TF <targ-d:int>)
 <fail-ev>::= FA <failstate:int> # is really a bool
 <crsh-ev>::= CR
 <init-ev>::= INIT <filename:str> # Never generated, but should appear in all startpoints (*.sav.in)
-<t-event>::= <t-dmg> | <t-flk>
+<t-event>::= <t-dmg> | <t-flk> | <t-ship>
 <t-dmg>  ::= DM <delta-dmg:float> <current-dmg:float>
 <t-flk>  ::= FK <delta-flk:float> <current-flk:float>
+<t-ship> ::= SH
 <misc-ev>::= <cash-ev>
 <cash-ev>::= CA <delta-cash:int> <current-cash:int> # Only for Budget payments, as CT costs are known

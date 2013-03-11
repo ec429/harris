@@ -58,3 +58,8 @@ double foldpom(double pom)
 {
 	return((1-cos(pom*M_PI*2))/2.0);
 }
+
+time maketime(int t)
+{
+	return((time){(21+(t/120))%24, (t/2)%60});
+}
