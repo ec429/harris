@@ -44,3 +44,5 @@ int tsh_append(history *hist, date d, time t, unsigned int tid); // Append a SH 
 
 int evm_append(history *hist, date d, time t, const char *ev); // Append a miscellaneous event to the history
 int ca_append(history *hist, date d, time t, unsigned int cshr, unsigned int cash); // Append a CA (cash) event to the history
+int co_append(history *hist, date d, time t, double confid); // Append a CO (confid) event to the history
+int mo_append(history *hist, date d, time t, double morale); // Append a MO (morale) event to the history

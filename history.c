@@ -235,3 +235,17 @@ int ca_append(history *hist, date d, time t, unsigned int cshr, unsigned int cas
 	snprintf(buf, 80, "CA %u %u", cshr, cash);
 	return(evm_append(hist, d, t, buf));
 }
+
+int co_append(history *hist, date d, time t, double confid)
+{
+	char buf[80];
+	snprintf(buf, 80, "CO %a", confid);
+	return(evm_append(hist, d, t, buf));
+}
+
+int mo_append(history *hist, date d, time t, double morale)
+{
+	char buf[80];
+	snprintf(buf, 80, "MO %a", morale);
+	return(evm_append(hist, d, t, buf));
+}

@@ -18,5 +18,7 @@
 <t-dmg>  ::= DM <delta-dmg:float> <current-dmg:float>
 <t-flk>  ::= FK <delta-flk:float> <current-flk:float>
 <t-ship> ::= SH
-<misc-ev>::= <cash-ev>
+<misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev>
 <cash-ev>::= CA <delta-cash:int> <current-cash:int> # Only for Budget payments, as CT costs are known
+<conf-ev>::= CO <confid:float>
+<mora-ev>::= MO <morale:float>

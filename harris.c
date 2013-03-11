@@ -4184,11 +4184,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.confid+=Ts*0.25;
 		state.confid+=cidam*0.1;
 		state.confid=min(max(state.confid, 0), 100);
+		co_append(&state.hist, state.now, (time){11, 05}, state.confid);
 		state.morale+=(1.8-L*100.0/(double)D)/3.0;
 		if(L==0) state.morale+=0.25;
 		if(D>=100) state.morale+=0.2;
 		if(D>=1000) state.morale+=1.0;
 		state.morale=min(max(state.morale, 0), 100);
+		mo_append(&state.hist, state.now, (time){11, 05}, state.morale);
 		if(RS_tocol)
 			RS_tocol->hidden=(ntcols==1);
 		unsigned int ntrows=0;
@@ -4697,14 +4699,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			{
 				double dflk=(targs[i].flak*state.dmg[i]*.0005)-(state.flk[i]*.05);
 				state.flk[i]+=dflk;
-				tfk_append(&state.hist, state.now, (time){11, 45}, i, dflk, state.flk[i]);
+				if(dflk)
+					tfk_append(&state.hist, state.now, (time){11, 45}, i, dflk, state.flk[i]);
 			}
 				/* fallthrough */
 			case TCLASS_LEAFLET:
 			{
 				double ddmg=max(state.dmg[i]*.01, 100-state.dmg[i]);
 				state.dmg[i]+=ddmg;
-				tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
+				if(ddmg)
+					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
 				dprod+=state.dmg[i]*targs[i].prod;
 			}
 			break;
