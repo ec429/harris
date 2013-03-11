@@ -32,7 +32,7 @@ int ct_append(history *hist, date d, time t, acid id, bool ftr, unsigned int typ
 int na_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int nid); // Append a NA (navaid) event to the history
 int pf_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type); // Append a PF (PFF assign) event to the history
 int ra_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int tid); // Append a RA (raid targ) event to the history
-int hi_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int bmb); // Append a HI (hit targ) event to the history
+int hi_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int tid, unsigned int bmb); // Append a HI (hit targ) event to the history
 int dmac_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, acid src); // Append a DM AC (damaged by aircraft) event to the history
 int dmfk_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int fid); // Append a DM FK (damaged by flak) event to the history
 int dmtf_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int tid); // Append a DM TF (damaged by target flak) event to the history

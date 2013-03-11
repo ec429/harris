@@ -153,10 +153,10 @@ int ra_append(history *hist, date d, time t, acid id, bool ftr, unsigned int typ
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int hi_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int bmb)
+int hi_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int tid, unsigned int bmb)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "HI %u", bmb);
+	snprintf(buf, HIST_LINE, "HI %u %u", tid, bmb);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 

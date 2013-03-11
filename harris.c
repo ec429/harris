@@ -3957,7 +3957,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								heat[i]++;
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
-									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, state.bombers[k].bmb);
+									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 									double dmg=min(state.dmg[l], state.bombers[k].bmb/(targs[i].psiz*10000.0));
 									cidam+=dmg;
 									state.dmg[l]-=dmg;
@@ -3975,7 +3975,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								heat[i]++;
 								if(brandp(targs[l].esiz/30.0))
 								{
-									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, state.bombers[k].bmb);
+									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 									double dmg=min(state.bombers[k].bmb/12000.0, state.dmg[l]);
 									cidam+=dmg;
 									state.dmg[l]-=dmg;
@@ -3996,7 +3996,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(brandp(targs[l].esiz/30.0))
 									{
-										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, state.bombers[k].bmb);
+										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 										double dmg=min(state.bombers[k].bmb/2000.0, state.dmg[l]);
 										cidam+=dmg;
 										state.dmg[l]-=dmg;
@@ -4017,7 +4017,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(brandp(targs[l].esiz/30.0))
 									{
-										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, state.bombers[k].bmb);
+										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 										if(brandp(log2(state.bombers[k].bmb/25.0)/200.0))
 										{
 											cidam+=state.dmg[l];
@@ -4038,7 +4038,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							{
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
-									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, types[type].cap*3);
+									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, types[type].cap*3);
 									double dmg=min(types[type].cap/(targs[i].psiz*4000.0), state.dmg[l]);
 									state.dmg[l]-=dmg;
 									tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
@@ -4056,7 +4056,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(brandp(targs[l].esiz/100.0))
 								{
 									nij[l][type]++;
-									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, state.bombers[k].bmb);
+									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 									if(brandp(log2(state.bombers[k].bmb/500.0)/8.0))
 									{
 										tij[l][type]++;
@@ -4073,7 +4073,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							bool water=(x>=0)&&(y>=0)&&(x<128)&&(y<128)&&lorw[x][y];
 							if((abs(dx)<=8)&&(abs(dy)<=8)&&water)
 							{
-								hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, state.bombers[k].bmb);
+								hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 								double dmg=min(state.bombers[k].bmb/400000.0, state.dmg[l]);
 								state.dmg[l]-=dmg;
 								tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
