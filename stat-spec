@@ -1,15 +1,19 @@
-<record> ::= <date> <time> <ac-uid> <b-or-f><type:int> <event>
+<record> ::= <date> <time> <data>
+<data>   ::= A <ac-uid> <b-or-f><type:int> <a-event> | T <targ-id:int> <t-event> | I <init-ev>
 <date>   ::= <day>-<month>-<year> # as save file; times <= 12:00 are saved under the previous day
 <time>   ::= <hh>:<mm> # pre-raid is 20:00, post-raid is 12:00
 <ac-uid> ::= <hex>*8 # randomly generated token.  P(match) = 2^-32 ~= 1/4.2e9
 <b-or-f> ::= B | F
-<event>  ::= <init-ev> | <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
-<init-ev>::= INIT <filename:str> # has a dummy ac-uid/b-or-f/type.  Never generated, but should appear in all startpoints (*.sav.in)
+<a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
 <ct-ev>  ::= CT
 <nav-ev> ::= NA <navaid:int> # installation of a navaid
 <pff-ev> ::= PF # assignment to PFF - not reversible
 <raid-ev>::= RA <targ-id:int>
 <hit-ev> ::= HI <bmb:int>
-<dmg-ev> ::= DM <delta-dmg:float> (AC <from:ac-uid> | FK <flak-id:int>)
+<dmg-ev> ::= DM <delta-dmg:float> <current-dmg:float> (AC <from:ac-uid> | FK <flak-id:int>)
 <fail-ev>::= FA
 <crsh-ev>::= CR
+<init-ev>::= INIT <filename:str> # Never generated, but should appear in all startpoints (*.sav.in)
+<t-event>::= <t-dmg> | <t-flk>
+<t-dmg>  ::= DM <delta-dmg:float> <current-dmg:float>
+<t-flk>  ::= FK <delta-flk:float> <current-flk:float>
