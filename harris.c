@@ -4705,7 +4705,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				/* fallthrough */
 			case TCLASS_LEAFLET:
 			{
-				double ddmg=max(state.dmg[i]*.01, 100-state.dmg[i]);
+				double ddmg=min(state.dmg[i]*.01, 100-state.dmg[i]);
 				state.dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
@@ -4724,7 +4724,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			break;
 			case TCLASS_INDUSTRY:
 			{
-				double ddmg=max(state.dmg[i]*.05, 100-state.dmg[i]);
+				double ddmg=min(state.dmg[i]*.05, 100-state.dmg[i]);
 				state.dmg[i]+=ddmg;
 				tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
 				dprod+=state.dmg[i]*targs[i].prod/2.0;
