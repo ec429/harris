@@ -11,7 +11,7 @@
 <raid-ev>::= RA <targ-id:int>
 <hit-ev> ::= HI <bmb:int>
 <dmg-ev> ::= DM <delta-dmg:float> <current-dmg:float> (AC <from:ac-uid> | FK <flak-id:int>)
-<fail-ev>::= FA
+<fail-ev>::= FA <failstate:int> # is really a bool
 <crsh-ev>::= CR
 <init-ev>::= INIT <filename:str> # Never generated, but should appear in all startpoints (*.sav.in)
 <t-event>::= <t-dmg> | <t-flk>

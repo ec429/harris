@@ -175,9 +175,11 @@ int dmfk_append(history *hist, date d, time t, acid id, bool ftr, unsigned int t
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int fa_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type)
+int fa_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int fa)
 {
-	return(eva_append(hist, d, t, id, ftr, type, "FA"));
+	char buf[80];
+	snprintf(buf, 80, "FA %u", fa);
+	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
 int cr_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type)

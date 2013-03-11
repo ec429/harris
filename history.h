@@ -33,7 +33,7 @@ int ra_append(history *hist, date d, time t, acid id, bool ftr, unsigned int typ
 int hi_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int bmb); // Append a HI (hit targ) event to the history
 int dmac_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, acid src); // Append a DM AC (damaged by aircraft) event to the history
 int dmfk_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int fid); // Append a DM FK (damaged by flak) event to the history
-int fa_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type); // Append a FA (failed) event to the history
+int fa_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int fa); // Append a FA (failed) event to the history
 int cr_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type); // Append a CR (crashed) event to the history
 
 int evt_append(history *hist, date d, time t, unsigned int tid, const char *ev); // Append a target event to the history
