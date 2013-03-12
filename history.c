@@ -21,6 +21,7 @@ char *hist_alloc(history *hist)
 			hist->nents--;
 			return(NULL);
 		}
+		hist->nalloc=ns;
 		hist->ents=new;
 	}
 	return(hist->ents[n]);
