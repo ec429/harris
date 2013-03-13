@@ -28,11 +28,8 @@ evh: dat/events mkevh.awk
 widgets.o: widgets.c widgets.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
-save/%.sav: save/%.sav.in gensave
-	./gensave <$< >$@
-
-gensave: gensave.c bits.h bits.o
-	$(CC) $(CFLAGS) $(CPPFLAGS) $< $(LDFLAGS) bits.o -o $@
+save/%.sav: save/%.sav.in gensave.py
+	./gensave.py --salt $< <$< >$@
 
 weather.o: rand.h
 

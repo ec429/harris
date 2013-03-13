@@ -4882,6 +4882,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 	}
 	unsigned char s_version[3]={0,0,0};
 	unsigned char version[3]={VER_MAJ,VER_MIN,VER_REV};
+	bool warned_pff=false, warned_acid=false;
 	while(!feof(fs))
 	{
 		char *line=fgetl(fs);
@@ -5067,12 +5068,16 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					if(f==3)
 					{
 						f=4;
+						if(!warned_pff) fprintf(stderr, "Warning: added missing 'PFF' field in tag \"%s\"\n", tag);
+						warned_pff=true;
 						pff=0;
 					}
 					if(f==4)
 					{
 						f=5;
-						strcpy(p_id, "NOID");
+						if(!warned_acid) fprintf(stderr, "Warning: added missing 'A/c ID' field in tag \"%s\"\n", tag);
+						warned_acid=true;
+						pacid(rand_acid(), p_id);
 					}
 					if(f!=5)
 					{
@@ -5089,9 +5094,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff};
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						state->bombers[i].nav[n]=(nav>>n)&1;
-					if(strcmp(p_id, "NOID")==0)
-						state->bombers[i].id=rand_acid();
-					else if(gacid(p_id, &state->bombers[i].id))
+					if(gacid(p_id, &state->bombers[i].id))
 					{
 						fprintf(stderr, "32 Invalid value \"%s\" for a/c ID in tag \"%s\"\n", p_id, tag);
 						e|=32;
