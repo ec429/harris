@@ -14,9 +14,9 @@ def multiply(line):
 def genids(line, i, j):
 	if line.endswith(',NOID\n'):
 		z = '_'.join((salt, str(i), str(j), line))
-		ha = zlib.adler32(z) & 0xffffffff
-		h = hex(ha)
-		return '%s,%s\n' % (line[:-6], h[2:10])
+		ha = zlib.crc32(z) & 0xffffffff
+		h = hex(ha)[2:]
+		return '%s,%s\n' % (line[:-6], h.zfill(8))
 	else:
 		return line
 
