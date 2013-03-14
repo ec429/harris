@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys
+import sys, zlib
 
 def multiply(line):
 	if len(line) > 1:
@@ -14,10 +14,9 @@ def multiply(line):
 def genids(line, i, j):
 	if line.endswith(',NOID\n'):
 		z = '_'.join((salt, str(i), str(j), line))
-		h = hex(hash(z))
-		if h[0] == '-': h=h[1:]
-		h=h[2:10]
-		return '%s,%s\n' % (line[:-6], h)
+		ha = zlib.adler32(z) & 0xffffffff
+		h = hex(ha)
+		return '%s,%s\n' % (line[:-6], h[2:10])
 	else:
 		return line
 
