@@ -2729,6 +2729,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						case SDL_QUIT:
 							free(state.hist.ents);
+							state.hist.ents=NULL;
 							state.hist.nents=state.hist.nalloc=0;
 							goto main_menu;
 						break;
