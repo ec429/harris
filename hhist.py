@@ -126,14 +126,18 @@ def raw_parse(line):
 			'text':data,
 			'data':rest}
 
-if __name__ == '__main__':
+def import_from_save(f):
 	start = False
 	entries = []
-	for line in sys.stdin:
+	for line in f:
 		if line[-1:] == '\n':
 			line = line[:-1]
 		if start:
 			entries.append(raw_parse(line))
 		elif line.startswith('History:'):
 			start = True
+	return entries
+
+if __name__ == '__main__':
+	entries = import_from_save(sys.stdin)
 	print 'Imported %d entries' % len(entries)
