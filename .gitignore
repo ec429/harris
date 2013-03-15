@@ -2,6 +2,7 @@ harris
 gensave
 save/*.sav
 *.o
+*.pyc
 events.h
 evh
 mysav
