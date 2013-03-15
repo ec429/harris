@@ -5,13 +5,44 @@ The hhist module provides support for parsing Harris history events and
 lists thereof.
 """
 
-import sys, pprint
+import sys
 
 class BadHistLine(Exception): pass
 class NoSuchEvent(BadHistLine): pass
 class NoSuchAcType(BadHistLine): pass
 class NoSuchDmgType(BadHistLine): pass
 class ExcessData(BadHistLine): pass
+
+class date(object):
+	def __init__(self, day, month, year):
+		self.day = day
+		self.month = month
+		self.year = year
+	@classmethod
+	def parse(cls, text):
+		day, month, year = map(int, text.split('-', 2))
+		return cls(day, month, year)
+	def __str__(self):
+		return '%02d-%02d-%04d' % (self.day, self.month, self.year)
+	def __cmp__(self, other):
+		if self.year != other.year: return self.year - other.year
+		if self.month != other.month: return self.month - other.month
+		return self.day - other.day
+	def copy(self):
+		return date(self.day, self.month, self.year)
+	def next(self):
+		monthdays=[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+		next = self.copy()
+		next.day += 1
+		assert next.year % 100 # if we encounter century years, we have bigger problems than just leap years
+		ly = 1 if next.month == 2 and not next.year % 4 else 0
+		if next.day > monthdays[next.month+1]+ly:
+			next.day = 1
+			next.month += 1
+			if next.month > 12:
+				next.month = 1
+				next.year += 1
+		return next
 
 def ac_parse(text):
 	def ct_parse(text):
@@ -116,11 +147,11 @@ def targ_parse(text):
 parsers = {'A':ac_parse, 'I':init_parse, 'M':misc_parse, 'T':targ_parse};
 
 def raw_parse(line):
-	date, time, ec, data = line.split(' ', 3)
-	day, month, year = date.split('-', 2)
+	sdate, time, ec, data = line.split(' ', 3)
+	odate = date.parse(sdate)
 	hour, minute = time.split(':', 1)
 	rest = parsers.get(ec, lambda x: {})(data)
-	return {'date':{'day':day, 'month':month, 'year':year},
+	return {'date':odate,
 			'time':{'hour':hour, 'minute':minute},
 			'class':ec,
 			'text':data,
