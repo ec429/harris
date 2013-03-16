@@ -2,6 +2,8 @@ extension: .sav
 
 Format is textual (human-readable)
 
+NOTE: This file is currently somewhat out of date.  !TODO! update it!
+
 Format, sort of printfy
 "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV // Magic ID, Harris version.
 "DATE:%02d-%02d-%04d\n", day, month, year
