@@ -21,12 +21,16 @@ if __name__ == '__main__':
 	cols = 'gyrcmgybrgc'
 	dates = [todt(key).toordinal() for key in sorted(data)]
 	total = [[sum(d[0] for d in data[key]), sum(d[1] for d in data[key])] for key in sorted(data)]
-	gt = plt.plot_date(dates, total, fmt='k+-', tz=None, xdate=True, ydate=False, label='total', zorder=2)
+	top = max(zip(*total)[0])
+	bottom = min(zip(*total)[1])
+	plt.axis(ymax=max(top, -bottom), ymin=min(-top, bottom))
+	gt = plt.plot_date(dates, zip(*total)[0], fmt='k+-', tz=None, xdate=True, ydate=False, label='total', zorder=2)
+	gb = plt.plot_date(dates, zip(*total)[1], fmt='k+-', tz=None, xdate=True, ydate=False, label=None, zorder=2)
 	for bi,b in enumerate(hdata.Bombers.data):
 		bprod = [data[key][bi][0] for key in sorted(data)]
 		bloss = [data[key][bi][1] for key in sorted(data)]
-		gp = plt.plot_date(dates, bprod, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=b['name'])
-		gl = plt.plot_date(dates, bloss, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=None)
+		gp = plt.plot_date(dates, bprod, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
+		gl = plt.plot_date(dates, bloss, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	plt.axhline(y=0, xmin=0, xmax=1, c='k', zorder=-1)
-	plt.legend()
+	plt.legend(ncol=2)
 	plt.show()
