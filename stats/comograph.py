@@ -22,8 +22,8 @@ if __name__ == '__main__':
 	dates = [todt(datum['date']).toordinal() for datum in data]
 	confid = [datum['confid'] for datum in data]
 	morale = [datum['morale'] for datum in data]
-	gc = plt.plot_date(dates, confid, fmt='bo-', tz=None, xdate=True, ydate=False, label='Confid')
-	gm = plt.plot_date(dates, morale, fmt='r+-', tz=None, xdate=True, ydate=False, label='Morale')
+	gc = plt.plot_date(dates, confid, fmt='bo-', tz=None, xdate=True, ydate=False, label='Confid', zorder=0)
+	gm = plt.plot_date(dates, morale, fmt='r+-', tz=None, xdate=True, ydate=False, label='Morale', zorder=0)
 	for y in xrange(10, 91, 10):
 		plt.axhline(y=y, xmin=0, xmax=1, c='k', zorder=-1)
 	plt.legend()
