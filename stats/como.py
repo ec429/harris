@@ -32,4 +32,4 @@ if __name__ == '__main__':
 	entries = hhist.import_from_save(sys.stdin)
 	como = extract_como(entries)
 	for cm in como:
-		print '%s confid=%d morale=%d' % (cm['date'], cm['confid'], cm['morale'])
+		print '%s: confid=%d morale=%d' % (cm['date'], cm['confid'], cm['morale'])

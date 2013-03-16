@@ -1,5 +1,5 @@
 #!/usr/bin/python
-"""tsgraph - graphing of time series
+"""comograph - graph of confid & morale
 
 Requires matplotlib, see http://matplotlib.org or search your package
 manager (Debian: apt-get install python-matplotlib)

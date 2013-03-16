@@ -12,6 +12,7 @@ class NoSuchEvent(BadHistLine): pass
 class NoSuchAcType(BadHistLine): pass
 class NoSuchDmgType(BadHistLine): pass
 class ExcessData(BadHistLine): pass
+class OutOfOrder(Exception): pass
 
 class date(object):
 	def __init__(self, day, month, year):
@@ -157,6 +158,18 @@ def raw_parse(line):
 			'class':ec,
 			'text':data,
 			'data':rest}
+
+def group_by_date(entries):
+	date = entries[0]['date']
+	res = [(date, [])]
+	for ent in entries:
+		while date < ent['date']:
+			date = date.next()
+			res.append((date, []))
+		if ent['date'] != date:
+			raise OutOfOrder(date, ent)
+		res[-1][1].append(ent)
+	return(res)
 
 def import_from_save(f):
 	start = False
