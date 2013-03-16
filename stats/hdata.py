@@ -31,6 +31,8 @@ class Table(object):
 		return repr(self.data)
 	def __len__(self):
 		return len(self.data)
+	def __getitem__(self, index):
+		return self.data[index]
 
 def parse_string(text):
 	return text.strip()

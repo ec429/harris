@@ -4,9 +4,6 @@
 import sys
 import hhist, hdata
 
-class BadTimeSeries(Exception): pass
-class UnpairedEntry(BadTimeSeries): pass
-
 def extract_prodloss(ents):
 	days = sorted(hhist.group_by_date(ents))
 	res = {}
