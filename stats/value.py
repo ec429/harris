@@ -10,9 +10,10 @@ def extract_value(save):
 	for b in save.init.bombers:
 		bcount[b['type']] += 1
 	cash = save.init.cash
+	cshr = save.init.cshr
 	bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
 	total = sum(bvalues) + cash
-	res = [{'date':save.init.date, 'cash':cash, 'bombers':bcount, 'bvalues':bvalues, 'total':total}]
+	res = [{'date':save.init.date, 'cash':cash, 'cshr':cshr, 'bombers':bcount, 'bvalues':bvalues, 'total':total}]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
 		spend = 0
@@ -30,10 +31,11 @@ def extract_value(save):
 			elif h['class'] == 'M':
 				if h['data']['etyp'] == 'CA':
 					cash = h['data']['data']['cash']
+					cshr = h['data']['data']['cshr']
 		bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
 		cash -= spend
 		total = sum(bvalues) + cash
-		res.append({'date':d[0].next(), 'cash':cash, 'bombers':bcount, 'bvalues':bvalues, 'total':total})
+		res.append({'date':d[0].next(), 'cash':cash, 'cshr':cshr, 'bombers':bcount, 'bvalues':bvalues, 'total':total})
 	return res
 
 if __name__ == '__main__':
