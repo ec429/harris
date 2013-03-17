@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	data = value.extract_value(save)
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	cols = ['0.5','y','r','c','m','0.5','y','b','r','0.5','c']
+	cols = ['0.5','y','r','c','m','b','0.5','y','r','c','m','r','c']
 	dates = [todt(datum['date']).toordinal() for datum in data]
 	if projected:
 		if showtotal: gt = plt.plot_date(dates, [(e['total']+e['cshr']*25)/1e3 for e in data], fmt='ko-', tz=None, xdate=True, ydate=False, label='total', zorder=2)

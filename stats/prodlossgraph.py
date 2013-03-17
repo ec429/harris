@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	data = prodloss.extract_prodloss(entries)
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	cols = 'gyrcmgybrgc'
+	cols = ['0.5','y','r','c','m','b','0.5','y','r','c','m','r','c']
 	dates = [todt(key).toordinal() for key in sorted(data)]
 	total = [[sum(d[0] for d in data[key]), sum(d[1] for d in data[key])] for key in sorted(data)]
 	top = max(zip(*total)[0])
@@ -29,8 +29,8 @@ if __name__ == '__main__':
 	for bi,b in enumerate(hdata.Bombers.data):
 		bprod = [data[key][bi][0] for key in sorted(data)]
 		bloss = [data[key][bi][1] for key in sorted(data)]
-		gp = plt.plot_date(dates, bprod, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
-		gl = plt.plot_date(dates, bloss, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=None, zorder=0)
+		gp = plt.plot_date(dates, bprod, fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
+		gl = plt.plot_date(dates, bloss, fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	plt.axhline(y=0, xmin=0, xmax=1, c='k', zorder=-1)
 	plt.legend(ncol=2)
 	plt.show()
