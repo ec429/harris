@@ -1,0 +1,73 @@
+-Alternative History stuff-
+Speculative bomber types.  The idea here (due to beoran on forum.freegamedev.net) is that newer types might be 'unlocked' by building enough of their predecessors, in which case it should be possible, counterfactually, to unlock types which were in fact cancelled.  To aid in considering this idea, I've produced some tentative statblocks for various cancelled bomber projects, and some discussion about how they might fit into the game.
+
+AW39 Elswick
+============
+Enough focus on Whitleys might have lead to the AW.39 (with Armstrong Siddeley Deerhounds), which I've named "Elswick" for the location of AW headquarters.
+The additional engine power, coupled (one hopes) with a more normal wing incidence than the Whitley's 8.5°, would have provided improved speed and ceiling, as well as a probable increase in bombload and range.
+However, the Deerhounds would probably have been less reliable than Merlins, pushing serviceability down.
+The cost would have been higher than the Whitley, but kept down by the high standard of production engineering at Armstrong-Whitworth.
+Data, with Whitley, Wellington, Manchester and Stirling given for comparison:
+manf                name        cost  speed ceil cap   svp defn fail accu range blat blong entry      exit       flags
+Armstrong-Whitworth Whitley     8000  165   176  7000  70  17   9    32   320   81   45    None       18-06-1941 ['GEE', 'H2S']
+Armstrong-Whitworth Elswick     10000 186   202  7500  65  15   10   40   330   81   45    13-02-1941 03-02-1943 ['GEE', 'H2S']
+Avro                Manchester  20000 210   185  10350 70  12   16   45   325   81   45    05-11-1940 26-06-1942 ['GEE', 'H2S', 'OBOE']
+Short               Stirling    25000 200   175  14000 40  9    7    40   280   96   55    16-01-1941 08-07-1943 ['GEE', 'H2S', 'OBOE']
+It provides a cheap-and-nasty option for the early part of the 'heavies' era, generally inferior even to the Manchester but with a lower failure rate.  It matches the accuracy of the Stirling, with a significantly higher serviceability, but it retains much of the Whitley's vulnerability.  Highlights are its long range and high ceiling.  During its two years of service, it's likely to be used in fairly large numbers to attack sprawling conurbations like Berlin or the Ruhr, delivering a decent tonnage but probably at a fairly high cost to its aircrew.  I'd probably build them at LOW (or perhaps MED; they are cheap after all!) for a year.
+Here are some optimistic data for the Elswick:
+Armstrong-Whitworth Elswick++   10000 190   202  9000  68  12   9    42   340   81   45    13-02-1941 19-04-1943 ['GEE', 'H2S']
+The increased payload and reduced vulnerability make the Elswick++ a serious contender, possibly a more economical choice than the Stirling.  By carrying a near-Manchester payload for the price of a Hampden, the Elswick++ makes medium bombers remain attractive into the early part of the heavy era; I'd probably build them at HIGH until the Lanc came along a year later.
+
+Vickers Windsor
+===============
+It's hard to see how the RAF could have bought any more Wellingtons from Vickers, but perhaps there's some alternate universe in which the Windsor wasn't cancelled.  It's a high-altitude heavy with slightly better performance than the Lanc, but its geodetic structure is a production engineer's nightmare thanks to a continuous variation in the link elements along the chord of the wing.  However, it retains the survivability advantages of the Wellington.
+Data, with Wellington, Lancaster I and Halifax III given for comparison:
+manf                name        cost  speed ceil cap   svp defn fail accu range blat blong entry      exit       flags
+Vickers             Wellington  12000 190   180  4500  85  8    3    36   311   87   39    None       21-10-1943 ['GEE', 'H2S']
+Vickers             Windsor     50000 260   270  15000 80  4    5    70   365   87   39    26-06-1943 None       ['GEE', 'H2S', 'OBOE', 'GH']
+Avro                Lancaster I 40000 235   225  14000 80  6    4    80   350   84   44    07-02-1942 None       ['GEE', 'H2S', 'OBOE', 'GH', 'PFF']
+Handley Page        Halifax III 32000 230   220  13500 90  7    5    75   335   63   38    30-04-1943 None       ['GEE', 'H2S', 'OBOE', 'GH']
+With the survivability advantages of its high ceiling and geodetic construction, the Windsor would be an attractive option.  I'd probably buy them at MED, and combine them with Lancs and a solid Mossie PFF contingent for a modern and hard-hitting strike force.  It's good enough to begin with that I don't really need to discuss a ++ variant.
+
+Short Selkirk
+=============
+Short Bros planned a development of their Stirling, with four Bristol Centaurus engines and a 135ft wingspan; they referred to it as the "Super Stirling".  I've decided to name it for another Scottish town, Selkirk.
+The extended wingspan would have had many benefits: increased ceiling and payload are clear, but less obvious is its effect on reliability.  Many of the Stirling's problems were caused by its long and fragile undercarriage, which was required in order to provide an adequately short takeoff run.  With a greater wing area (and the prevalence of longer runways), this could be replaced with a shorter and sturdier undercart.  Perhaps the 'Exactor' throttle controls would have been replaced as well.  The company projected a maximum bomb load of 23,500lb, but that seems overly optimistic; still, an aircraft bigger than the Lancaster could certainly have carried a lot.
+The planned armament of 0.5" guns would have made up for the likely decrease in maneuvrability caused by the aircraft's greater size; I rate its vulnerability about equal to the Stirling.
+The Super Stirling would doubtless have been an expensive, difficult-to-produce aircraft, but its payload would have beaten all comers and its performance along other axes would also have been impressive.
+Data, with Stirling, Halifax I, Lancaster I and Halifax III given for comparison:
+manf                name        cost  speed ceil cap   svp defn fail accu range blat blong entry      exit       flags
+Short               Stirling    25000 200   175  14000 40  9    7    40   280   96   55    16-01-1941 08-07-1943 ['GEE', 'H2S', 'OBOE']
+Short               Selkirk     36000 210   185  18000 72  9    6    58   300   96   55    13-08-1943 02-02-1945 ['GEE', 'H2S', 'OBOE', 'GH']
+Handley Page        Halifax I   30000 225   200  13000 75  12   6    65   330   63   38    14-05-1941 31-03-1944 ['GEE', 'H2S', 'OBOE', 'GH']
+Avro                Lancaster I 40000 235   225  14000 80  6    4    80   350   84   44    07-02-1942 None       ['GEE', 'H2S', 'OBOE', 'GH', 'PFF']
+Handley Page        Halifax III 32000 230   220  13500 90  7    5    75   335   63   38    30-04-1943 None       ['GEE', 'H2S', 'OBOE', 'GH']
+Overall, the Selkirk is inferior to the Lancaster; its tonnage-on-target-per-cost of 0.29lb/£ is slightly above the 0.28lb/£ of the Lanc, but with higher loss and failure rates and lower serviceability, coupled to a limited range (it still can't reach Berlin) it's not a promising option.  Bearing in mind that with the help of the PFF larger cities are pretty difficult to miss even at 58 accu, it starts to look like it might have its uses.  I'd probably build them at LOW.  If the Lanc weren't available, though, I'd certainly prefer them to the Hal1, and they'd be a reasonable alternative to the Hal3.
+Here are some optimistic data for the Selkirk, which perhaps change things:
+Short               Selkirk++   36000 216   210  22000 75  8    5    60   308   96   55    13-08-1943 None       ['GEE', 'H2S', 'OBOE', 'GH']
+The ten-ton load combined with a slightly higher accuracy push the tonnage ratio up to 0.37lb/£, at which point it seriously competes with the Lanc; broadly speaking the Lanc wins on loss rate (and thus when enemy defences are strong) while the Selkirk++ wins on tonnage delivered in the absence of fierce opposition.  Of course, the Lanc still wins at longer ranges, since the Selkirk++ will have to replace some of its load with fuel.  At this point I'd probably buy Selkirks at MED and use them to flatten nearer targets and bigger cities.
+
+Supermarine Southampton
+=======================
+The original favoured candidate for the RAF's heavy bomber requirement B.12/36 was Supermarine's Type 317, designed by R.J.Mitchell (better known of course for his Spitfire).  The prototypes and drawings were destroyed in a Luftwaffe raid on the Supermarine works at Woolston on 26-09-1940 and the project was cancelled shortly after.  What might have become of this design had the Luftwaffe been thwarted that day?  Let's name it the "Southampton" after the home of Supermarine (and not to be confused with their 1925 flying boat of the same name).
+Being designed before the lessons of early raids were learned, it would probably be fairly vulnerable to fighters, while its sheer size would make for a hefty payload.  Coming from the Supermarine works I'd expect it to be fairly reliable, but perhaps expensive to produce.
+Data, with Manchester, Stirling, Hal1 and Lanc given for comparison:
+manf                name        cost  speed ceil cap   svp defn fail accu range blat blong entry      exit       flags
+Supermarine         Southampton 33000 230   220  16000 64  11   6    50   265   96   61    25-12-1940 17-11-1943 ['GEE', 'H2S']
+Avro                Manchester  20000 210   185  10350 70  12   16   45   325   81   45    05-11-1940 26-06-1942 ['GEE', 'H2S', 'OBOE']
+Short               Stirling    25000 200   175  14000 40  9    7    40   280   96   55    16-01-1941 08-07-1943 ['GEE', 'H2S', 'OBOE']
+Handley Page        Halifax I   30000 225   200  13000 75  12   6    65   330   63   38    14-05-1941 31-03-1944 ['GEE', 'H2S', 'OBOE', 'GH']
+Avro                Lancaster I 40000 235   225  14000 80  6    4    80   350   84   44    07-02-1942 None       ['GEE', 'H2S', 'OBOE', 'GH', 'PFF']
+The Southampton is quite clearly better than the Manchester and Stirling, probably enough to justify HIGH priority even with its £33,000 price tag.  However, its limited range could be a turn-off.  The Halifax I is slightly better (due chiefly to its improved accuracy, though the gains in serviceability and range, and the lower price, also help) and the Lancaster comprehensively outshines it.  Nonetheless, if it were available in game, I'd consider it a welcome Christmas present indeed.
+
+*Summary*
+=========
+Here are the summary statblocks for all the above types:
+manf                name        cost  speed ceil cap   svp defn fail accu range blat blong entry      exit       flags
+Armstrong-Whitworth Elswick     10000 186   202  7500  65  15   10   40   330   81   45    13-02-1941 03-02-1943 ['GEE', 'H2S']
+Supermarine         Southampton 33000 230   220  16000 64  11   6    50   265   96   61    25-12-1940 17-11-1943 ['GEE', 'H2S']
+Vickers             Windsor     50000 260   270  15000 80  4    5    70   365   87   39    26-06-1943 None       ['GEE', 'H2S', 'OBOE', 'GH']
+Short               Selkirk     36000 210   185  18000 72  9    6    58   300   96   55    13-08-1943 02-02-1945 ['GEE', 'H2S', 'OBOE', 'GH']
+Here are the optimistic data:
+Armstrong-Whitworth Elswick++   10000 190   202  9000  68  12   9    42   340   81   45    13-02-1941 19-04-1943 ['GEE', 'H2S']
+Short               Selkirk++   36000 216   210  22000 75  8    5    60   308   96   55    13-08-1943 None       ['GEE', 'H2S', 'OBOE', 'GH']
