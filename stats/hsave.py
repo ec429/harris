@@ -88,6 +88,7 @@ class Save(object):
 			elif data['type']['fb'] == 'B':
 				self.nbombers += 1
 				self.bombers.append({'type':data['type']['ti'], 'fail':False, 'nav':0, 'pff':False, 'id':data['acid']})
+				self.cash -= hdata.Bombers[data['type']['ti']]['cost']
 			else:
 				raise hhist.NoSuchAcType(data['type']['fb'])
 		def FA_replay(self, data):
