@@ -38,6 +38,7 @@ int dmfk_append(history *hist, date d, time t, acid id, bool ftr, unsigned int t
 int dmtf_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int tid); // Append a DM TF (damaged by target flak) event to the history
 int fa_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int fa); // Append a FA (failed) event to the history
 int cr_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type); // Append a CR (crashed) event to the history
+int ob_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type); // Append an OB (obsolete) event to the history
 
 int evt_append(history *hist, date d, time t, unsigned int tid, const char *ev); // Append a target event to the history
 int tdm_append(history *hist, date d, time t, unsigned int tid, double ddmg, double cdmg); // Append a DM (damaged or repaired) event to the history

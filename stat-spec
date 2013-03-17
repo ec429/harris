@@ -4,7 +4,7 @@
 <time>   ::= <hh>:<mm> # pre-raid is 20:00, post-raid is 11:00 thru 11:59
 <ac-uid> ::= <hex>*8 # randomly generated token.  P(match) = 2^-32 ~= 1/4.2e9
 <b-or-f> ::= B | F
-<a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev>
+<a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev> | <obs-ev>
 <ct-ev>  ::= CT
 <nav-ev> ::= NA <navaid:int> # installation of a navaid
 <pff-ev> ::= PF # assignment to PFF - not reversible
@@ -13,6 +13,7 @@
 <dmg-ev> ::= DM <delta-dmg:float> <current-dmg:float> (AC <from:ac-uid> | FK <flak-id:int> | TF <targ-d:int>)
 <fail-ev>::= FA <failstate:int> # is really a bool
 <crsh-ev>::= CR
+<obs-ev> ::= OB
 <init-ev>::= INIT <filename:str> # Never generated, but should appear in all startpoints (*.sav.in)
 <t-event>::= <t-dmg> | <t-flk> | <t-ship>
 <t-dmg>  ::= DM <delta-dmg:float> <current-dmg:float>

@@ -4100,6 +4100,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			{
 				if(state.bombers[i].crashed)
 					lij[state.bombers[i].targ][state.bombers[i].type]++;
+				else if(!datewithin(state.now, types[type].entry, types[type].exit))
+					ob_append(&state.hist, state.now, (time){11, 00}, state.bombers[i].id, false, type);
 				state.nbombers--;
 				for(unsigned int j=i;j<state.nbombers;j++)
 					state.bombers[j]=state.bombers[j+1];
@@ -4742,6 +4744,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		unsigned int type=state.fighters[i].type;
 		if(state.fighters[i].crashed||!datewithin(state.now, ftypes[type].entry, ftypes[type].exit))
 		{
+			if(!state.fighters[i].crashed&&!datewithin(state.now, ftypes[type].entry, ftypes[type].exit))
+				ob_append(&state.hist, state.now, (time){11, 48}, state.fighters[i].id, true, type);
 			state.nfighters--;
 			for(unsigned int j=i;j<state.nfighters;j++)
 				state.fighters[j]=state.fighters[j+1];

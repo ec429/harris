@@ -82,7 +82,10 @@ def ac_parse(text):
 	def crash_parse(text):
 		if text: raise ExcessData('A', 'CR', text)
 		return {}
-	parsers = {'CT':ct_parse, 'NA':nav_parse, 'PF':pff_parse, 'RA':raid_parse, 'HI':hit_parse, 'DM':dmg_parse, 'FA':fail_parse, 'CR':crash_parse}
+	def obs_parse(text):
+		if text: raise ExcessData('A', 'CR', text)
+		return {}
+	parsers = {'CT':ct_parse, 'NA':nav_parse, 'PF':pff_parse, 'RA':raid_parse, 'HI':hit_parse, 'DM':dmg_parse, 'FA':fail_parse, 'CR':crash_parse, 'OB':obs_parse}
 	parts = text.split(' ', 3)
 	acid, atyp, etyp = parts[0:3]
 	if len(parts) > 3:

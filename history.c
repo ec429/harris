@@ -195,6 +195,11 @@ int cr_append(history *hist, date d, time t, acid id, bool ftr, unsigned int typ
 	return(eva_append(hist, d, t, id, ftr, type, "CR"));
 }
 
+int ob_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type)
+{
+	return(eva_append(hist, d, t, id, ftr, type, "OB"));
+}
+
 int evt_append(history *hist, date d, time t, unsigned int tid, const char *ev)
 {
 	char buf[HIST_LINE];
