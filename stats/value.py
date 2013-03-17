@@ -15,6 +15,7 @@ def extract_value(save):
 	res = [{'date':save.init.date, 'cash':cash, 'bombers':bcount, 'bvalues':bvalues, 'total':total}]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
+		spend = 0
 		for i,b in enumerate(hdata.Bombers):
 			if hdata.Bombers[i]['exit'] and d[0] == hdata.Bombers[i]['exit']:
 				bcount[i] = 0
@@ -23,12 +24,14 @@ def extract_value(save):
 				if h['data']['type']['fb'] == 'B':
 					if h['data']['etyp'] == 'CT':
 						bcount[h['data']['type']['ti']] += 1
+						spend += hdata.Bombers[h['data']['type']['ti']]['cost']
 					elif h['data']['etyp'] == 'CR':
 						bcount[h['data']['type']['ti']] -= 1
 			elif h['class'] == 'M':
 				if h['data']['etyp'] == 'CA':
 					cash = h['data']['data']['cash']
 		bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
+		cash -= spend
 		total = sum(bvalues) + cash
 		res.append({'date':d[0].next(), 'cash':cash, 'bombers':bcount, 'bvalues':bvalues, 'total':total})
 	return res

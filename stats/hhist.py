@@ -38,7 +38,7 @@ class date(object):
 		next.day += 1
 		assert next.year % 100 # if we encounter century years, we have bigger problems than just leap years
 		ly = 1 if next.month == 2 and not next.year % 4 else 0
-		if next.day > monthdays[next.month+1]+ly:
+		if next.day > monthdays[next.month-1]+ly:
 			next.day = 1
 			next.month += 1
 			if next.month > 12:
