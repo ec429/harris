@@ -35,7 +35,7 @@ class Table(object):
 		return self.data[index]
 
 def parse_string(text):
-	return text.strip()
+	return unicode(text.strip(), encoding='utf8')
 parse_int = int
 def parse_date(text):
 	if text.strip():
