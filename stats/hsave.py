@@ -27,6 +27,7 @@ class Save(object):
 		stage = None
 		nosplit = False
 		for line in f:
+			if line.lstrip().startswith('#'): continue
 			if nosplit:
 				tag = None
 				rest = line.rstrip('\n')
