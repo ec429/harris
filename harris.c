@@ -2814,7 +2814,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									}
 								}
 							}
-							if(c.e==GB_btdesc[i])
+							if((c.e==GB_btdesc[i])&&types[i].text)
 							{
 								message_box(canvas, "From the Bomber Command files:", types[i].text, "R.H.M.S. Saundby, SASO");
 							}
