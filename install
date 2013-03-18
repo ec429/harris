@@ -1,0 +1,36 @@
+==Installing Harris==
+
+1. Obtain the source.
+	There are two choices, (a) download a zipball, or (b) pull from git.
+		a) Zipball.  Do this if you just want to play the game.
+			Go to https://github.com/ec429/harris and click 'ZIP'; save the .zip file somewhere.  Extract it.
+			Go to https://github.com/ec429/libatg and repeat.
+		b) Git pull.  Do this if you want to do development on the game and maybe contribute some code back.
+			[If you don't have it already, install the 'git' version control system <http://git-scm.com>]
+			$ git clone git://github.com/ec429/libatg.git libatg
+			$ cd libatg; git pull; cd ..
+			$ git clone git://github.com/ec429/harris.git harris
+			$ cd harris; git pull; cd ..
+
+2. Install dependencies.
+	You will need SDL from <http://www.libsdl.org>, as well as SDL_ttf and SDL_image.  You will also need the 'Liberation Mono' font.
+	For the stats graphs, you will also need matplotlib, from <http://matplotlib.org>.
+	On Debian, use the following:
+	# apt-get install libsdl1.2debian libsdl1.2-dev libsdl-image1.2 libsdl-image1.2-dev libsdl-ttf2.0-0 libsdl-ttf2.0-dev fonts-liberation python-matplotlib
+	For other systems, consult the above websites and/or your package manager's documentation.
+
+3. Build libatg.
+	$ cd libatg
+	$ make
+	$ su
+	# make install
+	# ^D
+	$ cd ..
+
+4. Build Harris.
+	$ cd harris
+	$ make
+
+5. Run the game!
+	$ ./harris
+	At this point a small grey window with a menu should pop up.  For further help, see the Tutorial in the file 'howtoplay'.
