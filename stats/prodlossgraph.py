@@ -27,10 +27,11 @@ if __name__ == '__main__':
 	gt = plt.plot_date(dates, zip(*total)[0], fmt='k+-', tz=None, xdate=True, ydate=False, label='total', zorder=2)
 	gb = plt.plot_date(dates, zip(*total)[1], fmt='k+-', tz=None, xdate=True, ydate=False, label=None, zorder=2)
 	for bi,b in enumerate(hdata.Bombers.data):
-		bprod = [data[key][bi][0] for key in sorted(data)]
-		bloss = [data[key][bi][1] for key in sorted(data)]
-		gp = plt.plot_date(dates, bprod, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
-		gl = plt.plot_date(dates, bloss, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=None, zorder=0)
+		bprod = [data[key][bi][0] for key in sorted(data) if hdata.inservice(key, bi)]
+		bloss = [data[key][bi][1] for key in sorted(data) if hdata.inservice(key, bi)]
+		bdate = [todt(key).toordinal() for key in sorted(data) if hdata.inservice(key, bi)]
+		gp = plt.plot_date(bdate, bprod, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
+		gl = plt.plot_date(bdate, bloss, fmt='o-'+cols[bi], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	plt.axhline(y=0, xmin=0, xmax=1, c='k', zorder=-1)
 	plt.legend(ncol=2)
 	plt.show()

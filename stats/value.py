@@ -30,7 +30,7 @@ def extract_value(save):
 					cash = h['data']['data']['cash']
 					cshr = h['data']['data']['cshr']
 		for i,b in enumerate(hdata.Bombers):
-			if hdata.Bombers[i]['exit'] and d[0] == hdata.Bombers[i]['exit']:
+			if hdata.Bombers[i]['exit'] and d[0] == hdata.Bombers[i]['exit'].next():
 				assert bcount[i] == 0
 		bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
 		cash -= spend

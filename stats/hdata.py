@@ -18,6 +18,14 @@ class Counter(object):
 		self.value += 1
 		return self.value - 1
 
+def inservice(date, bi):
+	"""Test whether a given Bomber type is in service at a given date"""
+	entry = Bombers[bi]['entry']
+	exit = Bombers[bi]['exit']
+	if entry and entry > date: return False
+	if exit and exit < date: return False
+	return True
+
 class Table(object):
 	def __init__(self, keys):
 		counter = Counter(0)
