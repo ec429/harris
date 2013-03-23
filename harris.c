@@ -22,6 +22,7 @@
 
 #include <atg.h>
 #include <SDL_image.h>
+#include <SDL_gfxBlitFunc.h>
 
 #include "bits.h"
 #include "weather.h"
@@ -268,6 +269,7 @@ SDL_Surface *render_weather(w_state weather);
 SDL_Surface *render_targets(date now);
 SDL_Surface *render_flak(date now);
 SDL_Surface *render_ac(game state);
+SDL_Surface *render_xhairs(game state, int seltarg);
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
 int line(SDL_Surface *s, unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1, atg_colour c);
 atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
@@ -284,6 +286,7 @@ unsigned int nflaks=0;
 flaksite *flaks=NULL;
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
+SDL_Surface *yellowhair=NULL;
 SDL_Surface *navpic[NNAVAIDS];
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
@@ -952,6 +955,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "Location icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(yellowhair=IMG_Load("art/yellowhair.png")))
+	{
+		fprintf(stderr, "Yellow crosshairs: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(!(navpic[n]=IMG_Load(navpicfn[n])))
@@ -1524,7 +1532,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL;
+	SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *xhair_overlay=NULL;
 	atg_element *GB_raid_label=atg_create_element_label("Select a Target", 12, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
 	if(!GB_raid_label)
 	{
@@ -2661,6 +2669,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	weather_overlay=render_weather(state.weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 	int seltarg=-1;
+	xhair_overlay=render_xhairs(state, seltarg);
+	SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
 	free(GB_raid_label->elem.label->text);
 	GB_raid_label->elem.label->text=strdup("Select a Target");
 	GB_raid->elem.box=GB_raidbox_empty;
@@ -2715,6 +2725,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 				}
 			}
+			SDL_FreeSurface(GB_map->elem.image->data);
+			GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+			SDL_BlitSurface(flak_overlay, NULL, GB_map->elem.image->data, NULL);
+			SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
+			SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+			SDL_FreeSurface(xhair_overlay);
+			xhair_overlay=render_xhairs(state, seltarg);
+			SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
 			atg_flip(canvas);
 			rfsh=false;
 		}
@@ -2822,11 +2840,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(c.e==GB_ttl)
 						{
 							seltarg=-1;
-							SDL_FreeSurface(GB_map->elem.image->data);
-							GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-							SDL_BlitSurface(flak_overlay, NULL, GB_map->elem.image->data, NULL);
-							SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
-							SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 							free(GB_raid_label->elem.label->text);
 							GB_raid_label->elem.label->text=strdup("Select a Target");
 							GB_raid->elem.box=GB_raidbox_empty;
@@ -2837,12 +2850,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(c.e==GB_ttrow[i])
 							{
 								seltarg=i;
-								SDL_FreeSurface(GB_map->elem.image->data);
-								GB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-								SDL_BlitSurface(flak_overlay, NULL, GB_map->elem.image->data, NULL);
-								SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
-								SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
-								SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[i].lon-3, .y=targs[i].lat-3});
 								free(GB_raid_label->elem.label->text);
 								size_t ll=9+strlen(targs[i].name);
 								GB_raid_label->elem.label->text=malloc(ll);
@@ -2933,8 +2940,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state.weather);
 		SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
-		if(seltarg>=0)
-			SDL_BlitSurface(location, NULL, GB_map->elem.image->data, &(SDL_Rect){.x=targs[seltarg].lon, .y=targs[seltarg].lat});
+		SDL_FreeSurface(xhair_overlay);
+		xhair_overlay=render_xhairs(state, seltarg);
+		SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
 		#endif
 	}
 	
@@ -4828,6 +4836,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	atg_free_box_box(loadbox);
 	if(SA_btext) *SA_btext=NULL;
 	atg_free_box_box(savebox);
+	SDL_FreeSurface(xhair_overlay);
 	SDL_FreeSurface(weather_overlay);
 	SDL_FreeSurface(target_overlay);
 	SDL_FreeSurface(flak_overlay);
@@ -5528,11 +5537,11 @@ SDL_Surface *render_targets(date now)
 			case TCLASS_ROAD:
 			case TCLASS_BRIDGE:
 			case TCLASS_INDUSTRY:
-				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-targs[i].picture->w/2, .y=targs[i].lat-targs[i].picture->h/2});
+				SDL_gfxBlitRGBA(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-targs[i].picture->w/2, .y=targs[i].lat-targs[i].picture->h/2});
 			break;
 			case TCLASS_SHIPPING:
 			case TCLASS_MINING:
-				SDL_BlitSurface(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-1, .y=targs[i].lat-1});
+				SDL_gfxBlitRGBA(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-1, .y=targs[i].lat-1});
 			break;
 			default:
 				fprintf(stderr, "render_targets: Warning: bad targs[%d].class = %d\n", i, targs[i].class);
@@ -5631,6 +5640,27 @@ SDL_Surface *render_ac(game state)
 			pset(rv, x, y, (atg_colour){127, 0, 0, ATG_ALPHA_OPAQUE});
 		else
 			pset(rv, x, y, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
+	}
+	return(rv);
+}
+
+SDL_Surface *render_xhairs(game state, int seltarg)
+{
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
+	{
+		fprintf(stderr, "render_xhairs: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
+	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	for(unsigned int i=0;i<state.ntargs;i++)
+		if(state.raids[i].nbombers)
+		{
+			SDL_gfxBlitRGBA(yellowhair, NULL, rv, &(SDL_Rect){.x=targs[i].lon-3, .y=targs[i].lat-3});
+		}
+	if(seltarg>=0)
+	{
+		SDL_gfxBlitRGBA(location, NULL, rv, &(SDL_Rect){.x=targs[seltarg].lon-3, .y=targs[seltarg].lat-3});
 	}
 	return(rv);
 }

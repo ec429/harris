@@ -8,7 +8,7 @@ LIBS := -latg -lm
 OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o
 INCLUDES := $(OBJS:.o=.h) events.h
 
-SDL := `sdl-config --libs` -lSDL_ttf -lSDL_image
+SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
 
 all: harris save/qstart.sav save/civ.sav save/abd.sav
