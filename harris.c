@@ -2749,6 +2749,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							free(state.hist.ents);
 							state.hist.ents=NULL;
 							state.hist.nents=state.hist.nalloc=0;
+							for(unsigned int i=0;i<ntargs;i++)
+							{
+								state.raids[i].nbombers=0;
+								free(state.raids[i].bombers);
+								state.raids[i].bombers=NULL;
+							}
 							goto main_menu;
 						break;
 					}
