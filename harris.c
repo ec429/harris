@@ -5839,34 +5839,45 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 			}
 			if(!bodytext[x])
 			{
-				atg_element *cont=atg_create_element_button(signtext, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
-				if(!cont)
-					fprintf(stderr, "atg_create_element_button failed\n");
+				atg_element *sign=atg_create_element_label(signtext, 14, (atg_colour){2, 2, 9, ATG_ALPHA_OPAQUE});
+				if(!sign)
+					fprintf(stderr, "atg_create_element_label failed\n");
 				else
 				{
-					if(atg_pack_element(msgbox, cont))
+					if(atg_pack_element(msgbox, sign))
 						perror("atg_pack_element");
 					else
 					{
-						canvas->box=msgbox;
-						atg_flip(canvas);
-						atg_event e;
-						while(1)
+						atg_element *cont = atg_create_element_button("Continue", (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE}, (atg_colour){239, 239, 224, ATG_ALPHA_OPAQUE});
+						if(!cont)
+							fprintf(stderr, "atg_create_element_button failed\n");
+						else
 						{
-							if(atg_poll_event(&e, canvas))
-							{
-								if(e.type==ATG_EV_TRIGGER) break;
-								if(e.type==ATG_EV_RAW)
-								{
-									SDL_Event s=e.event.raw;
-									if(s.type==SDL_QUIT) break;
-								}
-							}
+							if(atg_pack_element(msgbox, cont))
+								perror("atg_pack_element");
 							else
-								SDL_Delay(50);
-							atg_flip(canvas);
+							{
+								canvas->box=msgbox;
+								atg_flip(canvas);
+								atg_event e;
+								while(1)
+								{
+									if(atg_poll_event(&e, canvas))
+									{
+										if(e.type==ATG_EV_TRIGGER) break;
+										if(e.type==ATG_EV_RAW)
+										{
+											SDL_Event s=e.event.raw;
+											if(s.type==SDL_QUIT) break;
+										}
+									}
+									else
+										SDL_Delay(50);
+									atg_flip(canvas);
+								}
+								canvas->box=oldbox;
+							}
 						}
-						canvas->box=oldbox;
 					}
 				}
 			}
