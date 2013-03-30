@@ -2762,6 +2762,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				case ATG_EV_CLICK:;
 					atg_ev_click c=e.event.click;
 					atg_mousebutton b=c.button;
+					SDLMod m = SDL_GetModState();
 					if(c.e)
 					{
 						for(unsigned int i=0;i<ntypes;i++)
@@ -2806,6 +2807,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 												amount=-1;
 											break;
 											case ATG_MB_LEFT:
+												if(m&KMOD_CTRL)
+												{
+													amount=-1;
+													break;
+												}
+												/* else fallthrough */
 											case ATG_MB_SCROLLUP:
 											default:
 												amount=10;
@@ -2877,6 +2884,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											amount=-1;
 										break;
 										case ATG_MB_LEFT:
+											if(m&KMOD_CTRL)
+											{
+												amount=-1;
+												break;
+											}
+											/* else fallthrough */
 										case ATG_MB_SCROLLUP:
 										default:
 											amount=10;
