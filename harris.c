@@ -37,6 +37,7 @@
 
 /* TODO
 	Seasonal effects on weather
+	Toggle overlays on map display (incl. add new overlays for GEE, OBOE, GH range; perhaps also ability to show weather map as isobars/isotherms instead of cloudmap)
 	Make Flak only be known to you after you've encountered it
 	Implement later forms of Fighter control
 	Better algorithm for building German fighters
