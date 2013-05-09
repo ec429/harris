@@ -3655,17 +3655,34 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				if(t>state.fighters[j].fuelt)
 				{
-					int t=state.fighters[j].targ;
-					int f=state.fighters[j].hflak;
-					if(t>=0)
-						targs[t].nfighters--;
-					if(f>=0)
-						flaks[f].ftr=-1;
-					if((t>=0)||(f>=0))
+					int ta=state.fighters[j].targ;
+					int fl=state.fighters[j].hflak;
+					if(ta>=0)
+						targs[ta].nfighters--;
+					if(fl>=0)
+						flaks[fl].ftr=-1;
+					if((ta>=0)||(fl>=0))
 						fightersleft++;
 					state.fighters[j].targ=-1;
 					state.fighters[j].hflak=-1;
 					state.fighters[j].k=-1;
+					if(t>state.fighters[j].fuelt+48)
+					{
+						cr_append(&state.hist, state.now, now, state.fighters[j].id, true, state.fighters[j].type);
+						state.fighters[j].crashed=true;
+						fightersleft--;
+					}
+				}
+				unsigned int type=state.fighters[j].type;
+				unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
+				double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
+				if(wea<6)
+				{
+					double nav=log2(6-wea)/(ftypes[type].night?6.0:2.0);
+					double dx=drandu(nav)-nav/2.0,
+					       dy=drandu(nav)-nav/2.0;
+					state.fighters[j].lon+=dx;
+					state.fighters[j].lat+=dy;
 				}
 				int k=state.fighters[j].k;
 				if(k>=0)
@@ -3793,7 +3810,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					int bx=fbases[mb].lon,
 						by=fbases[mb].lat;
 					double d=hypot(x-bx, y-by);
-					if(d>0.5)
+					if(d>0.8)
 					{
 						unsigned int type=state.fighters[j].type;
 						double spd=ftypes[type].speed/300.0;
