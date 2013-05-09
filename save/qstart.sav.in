@@ -31,14 +31,14 @@ Bombers:396
 *23*Type 3:1,0,0,NOID
 GProd:0
 FTypes:8
-FBases:11
+FBases:12
 Fighters:90
-*19*Type 0:0,NOID
 *19*Type 0:1,NOID
 *19*Type 0:2,NOID
-*11*Type 3:1,NOID
-*11*Type 3:3,NOID
+*19*Type 0:3,NOID
+*11*Type 3:2,NOID
 *11*Type 3:4,NOID
+*11*Type 3:5,NOID
 Targets init:100,100,0
 Weather rand:14410
 Messages:1
