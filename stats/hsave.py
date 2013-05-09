@@ -27,18 +27,23 @@ class Save(object):
 		stage = None
 		nosplit = False
 		for line in f:
-			if line.lstrip().startswith('#'): continue
-			if nosplit:
-				tag = None
-				rest = line.rstrip('\n')
-			else:
-				tag, rest = line.rstrip('\n').split(':', 1)
-			if stage:
-				if stage(tag, rest):
-					stage = None
-					nosplit = False
-			else:
-				stage, nosplit = self.handle(tag, rest)
+			try:
+				if line.lstrip().startswith('#'): continue
+				if nosplit:
+					tag = None
+					rest = line.rstrip('\n')
+				else:
+					tag, rest = line.rstrip('\n').split(':', 1)
+				if stage:
+					if stage(tag, rest):
+						stage = None
+						nosplit = False
+				else:
+					stage, nosplit = self.handle(tag, rest)
+			except Exception as e:
+				print 'Choked on the following line:'
+				print line
+				raise
 		if check_integrity:
 			self.check_integrity()
 		return self
