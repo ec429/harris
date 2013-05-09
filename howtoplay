@@ -92,13 +92,13 @@ Budget
 ~~~~~~
 The budget decreases by 4% each day, and is increased by successful raids as follows:
 Item            Per day   Total
-10,000lb bombs     £50    £1250  Note: This is doubled for 'specific industrial targets', and doubled for Berlin
-10,000 leaflets     £2      £50  Note: This is doubled for Berlin
-10,000lb mines     £10     £250
+10,000lb bombs     £80    £2000  Note: This is doubled for 'specific industrial targets', and doubled for Berlin
+10,000 leaflets     £6     £150  Note: This is doubled for Berlin
+10,000lb mines     £12     £300
 Ship sunk         £800   £20000
-Bridge destroyed £1600   £40000
+Bridge destroyed £2000   £50000
 In the above table, the extra column headed "Total" gives the (approximate) total payout, based on the formula for the sum of a geometric progression.  Since the common ratio is 0.96, this is (1/1-0.96) = 25 times the value in the "Per day" column.
-The budget is also increased by £1/day for each percentage point of Confidence, and 50p/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£150 * 25 =) £3750/day.
+The budget is also increased by £2/day for each percentage point of Confidence, and £1/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£300 * 25 =) £7500/day.
 
 Reference
 ~~~~~~~~~

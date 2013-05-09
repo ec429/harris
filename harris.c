@@ -3482,10 +3482,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(dd<range*range)
 						{
-							if(brandp(state.flk[i]/200.0))
+							if(brandp(state.flk[i]/500.0))
 							{
 								double ddmg;
-								if(brandp(types[type].defn/200.0))
+								if(brandp(types[type].defn/400.0))
 									ddmg=100;
 								else
 									ddmg=irandu(types[type].defn)/2.5;
@@ -3510,7 +3510,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							if(brandp(flaks[i].strength*(rad?3:1)/900.0))
 							{
-								double ddmg=irandu(types[type].defn)/5.0;
+								double ddmg;
+								if(brandp(types[type].defn/400.0))
+									ddmg=100;
+								else
+									ddmg=irandu(types[type].defn)/4.0;
 								state.bombers[k].damage+=ddmg;
 								if(ddmg)
 									dmfk_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type, ddmg, state.bombers[k].damage, i);
@@ -3539,10 +3543,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool airad=ftypes[type].night&&!datebefore(state.now, event[EVENT_L_BC]);
 						unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-						double seerange=airad?1.5:(3.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)));
+						double seerange=airad?1.5:(5.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)));
 						if(xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, seerange))
 						{
-							double findp=airad?0.16:0.6/(double)(8+max(4-wea, 0));
+							double findp=airad?0.7:0.8/(double)(8+max(4-wea, 0));
 							if(brandp(findp))
 								state.fighters[j].k=k;
 						}
@@ -3720,7 +3724,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							if(brandp(ftypes[ft].mnv/100.0))
 							{
-								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/20.0;
+								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/10.0;
 								state.bombers[k].damage+=dmg;
 								state.bombers[k].df+=dmg;
 								dmac_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type, dmg, state.bombers[k].damage, state.fighters[j].id);
@@ -3731,7 +3735,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.fighters[j].damage+=dmg;
 								dmac_append(&state.hist, state.now, now, state.fighters[j].id, true, state.fighters[j].type, dmg, state.fighters[j].damage, state.bombers[k].id);
 							}
-							if(brandp(0.6))
+							if(brandp(0.35))
 								state.fighters[j].k=-1;
 						}
 					}
@@ -4222,19 +4226,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			RS_typecol[j]->hidden=!dj[j];
 			if(dj[j]) ntcols++;
 		}
-		state.cshr+=scoreTb/200;
-		state.cshr+=scoreTl/5000;
-		state.cshr+=Ts*800;
-		state.cshr+=scoreTm/1000;
-		state.cshr+=bridge*16;
+		state.cshr+=scoreTb*  80e-4;
+		state.cshr+=scoreTl*   6e-4;
+		state.cshr+=scoreTm*  12e-4;
+		state.cshr+=Ts*      800   ;
+		state.cshr+=bridge* 2000e-2;
 		double par=0.2+((state.now.year-1939)*0.15);
 		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0);
 		state.confid+=Ts*0.25;
 		state.confid+=cidam*0.1;
 		state.confid=min(max(state.confid, 0), 100);
 		co_append(&state.hist, state.now, (time){11, 05}, state.confid);
-		state.morale+=(1.8-L*100.0/(double)D)/3.0;
-		if(L==0) state.morale+=0.25;
+		state.morale+=(3.0-L*100.0/(double)D)/5.0;
+		if((L==0)&&(D>5)) state.morale+=0.3;
 		if(D>=100) state.morale+=0.2;
 		if(D>=1000) state.morale+=1.0;
 		state.morale=min(max(state.morale, 0), 100);
@@ -4610,7 +4614,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		if(state.bombers[i].failed)
 		{
-			if(brandp((types[state.bombers[i].type].svp/100.0)/3.0))
+			if(brandp((types[state.bombers[i].type].svp/100.0)/2.0))
 			{
 				fa_append(&state.hist, state.now, (time){11, 10}, state.bombers[i].id, false, state.bombers[i].type, 0);
 				state.bombers[i].failed=false;
@@ -4618,7 +4622,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		else
 		{
-			if(brandp((1-types[state.bombers[i].type].svp/100.0)/3.0))
+			if(brandp((1-types[state.bombers[i].type].svp/100.0)/2.4))
 			{
 				fa_append(&state.hist, state.now, (time){11, 10}, state.bombers[i].id, false, state.bombers[i].type, 1);
 				state.bombers[i].failed=true;
@@ -4626,8 +4630,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	// TODO: if confid or morale too low, SACKED
-	state.cshr+=state.confid;
-	state.cshr+=state.morale/2.0;
+	state.cshr+=state.confid*2.0;
+	state.cshr+=state.morale;
 	state.cshr*=.96;
 	state.cash+=state.cshr;
 	ca_append(&state.hist, state.now, (time){11, 20}, state.cshr, state.cash);
