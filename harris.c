@@ -3866,12 +3866,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						for(unsigned int j=0;j<state.nfighters;j++)
 						{
 							if(state.fighters[j].damage>=1) continue;
+							unsigned int type=state.fighters[j].type;
+							unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/300.0);
 							if(state.fighters[j].landed)
 							{
 								const unsigned int base=state.fighters[j].base;
 								signed int dx=(signed)flaks[i].lat-(signed)fbases[base].lat, dy=(signed)flaks[i].lon-(signed)fbases[base].lon;
 								unsigned int dd=dx*dx+dy*dy;
-								if(dd<mind)
+								if(dd<mind&&dd<range*range)
 								{
 									mind=dd;
 									minj=j;
@@ -3881,7 +3883,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							{
 								signed int dx=(signed)flaks[i].lat-state.fighters[j].lat, dy=(signed)flaks[i].lon-state.fighters[j].lon;
 								unsigned int dd=dx*dx+dy*dy;
-								if(dd<mind)
+								if(dd<mind&&dd<range*range)
 								{
 									mind=dd;
 									minj=j;
@@ -3919,12 +3921,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					for(unsigned int j=0;j<state.nfighters;j++)
 					{
 						if(state.fighters[j].damage>=1) continue;
+						unsigned int type=state.fighters[j].type;
+						unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/300.0);
 						if(state.fighters[j].landed)
 						{
 							const unsigned int base=state.fighters[j].base;
 							signed int dx=(signed)targs[i].lat-(signed)fbases[base].lat, dy=(signed)targs[i].lon-(signed)fbases[base].lon;
 							unsigned int dd=dx*dx+dy*dy;
-							if(dd<mind)
+							if(dd<mind&&dd<range*range)
 							{
 								mind=dd;
 								minj=j;
@@ -3934,7 +3938,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							signed int dx=(signed)targs[i].lat-state.fighters[j].lat, dy=(signed)targs[i].lon-state.fighters[j].lon;
 							unsigned int dd=dx*dx+dy*dy;
-							if(dd<mind)
+							if(dd<mind&&dd<range*range)
 							{
 								mind=dd;
 								minj=j;
