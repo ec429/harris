@@ -368,6 +368,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				this.prio=2;
 				this.pribuf=0;
+				this.text=this.newtext=NULL;
 				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
 				types[ntypes]=this;
 				ntypes++;
@@ -443,6 +444,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					fprintf(stderr, "  FLAGS has neither DAY not NIGHT\n");
 					return(1);
 				}
+				this.text=this.newtext=NULL;
 				ftypes=realloc(ftypes, (nftypes+1)*sizeof(fightertype));
 				ftypes[nftypes]=this;
 				nftypes++;
