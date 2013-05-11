@@ -15,6 +15,7 @@ def todt(date):
 
 if __name__ == '__main__':
 	showtotal = '--nototal' not in sys.argv
+	legend = '--nolegend' not in sys.argv
 	projected = '--project' in sys.argv
 	save = hsave.Save.parse(sys.stdin)
 	data = value.extract_value(save)
@@ -30,5 +31,5 @@ if __name__ == '__main__':
 	gc = plt.plot_date(dates, [e['cash']/1e3 for e in data], fmt='g+-', tz=None, xdate=True, ydate=False, label='cash', zorder=2)
 	for bi,b in enumerate(hdata.Bombers.data):
 		gb = plt.plot_date([todt(datum['date']).toordinal() for datum in data if hdata.inservice(datum['date'], b)], [e['bvalues'][bi]/1e3 for e in data if hdata.inservice(e['date'], b)], fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
-	plt.legend(ncol=2, loc='upper left')
+	if legend: plt.legend(ncol=2, loc='upper left')
 	plt.show()
