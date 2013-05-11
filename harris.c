@@ -175,7 +175,7 @@ typedef struct
 	bool landed; // for forces, read as !assigned
 	double speed;
 	double damage; // increases the probability of mech.fail and of consequent crashes
-	double df; // damage (by) fighters
+	bool ldf; // last damage by a fighter?
 	bool idtar; // identified target?  (for use if RoE require it)
 	unsigned int startt; // take-off time
 	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
@@ -2560,7 +2560,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		state.bombers[j].landed=true;
 		state.bombers[j].damage=0;
-		state.bombers[j].df=0;
+		state.bombers[j].ldf=false;
 	}
 	bool shownav=false;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
@@ -3237,7 +3237,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
 		SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
 		unsigned int inair=totalraids, t=0;
-		double kills[2]={0, 0};
+		unsigned int kills[2]={0, 0};
 		while(t<startt)
 		{
 			t++;
@@ -3314,9 +3314,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						state.bombers[k].crashed=true;
 						if(state.bombers[k].damage)
 						{
-							double kf=state.bombers[k].df/state.bombers[k].damage;
-							kills[0]+=(1-kf);
-							kills[1]+=kf;
+							if(state.bombers[k].ldf)
+								kills[1]++;
+							else
+								kills[0]++;
 						}
 						inair--;
 						continue;
@@ -3331,9 +3332,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.bombers[k].crashed=true;
 							if(state.bombers[k].damage)
 							{
-								double kf=state.bombers[k].df/state.bombers[k].damage;
-								kills[0]+=(1-kf);
-								kills[1]+=kf;
+								if(state.bombers[k].ldf)
+									kills[1]++;
+								else
+									kills[0]++;
 							}
 							inair--;
 							continue;
@@ -3482,7 +3484,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(dd<range*range)
 						{
-							if(brandp(state.flk[i]/500.0))
+							if(brandp(state.flk[i]/600.0))
 							{
 								double ddmg;
 								if(brandp(types[type].defn/400.0))
@@ -3491,7 +3493,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									ddmg=irandu(types[type].defn)/2.5;
 								state.bombers[k].damage+=ddmg;
 								if(ddmg)
+								{
 									dmtf_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type, ddmg, state.bombers[k].damage, i);
+									state.bombers[k].ldf=false;
+								}
 							}
 						}
 						bool water=false;
@@ -3517,7 +3522,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									ddmg=irandu(types[type].defn)/4.0;
 								state.bombers[k].damage+=ddmg;
 								if(ddmg)
+								{
 									dmfk_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type, ddmg, state.bombers[k].damage, i);
+									state.bombers[k].ldf=false;
+								}
 							}
 						}
 						if(brandp(0.1))
@@ -3543,7 +3551,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool airad=ftypes[type].night&&!datebefore(state.now, event[EVENT_L_BC]);
 						unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-						double seerange=airad?1.5:(5.0*(.8*moonillum+.6)/(double)(8+max(4-wea, 0)));
+						double seerange=airad?1.9:(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
 						if(xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, seerange))
 						{
 							double findp=airad?0.7:0.8/(double)(8+max(4-wea, 0));
@@ -3657,6 +3665,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						flaks[f].ftr=-1;
 					continue;
 				}
+				unsigned int type=state.fighters[j].type;
 				if(t>state.fighters[j].fuelt)
 				{
 					int ta=state.fighters[j].targ;
@@ -3670,14 +3679,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					state.fighters[j].targ=-1;
 					state.fighters[j].hflak=-1;
 					state.fighters[j].k=-1;
-					if(t>state.fighters[j].fuelt+48)
+					if(t>state.fighters[j].fuelt+(ftypes[type].night?96:46))
 					{
 						cr_append(&state.hist, state.now, now, state.fighters[j].id, true, state.fighters[j].type);
 						state.fighters[j].crashed=true;
 						fightersleft--;
 					}
 				}
-				unsigned int type=state.fighters[j].type;
 				unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 				double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 				if(wea<6)
@@ -3726,14 +3734,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							{
 								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/10.0;
 								state.bombers[k].damage+=dmg;
-								state.bombers[k].df+=dmg;
-								dmac_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type, dmg, state.bombers[k].damage, state.fighters[j].id);
+								if(dmg)
+								{
+									dmac_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type, dmg, state.bombers[k].damage, state.fighters[j].id);
+									state.bombers[k].ldf=true;
+								}
 							}
 							if(!types[bt].noarm&&(brandp(1.0/types[bt].defn)))
 							{
 								unsigned int dmg=irandu(20);
 								state.fighters[j].damage+=dmg;
-								dmac_append(&state.hist, state.now, now, state.fighters[j].id, true, state.fighters[j].type, dmg, state.fighters[j].damage, state.bombers[k].id);
+								if(dmg)
+									dmac_append(&state.hist, state.now, now, state.fighters[j].id, true, state.fighters[j].type, dmg, state.fighters[j].damage, state.bombers[k].id);
 							}
 							if(brandp(0.35))
 								state.fighters[j].k=-1;
@@ -3970,8 +3982,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			atg_flip(canvas);
 		}
 		// incorporate the results, and clear the raids ready for next cycle
-		if(kills[0]+kills[1]>0)
-			fprintf(stderr, "Kills: flak %.3g, fighters %.3g\n", kills[0], kills[1]);
+		if(kills[0]||kills[1])
+			fprintf(stderr, "Kills: flak %u, fighters %u\n", kills[0], kills[1]);
 		unsigned int dij[ntargs][ntypes], nij[ntargs][ntypes], tij[ntargs][ntypes], lij[ntargs][ntypes], heat[ntargs];
 		bool canscore[ntargs];
 		double cidam=0;
