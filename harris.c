@@ -290,9 +290,11 @@ SDL_Surface *location=NULL;
 SDL_Surface *yellowhair=NULL;
 SDL_Surface *navpic[NNAVAIDS];
 
+unsigned int mainsizex=800, mainsizey=640;
+
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-	atg_canvas *canvas=atg_create_canvas(120, 24, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+	atg_canvas *canvas=atg_create_canvas_with_opts(120, 24, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
 	if(!canvas)
 	{
 		fprintf(stderr, "atg_create_canvas failed\n");
@@ -1876,8 +1878,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_element_filepicker failed\n");
 		return(1);
 	}
-	LB_file->h=610;
-	LB_file->w=800;
+	LB_file->h=mainsizey-30;
+	LB_file->w=mainsizex;
 	if(atg_pack_element(loadbox, LB_file))
 	{
 		perror("atg_pack_element");
@@ -1968,8 +1970,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_element_filepicker failed\n");
 		return(1);
 	}
-	SA_file->h=610;
-	SA_file->w=800;
+	SA_file->h=mainsizey-30;
+	SA_file->w=mainsizex;
 	if(atg_pack_element(savebox, SA_file))
 	{
 		perror("atg_pack_element");
@@ -2331,7 +2333,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	loader:
 	canvas->box=loadbox;
-	atg_resize_canvas(canvas, 800, 640);
+	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	while(1)
 	{
 		atg_flip(canvas);
@@ -2344,6 +2346,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(s.type)
 					{
 						case SDL_QUIT:
+							mainsizex=canvas->surface->w;
+							mainsizey=canvas->surface->h;
 							goto main_menu;
 						break;
 					}
@@ -2365,6 +2369,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(!loadgame(file, &state, lorw))
 							{
 								fprintf(stderr, "Game loaded\n");
+								mainsizex=canvas->surface->w;
+								mainsizey=canvas->surface->h;
 								goto gameloop;
 							}
 							else
@@ -2409,7 +2415,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	saver:
 	canvas->box=savebox;
-	atg_resize_canvas(canvas, 800, 640);
+	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	while(1)
 	{
 		atg_flip(canvas);
@@ -2422,6 +2428,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(s.type)
 					{
 						case SDL_QUIT:
+							mainsizex=canvas->surface->w;
+							mainsizey=canvas->surface->h;
 							goto gameloop;
 						break;
 						case SDL_KEYDOWN:;
@@ -2506,6 +2514,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(!savegame(file, state))
 							{
 								fprintf(stderr, "Game saved\n");
+								mainsizex=canvas->surface->w;
+								mainsizey=canvas->surface->h;
 								goto gameloop;
 							}
 							else
@@ -2550,7 +2560,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	gameloop:
 	canvas->box=gamebox;
-	atg_resize_canvas(canvas, 800, 640);
+	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	snprintf(datestring, 11, "%02u-%02u-%04u\n", state.now.day, state.now.month, state.now.year);
 	snprintf(GB_budget_label, 32, "Budget: £%u/day", state.cshr);
 	snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state.confid+0.5));
@@ -2758,7 +2768,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								free(state.raids[i].bombers);
 								state.raids[i].bombers=NULL;
 							}
+							mainsizex=canvas->surface->w;
+							mainsizey=canvas->surface->h;
 							goto main_menu;
+						break;
+						case SDL_VIDEORESIZE:
+							rfsh=true;
 						break;
 					}
 				break;
@@ -2934,6 +2949,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						else if(trigger.e==GB_save)
 						{
+							mainsizex=canvas->surface->w;
+							mainsizey=canvas->surface->h;
 							goto saver;
 						}
 						for(unsigned int i=0;i<MAXMSGS;i++)
@@ -3000,7 +3017,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	if(totalraids)
 	{
 		canvas->box=raidbox;
-		atg_resize_canvas(canvas, 800, 640);
 		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
 		SDL_FreeSurface(RB_map->elem.image->data);
 		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
@@ -4583,7 +4599,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		}
 		canvas->box=rstatbox;
-		atg_resize_canvas(canvas, 800, 640);
 		atg_flip(canvas);
 		int errupt=0;
 		while(!errupt)
@@ -4884,6 +4899,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
 		}
 	}
+	mainsizex=canvas->surface->w;
+	mainsizey=canvas->surface->h;
 	goto gameloop;
 	
 	do_exit:
