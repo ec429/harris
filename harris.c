@@ -289,6 +289,7 @@ SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
 SDL_Surface *yellowhair=NULL;
 SDL_Surface *navpic[NNAVAIDS];
+SDL_Surface *resizebtn=NULL;
 
 unsigned int mainsizex=800, mainsizey=640;
 
@@ -965,6 +966,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "Yellow crosshairs: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(resizebtn=IMG_Load("art/resize.png")))
+	{
+		fprintf(stderr, "Resize button: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(!(navpic[n]=IMG_Load(navpicfn[n])))
@@ -1105,6 +1111,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
+	GB_date->w=80;
 	if(atg_pack_element(GB_dtb, GB_date))
 	{
 		perror("atg_pack_element");
@@ -1133,6 +1140,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
+	GB_moonpic->w=18;
 	if(atg_pack_element(GB_dtb, GB_moonpic))
 	{
 		perror("atg_pack_element");
@@ -1147,6 +1155,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		i->data=GB_moonimg;
+	}
+	atg_element *GB_resize=atg_create_element_image(resizebtn);
+	if(!GB_resize)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	GB_resize->clickable=true;
+	if(atg_pack_element(GB_dtb, GB_resize))
+	{
+		perror("atg_pack_element");
+		return(1);
 	}
 	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btdesc[ntypes], *GB_btnum[ntypes], *GB_btpc[ntypes], *GB_btp[ntypes], *GB_navrow[ntypes], *GB_navbtn[ntypes][NNAVAIDS], *GB_navgraph[ntypes][NNAVAIDS];
 	for(unsigned int i=0;i<ntypes;i++)
@@ -2051,6 +2071,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	
 	atg_box *rstatbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *RS_resize=NULL, *RS_cont=NULL;
 	if(!rstatbox)
 	{
 		fprintf(stderr, "atg_create_box failed\n");
@@ -2086,7 +2107,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			perror("atg_pack_element");
 			return(1);
 		}
-		atg_element *RS_cont=atg_create_element_button("Continue", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		RS_resize=atg_create_element_image(resizebtn);
+		if(!RS_resize)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		RS_resize->w=24;
+		RS_resize->clickable=true;
+		if(atg_pack_element(b, RS_resize))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		RS_cont=atg_create_element_button("Continue", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
 		if(!RS_cont)
 		{
 			fprintf(stderr, "atg_create_element_button failed\n");
@@ -2933,6 +2967,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									}
 								}
 							}
+						}
+						if(c.e==GB_resize)
+						{
+							mainsizex=800;
+							mainsizey=640;
+							atg_resize_canvas(canvas, mainsizex, mainsizey);
 						}
 					}
 				break;
@@ -4626,8 +4666,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							break;
 						}
 					break;
-					case ATG_EV_TRIGGER: // it must have been RS_cont, that's the only button on the page
-						errupt++;
+					case ATG_EV_CLICK:;
+						atg_ev_click c=e.event.click;
+						if(c.e==RS_resize)
+						{
+							mainsizex=800;
+							mainsizey=640;
+							atg_resize_canvas(canvas, mainsizex, mainsizey);
+							atg_flip(canvas);
+						}
+					break;
+					case ATG_EV_TRIGGER:;
+						atg_ev_trigger t=e.event.trigger;
+						if(t.e==RS_cont)
+							errupt++;
+						else
+							fprintf(stderr, "Clicked unknown button %p\n", (void *)t.e);
 					break;
 					default:
 					break;
