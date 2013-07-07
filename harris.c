@@ -93,6 +93,8 @@ typedef struct
 }
 bombertype;
 
+#define fuelcap(t)	types[t].range*180.0/(double)(types[t].speed)
+
 typedef struct
 {
 	//MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:DD-MM-YYYY:DD-MM-YYYY:FLAGS
@@ -181,6 +183,8 @@ typedef struct
 	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
 }
 ac_bomber;
+
+#define loadness(b)	((((b).bombed?0:(b).bmb)/(double)(types[(b).type].cap)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
 
 typedef struct
 {
@@ -3279,7 +3283,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				startt=min(startt, state.bombers[k].startt);
 				state.bombers[k].fuelt=state.bombers[k].startt+types[type].range*0.6/(double)state.bombers[k].speed;
-				unsigned int eta=state.bombers[k].startt+outward*1.2/(double)state.bombers[k].speed;
+				unsigned int eta=state.bombers[k].startt+outward*1.2/(double)state.bombers[k].speed+12;
 				if(datebefore(state.now, event[EVENT_GEE])) eta+=24;
 				if(eta>state.bombers[k].fuelt)
 				{
@@ -3287,6 +3291,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					state.bombers[k].fuelt+=fu;
 					state.bombers[k].bmb*=120/(120.0+fu);
 				}
+				else
+					state.bombers[k].fuelt=eta;
 			}
 		}
 		oboe.k=-1;
@@ -3788,7 +3794,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(d<(radcon?0.6:0.38)*(.8*moonillum+.6))
 						{
-							if(brandp(ftypes[ft].mnv/100.0))
+							if(brandp(ftypes[ft].mnv*(2.7+loadness(state.bombers[k]))/400.0))
 							{
 								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/10.0;
 								state.bombers[k].damage+=dmg;
