@@ -4317,7 +4317,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.confid+=cidam*0.1;
 		state.confid=min(max(state.confid, 0), 100);
 		co_append(&state.hist, state.now, (time){11, 05}, state.confid);
-		state.morale+=(3.0-L*100.0/(double)D)/5.0;
+		state.morale+=(1.8-L*100.0/(double)D)/5.0;
 		if((L==0)&&(D>5)) state.morale+=0.3;
 		if(D>=100) state.morale+=0.2;
 		if(D>=1000) state.morale+=1.0;
