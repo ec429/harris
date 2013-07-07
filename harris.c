@@ -4902,7 +4902,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue;
 		mfcost=max(mfcost, ftypes[i].cost);
 	}
-	state.gprod+=dprod/12.0;
+	state.gprod+=dprod/18.0;
 	while(state.gprod>=mfcost)
 	{
 		unsigned int i=irandu(nftypes);
