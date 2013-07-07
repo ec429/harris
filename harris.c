@@ -3261,7 +3261,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].navlon=0;
 				state.bombers[k].driftlat=0;
 				state.bombers[k].driftlon=0;
-				state.bombers[k].speed=(types[type].speed+irandu(4)-2)/300.0;
+				state.bombers[k].speed=(types[type].speed+irandu(4)-2)/400.0;
 				if(datebefore(state.now, event[EVENT_GEE]))
 					state.bombers[k].startt=irandu(90);
 				else
@@ -3282,7 +3282,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						plan[(tt-450)/2]++;
 				}
 				startt=min(startt, state.bombers[k].startt);
-				state.bombers[k].fuelt=state.bombers[k].startt+types[type].range*0.6/(double)state.bombers[k].speed;
+				state.bombers[k].fuelt=state.bombers[k].startt+types[type].range*0.8/(double)state.bombers[k].speed;
 				unsigned int eta=state.bombers[k].startt+outward*1.2/(double)state.bombers[k].speed+12;
 				if(datebefore(state.now, event[EVENT_GEE])) eta+=24;
 				if(eta>state.bombers[k].fuelt)
@@ -3442,7 +3442,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.bombers[k].navlon=0;
 							}
 						}
-						else if(t>768)
+						else if(t>1200)
 						{
 							state.bombers[k].navlon=state.bombers[k].navlat=0;
 							state.bombers[k].lon=min(state.bombers[k].lon, 127);
@@ -3786,7 +3786,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						double d=hypot(x-tx, y-ty);
 						if(d)
 						{
-							double spd=ftypes[ft].speed/300.0;
+							double spd=ftypes[ft].speed/400.0;
 							double cx=(tx-x)/d,
 								cy=(ty-y)/d;
 							state.fighters[j].lon+=cx*spd;
@@ -3825,7 +3825,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						ty=targs[t].lat;
 					double d=hypot(x-tx, y-ty);
 					unsigned int type=state.fighters[j].type;
-					double spd=ftypes[type].speed/300.0;
+					double spd=ftypes[type].speed/400.0;
 					if(d>0.2)
 					{
 						double cx=(tx-x)/d,
@@ -3850,7 +3850,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						fy=flaks[f].lat;
 					double d=hypot(x-fx, y-fy);
 					unsigned int type=state.fighters[j].type;
-					double spd=ftypes[type].speed/300.0;
+					double spd=ftypes[type].speed/400.0;
 					if(d>0.2)
 					{
 						double cx=(fx-x)/d,
@@ -3893,7 +3893,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					if(d>0.8)
 					{
 						unsigned int type=state.fighters[j].type;
-						double spd=ftypes[type].speed/300.0;
+						double spd=ftypes[type].speed/400.0;
 						double cx=(bx-x)/d,
 							cy=(by-y)/d;
 						state.fighters[j].lon+=cx*spd;
@@ -3931,7 +3931,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							if(state.fighters[j].damage>=1) continue;
 							unsigned int type=state.fighters[j].type;
-							unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/300.0);
+							unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
 							if(state.fighters[j].landed)
 							{
 								const unsigned int base=state.fighters[j].base;
@@ -3986,7 +3986,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						if(state.fighters[j].damage>=1) continue;
 						unsigned int type=state.fighters[j].type;
-						unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/300.0);
+						unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
 						if(state.fighters[j].landed)
 						{
 							const unsigned int base=state.fighters[j].base;
