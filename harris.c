@@ -3386,11 +3386,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						inair--;
 						continue;
 					}
-					if(brandp((types[type].fail+2.0*state.bombers[k].damage)/4000.0))
+					if(brandp((types[type].fail+2.0*state.bombers[k].damage)/4800.0))
 					{
 						fa_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type, 1);
 						state.bombers[k].failed=true;
-						if(brandp((1.0+state.bombers[k].damage/50.0)/200.0))
+						if(brandp((1.0+state.bombers[k].damage/50.0)/(240.0-types[type].fail*5.0)))
 						{
 							cr_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type);
 							state.bombers[k].crashed=true;
