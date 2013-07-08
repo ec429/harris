@@ -16,7 +16,7 @@ Prio 8:2,0,15000,0
 Prio 9:2,0,40000,128000
 Prio 10:2,0,50000,90000
 Navaids:4
-NPrio 0:0,200
+NPrio 0:0,400
 NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96

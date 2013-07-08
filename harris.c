@@ -4768,6 +4768,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		(state.bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid()};
 		for(unsigned int j=0;j<NNAVAIDS;j++)
 			nb[n].nav[j]=false;
+		if((!datebefore(state.now, event[EVENT_ALLGEE]))&&types[m].nav[NAV_GEE])
+			nb[n].nav[NAV_GEE]=true;
 		state.cash-=types[m].cost;
 		types[m].pcbuf-=types[m].cost;
 		types[m].pc+=types[m].cost/100;
@@ -4778,12 +4780,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(datebefore(state.now, event[navevent[n]])) continue;
-		state.napb[n]+=10;
+		date x=event[navevent[n]];
+		x.month+=2;
+		if(x.month>12) {x.month-=12;x.year++;}
+		bool notnew=datebefore(x, state.now);
+		state.napb[n]+=notnew?25:10;
 		unsigned int i=state.nap[n];
 		if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
-		unsigned int j=state.nbombers;
-		unsigned int nac=0;
-		while((state.napb[n]>=navprod[n])&&j--)
+		unsigned int j=0, nac=0;
+		while((state.napb[n]>=navprod[n])&&(j<state.nbombers))
 		{
 			if(state.bombers[j].type!=i) continue;
 			if(state.bombers[j].failed) continue;
@@ -4791,7 +4796,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			state.bombers[j].nav[n]=true;
 			na_append(&state.hist, state.now, (time){11, 35}, state.bombers[j].id, false, state.bombers[j].type, n);
 			state.napb[n]-=navprod[n];
-			if(++nac>=4) break;
+			if(++nac>=(notnew?10:4)) break;
 		}
 	}
 	// assign PFF
