@@ -58,7 +58,7 @@ const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH"};
 const char * const navpicfn[NNAVAIDS]={"art/navaids/gee.png", "art/navaids/h2s.png", "art/navaids/oboe.png", "art/navaids/g-h.png"};
 unsigned int navevent[NNAVAIDS]={EVENT_GEE, EVENT_H2S, EVENT_OBOE, EVENT_GH};
-unsigned int navprod[NNAVAIDS]={5, 9, 22, 12}; // 10/productionrate
+unsigned int navprod[NNAVAIDS]={5, 9, 22, 12}; // 10/productionrate; later 25/productionrate
 
 typedef struct
 {
