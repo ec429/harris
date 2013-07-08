@@ -132,6 +132,7 @@ typedef struct
 	bool uboot; // industry-type UBOOT factories
 	bool arm; // industry-type ARMament production (incl. steel etc.)
 	bool berlin; // raids on Berlin are more valuable
+	bool flammable; // more easily damaged
 	SDL_Surface *picture;
 	unsigned int psiz; // 'physical' size (cities only) - #pixels in picture
 	/* for Type I fighter control */
@@ -595,6 +596,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				this.uboot=strstr(class, ",UBOOT");
 				this.arm=strstr(class, ",ARM");
 				this.berlin=strstr(class, ",BERLIN");
+				this.flammable=strstr(class, ",FLAMMABLE");
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
@@ -4088,7 +4090,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
 									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
-									double dmg=min(state.dmg[l], state.bombers[k].bmb/(targs[i].psiz*10000.0));
+									double dmg=min(state.dmg[l], state.bombers[k].bmb*(targs[i].flammable?1.8:1.0)/(targs[i].psiz*10000.0));
 									cidam+=dmg;
 									state.dmg[l]-=dmg;
 									tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);

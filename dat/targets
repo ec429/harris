@@ -21,25 +21,25 @@ Heligoland Bight:      6: 4: 8: 58:160:          :24-12-1939:SHIPPING
 Wilhelmshaven Docks:  10: 7: 7: 70:161:          :17-04-1940:SHIPPING
 Wilhelmshaven Docks:  12: 9: 7: 70:161:17-04-1940:15-05-1940:SHIPPING
 Hörnum, Sylt:          7: 6: 6: 51:163:19-03-1940:31-05-1940:SHIPPING
-Norway Fleet:          5: 5:12: 48:152:09-04-1940:13-04-1940:SHIPPING
-Norway Fleet:          5: 4:12: 34:149:13-04-1940:17-04-1940:SHIPPING
-Norway Fleet:          5: 3:12: 20:148:17-04-1940:21-04-1940:SHIPPING
-Norway Fleet:          5: 2:12:  9:149:21-04-1940:26-04-1940:SHIPPING
+Norway Fleet:          5: 5:11: 48:152:09-04-1940:13-04-1940:SHIPPING
+Norway Fleet:          5: 4:11: 34:149:13-04-1940:17-04-1940:SHIPPING
+Norway Fleet:          5: 3:11: 20:148:17-04-1940:21-04-1940:SHIPPING
+Norway Fleet:          5: 2:11:  9:149:21-04-1940:26-04-1940:SHIPPING
 Kiel Dockyards:       20:10: 8: 52:189:03-05-1940:14-02-1942:SHIPPING
 #  Scharnhorst and Gneisenau ("Salmon and Gluckstein") and the Prinz Eugen
 Channel Dash:          7: 3: 5:131: 68:12-02-1942:13-02-1942:SHIPPING
-Le Havre:             12:10:10:165: 49:15-09-1940:14-02-1942:SHIPPING
-Lorient:               8: 8: 9:201:  1:05-11-1940:14-02-1942:SHIPPING
+Le Havre:             12:11: 7:165: 49:15-09-1940:14-02-1942:SHIPPING
+Lorient:               8: 8: 6:201:  1:05-11-1940:14-02-1942:SHIPPING
 # Canals
-Kiel Canal:           15: 9:14: 54:181:11-06-1941:14-02-1942:SHIPPING
-Mittelland Canal:     12: 8:15: 98:174:17-01-1941:30-11-1941:SHIPPING
+Kiel Canal:           15: 9: 6: 54:181:11-06-1941:14-02-1942:SHIPPING
+Mittelland Canal:     12: 8: 7: 98:174:17-01-1941:30-11-1941:SHIPPING
 #  near Münster
-Dortmund-Ems Canal:   10: 6:20:112:150:12-02-1941:14-02-1942:SHIPPING
+Dortmund-Ems Canal:   10: 6:12:112:150:12-02-1941:14-02-1942:SHIPPING
 #  Battle of the Barges
-Ostende Barges:       14:32:25:127: 86:04-07-1940:31-10-1940:SHIPPING
-Calais Barges:        13:40:25:132: 73:04-07-1940:31-10-1940:SHIPPING
-Dunkerque Barges:     15:36:25:130: 79:04-07-1940:31-10-1940:SHIPPING
-Boulogne Barges:      14:30:25:136: 70:04-07-1940:31-10-1940:SHIPPING
+Ostende Barges:       14:32:18:127: 86:04-07-1940:31-10-1940:SHIPPING
+Calais Barges:        13:40:18:132: 73:04-07-1940:31-10-1940:SHIPPING
+Dunkerque Barges:     15:36:18:130: 79:04-07-1940:31-10-1940:SHIPPING
+Boulogne Barges:      14:30:18:136: 70:04-07-1940:31-10-1940:SHIPPING
 
 # Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
 # TODO: end-dates from dates of liberation in 44/45
@@ -72,14 +72,15 @@ Leipzig:              30:15:22:124:219:14-02-1942:          :CITY,BB
 Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY,UBOOT
 Stuttgart Leaflets:    3: 4:20:180:175:          :14-02-1942:LEAFLET
 Hanover:              22:10:27: 98:182:14-02-1942:          :CITY
-Dresden:              16: 9:32:130:238:14-02-1942:          :CITY,RAIL
+Dresden:              16: 9:32:130:238:14-02-1942:          :CITY,RAIL,FLAMMABLE
 Magdeburg:            15: 8:25:105:208:14-02-1942:          :CITY
 Schweinfurt:          24:14:16:152:189:14-02-1942:          :CITY,BB
 Kassel:               11: 7:14:127:178:14-02-1942:          :CITY
 Kassel Leaflets:       1: 2:14:127:178:          :14-02-1942:LEAFLET
-Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY
-Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY
+Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY,FLAMMABLE
+Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY,FLAMMABLE
 Rostock:              13: 6:16: 60:211:14-02-1942:          :CITY,UBOOT
+Peenemünde:           18:11: 7: 59:238:18-06-1943:          :CITY,ARM
 
 # France and the Low Countries (invasion time)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
