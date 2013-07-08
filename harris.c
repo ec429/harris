@@ -256,6 +256,9 @@ gee={.lat=107, .lon=64, .jrange=65};
 
 #define GAME_BG_COLOUR	(atg_colour){31, 31, 15, ATG_ALPHA_OPAQUE}
 
+#define default_w		800
+#define default_h		720
+
 #define RS_cell_w		112
 #define RS_firstcol_w	128
 #define RS_cell_h		56
@@ -296,7 +299,7 @@ SDL_Surface *yellowhair=NULL;
 SDL_Surface *navpic[NNAVAIDS];
 SDL_Surface *resizebtn=NULL;
 
-unsigned int mainsizex=800, mainsizey=640;
+unsigned int mainsizex=default_w, mainsizey=default_h;
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
@@ -643,12 +646,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					for(unsigned int k=0;k<6;k++)
 					{
 						int x=hs, y=hs;
+						int limit=24;
 						for(unsigned int i=0;i<targs[t].esiz>>1;i++)
 						{
 							int gx=x+targs[t].lon, gy=y+targs[t].lat;
 							if((gx>=0)&&(gx<256)&&(gy>=0)&&(gy<256))
 							{
-								if((citymap[gx][gy]<ntargs)&&(citymap[gx][gy]!=t)) {x=y=hs;i--;}
+								if((citymap[gx][gy]<ntargs)&&(citymap[gx][gy]!=t))
+								{
+									if(!limit--) break;
+									x=y=hs;i--;
+								}
 								gx=x+targs[t].lon;
 								gy=y+targs[t].lat;
 							}
@@ -2976,8 +2984,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(c.e==GB_resize)
 						{
-							mainsizex=800;
-							mainsizey=640;
+							mainsizex=default_w;
+							mainsizey=default_h;
 							atg_resize_canvas(canvas, mainsizex, mainsizey);
 						}
 					}
@@ -3286,7 +3294,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				startt=min(startt, state.bombers[k].startt);
 				state.bombers[k].fuelt=state.bombers[k].startt+types[type].range*0.8/(double)state.bombers[k].speed;
 				unsigned int eta=state.bombers[k].startt+outward*1.2/(double)state.bombers[k].speed+12;
-				if(datebefore(state.now, event[EVENT_GEE])) eta+=24;
+				if(datebefore(state.now, event[EVENT_GEE])) eta+=36;
 				if(eta>state.bombers[k].fuelt)
 				{
 					unsigned int fu=eta-state.bombers[k].fuelt;
@@ -4678,8 +4686,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						atg_ev_click c=e.event.click;
 						if(c.e==RS_resize)
 						{
-							mainsizex=800;
-							mainsizey=640;
+							mainsizex=default_w;
+							mainsizey=default_h;
 							atg_resize_canvas(canvas, mainsizex, mainsizey);
 							atg_flip(canvas);
 						}

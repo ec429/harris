@@ -61,6 +61,7 @@ Dortmund:             25:12:20:121:151:14-02-1942:          :CITY
 Bochum:               20: 8:16:122:148:14-02-1942:          :CITY,ARM
 Duisburg:             14: 7:12:123:141:14-02-1942:          :CITY,ARM
 Hagen:                10: 6: 9:124:151:14-02-1942:          :CITY,RAIL
+Bonn:                 11: 8: 6:138:147:14-02-1942:          :CITY
 Wuppertal:            15: 8:14:126:147:14-02-1942:          :CITY
 Hamm:                 12: 6:12:118:154:14-02-1942:          :CITY
 Bremen:               25:10:24: 85:169:14-02-1942:          :CITY,UBOOT
@@ -77,6 +78,7 @@ Magdeburg:            15: 8:25:105:208:14-02-1942:          :CITY
 Schweinfurt:          24:14:16:152:189:14-02-1942:          :CITY,BB
 Kassel:               11: 7:14:127:178:14-02-1942:          :CITY
 Kassel Leaflets:       1: 2:14:127:178:          :14-02-1942:LEAFLET
+Mainz:                 9: 5: 9:154:161:14-02-1942:          :CITY,RAIL
 Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY,FLAMMABLE
 Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY,FLAMMABLE
 Rostock:              13: 6:16: 60:211:14-02-1942:          :CITY,UBOOT
@@ -101,10 +103,14 @@ Berlin Rail Junction: 10: 8:16: 96:231:24-05-1940:14-02-1942:INDUSTRY,RAIL,BERLI
 Siemens, Berlin:      14: 9:10: 97:237:24-05-1940:14-02-1942:INDUSTRY,BERLIN
 München-Gladbach:      8: 8:20:130:136:11-05-1940:14-02-1942:INDUSTRY,RAIL
 Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:14-02-1942:INDUSTRY,OIL
+Cologne Power Station: 9: 6:13:135:145:19-05-1940:14-02-1942:INDUSTRY
 Dusseldorf Steel Mill:16: 4:30:128:142:15-05-1940:14-02-1942:INDUSTRY
 Krupps, Essen:        30:10:15:122:145:15-05-1940:14-02-1942:INDUSTRY,ARM
+Zollverein Coalmine:  14: 5:16:121:147:16-05-1940:14-02-1942:INDUSTRY
 Hamburg Oil Refinery: 18: 6:18: 73:187:15-05-1940:14-02-1942:INDUSTRY,OIL
 Blohm + Voss:         12: 4:13: 75:184:16-05-1940:14-02-1942:INDUSTRY,AC
+VKF Frankfurt:        13: 9:16:148:167:15-05-1940:14-02-1942:INDUSTRY,BB
+IG Farben, Frankfurt: 14: 7:22:152:168:20-05-1940:14-02-1942:INDUSTRY
 Bremen Oil Refinery:  12: 5:16: 85:168:16-05-1940:14-02-1942:INDUSTRY,OIL
 Focke-Wulf, Bremen:   20: 8:10: 84:171:17-05-1940:14-02-1942:INDUSTRY,AC
 Antwerp Oil Depot:     6: 3:16:126:108:21-05-1940:14-02-1942:INDUSTRY,OIL
@@ -113,7 +119,10 @@ Gelsenkirchen Oil:     9: 6:13:120:143:16-05-1940:14-02-1942:INDUSTRY,OIL
 Hüls Chemical Works:  12: 8:14:124:139:15-05-1940:14-02-1942:INDUSTRY
 Bremerhaven Shipyards:12: 6:22: 74:167:18-05-1940:14-02-1942:INDUSTRY,UBOOT
 Dorniers, Wismar:      8: 7:11: 65:206:21-05-1940:14-02-1942:INDUSTRY,AC
+Junkers, Dessau:      14: 8:12:109:217:15-05-1940:14-02-1942:INDUSTRY,AC
 Stuttgart U-boat Works:9: 6:12:180:174:17-05-1940:14-02-1942:INDUSTRY,UBOOT
+VKF Schweinfurt:      18:11: 9:152:189:19-05-1940:14-02-1942:INDUSTRY,BB
+Henschel Tank Works:  13: 7:11:128:178:16-05-1940:14-02-1942:INDUSTRY,ARM
 Munich Railyards:     11:15:21:192:208:15-05-1940:14-02-1942:INDUSTRY,RAIL
 Siemens, Munich:      16: 9:15:194:207:18-05-1940:14-02-1942:INDUSTRY
 Hamm Railyards:       10: 5:18:117:154:19-05-1940:14-02-1942:INDUSTRY,RAIL
