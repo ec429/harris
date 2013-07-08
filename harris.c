@@ -3691,16 +3691,21 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								dm=i;
 							}
 						}
+						int bx=state.bombers[k].lon+0.5,
+							by=state.bombers[k].lat+0.5;
 						switch(targs[i].class)
 						{
+							case TCLASS_INDUSTRY:
+								if(mind<0.9)
+									state.bombers[k].idtar=true;
+							break;
 							case TCLASS_CITY:
 							case TCLASS_LEAFLET:
 							case TCLASS_SHIPPING:
 							case TCLASS_AIRFIELD:
 							case TCLASS_ROAD:
 							case TCLASS_BRIDGE:
-							case TCLASS_INDUSTRY:
-								if(pget(target_overlay, state.bombers[k].lon, state.bombers[k].lat).a==ATG_ALPHA_OPAQUE)
+								if(pget(target_overlay, bx, by).a==ATG_ALPHA_OPAQUE)
 								{
 									state.bombers[k].idtar=true;
 								}
