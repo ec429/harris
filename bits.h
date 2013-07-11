@@ -21,8 +21,9 @@ typedef struct
 }
 string;
 
-#define min(a,b)	((a)<(b)?(a):(b))
-#define max(a,b)	((a)>(b)?(a):(b))
+#define min(a,b)		((a)<(b)?(a):(b))
+#define max(a,b)		((a)>(b)?(a):(b))
+#define clamp(v,a,b)	((v)=((v)<(a))?(a):(((v)<(b))?(v):(b)))
 
 char *fgetl(FILE *); // gets a line of string data; returns a malloc-like pointer
 char *slurp(FILE *); // gets a file of string data; returns a malloc-like pointer

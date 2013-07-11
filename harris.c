@@ -3640,6 +3640,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					state.bombers[k].driftlat=state.bombers[k].driftlat*.98+ey;
 					state.bombers[k].lon+=state.bombers[k].driftlon;
 					state.bombers[k].lat+=state.bombers[k].driftlat;
+					clamp(state.bombers[k].lon, 0, 256);
+					clamp(state.bombers[k].lat, 0, 256);
 					state.bombers[k].navlon-=state.bombers[k].driftlon;
 					state.bombers[k].navlat-=state.bombers[k].driftlat;
 					if(state.bombers[k].nav[NAV_GEE]&&xyr(state.bombers[k].lon-gee.lon, state.bombers[k].lat-gee.lat, datebefore(state.now, event[EVENT_GEEJAM])?56+(types[type].alt*.3):gee.jrange))
