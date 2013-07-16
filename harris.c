@@ -4804,8 +4804,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.napb[n]+=notnew?25:10;
 		unsigned int i=state.nap[n];
 		if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
-		unsigned int j=~0, nac=0;
-		while((state.napb[n]>=navprod[n])&&(++j<state.nbombers))
+		unsigned int j, nac=0;
+		for(j=0;(state.napb[n]>=navprod[n])&&(j<state.nbombers);j++)
 		{
 			if(state.bombers[j].type!=i) continue;
 			if(state.bombers[j].failed) continue;
