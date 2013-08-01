@@ -15,7 +15,7 @@ def genids(line, i):
 	if line.endswith(',NOID\n'):
 		z = '_'.join((salt, str(i), line))
 		ha = zlib.crc32(z) & 0xffffffff
-		h = hex(ha)[2:]
+		h = hex(ha)[2:].rstrip('L')
 		return '%s,%s\n' % (line[:-6], h.zfill(8))
 	else:
 		return line
