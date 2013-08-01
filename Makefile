@@ -26,11 +26,8 @@ harris: harris.o $(OBJS)
 harris.o: harris.c $(INCLUDES)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
-events.h: evh mkevh.sh
-	sh ./mkevh.sh <evh >events.h
-
-evh: dat/events mkevh.awk
-	awk -f mkevh.awk -- dat/events >evh
+events.h: dat/events mkevents.py
+	./mkevents.py >events.h
 
 widgets.o: widgets.c widgets.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
