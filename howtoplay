@@ -2,7 +2,7 @@
 by Edward Cree
 --How to play--
 
-NOTE: Harris is considerably unfinished; several gameplay mechanics are still entirely missing.  At present, the first unimplemented feature (the electronic countermeasure "Window") comes in July 1943, so you can play at least that far without experiencing problems.  Be warned, however, that future versions of Harris may not preserve savegame compatibility.
+NOTE: Harris is considerably unfinished; some gameplay mechanics are still not finalised, some game data haven't been written yet, and there are a few balance issues.  At present, the first major unimplemented part is the Invasion preparations in April 1944, so you can play at least that far without experiencing problems.  Be warned, however, that future versions of Harris may not preserve savegame compatibility.
 
 Contents
 ~~~~~~~~
@@ -56,7 +56,7 @@ It will usually be impossible for your bombers to avoid all of the flak batterie
 
 Fighters
 ~~~~~~~~
-German fighters are the /other/ threat to your bombers.  The Germans will deploy their fighters in different ways as the war progresses.  Initially, they will simply send fighters to cover any target that's threatened by the approach of your bombers; these fighters will attack visually, so are much more effective in strong moonlight and clear skies.  As the Germans begin to build Würzburg radars alongside their Flak batteries, they will use these radars for 'Himmelbett' ground-controlled interception - each radar station controlling a single patrolling fighter; the remaining fighters will be disposed as before.  Late in 1942 the Germans will deploy 'Liechtenstein' airborne radar into their twin-engined nightfighters (single-engined fighters are too small to carry radar), enabling them to find and attack bombers without individual ground-control.  In 1943 their tactics will change to the 'Tame Boar' system, where a single ground controller will broadcast to all fighters informing them of the progress of the bomber stream and directing them to its general location [Not yet implemented].
+German fighters are the /other/ threat to your bombers.  The Germans will deploy their fighters in different ways as the war progresses.  Initially, they will simply send fighters to cover any target that's threatened by the approach of your bombers; these fighters will attack visually, so are much more effective in strong moonlight and clear skies.  As the Germans begin to build Würzburg radars alongside their Flak batteries, they will use these radars for 'Himmelbett' ground-controlled interception - each radar station controlling a single patrolling fighter; the remaining fighters will be disposed as before.  Late in 1942 the Germans will deploy 'Liechtenstein' airborne radar into their twin-engined nightfighters (single-engined fighters are too small to carry radar), enabling them to find and attack bombers without individual ground-control.  In 1943 their tactics will change to the 'Tame Boar' system, where a single ground controller will broadcast to all fighters informing them of the progress of the bomber stream and directing them to its general location.
 
 Navaids
 ~~~~~~~
@@ -86,7 +86,7 @@ After the 15th of August 1942, your Mosquitoes and one in five of your Lancaster
 
 Window
 ~~~~~~
-Window (known today as 'Chaff') has not been implemented yet.  When it has, it will confuse the German radars.  You will also be able to tell a diversionary raid to Window more heavily thus making them look like a larger force.
+Window (known today as 'Chaff') is a radio countermeasure: thousands of strips of aluminium foil, dropped from your bombers to confuse the German radars.  [You should be able to tell a diversionary raid to Window more heavily thus making them look like a larger force, but that's not implemented yet.]
 
 Budget
 ~~~~~~
