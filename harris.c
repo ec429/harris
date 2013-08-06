@@ -39,10 +39,9 @@
 	Seasonal effects on weather
 	Toggle overlays on map display (incl. add new overlays for GEE, OBOE, GH range; perhaps also ability to show weather map as isobars/isotherms instead of cloudmap)
 	Make Flak only be known to you after you've encountered it
-	Implement later forms of Fighter control
 	Better algorithm for building German fighters
 	Implement the remaining Navaids (just Gee-H now)
-	Implement Window & window-control (for diversions)
+	Implement window-control (for diversions)
 	Event effects on fighters (New radars, RCM, etc.)
 	Refactoring, esp. of the GUI building, and splitting up this file (it's *far* too long right now)
 	Sack player if confid or morale too low
