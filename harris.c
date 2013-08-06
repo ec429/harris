@@ -270,7 +270,7 @@ gee={.lat=107, .lon=64, .jrange=65};
 
 int loadgame(const char *fn, game *state, bool lorw[128][128]);
 int savegame(const char *fn, game state);
-int msgadd(game *state, date when, const char *ref, const char *msg);
+int msgadd(atg_canvas *canvas, game *state, date when, const char *ref, const char *msg);
 void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext);
 void drawmoon(SDL_Surface *s, double phase);
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
@@ -4964,20 +4964,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	for(unsigned int i=0;i<ntypes;i++)
 		if(!diffdate(state.now, types[i].entry))
 		{
-			if(msgadd(&state, state.now, types[i].name, types[i].newtext))
+			if(msgadd(canvas, &state, state.now, types[i].name, types[i].newtext))
 				fprintf(stderr, "failed to msgadd newtype: %s\n", types[i].name);
 		}
 	for(unsigned int i=0;i<nftypes;i++)
 		if(!diffdate(state.now, ftypes[i].entry))
 		{
-			if(msgadd(&state, state.now, ftypes[i].name, ftypes[i].newtext))
+			if(msgadd(canvas, &state, state.now, ftypes[i].name, ftypes[i].newtext))
 				fprintf(stderr, "failed to msgadd newftype: %s\n", ftypes[i].name);
 		}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{
 		if(!diffdate(state.now, event[ev]))
 		{
-			if(msgadd(&state, state.now, event_names[ev], evtext[ev]))
+			if(msgadd(canvas, &state, state.now, event_names[ev], evtext[ev]))
 				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
 		}
 	}
@@ -5904,7 +5904,7 @@ void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigne
 	}
 }
 
-int msgadd(game *state, date when, const char *ref, const char *msg)
+int msgadd(atg_canvas *canvas, game *state, date when, const char *ref, const char *msg)
 {
 	if(!state) return(1);
 	if(!ref) return(2);
@@ -5935,6 +5935,7 @@ int msgadd(game *state, date when, const char *ref, const char *msg)
 			state->msg[in-1]=state->msg[in];
 		state->msg[MAXMSGS-1]=res;
 	}
+	message_box(canvas, "To the Commander-in-Chief, Bomber Command:", res, "Air Chief Marshal C. F. A. Portal, CAS");
 	return(0);
 }
 
