@@ -3312,6 +3312,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
 		unsigned int inair=totalraids, t=0;
 		unsigned int kills[2]={0, 0};
+		// Tame Boar raid tracking
+		bool tameboar=!datebefore(state.now, event[EVENT_TAMEBOAR]);
+		unsigned int boxes[16][16]; // 10x10 boxes starting at (89,40)
+		int topx=-1, topy=-1; // co-ords of fullest box
+		unsigned int sumx, sumy; // sum of offsets within box
+		double velx, vely; // sum of velocity components ditto
 		while(t<startt)
 		{
 			t++;
@@ -3326,7 +3332,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_BlitSurface(with_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGBA(RB_atime_image->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b, GAME_BG_COLOUR.a));
-		bool stream=!datebefore(state.now, event[EVENT_GEE]);
+		bool stream=!datebefore(state.now, event[EVENT_GEE]),
+		     window=!datebefore(state.now, event[EVENT_WINDOW]),
+		     wairad= datewithin(state.now, event[EVENT_WINDOW], event[EVENT_L_SN]);
 		while(inair)
 		{
 			t++;
@@ -3375,6 +3383,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					unsigned int x=dt*5+2, y[2]={max(240-fire[dt]/6, 0), max(240-fire[dt+1]/6, 0)};
 					line(RB_atime_image, x, y[0], x+5, y[1], (atg_colour){127, 127, 0, ATG_ALPHA_OPAQUE});
 				}
+			}
+			if(tameboar)
+			{
+				memset(boxes, 0, sizeof(boxes));
+				sumx=sumy=0;
+				velx=vely=0;
 			}
 			for(unsigned int i=0;i<ntargs;i++)
 				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
@@ -3728,11 +3742,69 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							break;
 						}
 					}
+					if(tameboar)
+					{
+						int boxx=floor((state.bombers[k].lon-89)/10.0),
+							boxy=floor((state.bombers[k].lat-40)/10.0);
+						if(0<=boxx&&boxx<16&&0<=boxy&&boxy<16)
+						{
+							unsigned int type=state.bombers[k].type;
+							unsigned int size=types[type].cap/1000; // how big a signal on Freya ground radar
+							// TODO: extra WINDOW (will need UI support in raid planning)
+							size*=irandu(3);
+							boxes[boxx][boxy]+=size;
+							if(boxx==topx&&boxy==topy)
+							{
+								sumx+=(state.bombers[k].lon-89-boxx*10)*size;
+								sumy+=(state.bombers[k].lat-40-boxy*10)*size;
+								velx+=dx*size;
+								vely+=dy*size;
+							}
+						}
+					}
 				}
+			bool boar_up=false;
+			double boarx,boary,boarvx,boarvy;
+			if(tameboar)
+			{
+				int ox=topx;
+				int oy=topy;
+				topx=-1;
+				topy=-1;
+				unsigned int topval=0;
+				for(int findx=0;findx<16;findx++)
+					for(int findy=0;findy<16;findy++)
+					{
+						// once raid is identified, prefer to move contiguously
+						unsigned int val=boxes[findx][findy];
+						if(ox>=0&&oy>=0)
+						{
+							if(abs(findx-ox)+abs(findy-oy)<2)
+								val*=3;
+						}
+						if(val>topval)
+						{
+							topx=findx;
+							topy=findy;
+							topval=val;
+						}
+					}
+				if(topx>=0&&topy>=0)
+				{
+					boar_up=true;
+					boarx=sumx/(double)topval+89+topx*10;
+					boary=sumy/(double)topval+40+topy*10;
+					boarvx=velx/(double)topval;
+					boarvy=vely/(double)topval;
+				}
+			}
 			for(unsigned int j=0;j<state.nfighters;j++)
 			{
 				if(state.fighters[j].landed)
+				{
+					if(tameboar) goto boarable;
 					continue;
+				}
 				if(state.fighters[j].crashed) continue;
 				if((state.fighters[j].damage>=100)||brandp(state.fighters[j].damage/4000.0))
 				{
@@ -3787,8 +3859,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						unsigned int f=state.fighters[j].hflak;
 						radcon=xyr((signed)flaks[f].lat-state.fighters[j].lat, (signed)flaks[f].lon-state.fighters[j].lon, 12);
 					}
-					if(!datebefore(state.now, event[EVENT_WINDOW])) radcon=false;
+					if(window) radcon=false;
 					bool airad=ftypes[ft].night&&!datebefore(state.now, event[EVENT_L_BC]);
+					if(airad&&wairad) airad=brandp(0.8);
 					unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 					double seerange=airad?2.0:7.0/(double)(8+max(4-wea, 0));
@@ -3809,7 +3882,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[j].lon+=cx*spd;
 							state.fighters[j].lat+=cy*spd;
 						}
-						if(d<(radcon?0.6:0.38)*(.8*moonillum+.6))
+						if(d<(airad?0.4:radcon?0.34:0.25)*(.8*moonillum+.6))
 						{
 							if(brandp(ftypes[ft].mnv*(2.7+loadness(state.bombers[k]))/400.0))
 							{
@@ -3821,7 +3894,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									state.bombers[k].ldf=true;
 								}
 							}
-							if(!types[bt].noarm&&(brandp(1.0/types[bt].defn)))
+							if(!types[bt].noarm&&(brandp(0.2/types[bt].defn)))
 							{
 								unsigned int dmg=irandu(20);
 								state.fighters[j].damage+=dmg;
@@ -3885,42 +3958,79 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				else
 				{
-					double mrr=1e6;
-					unsigned int mb=0;
-					for(unsigned int b=0;b<nfbases;b++)
+					boarable:;
+					unsigned int type=state.fighters[j].type;
+					double spd=ftypes[type].speed/400.0;
+					bool boared=false;
+					if(tameboar&&ftypes[type].night&&boar_up&&(state.fighters[j].landed||t<state.fighters[j].fuelt))
 					{
-						if(!datewithin(state.now, fbases[b].entry, fbases[b].exit)) continue;
-						int bx=fbases[b].lon,
-							by=fbases[b].lat;
-						double dx=state.fighters[j].lon-bx,
-							dy=state.fighters[j].lat-by;
-						double rr=dx*dx+dy*dy;
-						if(rr<mrr)
+						// d = b - f
+						double dx=boarx-state.fighters[j].lon;
+						double dy=boary-state.fighters[j].lat;
+						// vector u is boarv, velocity of the bomber stream
+						// vector v is the fighter's velocity - only its modulus is known
+						// then T = (u.d + sqrt((u.d)^2 + d^2 (v^2 - u^2))) / (v^2 - u^2) is the time to intercept
+						// and v = d/t + u is the heading (and speed) to follow
+						double vv = spd*spd;
+						double ud = boarvx*dx+boarvy*dy;
+						double uu = boarvx*boarvx+boarvy*boarvy;
+						double dd = dx*dx+dy*dy;
+						if(uu<vv)
 						{
-							mb=b;
-							mrr=rr;
+							double T = (ud + sqrt(ud*ud + dd*(vv-uu))) / (vv-uu);
+							double fuelt=state.fighters[j].landed?40:state.fighters[j].fuelt-t-40;
+							if(T<fuelt)
+							{
+								boared=true;
+								if(state.fighters[j].landed)
+								{
+									state.fighters[j].landed=false;
+									state.fighters[j].fuelt=t+72+irandu(28);
+								}
+								double vx = dx/T + boarvx;
+								double vy = dy/T + boarvy;
+								state.fighters[j].lon+=vx;
+								state.fighters[j].lat+=vy;
+							}
 						}
 					}
-					state.fighters[j].base=mb;
-					double x=state.fighters[j].lon,
-						y=state.fighters[j].lat;
-					int bx=fbases[mb].lon,
-						by=fbases[mb].lat;
-					double d=hypot(x-bx, y-by);
-					if(d>0.8)
+					if(!boared&&!state.fighters[j].landed)
 					{
-						unsigned int type=state.fighters[j].type;
-						double spd=ftypes[type].speed/400.0;
-						double cx=(bx-x)/d,
-							cy=(by-y)/d;
-						state.fighters[j].lon+=cx*spd;
-						state.fighters[j].lat+=cy*spd;
-					}
-					else
-					{
-						state.fighters[j].landed=true;
-						state.fighters[j].lon=bx;
-						state.fighters[j].lat=by;
+						double mrr=1e6;
+						unsigned int mb=0;
+						for(unsigned int b=0;b<nfbases;b++)
+						{
+							if(!datewithin(state.now, fbases[b].entry, fbases[b].exit)) continue;
+							int bx=fbases[b].lon,
+								by=fbases[b].lat;
+							double dx=state.fighters[j].lon-bx,
+								dy=state.fighters[j].lat-by;
+							double rr=dx*dx+dy*dy;
+							if(rr<mrr)
+							{
+								mb=b;
+								mrr=rr;
+							}
+						}
+						state.fighters[j].base=mb;
+						double x=state.fighters[j].lon,
+							y=state.fighters[j].lat;
+						int bx=fbases[mb].lon,
+							by=fbases[mb].lat;
+						double d=hypot(x-bx, y-by);
+						if(d>0.8)
+						{
+							double cx=(bx-x)/d,
+								cy=(by-y)/d;
+							state.fighters[j].lon+=cx*spd;
+							state.fighters[j].lat+=cy*spd;
+						}
+						else
+						{
+							state.fighters[j].landed=true;
+							state.fighters[j].lon=bx;
+							state.fighters[j].lat=by;
+						}
 					}
 				}
 			}
