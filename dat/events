@@ -13,6 +13,14 @@ CIV:15-05-1940
 # Battle of the Barges
 BARGE:04-07-1940
 ENDBARGE:31-10-1940
+# Luftwaffe bombs London
+LONDON:24-08-1940
+# Coventry is blitzed
+COVENTRY:15-11-1940
+# Operation Abigail Rachel
+MANNHEIM:15-12-1940
+# Operation Drumbeat (Paukenschlag)
+UBOAT:17-01-1942
 # Area Bombing Directive
 ABD:14-02-1942
 # Invasion support
@@ -75,8 +83,26 @@ MUSIK:17-08-1943
 GEEJAM:21-09-1942
 
 #Intelligence reports
+# Informational
+FREYA:12-02-1940
 # Warnings
 V_WEAPONS:18-06-1943
 # Spurious
 SECRET:19-09-1939
 FLAKGAS:22-08-1940
+
+#General war news
+# Fall of France
+FRANCE:22-06-1940
+# Fall of Crete
+CRETE:01-06-1941
+# Germans invade Russia
+BARBAROSSA:22-06-1941
+# Pearl Harbour
+AMERICA:07-12-1941
+# Second Battle of El Alamein
+EL_ALAMEIN:10-11-1942
+# Russians encircle Stalingrad
+STALINGRAD:23-11-1942
+# Germans lose battle of Kursk
+KURSK:23-08-1943
