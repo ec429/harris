@@ -5131,9 +5131,9 @@ void drawmoon(SDL_Surface *s, double phase)
 			if((leftx<x)&&(x<rightx))
 				pset(s, x, y, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
 			else if((floor(leftx)<=x)&&(x<rightx))
-				pset(s, x, y, (atg_colour){223*(1+x-floor(leftx)), 223*(1+x-floor(leftx)), 223*(1+x-floor(leftx)), ATG_ALPHA_OPAQUE});
-			else if((leftx<x)&&(x<ceil(rightx)))
-				pset(s, x, y, (atg_colour){223*(1-fmod(rightx, 1)), 223*(1-fmod(rightx, 1)), 223*(1-fmod(rightx, 1)), ATG_ALPHA_OPAQUE});
+				pset(s, x, y, (atg_colour){223*(1+x-leftx), 223*(1+x-leftx), 223*(1+x-leftx), ATG_ALPHA_OPAQUE});
+			else if((leftx<x)&&(x<=ceil(rightx)))
+				pset(s, x, y, (atg_colour){223*(rightx-x), 223*(rightx-x), 223*(rightx-x), ATG_ALPHA_OPAQUE});
 			else
 				pset(s, x, y, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 		}
