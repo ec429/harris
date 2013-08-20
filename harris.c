@@ -74,6 +74,7 @@ typedef struct
 	unsigned int accu;
 	unsigned int range;
 	date entry;
+	date novelty;
 	date exit;
 	bool nav[NNAVAIDS];
 	bool noarm, pff, broughton;
@@ -349,6 +350,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				size_t nlen=strlen(this.name)+1;
 				this.name=realloc(this.name, nlen);
 				this.entry=readdate(next+db, (date){0, 0, 0});
+				this.novelty=this.entry;
+				this.novelty.month+=6;
+				if(this.novelty.month>12)
+				{
+					this.novelty.month-=12;
+					this.novelty.year++;
+				}
 				const char *exit=strchr(next+db, ':');
 				if(!exit)
 				{
@@ -4884,8 +4892,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			for(unsigned int i=0;i<ntypes;i++)
 			{
 				if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
-				types[i].pribuf+=(unsigned int [4]){0, 1, 3, 6}[types[i].prio];
-				if(types[i].prio) any=true;
+				unsigned int prio=(unsigned int [4]){0, 1, 3, 6}[types[i].prio];
+				if(datebefore(state.now, types[i].novelty)) prio=max(prio, 2);
+				types[i].pribuf+=prio;
+				if(prio) any=true;
 			}
 			if(!any) break;
 			continue;
