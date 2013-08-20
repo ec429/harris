@@ -76,7 +76,7 @@ typedef struct
 	date entry;
 	date exit;
 	bool nav[NNAVAIDS];
-	bool noarm, pff;
+	bool noarm, pff, broughton;
 	unsigned int blat, blon;
 	SDL_Surface *picture;
 	char *text, *newtext;
@@ -370,6 +370,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					this.nav[i]=strstr(nav, navaids[i]);
 				this.noarm=strstr(nav, "NOARM");
 				this.pff=strstr(nav, "PFF");
+				this.broughton=strstr(nav, "BROUGHTON");
 				char pn[12+nlen+4];
 				strcpy(pn, "art/bombers/");
 				for(size_t p=0;p<=nlen;p++) pn[12+p]=tolower(this.name[p]);
@@ -4889,8 +4890,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(!any) break;
 			continue;
 		}
-		if(types[m].cost>state.cash) break;
-		if(types[m].cost>types[m].pcbuf) break;
+		unsigned int cost=types[m].cost;
+		if(types[m].broughton&&!datebefore(state.now, event[EVENT_BROUGHTON]))
+			cost=(cost*2)/3;
+		if(cost>state.cash) break;
+		if(cost>types[m].pcbuf) break;
 		unsigned int n=state.nbombers++;
 		ac_bomber *nb=realloc(state.bombers, state.nbombers*sizeof(ac_bomber));
 		if(!nb)
@@ -4904,9 +4908,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			nb[n].nav[j]=false;
 		if((!datebefore(state.now, event[EVENT_ALLGEE]))&&types[m].nav[NAV_GEE])
 			nb[n].nav[NAV_GEE]=true;
-		state.cash-=types[m].cost;
-		types[m].pcbuf-=types[m].cost;
-		types[m].pc+=types[m].cost/100;
+		state.cash-=cost;
+		types[m].pcbuf-=cost;
+		types[m].pc+=cost/100;
 		types[m].pribuf-=8;
 		ct_append(&state.hist, state.now, (time){11, 30}, state.bombers[n].id, false, state.bombers[n].type);
 	}

@@ -117,6 +117,7 @@ Manufacturer & Type           Cost Speed  Ceiling Payload Sv De Fa Ac Range Avai
  Handley Page Halifax III   £32000 230mph 22000ft 13500lb 90  7  5 75 335   30-04-1943   Never
  Avro Lancaster X           £45000 245mph 24000ft 16000lb 90  5  3 85 360   13-02-1944   Never
 Column index: "Sv" is serviceability, "De" is defence (bigger = more likely to be shot down), "Fa" is failure (bigger = more likely to turn back with mechanical trouble), "Ac" is accuracy (bigger = better navigation and bombing), "Range" is measured in map pixels which are about 3 miles.  "Ceiling" is only important for navaid range.
+Note also that the Wellington's cost falls to £8000 after the event 'BROUGHTON'.
 The authoritative version of this information is the file "dat/bombers".
 
 General

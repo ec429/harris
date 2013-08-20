@@ -11,7 +11,7 @@
 # A range of 230 will reach Hamburg, 315 for Berlin.  Soesterberg could be under 120, while Schillig roads are about 175.  Munich (from Yorkshire) is up to 330
 # Dates are entry and exit from service (null in either case means open-ended)
 # Navaids lists which navigational aids this bomber can carry (a big set won't fit in a small bomber)
-# Flags: NOARM,PFF,...
+# Flags: NOARM,PFF,BROUGHTON,...
 
 # When changing this file, **Remember to update howtoplay** (section Reference/Bomber types)
 
@@ -31,7 +31,8 @@
 Bristol:Blenheim:            5000:198:205: 1200:55:14: 6:60:190:96:61:          :10-01-1941:
 Armstrong-Whitworth:Whitley: 8000:165:176: 7000:70:17: 9:32:320:81:45:          :18-06-1941:GEE,H2S
 Handley Page:Hampden:       10000:202:190: 4000:65:12: 8:48:265:63:40:          :02-11-1941:GEE
-Vickers:Wellington:         12000:190:180: 4500:85: 8: 3:36:311:87:39:          :21-10-1943:GEE,H2S
+# Wlng's cost falls to 8000 after EVENT_BROUGHTON
+Vickers:Wellington:         12000:190:180: 4500:85: 8: 3:36:311:87:39:          :21-10-1943:GEE,H2S,BROUGHTON
 # while Manc's Sv may seem high, remember that its high Fa brings this right down in practice
 Avro:Manchester:            20000:210:185:10350:64:12:16:55:325:81:45:05-11-1940:26-06-1942:GEE,H2S,OBOE
 Short:Stirling:             25000:200:175:14000:40: 9: 7:50:280:96:55:16-01-1941:08-07-1943:GEE,H2S,OBOE
