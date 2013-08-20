@@ -3332,6 +3332,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGBA(RB_atime_image->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b, GAME_BG_COLOUR.a));
 		bool stream=!datebefore(state.now, event[EVENT_GEE]),
+		     moonshine=!datebefore(state.now, event[EVENT_MOONSHINE]),
 		     window=!datebefore(state.now, event[EVENT_WINDOW]),
 		     wairad= datewithin(state.now, event[EVENT_WINDOW], event[EVENT_L_SN]);
 		while(inair)
@@ -4104,7 +4105,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				targs[i].fires*=.92;
 				if(!datewithin(state.now, targs[i].entry, targs[i].exit)) continue;
 				double thresh=3e3*targs[i].nfighters/(double)fightersleft;
-				if(targs[i].threat+state.heat[i]*10.0>thresh)
+				if(targs[i].threat*(moonshine?0.7:1.0)+state.heat[i]*(moonshine?12.0:10.0)>thresh)
 				{
 					unsigned int mind=1000000;
 					int minj=-1;
