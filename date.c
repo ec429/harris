@@ -63,3 +63,19 @@ time maketime(int t)
 {
 	return((time){(21+(t/120))%24, (t/2)%60});
 }
+
+const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+date nextday(date when)
+{
+	date d=when;
+	if(++d.day>monthdays[d.month-1]+(((d.month==2)&&!(d.year%4))?1:0))
+	{
+		d.day=1;
+		if(++d.month>12)
+		{
+			d.month=1;
+			d.year++;
+		}
+	}
+	return(d);
+}

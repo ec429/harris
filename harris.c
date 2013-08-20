@@ -47,8 +47,6 @@
 	Sack player if confid or morale too low
 */
 
-const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
 #define NAV_GEE		0
 #define NAV_H2S		1
 #define NAV_OBOE	2
@@ -4865,6 +4863,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		}
 	}
+	date tomorrow=nextday(state.now);
 	// TODO: if confid or morale too low, SACKED
 	state.cshr+=state.confid*2.0;
 	state.cshr+=state.morale;
@@ -4874,6 +4873,26 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	// Update bomber prodn caps
 	for(unsigned int i=0;i<ntypes;i++)
 	{
+		if(!diffdate(tomorrow, types[i].entry)) // when a type is new, get 15 of them free
+		{
+			for(unsigned int a=0;a<15;a++)
+			{
+				unsigned int n=state.nbombers++;
+				ac_bomber *nb=realloc(state.bombers, state.nbombers*sizeof(ac_bomber));
+				if(!nb)
+				{
+					perror("realloc"); // TODO more visible warning
+					state.nbombers=n;
+					break;
+				}
+				(state.bombers=nb)[n]=(ac_bomber){.type=i, .failed=false, .id=rand_acid()};
+				for(unsigned int j=0;j<NNAVAIDS;j++)
+					nb[n].nav[j]=false;
+				if((!datebefore(state.now, event[EVENT_ALLGEE]))&&types[i].nav[NAV_GEE])
+					nb[n].nav[NAV_GEE]=true;
+				ct_append(&state.hist, state.now, (time){11, 25}, state.bombers[n].id, false, state.bombers[n].type);
+			}
+		}
 		if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
 		types[i].pcbuf=min(types[i].pcbuf, 180000)+types[i].pc;
 	}
@@ -5083,15 +5102,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.gprod-=ftypes[i].cost;
 		ct_append(&state.hist, state.now, (time){11, 50}, state.fighters[n].id, true, i);
 	}
-	if(++state.now.day>monthdays[state.now.month-1]+(((state.now.month==2)&&!(state.now.year%4))?1:0))
-	{
-		state.now.day=1;
-		if(++state.now.month>12)
-		{
-			state.now.month=1;
-			state.now.year++;
-		}
-	}
+	state.now=tomorrow;
 	for(unsigned int i=0;i<ntypes;i++)
 		if(!diffdate(state.now, types[i].entry))
 		{
