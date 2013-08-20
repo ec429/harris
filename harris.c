@@ -4450,7 +4450,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.cshr+=scoreTb*  80e-4;
 		state.cshr+=scoreTl*   6e-4;
 		state.cshr+=scoreTm*  12e-4;
-		state.cshr+=Ts*      800   ;
+		state.cshr+=Ts*      600   ;
 		state.cshr+=bridge* 2000e-2;
 		double par=0.2+((state.now.year-1939)*0.15);
 		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0);
