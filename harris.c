@@ -140,6 +140,8 @@ typedef struct
 	/* for bomber guidance */
 	unsigned int route[8][2]; // [0123 out, 4 bmb, 567 in][0 lat, 1 lon]. {0, 0} indicates "not used, skip to next routestage"
 	double fires; // level of fires (and TIs) illuminating the target
+	/* misc */
+	unsigned int shots; // number of shots the flak already fired this tick
 }
 target;
 
@@ -150,6 +152,7 @@ typedef struct
 	date entry, radar, exit;
 	/* for Himmelbett fighter control */
 	signed int ftr; // index of fighter under this radar's control (-1 for none)
+	unsigned int shots; // number of shots already fired this tick
 }
 flaksite;
 
@@ -3391,6 +3394,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				velx=vely=0;
 			}
 			for(unsigned int i=0;i<ntargs;i++)
+				targs[i].shots=0;
+			for(unsigned int i=0;i<nflaks;i++)
+				flaks[i].shots=0;
+			for(unsigned int i=0;i<ntargs;i++)
 				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 				{
 					unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
@@ -3572,7 +3579,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(dd<range*range)
 						{
-							if(brandp(state.flk[i]/600.0))
+							if(brandp(state.flk[i]/((9+targs[i].shots++)*40.0)))
 							{
 								double ddmg;
 								if(brandp(types[type].defn/400.0))
@@ -3601,7 +3608,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool rad=!datebefore(state.now, flaks[i].radar);
 						if(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 3.0))
 						{
-							if(brandp(flaks[i].strength*(rad?3:1)/900.0))
+							if(brandp(flaks[i].strength*(rad?3:1)/((12+flaks[i].shots++)*40.0)))
 							{
 								double ddmg;
 								if(brandp(types[type].defn/500.0))
