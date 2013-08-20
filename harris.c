@@ -3604,10 +3604,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(brandp(flaks[i].strength*(rad?3:1)/900.0))
 							{
 								double ddmg;
-								if(brandp(types[type].defn/400.0))
+								if(brandp(types[type].defn/500.0))
 									ddmg=100;
 								else
-									ddmg=irandu(types[type].defn)/4.0;
+									ddmg=irandu(types[type].defn)/5.0;
 								state.bombers[k].damage+=ddmg;
 								if(ddmg)
 								{
@@ -3886,7 +3886,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							if(brandp(ftypes[ft].mnv*(2.7+loadness(state.bombers[k]))/400.0))
 							{
-								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/10.0;
+								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/15.0;
 								state.bombers[k].damage+=dmg;
 								if(dmg)
 								{
