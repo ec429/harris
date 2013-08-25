@@ -39,7 +39,7 @@ def extract_kills(save):
 									if f in ftr.keys():
 										kills[ftr[f]] += 1
 									else:
-										raise Exception('Kill scored by unknown fighter', hex(f)[2:].zfill(8))
+										print 'Kill scored by unknown fighter', hex(f)[2:].zfill(8)
 						else:
 							raise Exception('Unknown A/type/fb', fb)
 					if typ['fb'] == 'F':
@@ -56,4 +56,6 @@ def extract_kills(save):
 if __name__ == '__main__':
 	save = hsave.Save.parse(sys.stdin)
 	kills = extract_kills(save)
-	print kills
+	by_type = [(hdata.Fighters[i]['name'], sum([d['kills'][i] for d in kills]), sum([d['losses'][i] for d in kills])) for i in xrange(save.nftypes)]
+	for b in by_type:
+		print "%s: kills=%d losses=%d"%b
