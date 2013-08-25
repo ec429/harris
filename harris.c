@@ -3846,7 +3846,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					state.fighters[j].targ=-1;
 					state.fighters[j].hflak=-1;
 					state.fighters[j].k=-1;
-					if(t>state.fighters[j].fuelt+(ftypes[type].night?96:46))
+					if(t>state.fighters[j].fuelt+(ftypes[type].night?96:56))
 					{
 						cr_append(&state.hist, state.now, now, state.fighters[j].id, true, state.fighters[j].type);
 						state.fighters[j].crashed=true;
