@@ -1191,7 +1191,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btdesc[ntypes], *GB_btnum[ntypes], *GB_btpc[ntypes], *GB_btp[ntypes], *GB_navrow[ntypes], *GB_navbtn[ntypes][NNAVAIDS], *GB_navgraph[ntypes][NNAVAIDS];
+	atg_element *GB_btrow[ntypes], *GB_btpic[ntypes], *GB_btdesc[ntypes], *GB_btnum[ntypes], *GB_btpc[ntypes], *GB_btnew[ntypes], *GB_btp[ntypes], *GB_navrow[ntypes], *GB_navbtn[ntypes][NNAVAIDS], *GB_navgraph[ntypes][NNAVAIDS];
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!(GB_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
@@ -1337,6 +1337,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(atg_ebox_pack(pcbox, GB_btpc[i]))
 		{
 			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(GB_btnew[i]=atg_create_element_label("N", 12, (atg_colour){159, 191, 63, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_pack_element(hb, GB_btnew[i]))
+		{
+			perror("atg_pack_element");
 			return(1);
 		}
 		if(!(GB_btp[i]=atg_create_element_label("P!", 12, (atg_colour){191, 159, 31, ATG_ALPHA_OPAQUE})))
@@ -2640,6 +2650,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			GB_btrow[i]->hidden=!datewithin(state.now, types[i].entry, types[i].exit);
 		if(GB_btpc[i])
 			GB_btpc[i]->h=18-min(types[i].pcbuf/10000, 18);
+		if(GB_btnew[i])
+			GB_btnew[i]->hidden=!datebefore(state.now, types[i].novelty);
 		if(GB_btp[i])
 			GB_btp[i]->hidden=(types[i].pribuf<8)||(state.cash<types[i].cost)||(types[i].pcbuf>=types[i].cost);
 		if(GB_btnum[i]&&GB_btnum[i]->elem.label&&GB_btnum[i]->elem.label->text)
