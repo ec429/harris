@@ -349,7 +349,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				this.name=realloc(this.name, nlen);
 				this.entry=readdate(next+db, (date){0, 0, 0});
 				this.novelty=this.entry;
-				this.novelty.month+=6;
+				this.novelty.month+=4;
 				if(this.novelty.month>12)
 				{
 					this.novelty.month-=12;
