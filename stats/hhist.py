@@ -84,7 +84,7 @@ def ac_parse(text):
 		if text: raise ExcessData('A', 'CR', text)
 		return {}
 	def obs_parse(text):
-		if text: raise ExcessData('A', 'CR', text)
+		if text: raise ExcessData('A', 'OB', text)
 		return {}
 	parsers = {'CT':ct_parse, 'NA':nav_parse, 'PF':pff_parse, 'RA':raid_parse, 'HI':hit_parse, 'DM':dmg_parse, 'FA':fail_parse, 'CR':crash_parse, 'OB':obs_parse}
 	parts = text.split(' ', 3)
@@ -145,7 +145,7 @@ def targ_parse(text):
 		rest = parts[2]
 	else:
 		rest = ''
-	return {'target':target,
+	return {'target':int(target),
 			'etyp':etyp,
 			'text':rest,
 			'data':parsers.get(etyp, lambda x: {})(rest)}

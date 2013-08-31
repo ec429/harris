@@ -1,0 +1,80 @@
+#!/usr/bin/python
+"""profit - effectiveness tracking"""
+
+import sys
+import hhist, hdata, hsave, extra_data
+
+class TargetClassUnrecognised(Exception): pass
+class EventMatchupError(Exception): pass
+class NoLastHI(EventMatchupError): pass
+class LastHIMismatch(EventMatchupError): pass
+
+def extract_profit(save):
+	bombers = {b['id']:[b['type'], 0, True] for b in save.init.bombers}
+	days = sorted(hhist.group_by_date(save.history))
+	for d in days:
+		lasthi = None
+		for h in d[1]:
+			if h['class'] == 'A':
+				acid = h['data']['acid']
+				if h['data']['type']['fb'] == 'B':
+					if h['data']['etyp'] == 'CT':
+						bombers[acid]=[int(h['data']['type']['ti']), 0, True]
+					elif h['data']['etyp'] in ['CR', 'OB']:
+						bombers[acid][2] = False
+					elif h['data']['etyp'] == 'HI':
+						targ = hdata.Targets[h['data']['data']['target']]
+						lasthi = (targ, acid)
+						if 'CITY' in targ['flags']:
+							f = 0.2
+						elif 'SHIPPING' in targ['flags']:
+							f = 0
+						elif 'MINING' in targ['flags']:
+							f = 0.03
+						elif 'LEAFLET' in targ['flags']:
+							f = 0.015
+						elif 'AIRFIELD' in targ['flags']:
+							f = 0.2
+						elif 'BRIDGE' in targ['flags']:
+							f = 0.2
+						elif 'ROAD' in targ['flags']:
+							f = 0.2
+						elif 'INDUSTRY' in targ['flags']:
+							f = 0.4
+						else:
+							raise TargetClassUnrecognised(targ['flags'])
+						if 'BERLIN' in targ['flags']:
+							f *= 2
+						bombers[acid][1] += h['data']['data']['bombs'] * f
+			elif h['class'] == 'T':
+				targ = hdata.Targets[h['data']['target']]
+				if h['data']['etyp'] == 'SH':
+					if lasthi is None:
+						raise NoLastHI(h)
+					if lasthi[0] != targ:
+						raise LastHIMismatch(lasthi, h)
+					bombers[lasthi[1]][1] += 15000
+				elif h['data']['etyp'] == 'DM' and 'BRIDGE' in targ['flags']:
+					if lasthi is None:
+						raise NoLastHI(h)
+					if lasthi[0] != targ:
+						raise LastHIMismatch(lasthi, h)
+					bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
+	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
+	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
+	deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
+	dead = {i: (len(deadresults[i]), sum(v[1] for v in deadresults[i].itervalues())) for i in results}
+	return {i: {'full':full[i], 'fullr':full[i][1]/full[i][0] if full[i][0] else 0,
+				'dead':dead[i], 'deadr':dead[i][1]/dead[i][0] if dead[i][0] else 0,
+				'opti':full[i][1]/dead[i][0] if dead[i][0] else 0}
+			for i in results}
+
+if __name__ == '__main__':
+	save = hsave.Save.parse(sys.stdin)
+	profit = extract_profit(save)
+	for i in profit:
+		name = extra_data.Bombers[hdata.Bombers[i]['name']]['short']
+		full = "(%d) = %g" % (profit[i]['full'][0], profit[i]['fullr'])
+		dead = "(%d) = %g" % (profit[i]['dead'][0], profit[i]['deadr'])
+		opti = "%g" % (profit[i]['opti'])
+		print "%s: all%s, dead%s, optimistic %s, cost %d" % (name, full, dead, opti, hdata.Bombers[i]['cost'])
