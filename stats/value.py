@@ -12,6 +12,7 @@ def extract_value(save):
 	cash = save.init.cash
 	cshr = save.init.cshr
 	bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
+	bentry = [b.get('entry', hhist.date(0, 0, 0)) for b in hdata.Bombers]
 	total = sum(bvalues) + cash
 	res = [{'date':save.init.date, 'cash':cash, 'cshr':cshr, 'bombers':bcount, 'bvalues':bvalues, 'total':total}]
 	days = sorted(hhist.group_by_date(save.history))
@@ -22,7 +23,8 @@ def extract_value(save):
 				if h['data']['type']['fb'] == 'B':
 					if h['data']['etyp'] == 'CT':
 						bcount[h['data']['type']['ti']] += 1
-						spend += hdata.Bombers[h['data']['type']['ti']]['cost']
+						if d[0].next() != bentry[h['data']['type']['ti']]:
+							spend += hdata.Bombers[h['data']['type']['ti']]['cost']
 					elif h['data']['etyp'] in ('CR', 'OB'):
 						bcount[h['data']['type']['ti']] -= 1
 			elif h['class'] == 'M':

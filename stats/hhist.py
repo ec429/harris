@@ -27,6 +27,7 @@ class date(object):
 		return '%02d-%02d-%04d' % (self.day, self.month, self.year)
 	__repr__ = __str__
 	def __cmp__(self, other):
+		if not isinstance(other, date): return NotImplemented
 		if self.year != other.year: return self.year - other.year
 		if self.month != other.month: return self.month - other.month
 		return self.day - other.day

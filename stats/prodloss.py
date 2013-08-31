@@ -6,15 +6,17 @@ import hhist, hdata
 
 def extract_prodloss(ents):
 	days = sorted(hhist.group_by_date(ents))
+	bentry = [b.get('entry', hhist.date(0, 0, 0)) for b in hdata.Bombers]
 	res = {}
 	for d in days:
-		row = [[0, 0] for b in hdata.Bombers.data]
+		row = [[0, 0] for b in hdata.Bombers]
 		for ent in d[1]:
 			if ent['class'] != 'A': continue
 			if ent['data']['type']['fb'] != 'B': continue
 			typ = ent['data']['type']['ti']
 			if ent['data']['etyp'] == 'CT':
-				row[typ][0] += 1
+				if d[0].next() != bentry[typ]:
+					row[typ][0] += 1
 			elif ent['data']['etyp'] == 'CR':
 				row[typ][1] -= 1
 		res[d[0]] = row
