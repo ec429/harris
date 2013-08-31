@@ -47,14 +47,16 @@ Geographically, the target map can be partitioned somewhat: (Todo - a labelled m
 Bombers
 ~~~~~~~
 You start with an assortment of light and medium bombers - Blenheims, Whitleys, Hampdens and Wellingtons.  You can direct, in broad terms, the priorities for further production, by means of a control on each bomber type labelled "NONE", "LOW", "MED" and "HIGH".  For every bomber built of a type with LOW priority, 3 will be built on MED and 6 on HIGH.  The total volume produced depends on your Budget, which is an abstraction of the amount of resources the Government is willing to devote to building up the bomber force.  This is increased by successfully attacking, and otherwise gradually diminishes over time.  (See the section "Budget" below for details)
+There are also limitations on the maximum production capacity of each bomber type.  This capacity can 'store up' over a few days; its level is shown in the vertical green bar to the right of the priority indicator.  If a bomber purchase is held up by lack of capacity, an orange "P!" will appear to the right of the priority indicator.  Note that this will hold up purchases of ALL types; your budget will be stored up, not spent on other bomber types.
 As the months and years pass, new types of bomber are developed, and older ones become obsolete and are retired from the front line.  Each type of bomber has its own combination of (among other factors) speed, payload, serviceability, survivability and range.
-Because the Government wishes to encourage the development of new aircraft types, for the first six months of any new type's life, you will be forced to buy them at least halfway between LOW and MED priority, though you can set the priority higher than this if you wish.  (On the same scale as above (LOW=1), this minimum priority is 2.)
+Because the Government wishes to encourage the development of new aircraft types, for the first six months of any new type's life, you will be forced to buy them at least halfway between LOW and MED priority, though you can set the priority higher than this if you wish.  (On the same scale as above (LOW=1), this minimum priority is 2.)  This will be denoted by a green 'N' to the right of the priority indicator.
 Also, when a new type enters service, you will receive a flight of 15 bombers of that type, which are not paid for out of your budget.
 
 Flak
 ~~~~
 Anti-aircraft defences, or 'Flak' (from the German 'Fliegerabwehrkanone' - anti-aircraft cannon) are one of the threats to your bombers' survival.  Flak takes two forms: flak batteries positioned to cover the approaches to Germany, and defences around the targets themselves.  The strength of a target's flak defences are indicated by the grey bar against the target's name in the target list (the blue bar indicates how damaged the target is, excluding shipping targets).  Flak batteries are marked on the map with purple dots.  A few are a brighter pink colour; this denotes that the flak is controlled by radar, making it much more accurate and deadly.  These radars can also control individual fighter aircraft (in so-called 'Himmelbett' fighting), which will be covered in the next section.
 It will usually be impossible for your bombers to avoid all of the flak batteries, as the Germans lay them out in great belts - the Kammhuber Line and the Atlantic Wall - which your bombers must cross to reach Germany.  There are also clusters of flak batteries in major target areas such as the Ruhr Valley.
+The more rapidly flak fires, the less accurate it becomes; so losses can be reduced by concentration.  Conversely, if you send aircraft on separate raids all over Germany, each one will get a flak gun all to itself.
 
 Fighters
 ~~~~~~~~
@@ -68,7 +70,7 @@ When a navaid becomes available, sets will begin to be installed in your bombers
 Gee
 ---
 Gee gives your bombers a rough 'fix' of their position at ranges up to about 360mi.  It is available from March 1942.  The introduction of GEE also triggers 'bomber stream' tactics: instead of choosing their own routes and times on target, every aircraft is fitted into a large-scale plan.  All aircraft raiding a given target will follow the same route, and they will be timed to bomb from Zero Hour (01:00) until "Zero plus ten" (01:10).
-Later (September 1942) the Germans will jam GEE, reducing the range to 200mi.
+Later (September 1942) the Germans will jam GEE, reducing the range to 200mi.  Late in December 1942, GEE sets will be plentiful enough that one is installed in every new bomber off the production line.
 
 Oboe
 ----
@@ -76,7 +78,7 @@ Oboe is a precision blind-bombing device.  By its nature a pair of Oboe stations
 
 H2S
 ---
-H2S is a terrain radar.  It enables your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.
+H2S is a terrain radar.  It enables your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.  It is most effective over coastlines and rivers, though forests, hills and even towns can also give good returns.
 
 G-H
 ---
