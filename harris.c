@@ -5049,15 +5049,28 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			case TCLASS_AIRFIELD:
 			case TCLASS_BRIDGE:
 			case TCLASS_ROAD:
-				dprod+=state.dmg[i]*targs[i].prod/2.0;
+				if(state.dmg[i])
+					dprod+=state.dmg[i]*targs[i].prod/2.0;
+				else
+					goto unflak;
 			break;
 			case TCLASS_INDUSTRY:
-			{
-				double ddmg=min(state.dmg[i]*.05, 100-state.dmg[i]);
-				state.dmg[i]+=ddmg;
-				tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-				dprod+=state.dmg[i]*targs[i].prod/2.0;
-			}
+				if(state.dmg[i])
+				{
+					double ddmg=min(state.dmg[i]*.05, 100-state.dmg[i]);
+					state.dmg[i]+=ddmg;
+					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
+					dprod+=state.dmg[i]*targs[i].prod/2.0;
+				}
+				else
+				{
+					unflak:
+					if(state.flk[i])
+					{
+						tfk_append(&state.hist, state.now, (time){11, 45}, i, -state.flk[i], 0);
+						state.flk[i]=0;
+					}
+				}
 			break;
 			default: // shouldn't ever get here
 				fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
