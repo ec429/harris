@@ -45,8 +45,16 @@ def extract_kills(save):
 					if typ['fb'] == 'F':
 						if h['data']['etyp'] == 'CT' or b not in ftr.keys():
 							ftr[b] = typ['ti']
-						if h['data']['etyp'] in ('CR','OB'):
-							del ftr[b]
+			except Exception:
+				print h
+				raise
+		for h in d[1]: # have to do this separately, in case a fighter damages a bomber, then fighter crashes, then bomber crashes (all in the same night)
+			try:
+				if h['class'] == 'A':
+					b = h['data']['acid']
+					typ = h['data']['type']
+					if typ['fb'] == 'F' and h['data']['etyp'] in ('CR','OB'):
+						del ftr[b]
 			except Exception:
 				print h
 				raise
