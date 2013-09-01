@@ -16,7 +16,11 @@ def extract_value(save):
 	total = sum(bvalues) + cash
 	res = [{'date':save.init.date, 'cash':cash, 'cshr':cshr, 'bombers':bcount, 'bvalues':bvalues, 'total':total}]
 	days = sorted(hhist.group_by_date(save.history))
+	broughton = hdata.Events.find('id', 'BROUGHTON')
+	wlng = hdata.Bombers.find('name', 'Wellington')
 	for d in days:
+		if broughton and d[0] == broughton['date']:
+			if wlng: wlng['cost'] *= 2/3.0
 		spend = 0
 		for h in d[1]:
 			if h['class'] == 'A':

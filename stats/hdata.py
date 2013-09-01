@@ -52,6 +52,11 @@ class Table(object):
 		return len(self.data)
 	def __getitem__(self, index):
 		return self.data[index]
+	def find(self, key, value):
+		for row in self.data:
+			if row[key] == value:
+				return row
+		return None
 
 def parse_string(text):
 	return unicode(text.strip(), encoding='utf8')
