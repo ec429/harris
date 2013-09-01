@@ -11,6 +11,7 @@ class LastHIMismatch(EventMatchupError): pass
 
 def extract_profit(save):
 	bombers = {b['id']:[b['type'], 0, True] for b in save.init.bombers}
+	targets = [t['dmg'] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
 		lasthi = None
@@ -23,7 +24,8 @@ def extract_profit(save):
 					elif h['data']['etyp'] in ['CR', 'OB']:
 						bombers[acid][2] = False
 					elif h['data']['etyp'] == 'HI':
-						targ = hdata.Targets[h['data']['data']['target']]
+						ti = h['data']['data']['target']
+						targ = hdata.Targets[ti]
 						lasthi = (targ, acid)
 						if 'CITY' in targ['flags']:
 							f = 0.2
@@ -45,21 +47,25 @@ def extract_profit(save):
 							raise TargetClassUnrecognised(targ['flags'])
 						if 'BERLIN' in targ['flags']:
 							f *= 2
-						bombers[acid][1] += h['data']['data']['bombs'] * f
+						if targets[ti]: # not 100% accurate but close enough
+							bombers[acid][1] += h['data']['data']['bombs'] * f
 			elif h['class'] == 'T':
-				targ = hdata.Targets[h['data']['target']]
+				ti = h['data']['target']
+				targ = hdata.Targets[ti]
 				if h['data']['etyp'] == 'SH':
 					if lasthi is None:
 						raise NoLastHI(h)
 					if lasthi[0] != targ:
 						raise LastHIMismatch(lasthi, h)
 					bombers[lasthi[1]][1] += 15000
-				elif h['data']['etyp'] == 'DM' and 'BRIDGE' in targ['flags']:
-					if lasthi is None:
-						raise NoLastHI(h)
-					if lasthi[0] != targ:
-						raise LastHIMismatch(lasthi, h)
-					bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
+				elif h['data']['etyp'] == 'DM':
+					targets[ti]=h['data']['data']['cdmg']
+					if 'BRIDGE' in targ['flags']:
+						if lasthi is None:
+							raise NoLastHI(h)
+						if lasthi[0] != targ:
+							raise LastHIMismatch(lasthi, h)
+						bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
 	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
 	deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
