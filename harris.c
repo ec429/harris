@@ -39,7 +39,6 @@
 	Seasonal effects on weather
 	Toggle overlays on map display (incl. add new overlays for GEE, OBOE, GH range; perhaps also ability to show weather map as isobars/isotherms instead of cloudmap)
 	Make Flak only be known to you after you've encountered it
-	Better algorithm for building German fighters
 	Implement the remaining Navaids (just Gee-H now)
 	Implement window-control (for diversions)
 	Event effects on fighters (New radars, RCM, etc.)
@@ -474,6 +473,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		free(ftypefile);
 		fprintf(stderr, "Loaded %u fighter types\n", nftypes);
 	}
+	unsigned int fcount[nftypes];
 	
 	FILE *fbfp=fopen("dat/ftrbases", "r");
 	if(!fbfp)
@@ -5078,6 +5078,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	// German fighters
+	memset(fcount, 0, sizeof(fcount));
 	for(unsigned int i=0;i<state.nfighters;i++)
 	{
 		unsigned int type=state.fighters[i].type;
@@ -5091,6 +5092,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			i--;
 			continue;
 		}
+		fcount[type]++;
 		if(brandp(0.1))
 		{
 			unsigned int base;
@@ -5108,9 +5110,28 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	state.gprod+=dprod/18.0;
 	while(state.gprod>=mfcost)
 	{
-		unsigned int i=irandu(nftypes);
-		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue;
-		if(ftypes[i].cost>state.gprod) break;
+		double p[nftypes], cumu_p=0;
+		for(unsigned int j=0;j<nftypes;j++)
+		{
+			if(!datewithin(state.now, ftypes[j].entry, ftypes[j].exit))
+			{
+				p[j]=0;
+				continue;
+			}
+			date start=ftypes[j].entry, end=ftypes[j].exit;
+			if(start.year<1939) start=(date){1938, 6, 1};
+			if(end.year>1945) end=(date){1946, 8, 1};
+			int dur=diffdate(end, start), age=diffdate(state.now, start);
+			double fr_age=age/(double)dur;
+			p[j]=(0.8-fr_age)/sqrt(1+fcount[j]);
+			p[j]=max(p[j], 0);
+			cumu_p+=p[j];
+		}
+		double d=drandu(cumu_p);
+		unsigned int i=0;
+		while(d>=p[i]) d-=p[i++];
+		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue; // should be impossible as p[i] == 0
+		if(ftypes[i].cost>state.gprod) break; // should also be impossible as cost <= mfcost <= state.gprod
 		unsigned int n=state.nfighters++;
 		ac_fighter *newf=realloc(state.fighters, state.nfighters*sizeof(ac_fighter));
 		if(!newf)
