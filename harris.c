@@ -4924,7 +4924,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			{
 				if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
 				unsigned int prio=(unsigned int [4]){0, 1, 3, 6}[types[i].prio];
-				if(datebefore(state.now, types[i].novelty)) prio=max(prio, 2);
+				if(datebefore(state.now, types[i].novelty)) prio=max(prio, 1);
 				types[i].pribuf+=prio;
 				if(prio) any=true;
 			}
