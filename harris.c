@@ -5060,7 +5060,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					double ddmg=min(state.dmg[i]*.05, 100-state.dmg[i]);
 					state.dmg[i]+=ddmg;
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-					dprod+=state.dmg[i]*targs[i].prod/2.0;
+					dprod+=state.dmg[i]*targs[i].prod/4.0;
 				}
 				else
 				{
