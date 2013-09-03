@@ -3702,11 +3702,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					if(b)
 					{
 						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
-						double cf=270.0-h*0.3;
-						state.bombers[k].navlon*=(cf+state.bombers[k].lon)/512.0;
-						state.bombers[k].navlat*=(cf+state.bombers[k].lon)/512.0;
-						state.bombers[k].driftlon*=(cf+state.bombers[k].lon)/512.0;
-						state.bombers[k].driftlat*=(cf+state.bombers[k].lon)/512.0;
+						double cf=(700.0+state.bombers[k].lon-h*0.6)/1e3;
+						state.bombers[k].navlon*=cf;
+						state.bombers[k].navlat*=cf;
+						state.bombers[k].driftlon*=cf;
+						state.bombers[k].driftlat*=cf;
 					}
 					unsigned int dtm=0; // target nearest to bomber
 					double mind=1e6;
