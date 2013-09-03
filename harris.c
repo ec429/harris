@@ -3920,15 +3920,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									state.bombers[k].ldf=true;
 								}
 							}
+							if(brandp(0.35))
+								state.fighters[j].k=-1;
+						}
+						if(d<(ftypes[ft].night?0.3:0.2)*(.8*moonillum+.6)) // easier to spot nightfighters as they're bigger
+						{
 							if(!types[bt].noarm&&(brandp(0.2/types[bt].defn)))
 							{
 								unsigned int dmg=irandu(20);
 								state.fighters[j].damage+=dmg;
 								if(dmg)
 									dmac_append(&state.hist, state.now, now, state.fighters[j].id, true, state.fighters[j].type, dmg, state.fighters[j].damage, state.bombers[k].id);
+								if(brandp(0.6)) // fighter breaks off to avoid return fire, but 40% chance to maintain contact
+									state.fighters[j].k=-1;
 							}
-							if(brandp(0.35))
-								state.fighters[j].k=-1;
 						}
 					}
 				}
