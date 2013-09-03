@@ -3436,7 +3436,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						inair--;
 						continue;
 					}
-					if(brandp((types[type].fail+2.0*state.bombers[k].damage)/4800.0))
+					if(brandp(types[type].fail/(50.0*min(240.0, 48.0+t-state.bombers[k].startt))+state.bombers[k].damage/2400.0))
 					{
 						fa_append(&state.hist, state.now, now, state.bombers[k].id, false, state.bombers[k].type, 1);
 						state.bombers[k].failed=true;
