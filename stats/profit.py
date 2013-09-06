@@ -9,63 +9,66 @@ class EventMatchupError(Exception): pass
 class NoLastHI(EventMatchupError): pass
 class LastHIMismatch(EventMatchupError): pass
 
+def daily_profit(d, bombers, targets): # updates bombers, targets
+	lasthi = None
+	for h in d[1]:
+		if h['class'] == 'A':
+			acid = h['data']['acid']
+			if h['data']['type']['fb'] == 'B':
+				if h['data']['etyp'] == 'CT':
+					bombers[acid]=[int(h['data']['type']['ti']), 0, True]
+				elif h['data']['etyp'] in ['CR', 'OB']:
+					bombers[acid][2] = False
+				elif h['data']['etyp'] == 'HI':
+					ti = h['data']['data']['target']
+					targ = hdata.Targets[ti]
+					lasthi = (targ, acid)
+					if 'CITY' in targ['flags']:
+						f = 0.2
+					elif 'SHIPPING' in targ['flags']:
+						f = 0
+					elif 'MINING' in targ['flags']:
+						f = 0.03
+					elif 'LEAFLET' in targ['flags']:
+						f = 0.015
+					elif 'AIRFIELD' in targ['flags']:
+						f = 0.2
+					elif 'BRIDGE' in targ['flags']:
+						f = 0.2
+					elif 'ROAD' in targ['flags']:
+						f = 0.2
+					elif 'INDUSTRY' in targ['flags']:
+						f = 0.4
+					else:
+						raise TargetClassUnrecognised(targ['flags'])
+					if 'BERLIN' in targ['flags']:
+						f *= 2
+					if targets[ti]: # not 100% accurate but close enough
+						bombers[acid][1] += h['data']['data']['bombs'] * f
+		elif h['class'] == 'T':
+			ti = h['data']['target']
+			targ = hdata.Targets[ti]
+			if h['data']['etyp'] == 'SH':
+				if lasthi is None:
+					raise NoLastHI(h)
+				if lasthi[0] != targ:
+					raise LastHIMismatch(lasthi, h)
+				bombers[lasthi[1]][1] += 15000
+			elif h['data']['etyp'] == 'DM':
+				targets[ti]=h['data']['data']['cdmg']
+				if 'BRIDGE' in targ['flags']:
+					if lasthi is None:
+						raise NoLastHI(h)
+					if lasthi[0] != targ:
+						raise LastHIMismatch(lasthi, h)
+					bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
+
 def extract_profit(save):
 	bombers = {b['id']:[b['type'], 0, True] for b in save.init.bombers}
 	targets = [t['dmg'] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
-		lasthi = None
-		for h in d[1]:
-			if h['class'] == 'A':
-				acid = h['data']['acid']
-				if h['data']['type']['fb'] == 'B':
-					if h['data']['etyp'] == 'CT':
-						bombers[acid]=[int(h['data']['type']['ti']), 0, True]
-					elif h['data']['etyp'] in ['CR', 'OB']:
-						bombers[acid][2] = False
-					elif h['data']['etyp'] == 'HI':
-						ti = h['data']['data']['target']
-						targ = hdata.Targets[ti]
-						lasthi = (targ, acid)
-						if 'CITY' in targ['flags']:
-							f = 0.2
-						elif 'SHIPPING' in targ['flags']:
-							f = 0
-						elif 'MINING' in targ['flags']:
-							f = 0.03
-						elif 'LEAFLET' in targ['flags']:
-							f = 0.015
-						elif 'AIRFIELD' in targ['flags']:
-							f = 0.2
-						elif 'BRIDGE' in targ['flags']:
-							f = 0.2
-						elif 'ROAD' in targ['flags']:
-							f = 0.2
-						elif 'INDUSTRY' in targ['flags']:
-							f = 0.4
-						else:
-							raise TargetClassUnrecognised(targ['flags'])
-						if 'BERLIN' in targ['flags']:
-							f *= 2
-						if targets[ti]: # not 100% accurate but close enough
-							bombers[acid][1] += h['data']['data']['bombs'] * f
-			elif h['class'] == 'T':
-				ti = h['data']['target']
-				targ = hdata.Targets[ti]
-				if h['data']['etyp'] == 'SH':
-					if lasthi is None:
-						raise NoLastHI(h)
-					if lasthi[0] != targ:
-						raise LastHIMismatch(lasthi, h)
-					bombers[lasthi[1]][1] += 15000
-				elif h['data']['etyp'] == 'DM':
-					targets[ti]=h['data']['data']['cdmg']
-					if 'BRIDGE' in targ['flags']:
-						if lasthi is None:
-							raise NoLastHI(h)
-						if lasthi[0] != targ:
-							raise LastHIMismatch(lasthi, h)
-						bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
+		daily_profit(d, bombers, targets)
 	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
 	deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}

@@ -6,6 +6,7 @@ lists thereof.
 """
 
 import sys
+import datetime
 
 class BadHistLine(Exception): pass
 class NoSuchEvent(BadHistLine): pass
@@ -46,6 +47,8 @@ class date(object):
 				next.month = 1
 				next.year += 1
 		return next
+	def ordinal(self):
+		return datetime.date(self.year, self.month, self.day).toordinal()
 
 def ac_parse(text):
 	def ct_parse(text):

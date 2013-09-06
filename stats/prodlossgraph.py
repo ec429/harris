@@ -8,10 +8,6 @@ manager (Debian: apt-get install python-matplotlib)
 import sys
 import hhist, hdata, prodloss
 import matplotlib.pyplot as plt
-import datetime
-
-def todt(date):
-	return datetime.date(date.year, date.month, date.day)
 
 if __name__ == '__main__':
 	entries = hhist.import_from_save(sys.stdin)
@@ -19,7 +15,7 @@ if __name__ == '__main__':
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 	cols = ['0.5','y','r','c','m','0.5','y','b','r','0.5','c']
-	dates = [todt(key).toordinal() for key in sorted(data)]
+	dates = [key.ordinal() for key in sorted(data)]
 	total = [[sum(d[0] for d in data[key]), sum(d[1] for d in data[key])] for key in sorted(data)]
 	top = max(zip(*total)[0])
 	bottom = min(zip(*total)[1])
@@ -29,7 +25,7 @@ if __name__ == '__main__':
 	for bi,b in enumerate(hdata.Bombers.data):
 		bprod = [data[key][bi][0] for key in sorted(data) if hdata.inservice(key, b)]
 		bloss = [data[key][bi][1] for key in sorted(data) if hdata.inservice(key, b)]
-		bdate = [todt(key).toordinal() for key in sorted(data) if hdata.inservice(key, b)]
+		bdate = [key.ordinal() for key in sorted(data) if hdata.inservice(key, b)]
 		gp = plt.plot_date(bdate, bprod, fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
 		gl = plt.plot_date(bdate, bloss, fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	plt.axhline(y=0, xmin=0, xmax=1, c='k', zorder=-1)
