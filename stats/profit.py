@@ -70,12 +70,12 @@ def daily_profit(d, bombers, targets, count): # updates bombers, targets
 					if count:
 						bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
 
-def extract_profit(save, after=None):
+def extract_profit(save, before=None, after=None):
 	bombers = {b['id']:[b['type'], 0, True] for b in save.init.bombers}
 	targets = [t['dmg'] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
-		daily_profit(d, bombers, targets, d[0]>=after if after else True)
+		daily_profit(d, bombers, targets, (d[0]>=after if after else True) and (d[0]<before if before else True))
 	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
 	deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
@@ -88,13 +88,15 @@ def extract_profit(save, after=None):
 def parse_args(argv):
 	x = optparse.OptionParser()
 	x.add_option('-a', '--after', type='string')
+	x.add_option('-b', '--before', type='string')
 	return x.parse_args()
 
 if __name__ == '__main__':
 	opts, args = parse_args(sys.argv)
+	before = hhist.date.parse(opts.before) if opts.before else None
 	after = hhist.date.parse(opts.after) if opts.after else None
 	save = hsave.Save.parse(sys.stdin)
-	profit = extract_profit(save, after)
+	profit = extract_profit(save, before, after)
 	for i in profit:
 		name = extra_data.Bombers[hdata.Bombers[i]['name']]['short']
 		full = "(%d) = %g" % (profit[i]['full'][0], profit[i]['fullr'])
