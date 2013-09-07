@@ -6,12 +6,20 @@ manager (Debian: apt-get install python-matplotlib)
 """
 
 import sys
-import hsave, hdata, profit
+import hsave, hdata, hhist, profit
 import matplotlib.pyplot as plt
+import optparse
+
+def parse_args(argv):
+	x = optparse.OptionParser()
+	x.add_option('-a', '--after', type='string')
+	return x.parse_args()
 
 if __name__ == '__main__':
+	opts, args = parse_args(sys.argv)
+	after = hhist.date.parse(opts.after) if opts.after else None
 	save = hsave.Save.parse(sys.stdin)
-	data = profit.extract_profit(save)
+	data = profit.extract_profit(save, after)
 	bars = reversed(data.items())
 	fbars = [bar for bar in bars if bar[1]['full'][0]]
 	mr = float(max([bar[1]['full'][0] for bar in fbars]))/0.75

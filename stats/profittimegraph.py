@@ -8,9 +8,21 @@ manager (Debian: apt-get install python-matplotlib)
 import sys
 import hsave, hdata, hhist, profit
 import matplotlib.pyplot as plt
+import optparse
+
+def parse_args(argv):
+	x = optparse.OptionParser()
+	x.add_option('-a', '--after', type='string')
+	x.add_option('--opti', action='store_true')
+	x.add_option('--dead', action='store_true')
+	opts, args = x.parse_args()
+	if opts.opti and opts.dead:
+		x.error("Can't have --opti and --dead!")
+	return opts, args
 
 if __name__ == '__main__':
-	what = 'opti' if '--opti' in sys.argv else ('dead' if '--dead' in sys.argv else 'full')
+	opts, args = parse_args(sys.argv)
+	after = hhist.date.parse(opts.after) if opts.after else None
 	save = hsave.Save.parse(sys.stdin)
 	bombers = {b['id']:[b['type'], 0, True] for b in save.init.bombers}
 	targets = [t['dmg'] for t in save.init.targets]
@@ -18,21 +30,20 @@ if __name__ == '__main__':
 	days = sorted(hhist.group_by_date(save.history))
 	data = []
 	for d in days:
-		profit.daily_profit(d, bombers, targets)
+		profit.daily_profit(d, bombers, targets, d[0]>=after if after else True)
 		results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 		results[None] = {k:v for k,v in bombers.iteritems()}
 		full = {i: (len(results[i]), sum(costs[d[0]] for d in results[i].itervalues()), sum(v[1] for v in results[i].itervalues())) for i in results}
 		deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
 		dead = {i: (len(deadresults[i]), sum(costs[d[0]] for d in deadresults[i].itervalues()), sum(v[1] for v in deadresults[i].itervalues())) for i in results}
-		if what == 'opti':
+		if opts.opti:
 			value = {i: full[i][2]/float(dead[i][1]) if dead[i][0] > 10 else None for i in results}
-		elif what == 'dead':
+		elif opts.dead:
 			value = {i: dead[i][2]/float(dead[i][1]) if dead[i][0] else None for i in results}
-		elif what == 'full':
-			value = {i: full[i][2]/float(full[i][1]) if full[i][0] else None for i in results}
 		else:
-			raise Exception("Bad value for 'what'", what)
-		data.append((d[0], value))
+			value = {i: full[i][2]/float(full[i][1]) if full[i][0] else None for i in results}
+		if after is None or d[0]>=after:
+			data.append((d[0], value))
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 	cols = ['0.5','y','r','c','m','0.5','y','b','r','0.5','c']
