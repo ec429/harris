@@ -2949,82 +2949,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].lon=types[type].blon;
 				state.bombers[k].routestage=0;
 				if(datebefore(state.now, event[EVENT_GEE]))
-				{
-					state.bombers[k].route[4][0]=targs[i].lat;
-					state.bombers[k].route[4][1]=targs[i].lon;
-					for(unsigned int l=0;l<4;l++)
-					{
-						state.bombers[k].route[l][0]=((types[type].blat*(4-l)+targs[i].lat*(3+l))/7)+irandu(23)-11;
-						state.bombers[k].route[l][1]=((types[type].blon*(4-l)+targs[i].lon*(3+l))/7)+irandu(9)-4;
-					}
-					for(unsigned int l=5;l<8;l++)
-					{
-						state.bombers[k].route[l][0]=((types[type].blat*(l-4)+targs[i].lat*(10-l))/6)+irandu(23)-11;
-						state.bombers[k].route[l][1]=((types[type].blon*(l-4)+targs[i].lon*(10-l))/6)+irandu(11)-5;
-					}
-					for(unsigned int l=0;l<7;l++)
-					{
-						double z=1;
-						while(true)
-						{
-							double scare[2]={0,0};
-							for(unsigned int t=0;t<ntargs;t++)
-							{
-								if(t==i) continue;
-								if(!datewithin(state.now, targs[t].entry, targs[t].exit)) continue;
-								double d, lambda;
-								linedist(state.bombers[k].route[l+1][1]-state.bombers[k].route[l][1],
-									state.bombers[k].route[l+1][0]-state.bombers[k].route[l][0],
-									targs[t].lon-state.bombers[k].route[l][1],
-									targs[t].lat-state.bombers[k].route[l][0],
-									&d, &lambda);
-								if(d<6)
-								{
-									double s=targs[t].flak*0.18/(3.0+d);
-									scare[0]+=s*(1-lambda);
-									scare[1]+=s*lambda;
-								}
-							}
-							for(unsigned int f=0;f<nflaks;f++)
-							{
-								if(!datewithin(state.now, flaks[f].entry, flaks[f].exit)) continue;
-								double d, lambda;
-								linedist(state.bombers[k].route[l+1][1]-state.bombers[k].route[l][1],
-									state.bombers[k].route[l+1][0]-state.bombers[k].route[l][0],
-									flaks[f].lon-state.bombers[k].route[l][1],
-									flaks[f].lat-state.bombers[k].route[l][0],
-									&d, &lambda);
-								if(d<2)
-								{
-									double s=flaks[f].strength*0.01/(1.0+d);
-									scare[0]+=s*(1-lambda);
-									scare[1]+=s*lambda;
-								}
-							}
-							z*=(scare[0]+scare[1])/(double)(1+scare[0]+scare[1]);
-							double fs=scare[0]/(scare[0]+scare[1]);
-							if(z<0.2) break;
-							if(l!=4)
-							{
-								state.bombers[k].route[l][0]+=z*fs*(irandu(43)-21);
-								state.bombers[k].route[l][1]+=z*fs*(irandu(21)-10);
-							}
-							if(l!=3)
-							{
-								state.bombers[k].route[l+1][0]+=z*(1-fs)*(irandu(43)-21);
-								state.bombers[k].route[l+1][1]+=z*(1-fs)*(irandu(21)-10);
-							}
-						}
-					}
-				}
+					genroute((unsigned int [2]){types[type].blat, types[type].blon}, i, state.bombers[k].route, state);
 				else
-				{
 					for(unsigned int l=0;l<8;l++)
 					{
 						state.bombers[k].route[l][0]=targs[i].route[l][0];
 						state.bombers[k].route[l][1]=targs[i].route[l][1];
 					}
-				}
 				double dist=hypot((signed)types[type].blat-(signed)state.bombers[k].route[0][0], (signed)types[type].blon-(signed)state.bombers[k].route[0][1]), outward=dist;
 				for(unsigned int l=0;l<7;l++)
 				{
