@@ -9,21 +9,7 @@
 */
 #include <stddef.h>
 #include <stdbool.h>
-
-typedef struct
-{
-	int year;
-	unsigned int month; // 1-based
-	unsigned int day; // also 1-based
-}
-date;
-
-typedef struct
-{
-	unsigned int hour;
-	unsigned int minute;
-}
-time;
+#include "types.h"
 
 date readdate(const char *t, date nulldate); // converts date from string
 size_t writedate(date when, char *buf); // converts date to string, returns bytes written

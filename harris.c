@@ -32,6 +32,8 @@
 #include "events.h"
 #include "history.h"
 #include "date.h"
+#include "types.h"
+#include "routing.h"
 
 //#define NOWEATHER	1	// skips weather phase of 'next-day' (w/o raid), allowing quicker time passage.  For testing/debugging
 
@@ -50,195 +52,13 @@
 #define NAV_H2S		1
 #define NAV_OBOE	2
 #define NAV_GH		3
-#define NNAVAIDS	4
 const char * const navaids[NNAVAIDS]={"GEE","H2S","OBOE","GH"};
 const char * const navpicfn[NNAVAIDS]={"art/navaids/gee.png", "art/navaids/h2s.png", "art/navaids/oboe.png", "art/navaids/g-h.png"};
 unsigned int navevent[NNAVAIDS]={EVENT_GEE, EVENT_H2S, EVENT_OBOE, EVENT_GH};
 unsigned int navprod[NNAVAIDS]={5, 9, 22, 12}; // 10/productionrate; later 25/productionrate
 
-typedef struct
-{
-	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
-	char * manu;
-	char * name;
-	unsigned int cost;
-	unsigned int speed;
-	unsigned int alt;
-	unsigned int cap;
-	unsigned int svp;
-	unsigned int defn;
-	unsigned int fail;
-	unsigned int accu;
-	unsigned int range;
-	date entry;
-	date novelty;
-	date exit;
-	bool nav[NNAVAIDS];
-	bool noarm, pff, broughton;
-	unsigned int blat, blon;
-	SDL_Surface *picture;
-	char *text, *newtext;
-	
-	unsigned int count;
-	unsigned int navcount[NNAVAIDS];
-	unsigned int pffcount;
-	unsigned int prio;
-	unsigned int pribuf;
-	atg_element *prio_selector;
-	unsigned int pc;
-	unsigned int pcbuf;
-}
-bombertype;
-
-#define fuelcap(t)	types[t].range*180.0/(double)(types[t].speed)
-
-typedef struct
-{
-	//MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:DD-MM-YYYY:DD-MM-YYYY:FLAGS
-	char *manu;
-	char *name;
-	unsigned int cost;
-	unsigned int speed;
-	unsigned char arm;
-	unsigned char mnv;
-	date entry;
-	date exit;
-	bool night;
-	char *text, *newtext;
-}
-fightertype;
-
-typedef struct
-{
-	//LAT:LONG:ENTRY:EXIT
-	unsigned int lat, lon;
-	date entry, exit;
-}
-ftrbase;
-
-typedef struct
-{
-	//NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
-	char * name;
-	unsigned int prod, flak, esiz, lat, lon;
-	date entry, exit;
-	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,} class;
-	bool bb; // contains aircraft or ballbearing works (Pointblank Directive)
-	bool oil; // industry-type OIL refineries
-	bool rail; // industry-type RAIL yards
-	bool uboot; // industry-type UBOOT factories
-	bool arm; // industry-type ARMament production (incl. steel etc.)
-	bool berlin; // raids on Berlin are more valuable
-	bool flammable; // more easily damaged
-	SDL_Surface *picture;
-	unsigned int psiz; // 'physical' size (cities only) - #pixels in picture
-	/* for Type I fighter control */
-	double threat; // German-assessed threat level
-	unsigned int nfighters; // # of fighters covering this target
-	/* for bomber guidance */
-	unsigned int route[8][2]; // [0123 out, 4 bmb, 567 in][0 lat, 1 lon]. {0, 0} indicates "not used, skip to next routestage"
-	double fires; // level of fires (and TIs) illuminating the target
-	/* misc */
-	unsigned int shots; // number of shots the flak already fired this tick
-}
-target;
-
-typedef struct
-{
-	//STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
-	unsigned int strength, lat, lon;
-	date entry, radar, exit;
-	/* for Himmelbett fighter control */
-	signed int ftr; // index of fighter under this radar's control (-1 for none)
-	unsigned int shots; // number of shots already fired this tick
-}
-flaksite;
-
 date event[NEVENTS];
 char *evtext[NEVENTS];
-
-typedef struct
-{
-	acid id;
-	unsigned int type;
-	unsigned int targ;
-	double lat, lon;
-	double navlat, navlon; // error in "believed position" relative to true position
-	double driftlat, driftlon; // rate of error
-	unsigned int bmblat, bmblon; // true position where bombs were dropped (if any)
-	unsigned int bt; // time when bombs were dropped (if any)
-	unsigned int route[8][2]; // [0123 out, 4 bmb, 567 in][0 lat, 1 lon]. {0, 0} indicates "not used, skip to next routestage"
-	unsigned int routestage; // 8 means "passed route[7], heading for base"
-	bool nav[NNAVAIDS];
-	bool pff; // a/c is assigned to the PFF
-	unsigned int bmb; // bombload carried.  0 means leaflets
-	bool bombed;
-	bool crashed;
-	bool failed; // for forces, read as !svble
-	bool landed; // for forces, read as !assigned
-	double speed;
-	double damage; // increases the probability of mech.fail and of consequent crashes
-	bool ldf; // last damage by a fighter?
-	bool idtar; // identified target?  (for use if RoE require it)
-	unsigned int startt; // take-off time
-	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
-}
-ac_bomber;
-
-#define loadness(b)	((((b).bombed?0:(b).bmb)/(double)(types[(b).type].cap)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
-
-typedef struct
-{
-	acid id;
-	unsigned int type;
-	unsigned int base;
-	double lat, lon;
-	bool crashed;
-	bool landed;
-	double damage;
-	unsigned int fuelt;
-	signed int k; // which bomber this fighter is attacking (-1 for none)
-	signed int targ; // which target this fighter is covering (-1 for none)
-	signed int hflak; // which flaksite's radar is controlling this fighter? (Himmelbett/Kammhuber line) (-1 for none)
-}
-ac_fighter;
-
-#define ftr_free(f)	(((f).targ<0)&&((f).hflak<0)&&((f).fuelt>t)) // f is of type ac_fighter
-
-typedef struct
-{
-	unsigned int nbombers;
-	unsigned int *bombers; // offsets into the game.bombers list
-}
-raid;
-
-#define MAXMSGS	8
-
-typedef struct
-{
-	date now;
-	unsigned int cash, cshr;
-	double confid, morale;
-	unsigned int nbombers;
-	ac_bomber *bombers;
-	unsigned int nap[NNAVAIDS];
-	unsigned int napb[NNAVAIDS];
-	w_state weather;
-	unsigned int ntargs;
-	double *dmg, *flk, *heat;
-	double gprod;
-	unsigned int nfighters;
-	ac_fighter *fighters;
-	raid *raids;
-	struct
-	{
-		bool idtar;
-	}
-	roe;
-	char *msg[MAXMSGS];
-	history hist;
-}
-game;
 
 struct oboe
 {
@@ -3119,72 +2939,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			if(state.raids[i].nbombers)
 			{
-				targs[i].route[4][0]=targs[i].lat;
-				targs[i].route[4][1]=targs[i].lon;
-				for(unsigned int l=0;l<4;l++)
-				{
-					targs[i].route[l][0]=((67*(4-l)+targs[i].lat*(3+l))/7)+irandu(23)-11;
-					targs[i].route[l][1]=((69*(4-l)+targs[i].lon*(3+l))/7)+irandu(9)-4;
-				}
-				for(unsigned int l=5;l<8;l++)
-				{
-					targs[i].route[l][0]=((118*(l-4)+targs[i].lat*(10-l))/6)+irandu(23)-11;
-					targs[i].route[l][1]=((64*(l-4)+targs[i].lon*(10-l))/6)+irandu(11)-5;
-				}
-				for(unsigned int l=0;l<7;l++)
-				{
-					double z=1;
-					while(true)
-					{
-						double scare[2]={0,0};
-						for(unsigned int t=0;t<ntargs;t++)
-						{
-							if(t==i) continue;
-							if(!datewithin(state.now, targs[t].entry, targs[t].exit)) continue;
-							double d, lambda;
-							linedist(targs[i].route[l+1][1]-targs[i].route[l][1],
-								targs[i].route[l+1][0]-targs[i].route[l][0],
-								targs[t].lon-targs[i].route[l][1],
-								targs[t].lat-targs[i].route[l][0],
-								&d, &lambda);
-							if(d<6)
-							{
-								double s=targs[t].flak*0.18/(3.0+d);
-								scare[0]+=s*(1-lambda);
-								scare[1]+=s*lambda;
-							}
-						}
-						for(unsigned int f=0;f<nflaks;f++)
-						{
-							if(!datewithin(state.now, flaks[f].entry, flaks[f].exit)) continue;
-							double d, lambda;
-							linedist(targs[i].route[l+1][1]-targs[i].route[l][1],
-								targs[i].route[l+1][0]-targs[i].route[l][0],
-								flaks[f].lon-targs[i].route[l][1],
-								flaks[f].lat-targs[i].route[l][0],
-								&d, &lambda);
-							if(d<2)
-							{
-								double s=flaks[f].strength*0.01/(1.0+d);
-								scare[0]+=s*(1-lambda);
-								scare[1]+=s*lambda;
-							}
-						}
-						z*=(scare[0]+scare[1])/(double)(1+scare[0]+scare[1]);
-						double fs=scare[0]/(scare[0]+scare[1]);
-						if(z<0.2) break;
-						if(l!=4)
-						{
-							targs[i].route[l][0]+=z*fs*(irandu(43)-21);
-							targs[i].route[l][1]+=z*fs*(irandu(21)-10);
-						}
-						if(l!=3)
-						{
-							targs[i].route[l+1][0]+=z*(1-fs)*(irandu(43)-21);
-							targs[i].route[l+1][1]+=z*(1-fs)*(irandu(21)-10);
-						}
-					}
-				}
+				genroute((unsigned int [2]){0, 0}, i, targs[i].route, state);
 			}
 			for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 			{

@@ -9,18 +9,7 @@
 */
 #include <stdio.h>
 #include <stddef.h>
-#include "bits.h"
-#include "date.h"
-
-#define HIST_LINE	240
-
-typedef struct
-{
-	size_t nents;
-	size_t nalloc;
-	char (*ents)[HIST_LINE];
-}
-history;
+#include "types.h"
 
 char *hist_alloc(history *hist); // Create a new history line, return a pointer for writing
 int hist_append(history *hist, const char line[HIST_LINE]); // Append a line to the history

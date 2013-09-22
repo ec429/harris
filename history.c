@@ -8,6 +8,8 @@
 */
 #include "history.h"
 #include <stdlib.h>
+#include "bits.h"
+#include "date.h"
 
 char *hist_alloc(history *hist)
 {
