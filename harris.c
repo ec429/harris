@@ -3318,7 +3318,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
 							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-							double preccap=rad?1.0:160.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+							double preccap=160.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+							if(rad) preccap=min(preccap, window?960.0:480.0);
 							if(brandp(flaks[i].strength/min((12+flaks[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
