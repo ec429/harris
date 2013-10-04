@@ -3284,7 +3284,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 						if(dd<range*range)
 						{
-							if(brandp(state.flk[i]/((9+targs[i].shots++)*40.0)))
+							unsigned int x=targs[i].lon/2, y=targs[i].lat/2;
+							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
+							double preccap=100.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+							if(brandp(state.flk[i]/min((9+targs[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
 								if(brandp(types[type].defn/400.0))
@@ -3313,7 +3316,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool rad=!datebefore(state.now, flaks[i].radar);
 						if(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 3.0))
 						{
-							if(brandp(flaks[i].strength*(rad?3:1)/((12+flaks[i].shots++)*40.0)))
+							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
+							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
+							double preccap=rad?1.0:160.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+							if(brandp(flaks[i].strength/min((12+flaks[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
 								if(brandp(types[type].defn/500.0))
