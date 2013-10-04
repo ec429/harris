@@ -2928,6 +2928,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		weather_overlay=render_weather(state.weather);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_BlitSurface(with_weather, NULL, RB_map->elem.image->data, NULL);
+		bool stream=!datebefore(state.now, event[EVENT_GEE]),
+		     moonshine=!datebefore(state.now, event[EVENT_MOONSHINE]),
+		     window=!datebefore(state.now, event[EVENT_WINDOW]),
+		     wairad= datewithin(state.now, event[EVENT_WINDOW], event[EVENT_L_SN]);
 		unsigned int it=0, startt=768;
 		unsigned int plan[60], act[60][2];
 		double fire[120];
@@ -2937,9 +2941,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fire[dt]=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
-			if(state.raids[i].nbombers)
+			if(state.raids[i].nbombers && stream)
 			{
-				genroute((unsigned int [2]){0, 0}, i, targs[i].route, state);
+				genroute((unsigned int [2]){0, 0}, i, targs[i].route, state, 10000);
 			}
 			for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 			{
@@ -2948,14 +2952,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].lat=types[type].blat;
 				state.bombers[k].lon=types[type].blon;
 				state.bombers[k].routestage=0;
-				if(datebefore(state.now, event[EVENT_GEE]))
-					genroute((unsigned int [2]){types[type].blat, types[type].blon}, i, state.bombers[k].route, state);
-				else
+				if(stream)
 					for(unsigned int l=0;l<8;l++)
 					{
 						state.bombers[k].route[l][0]=targs[i].route[l][0];
 						state.bombers[k].route[l][1]=targs[i].route[l][1];
 					}
+				else
+					genroute((unsigned int [2]){types[type].blat, types[type].blon}, i, state.bombers[k].route, state, 100);
 				double dist=hypot((signed)types[type].blat-(signed)state.bombers[k].route[0][0], (signed)types[type].blon-(signed)state.bombers[k].route[0][1]), outward=dist;
 				for(unsigned int l=0;l<7;l++)
 				{
@@ -2979,9 +2983,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].driftlat=0;
 				state.bombers[k].driftlon=0;
 				state.bombers[k].speed=(types[type].speed+irandu(4)-2)/400.0;
-				if(datebefore(state.now, event[EVENT_GEE]))
-					state.bombers[k].startt=irandu(90);
-				else
+				if(stream)
 				{
 					// aim for Zero Hour 01:00 plus up to 10 minutes
 					// PFF should arrive at Zero minus 6, and be finished by Zero minus 2
@@ -2998,10 +3000,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					if((tt>=450)&&(tt<570)&&(targs[i].class==TCLASS_CITY))
 						plan[(tt-450)/2]++;
 				}
+				else
+					state.bombers[k].startt=irandu(90);
 				startt=min(startt, state.bombers[k].startt);
 				state.bombers[k].fuelt=state.bombers[k].startt+types[type].range*0.8/(double)state.bombers[k].speed;
 				unsigned int eta=state.bombers[k].startt+outward*1.2/(double)state.bombers[k].speed+12;
-				if(datebefore(state.now, event[EVENT_GEE])) eta+=36;
+				if(!stream) eta+=36;
 				if(eta>state.bombers[k].fuelt)
 				{
 					unsigned int fu=eta-state.bombers[k].fuelt;
@@ -3039,10 +3043,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		SDL_BlitSurface(with_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGBA(RB_atime_image->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b, GAME_BG_COLOUR.a));
-		bool stream=!datebefore(state.now, event[EVENT_GEE]),
-		     moonshine=!datebefore(state.now, event[EVENT_MOONSHINE]),
-		     window=!datebefore(state.now, event[EVENT_WINDOW]),
-		     wairad= datewithin(state.now, event[EVENT_WINDOW], event[EVENT_L_SN]);
 		while(inair)
 		{
 			t++;

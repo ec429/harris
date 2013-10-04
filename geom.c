@@ -37,3 +37,17 @@ inline bool xyr(double x, double y, double r)
 	if(fabs(y)>fabs(r)) return(false);
 	return(x*x+y*y<r*r);
 }
+
+void rect_to_polar(const int a[2], const int b[2], double *r, double *th)
+{
+	if(r)
+		*r = hypot(b[0]-a[0], b[1]-a[1]);
+	if(th)
+		*th = atan2(b[0]-a[0], b[1]-a[1]);
+}
+
+void polar_to_rect(double r, double th, const int a[2], int b[2])
+{
+	b[0]=a[0]+r*sin(th);
+	b[1]=a[1]+r*cos(th);
+}
