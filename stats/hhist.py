@@ -47,6 +47,14 @@ class date(object):
 				next.month = 1
 				next.year += 1
 		return next
+	def nextmonth(self):
+		next = self.copy()
+		next.day = 1
+		next.month += 1
+		if next.month > 12:
+			next.month = 1
+			next.year += 1
+		return next
 	def ordinal(self):
 		return datetime.date(self.year, self.month, self.day).toordinal()
 
