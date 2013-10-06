@@ -10,6 +10,7 @@ import hhist, cshr
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
+	legend = '--nolegend' not in sys.argv
 	entries = hhist.import_from_save(sys.stdin)
 	data = cshr.extract_cshr(entries)
 	fig = plt.figure()
@@ -18,5 +19,5 @@ if __name__ == '__main__':
 	cshr = [data[key] for key in sorted(data)]
 	plt.axis(ymin=0, ymax=max(cshr))
 	gc = plt.plot_date(dates, cshr, fmt='g+-', tz=None, xdate=True, ydate=False, label='Budget', zorder=0)
-	plt.legend()
+	if legend: plt.legend()
 	plt.show()

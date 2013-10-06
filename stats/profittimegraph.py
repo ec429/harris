@@ -15,6 +15,8 @@ def parse_args(argv):
 	x.add_option('-a', '--after', type='string')
 	x.add_option('--opti', action='store_true')
 	x.add_option('--dead', action='store_true')
+	x.add_option('--legend', action='store_true', default=True)
+	x.add_option('--nolegend', dest='legend', action='store_false')
 	opts, args = x.parse_args()
 	if opts.opti and opts.dead:
 		x.error("Can't have --opti and --dead!")
@@ -53,5 +55,5 @@ if __name__ == '__main__':
 	for bi,b in enumerate(hdata.Bombers):
 		gb = plt.plot_date([d.ordinal() for d in dates if hdata.inservice(d, b)], [values[d][bi] for d in dates if hdata.inservice(d, b)], fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
 	ax.grid(b=True, axis='y')
-	plt.legend(ncol=2, loc='upper left')
+	if opts.legend: plt.legend(ncol=2, loc='upper left')
 	plt.show()

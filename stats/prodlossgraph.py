@@ -10,6 +10,7 @@ import hhist, hdata, prodloss
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
+	legend = '--nolegend' not in sys.argv
 	entries = hhist.import_from_save(sys.stdin)
 	data = prodloss.extract_prodloss(entries)
 	fig = plt.figure()
@@ -29,5 +30,5 @@ if __name__ == '__main__':
 		gp = plt.plot_date(bdate, bprod, fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
 		gl = plt.plot_date(bdate, bloss, fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	plt.axhline(y=0, xmin=0, xmax=1, c='k', zorder=-1)
-	plt.legend(ncol=2)
+	if legend: plt.legend(ncol=2)
 	plt.show()
