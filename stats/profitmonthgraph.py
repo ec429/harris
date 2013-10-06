@@ -29,11 +29,11 @@ if __name__ == '__main__':
 		next = month.nextmonth()
 		p = profit.extract_profit(save, next, month)
 		if opts.opti:
-			value = {i: p[i]['opti']/float(costs[i]) if p[i]['dead'] else None for i in xrange(save.ntypes)}
+			value = {i: (p[i]['opti']/float(costs[i])) if p[i]['dead'][0] else None for i in xrange(save.ntypes)}
 		elif opts.dead:
-			value = {i: p[i]['deadr']/float(costs[i]) if p[i]['dead'] else None for i in xrange(save.ntypes)}
+			value = {i: (p[i]['deadr']/float(costs[i])) if p[i]['dead'][0] else None for i in xrange(save.ntypes)}
 		else:
-			value = {i: p[i]['fullr']/float(costs[i]) if p[i]['dead'] else None for i in xrange(save.ntypes)}
+			value = {i: (p[i]['fullr']/float(costs[i])) if p[i]['dead'][0] else None for i in xrange(save.ntypes)}
 		data.append((month, value))
 		month = next
 	fig = plt.figure()

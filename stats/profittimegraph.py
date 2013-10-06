@@ -30,7 +30,7 @@ if __name__ == '__main__':
 	days = sorted(hhist.group_by_date(save.history))
 	data = []
 	for d in days:
-		profit.daily_profit(d, bombers, targets, d[0]>=after if after else True)
+		profit.daily_profit(d, bombers, targets, d[0]>=after if after else True, False)
 		results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 		results[None] = {k:v for k,v in bombers.iteritems()}
 		full = {i: (len(results[i]), sum(costs[d[0]] for d in results[i].itervalues()), sum(v[1] for v in results[i].itervalues())) for i in results}

@@ -10,8 +10,10 @@ class EventMatchupError(Exception): pass
 class NoLastHI(EventMatchupError): pass
 class LastHIMismatch(EventMatchupError): pass
 
-def daily_profit(d, bombers, targets, count): # updates bombers, targets
+def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 	lasthi = None
+	if stop:
+		return
 	for h in d[1]:
 		if h['class'] == 'A':
 			acid = h['data']['acid']
@@ -19,7 +21,7 @@ def daily_profit(d, bombers, targets, count): # updates bombers, targets
 				if h['data']['etyp'] == 'CT':
 					bombers[acid]=[int(h['data']['type']['ti']), 0, True]
 				elif h['data']['etyp'] in ['CR', 'OB']:
-					if count:
+					if start:
 						bombers[acid][2] = False
 					else:
 						del bombers[acid]
@@ -48,7 +50,7 @@ def daily_profit(d, bombers, targets, count): # updates bombers, targets
 					if 'BERLIN' in targ['flags']:
 						f *= 2
 					if targets[ti]: # not 100% accurate but close enough
-						if count:
+						if start:
 							bombers[acid][1] += h['data']['data']['bombs'] * f
 		elif h['class'] == 'T':
 			ti = h['data']['target']
@@ -58,7 +60,7 @@ def daily_profit(d, bombers, targets, count): # updates bombers, targets
 					raise NoLastHI(h)
 				if lasthi[0] != targ:
 					raise LastHIMismatch(lasthi, h)
-				if count:
+				if start:
 					bombers[lasthi[1]][1] += 15000
 			elif h['data']['etyp'] == 'DM':
 				targets[ti]=h['data']['data']['cdmg']
@@ -67,7 +69,7 @@ def daily_profit(d, bombers, targets, count): # updates bombers, targets
 						raise NoLastHI(h)
 					if lasthi[0] != targ:
 						raise LastHIMismatch(lasthi, h)
-					if count:
+					if start:
 						bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
 
 def extract_profit(save, before=None, after=None):
@@ -75,7 +77,7 @@ def extract_profit(save, before=None, after=None):
 	targets = [t['dmg'] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
-		daily_profit(d, bombers, targets, (d[0]>=after if after else True) and (d[0]<before if before else True))
+		daily_profit(d, bombers, targets, d[0]>=after if after else True, d[0]>=before if before else False)
 	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
 	deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
