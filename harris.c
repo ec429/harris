@@ -3162,7 +3162,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						oboe.k=-1;
 					int destx=home?types[type].blon:state.bombers[k].route[stage][1],
 						desty=home?types[type].blat:state.bombers[k].route[stage][0];
-					double cx=destx-(state.bombers[k].lon+state.bombers[k].navlon), cy=desty-(state.bombers[k].lat+state.bombers[k].navlat);
+					double thinklon=state.bombers[k].lon+state.bombers[k].navlon,
+						thinklat=state.bombers[k].lat+state.bombers[k].navlat;
+					clamp(thinklon, 0, 256);
+					clamp(thinklat, 0, 256);
+					double cx=destx-thinklon, cy=desty-thinklat;
 					double d=hypot(cx, cy);
 					if(home)
 					{

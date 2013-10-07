@@ -17,7 +17,7 @@ int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], ga
 {
 	for(unsigned int i=0;i<iter;i++)
 	{
-		unsigned int try[8][2];
+		int try[8][2];
 		double rscore=0;
 		bool hf=from[0]||from[1];
 		try[4][0]=targs[ti].lat;
@@ -60,6 +60,11 @@ int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], ga
 			polar_to_rect(r, th, (const int *)at, (int *)try[l]);
 			for(unsigned int i=0;i<2;i++)
 				at[i]=try[l][i];
+		}
+		for(unsigned int l=0;l<7;l++)
+		{
+			clamp(try[l][0], 0, 256);
+			clamp(try[l][1], 0, 256);
 		}
 		double score=1000;
 		for(unsigned int l=0;l<7;l++)
