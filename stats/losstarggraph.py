@@ -22,7 +22,7 @@ if __name__ == '__main__':
 	ax = fig.add_subplot(1,1,1)
 	ax.vlines(loss, 0, len(fbars)+1)
 	yl = xrange(1, len(fbars)+1)
-	gl = plt.barh(yl, [bar[1][2] for bar in fbars], height=[bar[1][1]/mr for bar in fbars], color='b', align='center')
+	gl = plt.barh(yl, [bar[1][2] for bar in fbars], height=[max(bar[1][1]/mr, 0.2) for bar in fbars], color='b', align='center', linewidth=0)
 	ax.set_yticks(yl)
 	ax.set_yticklabels([bar[0]['name'] for bar in fbars])
 	plt.show()

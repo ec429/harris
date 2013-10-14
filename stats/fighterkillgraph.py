@@ -19,10 +19,10 @@ if __name__ == '__main__':
 	ax = fig.add_subplot(1,1,1)
 	dates = [datum['date'].ordinal() for datum in data]
 	if showtotal:
-		gtk = plt.plot_date(dates, [e['total'][0] for e in data], fmt='ko-', tz=None, xdate=True, ydate=False, label='total', zorder=-2)
-		gtl = plt.plot_date(dates, [-e['total'][1] for e in data], fmt='ko-', tz=None, xdate=True, ydate=False, label=None, zorder=-2)
+		gtk = plt.plot_date(dates, [e['total'][0] for e in data], fmt='k+-', tz=None, xdate=True, ydate=False, label='total', zorder=-2)
+		gtl = plt.plot_date(dates, [-e['total'][1] for e in data], fmt='k+-', tz=None, xdate=True, ydate=False, label=None, zorder=-2)
 	for fi,f in enumerate(hdata.Fighters.data):
-		gfk = plt.plot_date([datum['date'].ordinal() for datum in data if hdata.inservice(datum['date'], f)], [e['kills'][fi] for e in data if hdata.inservice(e['date'], f)], fmt='o-', color=extra[f['name']]['colour'], tz=None, xdate=True, ydate=False, label=f['name'], zorder=0)
-		gfl = plt.plot_date([datum['date'].ordinal() for datum in data if hdata.inservice(datum['date'], f)], [-e['losses'][fi] for e in data if hdata.inservice(e['date'], f)], fmt='o-', color=extra[f['name']]['colour'], tz=None, xdate=True, ydate=False, label=None, zorder=0)
+		gfk = plt.plot_date([datum['date'].ordinal() for datum in data if hdata.inservice(datum['date'], f)], [e['kills'][fi] for e in data if hdata.inservice(e['date'], f)], fmt='o-', mew=0, color=extra[f['name']]['colour'], tz=None, xdate=True, ydate=False, label=f['name'], zorder=0)
+		gfl = plt.plot_date([datum['date'].ordinal() for datum in data if hdata.inservice(datum['date'], f)], [-e['losses'][fi] for e in data if hdata.inservice(e['date'], f)], fmt='o-', mew=0, color=extra[f['name']]['colour'], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	if legend: plt.legend(ncol=2, loc='upper left')
 	plt.show()

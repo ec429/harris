@@ -7,6 +7,7 @@ manager (Debian: apt-get install python-matplotlib)
 
 import sys
 import hhist, hdata, prodloss
+from extra_data import Bombers as extra
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
@@ -15,7 +16,6 @@ if __name__ == '__main__':
 	data = prodloss.extract_prodloss(entries)
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	cols = ['0.5','y','r','c','m','0.5','y','b','r','0.5','c']
 	dates = [key.ordinal() for key in sorted(data)]
 	total = [[sum(d[0] for d in data[key]), sum(d[1] for d in data[key])] for key in sorted(data)]
 	top = max(zip(*total)[0])
@@ -27,8 +27,8 @@ if __name__ == '__main__':
 		bprod = [data[key][bi][0] for key in sorted(data) if hdata.inservice(key, b)]
 		bloss = [data[key][bi][1] for key in sorted(data) if hdata.inservice(key, b)]
 		bdate = [key.ordinal() for key in sorted(data) if hdata.inservice(key, b)]
-		gp = plt.plot_date(bdate, bprod, fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
-		gl = plt.plot_date(bdate, bloss, fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=None, zorder=0)
+		gp = plt.plot_date(bdate, bprod, fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
+		gl = plt.plot_date(bdate, bloss, fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	plt.axhline(y=0, xmin=0, xmax=1, c='k', zorder=-1)
 	if legend: plt.legend(ncol=2)
 	plt.show()
