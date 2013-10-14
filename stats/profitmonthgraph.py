@@ -7,6 +7,7 @@ manager (Debian: apt-get install python-matplotlib)
 
 import sys
 import hsave, hdata, hhist, profit
+from extra_data import Bombers as extra
 import matplotlib.pyplot as plt
 import optparse
 
@@ -65,11 +66,10 @@ if __name__ == '__main__':
 		month = next
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	cols = ['0.5','y','r','c','m','0.5','y','b','r','0.5','c']
 	dates = zip(*data)[0]
 	values = dict(data)
 	for bi,b in enumerate(hdata.Bombers):
-		gb = plt.plot_date([d.ordinal() for d in dates if values[d][bi] is not None], [values[d][bi] for d in dates if values[d][bi] is not None], fmt='o-', color=cols[bi], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
+		gb = plt.plot_date([d.ordinal() for d in dates if values[d][bi] is not None], [values[d][bi] for d in dates if values[d][bi] is not None], fmt='o-', color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
 	ax.grid(b=True, axis='y')
 	if opts.legend: plt.legend(ncol=2, loc='upper left')
 	plt.show()
