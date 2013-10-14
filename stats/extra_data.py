@@ -6,6 +6,8 @@ Per bombertype:
 	Crew counts
 	Short names
 	Graphing colour
+Per fightertype:
+	Graphing colour
 """
 
 Bombers = {
@@ -20,4 +22,15 @@ Bombers = {
 	"Mosquito":   {"crew":2, "short":"MOSQ", "colour":'r',},
 	"Halifax III":{"crew":7, "short":"HAL3", "colour":'y',},
 	"Lancaster X":{"crew":7, "short":"LANX", "colour":'c',},
+	}
+
+Fighters = {
+	"Bf109E":{"colour":'0.6',},
+	"Bf109G":{"colour":'0.4',},
+	"Fw190A":{"colour":'r',},
+	"Do17Z": {"colour":'y',},
+	"Bf110": {"colour":'m',},
+	"Ju88C": {"colour":'g',},
+	"Do217J":{"colour":'y',},
+	"Me262": {"colour":'b',},
 	}
