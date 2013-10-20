@@ -20,11 +20,11 @@ NPrio 0:0,400
 NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
-Bombers:405
+Bombers:411
 *52*Type 0:0,0,0,NOID
 *50*Type 0:1,0,0,NOID
-*42*Type 1:0,0,0,NOID
-*24*Type 1:1,0,0,NOID
+*44*Type 1:0,0,0,NOID
+*28*Type 1:1,0,0,NOID
 *74*Type 2:0,0,0,NOID
 *40*Type 2:1,0,0,NOID
 *98*Type 3:0,0,0,NOID

@@ -30,7 +30,7 @@
 
 #                            COST SPD ALT CAPAC SV DE FA AC RAN BY BX
 Bristol:Blenheim:            5000:198:205: 1200:55:14: 6:60:190:96:61:          :10-01-1941:
-Armstrong-Whitworth:Whitley: 8000:165:176: 7000:70:17: 9:32:320:81:45:          :18-06-1941:GEE,H2S
+Armstrong-Whitworth:Whitley: 8000:165:176: 7000:70:16: 9:32:320:81:45:          :18-06-1941:GEE,H2S
 Handley Page:Hampden:       10000:202:190: 4000:65:12: 8:48:265:63:40:          :02-11-1941:GEE
 # Wlng's cost falls to 8000 after EVENT_BROUGHTON
 Vickers:Wellington:         12000:190:180: 4500:85: 7: 2:40:311:87:39:          :21-10-1943:GEE,H2S,BROUGHTON
