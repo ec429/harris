@@ -20,38 +20,41 @@ def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 			if h['data']['type']['fb'] == 'B':
 				if h['data']['etyp'] == 'CT':
 					bombers[acid]=[int(h['data']['type']['ti']), 0, True]
-				elif h['data']['etyp'] in ['CR', 'OB']:
-					if start:
-						bombers[acid][2] = False
-					else:
-						del bombers[acid]
-				elif h['data']['etyp'] == 'HI':
-					ti = h['data']['data']['target']
-					targ = hdata.Targets[ti]
-					lasthi = (targ, acid)
-					if 'CITY' in targ['flags']:
-						f = 0.2
-					elif 'SHIPPING' in targ['flags']:
-						f = 0
-					elif 'MINING' in targ['flags']:
-						f = 0.03
-					elif 'LEAFLET' in targ['flags']:
-						f = 0.015
-					elif 'AIRFIELD' in targ['flags']:
-						f = 0.2
-					elif 'BRIDGE' in targ['flags']:
-						f = 0.2
-					elif 'ROAD' in targ['flags']:
-						f = 0.2
-					elif 'INDUSTRY' in targ['flags']:
-						f = 0.4
-					else:
-						raise TargetClassUnrecognised(targ['flags'])
-					if 'BERLIN' in targ['flags']:
-						f *= 2
-					if targets[ti]: # not 100% accurate but close enough
+				else:
+					if acid not in bombers:
+						print 'Warning: un-inited bomber %08x'%acid
+					elif h['data']['etyp'] in ['CR', 'OB']:
 						if start:
-							bombers[acid][1] += h['data']['data']['bombs'] * f
+							bombers[acid][2] = False
+						else:
+							del bombers[acid]
+					elif h['data']['etyp'] == 'HI':
+						ti = h['data']['data']['target']
+						targ = hdata.Targets[ti]
+						lasthi = (targ, acid)
+						if 'CITY' in targ['flags']:
+							f = 0.2
+						elif 'SHIPPING' in targ['flags']:
+							f = 0
+						elif 'MINING' in targ['flags']:
+							f = 0.03
+						elif 'LEAFLET' in targ['flags']:
+							f = 0.015
+						elif 'AIRFIELD' in targ['flags']:
+							f = 0.2
+						elif 'BRIDGE' in targ['flags']:
+							f = 0.2
+						elif 'ROAD' in targ['flags']:
+							f = 0.2
+						elif 'INDUSTRY' in targ['flags']:
+							f = 0.4
+						else:
+							raise TargetClassUnrecognised(targ['flags'])
+						if 'BERLIN' in targ['flags']:
+							f *= 2
+						if targets[ti]: # not 100% accurate but close enough
+							if start:
+								bombers[acid][1] += h['data']['data']['bombs'] * f
 		elif h['class'] == 'T':
 			ti = h['data']['target']
 			targ = hdata.Targets[ti]
