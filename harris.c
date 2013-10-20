@@ -3944,7 +3944,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 									double dmg=min(state.dmg[l], state.bombers[k].bmb*(targs[i].flammable?1.8:1.0)/(targs[i].psiz*10000.0));
-									cidam+=dmg;
+									cidam+=dmg*(targs[i].berlin?2.0:1.0);
 									state.dmg[l]-=dmg;
 									tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
 									nij[l][type]++;
@@ -3962,7 +3962,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 									double dmg=min(state.bombers[k].bmb/12000.0, state.dmg[l]);
-									cidam+=dmg;
+									cidam+=dmg*(targs[i].berlin?2.0:1.0);
 									state.dmg[l]-=dmg;
 									tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
 									nij[l][type]++;
@@ -3983,7 +3983,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									{
 										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
 										double dmg=min(state.bombers[k].bmb/2000.0, state.dmg[l]);
-										cidam+=dmg;
+										cidam+=dmg*(targs[i].berlin?2.0:1.0);
 										state.dmg[l]-=dmg;
 										tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
 										nij[l][type]++;
@@ -4166,13 +4166,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.cshr+=scoreTm*  12e-4;
 		state.cshr+=Ts*      600   ;
 		state.cshr+=bridge* 2000e-2;
-		double par=0.2+((state.now.year-1939)*0.15);
-		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0);
-		state.confid+=Ts*0.25;
-		state.confid+=cidam*0.1;
+		double par=0.2+((state.now.year-1939)*0.125);
+		state.confid+=(N/(double)D-par)*(1.0+log2(D)/2.0)*0.6;
+		state.confid+=Ts*0.15;
+		state.confid+=cidam*0.08;
 		state.confid=min(max(state.confid, 0), 100);
 		co_append(&state.hist, state.now, (time){11, 05}, state.confid);
-		state.morale+=(1.8-L*100.0/(double)D)/5.0;
+		state.morale+=(1.75-L*100.0/(double)D)/5.0;
 		if((L==0)&&(D>5)) state.morale+=0.3;
 		if(D>=100) state.morale+=0.2;
 		if(D>=1000) state.morale+=1.0;
