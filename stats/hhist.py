@@ -32,6 +32,8 @@ class date(object):
 		if self.year != other.year: return self.year - other.year
 		if self.month != other.month: return self.month - other.month
 		return self.day - other.day
+	def __hash__(self):
+		return hash(self.ordinal())
 	def copy(self):
 		return date(self.day, self.month, self.year)
 	def next(self):
