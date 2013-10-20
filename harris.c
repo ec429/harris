@@ -3605,7 +3605,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[j].lon+=cx*spd;
 							state.fighters[j].lat+=cy*spd;
 						}
-						if(d<(airad?0.4:radcon?0.34:0.25)*(.8*moonillum+.6))
+						if(d<(airad?0.4:radcon?0.34:0.25)*(.7*moonillum+.6))
 						{
 							if(brandp(ftypes[ft].mnv*(2.7+loadness(state.bombers[k]))/400.0))
 							{
