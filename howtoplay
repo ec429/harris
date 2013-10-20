@@ -115,10 +115,10 @@ Manufacturer & Type           Cost Speed  Ceiling Payload Sv De Fa Ac Range Avai
  Vickers Wellington         £12000 190mph 18000ft  4500lb 85  7  2 40 311   From start 21-10-1943
  Avro Manchester            £20000 210mph 18500ft 10350lb 64 12 16 55 325   05-11-1940 26-06-1942
  Short Stirling             £25000 200mph 17500ft 14000lb 40  9  7 50 280   16-01-1941 08-07-1943
- Handley Page Halifax I     £30000 225mph 20000ft 13000lb 75 12  6 65 330   14-05-1941 31-03-1944
+ Handley Page Halifax I     £28000 225mph 20000ft 13000lb 75 12  6 65 330   14-05-1941 31-03-1944
  Avro Lancaster I           £40000 235mph 22500ft 14000lb 80  6  4 80 350   07-02-1942   Never
  de Havilland Mosquito      £15000 340mph 30000ft  4000lb 80  2  4 90 400   12-08-1942   Never
- Handley Page Halifax III   £32000 230mph 22000ft 13500lb 90  7  5 75 335   30-04-1943   Never
+ Handley Page Halifax III   £30000 230mph 22000ft 13500lb 90  7  5 75 335   30-04-1943   Never
  Avro Lancaster X           £45000 245mph 24000ft 16000lb 90  5  3 85 360   13-02-1944   Never
 Column index: "Sv" is serviceability, "De" is defence (bigger = more likely to be shot down), "Fa" is failure (bigger = more likely to turn back with mechanical trouble), "Ac" is accuracy (bigger = better navigation and bombing), "Range" is measured in map pixels which are about 3 miles.  "Ceiling" is only important for navaid range.
 Note also that the Wellington's cost falls to £8000 after the event 'BROUGHTON'.
