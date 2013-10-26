@@ -1852,7 +1852,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_button failed\n");
 			return(1);
 		}
-		LB_load->w=28;
+		LB_load->w=34;
 		if(atg_pack_element(b, LB_load))
 		{
 			perror("atg_pack_element");
@@ -1865,7 +1865,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		LB_text->h=24;
-		LB_text->w=mainsizex-60;
+		LB_text->w=mainsizex-64;
 		if(atg_pack_element(b, LB_text))
 		{
 			perror("atg_pack_element");
@@ -1970,7 +1970,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_button failed\n");
 			return(1);
 		}
-		SA_save->w=28;
+		SA_save->w=34;
 		if(atg_pack_element(b, SA_save))
 		{
 			perror("atg_pack_element");
@@ -1983,7 +1983,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		SA_text->h=24;
-		SA_text->w=mainsizex-60;
+		SA_text->w=mainsizex-64;
 		if(atg_pack_element(b, SA_text))
 		{
 			perror("atg_pack_element");
@@ -2370,7 +2370,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		LB_file->w=mainsizex;
 		LB_file->h=mainsizey-30;
-		LB_text->w=mainsizex-60;
+		LB_text->w=mainsizex-64;
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
@@ -2470,7 +2470,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		SA_file->w=mainsizex;
 		SA_file->h=mainsizey-30;
-		SA_text->w=mainsizex-60;
+		SA_text->w=mainsizex-64;
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
