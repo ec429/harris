@@ -118,12 +118,15 @@ SDL_Surface *location=NULL;
 SDL_Surface *yellowhair=NULL;
 SDL_Surface *navpic[NNAVAIDS];
 SDL_Surface *resizebtn=NULL;
+SDL_Surface *fullbtn=NULL;
+SDL_Surface *exitbtn=NULL;
 
 unsigned int mainsizex=default_w, mainsizey=default_h;
+bool fullscreen=false;
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
-	atg_canvas *canvas=atg_create_canvas_with_opts(120, 24, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
+	atg_canvas *canvas=atg_create_canvas_with_opts(136, 24, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
 	if(!canvas)
 	{
 		fprintf(stderr, "atg_create_canvas failed\n");
@@ -814,6 +817,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "Resize button: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(fullbtn=IMG_Load("art/fullscreen.png")))
+	{
+		fprintf(stderr, "Fullscreen button: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(exitbtn=IMG_Load("art/exit.png")))
+	{
+		fprintf(stderr, "Exit button: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(!(navpic[n]=IMG_Load(navpicfn[n])))
@@ -845,13 +858,42 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	fprintf(stderr, "Instantiating GUI elements...\n");
 	
 	atg_box *mainbox=canvas->box;
-	atg_element *MainMenu=atg_create_element_label("HARRIS: Main Menu", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
-	if(!MainMenu)
+	atg_element *MM_top=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+	if(!MM_top)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(mainbox, MM_top))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_box *MM_tb=MM_top->elem.box;
+	if(!MM_tb)
+	{
+		fprintf(stderr, "MM_top->elem.box==NULL\n");
+		return(1);
+	}
+	atg_element *MM_title=atg_create_element_label("HARRIS: Main Menu", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+	if(!MM_title)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(atg_pack_element(mainbox, MainMenu))
+	if(atg_pack_element(MM_tb, MM_title))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *MM_full=atg_create_element_image(fullbtn);
+	if(!MM_full)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	MM_full->clickable=true;
+	if(atg_pack_element(MM_tb, MM_full))
 	{
 		perror("atg_pack_element");
 		return(1);
@@ -1005,8 +1047,34 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
+	GB_resize->w=16;
 	GB_resize->clickable=true;
 	if(atg_pack_element(GB_dtb, GB_resize))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *GB_full=atg_create_element_image(fullbtn);
+	if(!GB_full)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	GB_full->w=16;
+	GB_full->clickable=true;
+	if(atg_pack_element(GB_dtb, GB_full))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *GB_exit=atg_create_element_image(exitbtn);
+	if(!GB_exit)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	GB_exit->clickable=true;
+	if(atg_pack_element(GB_dtb, GB_exit))
 	{
 		perror("atg_pack_element");
 		return(1);
@@ -1924,7 +1992,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	
 	atg_box *rstatbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
-	atg_element *RS_resize=NULL, *RS_cont=NULL;
+	atg_element *RS_resize=NULL, *RS_full=NULL, *RS_cont=NULL;
 	if(!rstatbox)
 	{
 		fprintf(stderr, "atg_create_box failed\n");
@@ -1966,9 +2034,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_image failed\n");
 			return(1);
 		}
-		RS_resize->w=24;
+		RS_resize->w=16;
 		RS_resize->clickable=true;
 		if(atg_pack_element(b, RS_resize))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		RS_full=atg_create_element_image(fullbtn);
+		if(!RS_full)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		RS_full->w=24;
+		RS_full->clickable=true;
+		if(atg_pack_element(b, RS_full))
 		{
 			perror("atg_pack_element");
 			return(1);
@@ -2162,7 +2243,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	main_menu:
 	canvas->box=mainbox;
-	atg_resize_canvas(canvas, 120, 86);
+	atg_resize_canvas(canvas, 136, 86);
 	atg_event e;
 	while(1)
 	{
@@ -2178,6 +2259,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						case SDL_QUIT:
 							goto do_exit;
 						break;
+					}
+				break;
+				case ATG_EV_CLICK:;
+					atg_ev_click c=e.event.click;
+					if(c.e==MM_full)
+					{
+						fullscreen=!fullscreen;
+						atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
+					}
+					else if(c.e)
+					{
+						fprintf(stderr, "Clicked on unknown button!\n");
 					}
 				break;
 				case ATG_EV_TRIGGER:;
@@ -2648,6 +2741,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(s.type)
 					{
 						case SDL_QUIT:
+							do_quit:
 							free(state.hist.ents);
 							state.hist.ents=NULL;
 							state.hist.nents=state.hist.nalloc=0;
@@ -2829,6 +2923,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							mainsizey=default_h;
 							atg_resize_canvas(canvas, mainsizex, mainsizey);
 						}
+						if(c.e==GB_full)
+						{
+							fullscreen=!fullscreen;
+							atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
+							rfsh=true;
+						}
+						if(c.e==GB_exit)
+							goto do_quit;
 					}
 				break;
 				case ATG_EV_TRIGGER:;
@@ -4534,6 +4636,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							mainsizex=default_w;
 							mainsizey=default_h;
 							atg_resize_canvas(canvas, mainsizex, mainsizey);
+							atg_flip(canvas);
+						}
+						if(c.e==RS_full)
+						{
+							fullscreen=!fullscreen;
+							atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
 							atg_flip(canvas);
 						}
 					break;
