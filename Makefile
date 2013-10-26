@@ -18,7 +18,7 @@ clean:
 	-rm harris $(OBJS) $(SAVES)
 
 realclean: clean
-	-rm events.h evh
+	-rm events.h
 
 harris: harris.o $(OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) harris.o -o $@ $(SDL)
