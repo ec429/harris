@@ -1826,7 +1826,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	atg_element *LB_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE}), *LB_text=NULL, *LB_load=NULL;
+	atg_element *LB_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE}), *LB_text=NULL, *LB_load=NULL, *LB_full=NULL, *LB_exit=NULL;
 	char **LB_btext=NULL;
 	if(!LB_hbox)
 	{
@@ -1852,6 +1852,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_button failed\n");
 			return(1);
 		}
+		LB_load->w=28;
 		if(atg_pack_element(b, LB_load))
 		{
 			perror("atg_pack_element");
@@ -1864,7 +1865,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		LB_text->h=24;
-		LB_text->w=760;
+		LB_text->w=mainsizex-60;
 		if(atg_pack_element(b, LB_text))
 		{
 			perror("atg_pack_element");
@@ -1897,6 +1898,31 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "LB_text has wrong content\n");
 			return(1);
 		}
+		LB_full=atg_create_element_image(fullbtn);
+		if(!LB_full)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		LB_full->w=16;
+		LB_full->clickable=true;
+		if(atg_pack_element(b, LB_full))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		LB_exit=atg_create_element_image(exitbtn);
+		if(!LB_exit)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		LB_exit->clickable=true;
+		if(atg_pack_element(b, LB_exit))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
 	}
 	
 	atg_box *savebox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
@@ -1918,7 +1944,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	atg_element *SA_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE}), *SA_text=NULL, *SA_save=NULL;
+	atg_element *SA_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE}), *SA_text=NULL, *SA_save=NULL, *SA_full=NULL, *SA_exit=NULL;
 	char **SA_btext=NULL;
 	if(!SA_hbox)
 	{
@@ -1944,6 +1970,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "atg_create_element_button failed\n");
 			return(1);
 		}
+		SA_save->w=28;
 		if(atg_pack_element(b, SA_save))
 		{
 			perror("atg_pack_element");
@@ -1956,7 +1983,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			return(1);
 		}
 		SA_text->h=24;
-		SA_text->w=760;
+		SA_text->w=mainsizex-60;
 		if(atg_pack_element(b, SA_text))
 		{
 			perror("atg_pack_element");
@@ -1987,6 +2014,31 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		else
 		{
 			fprintf(stderr, "SA_text has wrong content\n");
+			return(1);
+		}
+		SA_full=atg_create_element_image(fullbtn);
+		if(!SA_full)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		SA_full->w=16;
+		SA_full->clickable=true;
+		if(atg_pack_element(b, SA_full))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		SA_exit=atg_create_element_image(exitbtn);
+		if(!SA_exit)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		SA_exit->clickable=true;
+		if(atg_pack_element(b, SA_exit))
+		{
+			perror("atg_pack_element");
 			return(1);
 		}
 	}
@@ -2270,7 +2322,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 					else if(c.e)
 					{
-						fprintf(stderr, "Clicked on unknown button!\n");
+						fprintf(stderr, "Clicked on unknown clickable!\n");
 					}
 				break;
 				case ATG_EV_TRIGGER:;
@@ -2316,6 +2368,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	while(1)
 	{
+		LB_file->w=mainsizex;
+		LB_file->h=mainsizey-30;
+		LB_text->w=mainsizex-60;
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
@@ -2326,10 +2381,25 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(s.type)
 					{
 						case SDL_QUIT:
+							goto main_menu;
+						case SDL_VIDEORESIZE:
 							mainsizex=canvas->surface->w;
 							mainsizey=canvas->surface->h;
-							goto main_menu;
 						break;
+					}
+				break;
+				case ATG_EV_CLICK:;
+					atg_ev_click c=e.event.click;
+					if(c.e==LB_full)
+					{
+						fullscreen=!fullscreen;
+						atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
+					}
+					else if (c.e==LB_exit)
+						goto main_menu;
+					else if(c.e)
+					{
+						fprintf(stderr, "Clicked on unknown clickable!\n");
 					}
 				break;
 				case ATG_EV_TRIGGER:;
@@ -2398,6 +2468,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	while(1)
 	{
+		SA_file->w=mainsizex;
+		SA_file->h=mainsizey-30;
+		SA_text->w=mainsizex-60;
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
@@ -2408,9 +2481,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					switch(s.type)
 					{
 						case SDL_QUIT:
+							goto gameloop;
+						case SDL_VIDEORESIZE:
 							mainsizex=canvas->surface->w;
 							mainsizey=canvas->surface->h;
-							goto gameloop;
 						break;
 						case SDL_KEYDOWN:;
 							switch(s.key.keysym.sym)
@@ -2466,6 +2540,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								break;
 							}
 						break;
+					}
+				break;
+				case ATG_EV_CLICK:;
+					atg_ev_click c=e.event.click;
+					if(c.e==SA_full)
+					{
+						fullscreen=!fullscreen;
+						atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
+					}
+					else if (c.e==SA_exit)
+						goto gameloop;
+					else if(c.e)
+					{
+						fprintf(stderr, "Clicked on unknown clickable!\n");
 					}
 				break;
 				case ATG_EV_TRIGGER:;
