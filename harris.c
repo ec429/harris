@@ -136,7 +136,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	SDL_EnableUNICODE(1);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	
-	srand(0); // predictable seed for creating 'random' target maps
+	srand(0);
 	
 	// Load data files
 	fprintf(stderr, "Loading data files...\n");
@@ -440,13 +440,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		free(targfile);
 		fprintf(stderr, "Loaded %u targets\n", ntargs);
-		unsigned int citymap[256][256];
-		memset(citymap, 0xff, sizeof(citymap)); // XXX non-portable way to set all elems to UINT_MAX
-		for(unsigned int t=0;t<ntargs;t++)
-		{
-			if(targs[t].class==TCLASS_CITY)
-				citymap[targs[t].lon][targs[t].lat]=t;
-		}
 		for(unsigned int t=0;t<ntargs;t++)
 		{
 			switch(targs[t].class)
@@ -467,7 +460,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					targs[t].psiz=targs[t-1].psiz;
 				break;
 				case TCLASS_CITY:;
-					int sz=((int)((targs[t].esiz+1)/3))|1, hs=sz>>1;
+					char cfn[48];
+					snprintf(cfn, 48, "dat/cities/%s.pbm", targs[t].name);
+					SDL_Surface *picsrc=IMG_Load(cfn);
+					int sz=((int)((targs[t].esiz+1)/3))|1;
+					if((sz!=picsrc->w)||(sz!=picsrc->h))
+					{
+						fprintf(stderr, "targs[%u].picture: picsrc has wrong dimensions (%d,%d not %d)\n", t, picsrc->w, picsrc->h, sz);
+						fprintf(stderr, "\t(name: %s)\n", targs[t].name);
+						return(1);
+					}
 					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, sz, sz, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
 					{
 						fprintf(stderr, "targs[%u].picture: SDL_CreateRGBSurface: %s\n", t, SDL_GetError());
@@ -475,37 +477,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 					SDL_SetAlpha(targs[t].picture, 0, 0);
 					SDL_FillRect(targs[t].picture, &(SDL_Rect){.x=0, .y=0, .w=targs[t].picture->w, .h=targs[t].picture->h}, ATG_ALPHA_TRANSPARENT&0xff);
-					for(unsigned int k=0;k<6;k++)
-					{
-						int x=hs, y=hs;
-						int limit=24;
-						for(unsigned int i=0;i<targs[t].esiz>>1;i++)
-						{
-							int gx=x+targs[t].lon, gy=y+targs[t].lat;
-							if((gx>=0)&&(gx<256)&&(gy>=0)&&(gy<256))
-							{
-								if((citymap[gx][gy]<ntargs)&&(citymap[gx][gy]!=t))
-								{
-									if(!limit--) break;
-									x=y=hs;i--;
-								}
-								gx=x+targs[t].lon;
-								gy=y+targs[t].lat;
-							}
-							pset(targs[t].picture, x, y, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
-							if((gx>=0)&&(gx<256)&&(gy>=0)&&(gy<256))
-								citymap[gx][gy]=t;
-							unsigned int j=rand()&3;
-							if(j&1) y+=j-2;
-							else x+=j-1;
-							if((x<0)||(x>=sz)||(y<0)||(y>=sz)) x=y=hs;
-						}
-					}
 					targs[t].psiz=0;
 					for(int x=0;x<sz;x++)
+					{
 						for(int y=0;y<sz;y++)
-							if(pget(targs[t].picture, x, y).a==ATG_ALPHA_OPAQUE)
+						{
+							if(!pget(picsrc, x, y).r)
+							{
+								pset(targs[t].picture, x, y, (atg_colour){.r=7, .g=7, .b=7, .a=ATG_ALPHA_OPAQUE});
 								targs[t].psiz++;
+							}
+						}
+					}
+					SDL_FreeSurface(picsrc);
 				break;
 				case TCLASS_SHIPPING:
 					if(!(targs[t].picture=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 4, 3, 32, 0xff000000, 0xff0000, 0xff00, 0xff)))
@@ -5968,9 +5952,31 @@ atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y)
 	if((x>=(unsigned int)s->w)||(y>=(unsigned int)s->h))
 		return((atg_colour){.r=0, .g=0, .b=0, .a=0});
 	size_t s_off = (y*s->pitch) + (x*s->format->BytesPerPixel);
-	uint32_t pixval = *(uint32_t *)((char *)s->pixels + s_off);
 	atg_colour c;
-	SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
+	switch(s->format->BytesPerPixel)
+	{
+		case 1:
+		{
+			uint8_t pixval = *(uint8_t *)((char *)s->pixels + s_off);
+			SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
+		}
+		break;			
+		case 2:
+		{
+			uint16_t pixval = *(uint16_t *)((char *)s->pixels + s_off);
+			SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
+		}
+		break;
+		case 4:
+		{
+			uint32_t pixval = *(uint32_t *)((char *)s->pixels + s_off);
+			SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
+		}
+		break;
+		default:
+			fprintf(stderr, "Bad BPP %d, failing!\n", s->format->BytesPerPixel);
+			exit(1);
+	}
 	return(c);
 }
 
