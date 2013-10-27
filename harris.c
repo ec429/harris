@@ -566,7 +566,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				break;
 			}
 		}
-		fprintf(stderr, "Generated target images\n");
 	}
 	
 	FILE *flakfp=fopen("dat/flak", "r");
