@@ -116,6 +116,7 @@ flaksite *flaks=NULL;
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
 SDL_Surface *yellowhair=NULL;
+SDL_Surface *intelbtn=NULL;
 SDL_Surface *navpic[NNAVAIDS];
 SDL_Surface *resizebtn=NULL;
 SDL_Surface *fullbtn=NULL;
@@ -361,6 +362,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				target this;
 				// NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
 				this.name=(char *)malloc(strcspn(next, ":")+1);
+				this.p_intel=NULL;
 				ssize_t db;
 				int e;
 				if((e=sscanf(next, "%[^:]:%u:%u:%u:%u:%u:%zn", this.name, &this.prod, &this.flak, &this.esiz, &this.lat, &this.lon, &db))!=6)
@@ -739,6 +741,59 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	
+	intel *intel_head=NULL;
+	FILE *intfp=fopen("dat/intel", "r");
+	if(!intfp)
+	{
+		fprintf(stderr, "Failed to open data file `intel'!\n");
+		return(1);
+	}
+	else
+	{
+		char *intfile=slurp(intfp);
+		fclose(intfp);
+		char *next=intfile?strtok(intfile, "=="):NULL;
+		char *item=NULL;
+		while(next)
+		{
+			if(item)
+			{
+				while(*next=='\n') next++;
+				if(*next) // skip over blank entries, they're just placeholders
+				{
+					intel *new=malloc(sizeof(intel));
+					new->ident=strdup(item);
+					new->text=strdup(next);
+					new->next=intel_head;
+					intel_head=new;
+				}
+				item=NULL;
+			}
+			else
+				item=next;
+			next=strtok(NULL, "==");
+		}
+		if(item)
+		{
+			fprintf(stderr, "Leftover item in dat/intel\n%s\n", item);
+			return(1);
+		}
+	}
+	
+	// Intel hookup: Targets
+	for(unsigned int t=0;t<ntargs;t++)
+	{
+		const char *name=targs[t].name;
+		for(intel *i=intel_head;i;i=i->next)
+		{
+			if(!strcmp(name, i->ident))
+			{
+				targs[t].p_intel=i;
+				break;
+			}
+		}
+	}
+	
 	bool lorw[128][128]; // TRUE for water
 	{
 		SDL_Surface *water;
@@ -794,6 +849,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	if(!(yellowhair=IMG_Load("art/yellowhair.png")))
 	{
 		fprintf(stderr, "Yellow crosshairs: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(intelbtn=IMG_Load("art/intel.png")))
+	{
+		fprintf(stderr, "Intel icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
 	if(!(resizebtn=IMG_Load("art/resize.png")))
@@ -1628,7 +1688,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		perror("atg_pack_element");
 		return(1);
 	}
-	atg_element *GB_ttrow[ntargs], *GB_ttdmg[ntargs], *GB_ttflk[ntargs];
+	atg_element *GB_ttrow[ntargs], *GB_ttdmg[ntargs], *GB_ttflk[ntargs], *GB_ttint[ntargs];
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		GB_ttrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
@@ -1651,11 +1711,27 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			fprintf(stderr, "GB_ttrow[i]->elem.box==NULL\n");
 			return(1);
 		}
-		atg_element *item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
-		if(!item)
+		atg_element *item;
+		if(targs[i].p_intel)
 		{
-			fprintf(stderr, "atg_create_element_box failed\n");
-			return(1);
+			GB_ttint[i]=atg_create_element_image(intelbtn);
+			if(!GB_ttint[i])
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+				return(1);
+			}
+			GB_ttint[i]->clickable=true;
+			item=GB_ttint[i];
+		}
+		else
+		{
+			GB_ttint[i]=NULL;
+			item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+			if(!item)
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
 		}
 		item->w=8;
 		item->h=12;
@@ -2933,6 +3009,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						for(unsigned int i=0;i<ntargs;i++)
 						{
 							if(!datewithin(state.now, targs[i].entry, targs[i].exit)) continue;
+							if(c.e==GB_ttint[i])
+							{
+								intel *ti=targs[i].p_intel;
+								if(ti&&ti->ident&&ti->text)
+								{
+									size_t il=strlen(ti->ident), ml=il+32;
+									char *msg=malloc(ml);
+									snprintf(msg, ml, "Target Intelligence File: %s", ti->ident);
+									message_box(canvas, msg, ti->text, "Wg Cdr Fawssett, OC Targets");
+								}
+							}
 							if(c.e==GB_ttrow[i])
 							{
 								seltarg=i;

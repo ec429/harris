@@ -49,6 +49,14 @@ typedef struct
 }
 string;
 
+typedef struct _intel
+{
+	char *ident;
+	char *text;
+	struct _intel *next;
+}
+intel;
+
 typedef struct
 {
 	double push, slant;
@@ -120,7 +128,8 @@ ftrbase;
 typedef struct
 {
 	//NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
-	char * name;
+	char *name;
+	intel *p_intel;
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
 	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,} class;
