@@ -3618,7 +3618,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							case TCLASS_AIRFIELD:
 							case TCLASS_ROAD:
 							case TCLASS_BRIDGE:
-								if(pget(target_overlay, bx, by).a==ATG_ALPHA_OPAQUE)
+								if(pget(target_overlay, bx, by).a==ATG_ALPHA_OPAQUE) // XXX this might behave oddly as we have all cities on target_overlay
 								{
 									state.bombers[k].idtar=true;
 								}
@@ -5761,7 +5761,7 @@ SDL_Surface *render_targets(date now)
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	for(unsigned int i=0;i<ntargs;i++)
 	{
-		if(!datewithin(now, targs[i].entry, targs[i].exit)) continue;
+		if((!datewithin(now, targs[i].entry, targs[i].exit)) && targs[i].class!=TCLASS_CITY) continue;
 		switch(targs[i].class)
 		{
 			case TCLASS_CITY:
