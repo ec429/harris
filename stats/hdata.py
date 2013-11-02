@@ -45,7 +45,8 @@ class Table(object):
 	def __unicode__(self):
 		widths = {k:max(len(str(k[0])), max((len(unicode(row[k[0]])) for row in self.data))) for k in self.keys}
 		return '\n'.join((' '.join((str(k[0]).ljust(widths[k]) for k in self.keys)), '\n'.join((' '.join((unicode(row[k[0]]).ljust(widths[k]) for k in self.keys)) for row in self.data))))
-	__str__ = __unicode__
+	def __str__(self):
+		return unicode(self).encode('utf-8')
 	def __repr__(self):
 		return repr(self.data)
 	def __len__(self):
@@ -155,4 +156,4 @@ if __name__ == "__main__":
 		print Ftrbases
 	if '--targets' in sys.argv or '--all' in sys.argv:
 		print '%d targets' % len(Targets)
-		print unicode(Targets)
+		print Targets
