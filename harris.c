@@ -4340,12 +4340,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		for(unsigned int i=0;i<state.nbombers;i++)
 		{
 			unsigned int type=state.bombers[i].type;
-			if(state.bombers[i].crashed||!datewithin(state.now, types[type].entry, types[type].exit))
+			if(state.bombers[i].crashed)
 			{
-				if(state.bombers[i].crashed)
-					lij[state.bombers[i].targ][state.bombers[i].type]++;
-				else if(!datewithin(state.now, types[type].entry, types[type].exit))
-					ob_append(&state.hist, state.now, (time){11, 00}, state.bombers[i].id, false, type);
+				lij[state.bombers[i].targ][state.bombers[i].type]++;
 				state.nbombers--;
 				for(unsigned int j=i;j<state.nbombers;j++)
 					state.bombers[j]=state.bombers[j+1];
@@ -4826,19 +4823,29 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	for(unsigned int i=0;i<state.nbombers;i++)
 	{
+		unsigned int type=state.bombers[i].type;
+		if(!datewithin(state.now, types[type].entry, types[type].exit))
+		{
+			ob_append(&state.hist, state.now, (time){11, 10}, state.bombers[i].id, false, type);
+			state.nbombers--;
+			for(unsigned int j=i;j<state.nbombers;j++)
+				state.bombers[j]=state.bombers[j+1];
+			i--;
+			continue;
+		}
 		if(state.bombers[i].failed)
 		{
-			if(brandp((types[state.bombers[i].type].svp/100.0)/2.0))
+			if(brandp((types[type].svp/100.0)/2.0))
 			{
-				fa_append(&state.hist, state.now, (time){11, 10}, state.bombers[i].id, false, state.bombers[i].type, 0);
+				fa_append(&state.hist, state.now, (time){11, 10}, state.bombers[i].id, false, type, 0);
 				state.bombers[i].failed=false;
 			}
 		}
 		else
 		{
-			if(brandp((1-types[state.bombers[i].type].svp/100.0)/2.4))
+			if(brandp((1-types[type].svp/100.0)/2.4))
 			{
-				fa_append(&state.hist, state.now, (time){11, 10}, state.bombers[i].id, false, state.bombers[i].type, 1);
+				fa_append(&state.hist, state.now, (time){11, 10}, state.bombers[i].id, false, type, 1);
 				state.bombers[i].failed=true;
 			}
 		}
