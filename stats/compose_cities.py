@@ -2,6 +2,7 @@
 
 import hdata
 import sys
+import math
 
 def joinlist(l):
 	o=[]
@@ -43,6 +44,12 @@ for t in hdata.Targets:
 						sys.stderr.write("Warning: %s overwrote %s at %d,%d\n"%(t['name'], names[citymap[y+t['lat']-h/2][x+t['long']-w/2]], x, y))
 					citymap[y+t['lat']-h/2][x+t['long']-w/2] = index
 
+cx, cy = None, None
+
+if len(sys.argv) > 2:
+	cx = int(sys.argv[1])
+	cy = int(sys.argv[2])
+
 print "P3"
 print "256 256"
 print "15"
@@ -54,4 +61,13 @@ for y in xrange(256):
 				stuff = 0x245
 		else:
 			stuff = 0xfff
-		print "%d %d %d" %(stuff&0xf, (stuff>>4)&0xf, (stuff>>8)&0xf)
+		r, g, b = (stuff&0xf, (stuff>>4)&0xf, (stuff>>8)&0xf)
+		if None not in [cx, cy]:
+			d = math.hypot(x-cx, y-cy)
+			def mark(d, l, f):
+				s = math.pow(1-math.cos(d*math.pi/f), 0.2)
+				br = 15/(1+s)-7
+				return [max(v-br, 0) for v in l]
+			[r, g, b] = mark(d, [r, g, b], 5)
+			[r, g, b] = mark(d, [r, g, b], 20)
+		print "%d %d %d" %(r, g, b)
