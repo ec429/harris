@@ -10,11 +10,9 @@ import hsave, hdata, losstarg
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
-	if '--type' in sys.argv:
-		typ = int(sys.argv[sys.argv.index('--type')+1])
-	else: typ = None
+	opts, args = losstarg.parse_args(sys.argv)
 	save = hsave.Save.parse(sys.stdin)
-	loss, data = losstarg.extract_losstarg(save, typ=typ)
+	loss, data = losstarg.extract_losstarg(save, opts)
 	bars = reversed(zip(hdata.Targets, data))
 	fbars = [bar for bar in bars if bar[1][2] is not None]
 	mr = float(max([bar[1][1] for bar in fbars]))
