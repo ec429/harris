@@ -18,6 +18,7 @@ def parse_args(argv):
 	x.add_option('--dead', action='store_true')
 	x.add_option('--legend', action='store_true', default=True)
 	x.add_option('--nolegend', dest='legend', action='store_false')
+	x.add_option('--min', type='int', default=10)
 	opts, args = x.parse_args()
 	if opts.opti and opts.dead:
 		x.error("Can't have --opti and --dead!")
@@ -41,7 +42,7 @@ if __name__ == '__main__':
 		deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
 		dead = {i: (len(deadresults[i]), sum(costs[d[0]] for d in deadresults[i].itervalues()), sum(v[1] for v in deadresults[i].itervalues())) for i in results}
 		if opts.opti:
-			value = {i: full[i][2]/float(dead[i][1]) if dead[i][0] > 10 else None for i in results}
+			value = {i: full[i][2]/float(dead[i][1]) if dead[i][0] >= opts.min else None for i in results}
 		elif opts.dead:
 			value = {i: dead[i][2]/float(dead[i][1]) if dead[i][0] else None for i in results}
 		else:
