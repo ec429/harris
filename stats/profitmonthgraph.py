@@ -28,7 +28,7 @@ if __name__ == '__main__':
 	costs = {b['i']:b['cost'] for b in hdata.Bombers}
 	data = []
 	month = save.history[0]['date']
-	bombers = {b['id']:[b['type'], 0, True] for b in save.init.bombers}
+	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
 	targets = [t['dmg'] for t in save.init.targets]
 	history = sorted(hhist.group_by_date(save.history))
 	i = 0
@@ -45,6 +45,7 @@ if __name__ == '__main__':
 			if history[i][0] < d:
 				raise hhist.OutOfOrder(d, history[i][0])
 			profit.daily_profit(history[i], bombers, targets, True, False)
+			bombers = {i:bombers[i] for i in bombers if bombers[i][3]}
 			d = d.next()
 			i += 1
 		results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
@@ -62,7 +63,7 @@ if __name__ == '__main__':
 		else:
 			value = {i: (p[i]['fullr']/float(costs[i])) if p[i]['full'][0] else None for i in xrange(save.ntypes)}
 		data.append((month, value))
-		bombers = {i:[bombers[i][0], 0, True] for i in bombers if bombers[i][2]}
+		bombers = {i:[bombers[i][0], 0, True, True] for i in bombers if bombers[i][2]}
 		month = next
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)

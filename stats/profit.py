@@ -19,15 +19,14 @@ def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 			acid = h['data']['acid']
 			if h['data']['type']['fb'] == 'B':
 				if h['data']['etyp'] == 'CT':
-					bombers[acid]=[int(h['data']['type']['ti']), 0, True]
+					bombers[acid]=[int(h['data']['type']['ti']), 0, True, True]
 				else:
 					if acid not in bombers:
 						print 'Warning: un-inited bomber %08x'%acid
 					elif h['data']['etyp'] in ['CR', 'OB']:
-						if start:
-							bombers[acid][2] = False
-						else:
-							del bombers[acid]
+						bombers[acid][2] = False
+						if not start:
+							bombers[acid][3] = False
 					elif h['data']['etyp'] == 'HI':
 						ti = h['data']['data']['target']
 						targ = hdata.Targets[ti]
@@ -76,11 +75,12 @@ def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 						bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
 
 def extract_profit(save, before=None, after=None):
-	bombers = {b['id']:[b['type'], 0, True] for b in save.init.bombers}
+	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
 	targets = [t['dmg'] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
 		daily_profit(d, bombers, targets, d[0]>=after if after else True, d[0]>=before if before else False)
+	bombers = {i:bombers[i] for i in bombers if bombers[i][3]}
 	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
 	deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
