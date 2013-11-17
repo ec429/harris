@@ -2622,6 +2622,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							fprintf(stderr, "Error: LB_file->elem.filepicker==NULL\n");
 						}
+						else if(!f->curdir)
+						{
+							fprintf(stderr, "Error: f->curdir==NULL\n");
+						}
+						else if(!f->value)
+						{
+							fprintf(stderr, "Select a file first!\n");
+						}
 						else
 						{
 							char *file=malloc(strlen(f->curdir)+strlen(f->value)+1);
@@ -2777,13 +2785,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							fprintf(stderr, "Error: SA_file->elem.filepicker==NULL\n");
 						}
-						else if(!f->value)
-						{
-							fprintf(stderr, "Error: no filename\n");
-						}
 						else if(!f->curdir)
 						{
 							fprintf(stderr, "Error: f->curdir==NULL\n");
+						}
+						else if(!f->value)
+						{
+							fprintf(stderr, "Select/enter a filename first!\n");
 						}
 						else
 						{
