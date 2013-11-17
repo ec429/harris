@@ -12,3 +12,63 @@ Nightfighters are deployed to where the bomber stream is headed and subsequently
 
 idea - achievements
 Certain things, when achieved, have a propaganda value, and can consequently be used to argue for more bombers.  For instance: the first hundred-bomber raid; the first thousand-bomber raid; the first bombload to fall on the German mainland; the first bombload to fall on Berlin; the first target to be destroyed; the first city to be destroyed.  Each of these achievements should trigger an increase in the budget.
+
+
+new pff system:
+PFF Lancs always just drop flares and incendiary-heavy loads; typically a Finder load of up to 14 SBCs and (if equipped with H₂S) a single 'skymarker' release-point flare.
+Mossies may be set to drop markers (TIs etc.) or a single 'cookie' (this is more LNSF style) - all Mossies on a given target are set together (due to UI limitations).
+Main force Lancs drop a mostly HE load.  For instance a typical Berlin load might be one 4,000lb 'cookie', 6 × 500lb GP, and 3 SBCs (1000lb ea.) with 4lb or 30lb incendiaries; total 10,000lb.
+Main force Halifaxes carry a higher proportion of incendiaries; up to 12 SBCs and 3 × 500lb GP.  For Berlin the number of SBCs would probably be 8, for a total of 9,500lb.
+For now we're not going to model the loads in quite that detail, just a balance of incendiaries vs. HE.  Also, the Main force settings are defaults; the following bombloads are available for Main Force bombers:
+	Abnormal - full HE
+		500lb or 1000lb GP/HE up to a/c weight limit (eg Wlng 9×500, Lanc 14×1000, Hal3 9×1000+9×500).  Also available for Mosq as 4×1000lb GP/HE
+	Plumduff-Plus - HE/HC - Lancaster only
+		8000lb HC, 6×500lb GP/HE
+	Plumduff - blast, demolition and fire (except Stirlings, which can't carry a cookie)
+		4000lb HC, up to 3×1000lb (or 500lb) GP/HE, SBCs or incendiaries (eg Wlng 4000+12×30i, Lanc 4000+3×1000+6SBC, Hal3 4000+3×500+6SBC)
+	Usual - blast and max. incendiary
+		4000lb HC or small GP, SBC up to a/c limit (eg Lanc 4000+10SBC, Hal3 3×500+12SBC)
+	Arson - full incendiary
+		SBCs up to a/c limit (eg Wlng 4SBC+12×30i, Lanc 14SBC, Hal3 13SBC+12×30i)
+Tabular form of all loads, for if we do ever go into this much detail:
+Abnormal	cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
+Wlng		 -		 9		 -		 -	 -		 4500	-
+Stir		 -		 -		14		 -	 -		14000	-
+Hal1		 -		12		 6		 -	 -		12000	-
+Lan1		 -		 -		14		 -	 -		14000	-
+Hal3		 -		 9		 9		 -	 -		13500	-
+LanX		 -		 -		15		 -	 -		15000	-
+Mosq		 -		 -		 4		 -	 -		 4000	-
+
+Plmdff-Plus	cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
+Lan1		 8000lb	 6		 -		 -	 -		11000	-
+LanX		12000lb	 4		 2		 -	 -		16000	-
+
+Plumduff	cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
+Wlng		 4000lb	 -		 -		 -	12		 4000	  360
+Hal1		 4000lb	 3		 -		 6	 -		 5500	 6000
+Lan1		 4000lb	 -		 3		 6	 -		 7000	 6000
+Hal3		 4000lb	 3		 -		 8	 -		 5500	 8000
+LanX		 4000lb	 -		 3		 6	 -		 7000	 6000
+Mosq		 4000lb	 -		 -		 -	 -		 4000	-
+
+Usual		cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
+Wlng		 -		 3		 -		 3	 -		 1500	 3000
+Stir		 -		 -		 4		10	 -		 4000	10000
+Hal1		 -		 2		 -		12	 -		 1000	12000
+Lan1		 4000lb	 -		 -		10	 -		 4000	10000
+Hal3		 -		 3		 -		12	 -		 1500	12000
+LanX		 4000lb	 -		 -		11	 -		 4000	11000
+
+Arson		cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
+Wlng		 -		 -		 -		 4	12		-		 4360
+Stir		 -		 -		 -		14	 -		-		14000
+Hal1		 -		 -		 -		13	 -		-		13000
+Lan1		 -		 -		 -		14	 -		-		14000
+Hal3		 -		 -		 -		13	12		-		13360
+LanX		 -		 -		 -		15	16		-		15480
+
+PFF Opener: "Usual" + 1×150lb release-point flare.  If no H₂S fall back to Usual
+PFF Finder: "Arson" + 1×150lb release-point flare.  If no H₂S fall back to Arson
+PFF Illuminator (Mosq): 12×250lb coloured TI + (if target within Oboe range) 1×150lb release-point flare
+PFF Backer-Up: as Opener (heavy) or Illuminator (Mosq), except that navaids are not required
