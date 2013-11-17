@@ -101,6 +101,7 @@ SDL_Surface *render_ac(game state);
 SDL_Surface *render_xhairs(game state, int seltarg);
 unsigned int ntypes=0;
 void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
+bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS]);
 bombertype *types=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
@@ -2789,8 +2790,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.bombers[j].ldf=false;
 	}
 	bool shownav=false;
+	filter_pff=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
+	{
 		if(!datebefore(state.now, event[navevent[n]])) shownav=true;
+		filter_nav[n]=0;
+	}
+	if(GB_filters)
+		GB_filters->hidden=!(shownav||!datebefore(state.now, event[EVENT_PFF]));
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
@@ -3057,6 +3064,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											if(state.bombers[j].type!=i) continue;
 											if(state.bombers[j].failed) continue;
 											if(!state.bombers[j].landed) continue;
+											if(!filter_apply(state.bombers[j], filter_pff, filter_nav)) continue;
 											state.bombers[j].landed=false;
 											amount--;
 											unsigned int n=state.raids[seltarg].nbombers++;
@@ -3144,6 +3152,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									{
 										unsigned int k=state.raids[i].bombers[l];
 										if(state.bombers[k].type!=j) continue;
+										if(!filter_apply(state.bombers[k], filter_pff, filter_nav)) continue;
 										state.bombers[k].landed=true;
 										amount--;
 										state.raids[i].nbombers--;
@@ -6219,4 +6228,16 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 		}
 	}
 	atg_free_box_box(msgbox);
+}
+
+bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS])
+{
+	if(filter_pff>0&&!b.pff) return(false);
+	if(filter_pff<0&&b.pff) return(false);
+	for(unsigned int n=0;n<NNAVAIDS;n++)
+	{
+		if(filter_nav[n]>0&&!b.nav[n]) return(false);
+		if(filter_nav[n]<0&&b.nav[n]) return(false);
+	}
+	return(true);
 }
