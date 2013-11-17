@@ -99,9 +99,6 @@ SDL_Surface *render_targets(date now);
 SDL_Surface *render_flak(date now);
 SDL_Surface *render_ac(game state);
 SDL_Surface *render_xhairs(game state, int seltarg);
-int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
-int line(SDL_Surface *s, unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1, atg_colour c);
-atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
 unsigned int ntypes=0;
 void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
 bombertype *types=NULL;
@@ -1481,6 +1478,79 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		GB_msgrow[i]->hidden=true;
 		GB_msgrow[i]->w=GB_btrow[0]->w;
 		if(atg_pack_element(GB_btb, GB_msgrow[i]))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+	}
+	atg_element *GB_filters=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!GB_filters)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_btb, GB_filters))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_box *GB_fb=GB_filters->elem.box;
+	if(!GB_fb)
+	{
+		fprintf(stderr, "GB_filters->elem.box==NULL\n");
+		return(1);
+	}
+	atg_element *GB_pad=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!GB_pad)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_fb, GB_pad))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	GB_pad->h=12;
+	atg_element *GB_ft=atg_create_element_label("Filters:", 12, (atg_colour){239, 239, 0, ATG_ALPHA_OPAQUE});
+	if(!GB_ft)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_fb, GB_ft))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_element *GB_fi=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){23, 23, 31, ATG_ALPHA_OPAQUE});
+	if(!GB_fi)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_fb, GB_fi))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	atg_box *GB_fib=GB_fi->elem.box;
+	if(!GB_fib)
+	{
+		fprintf(stderr, "GB_fi->elem.box==NULL\n");
+		return(1);
+	}
+	atg_element *GB_fi_nav[NNAVAIDS];
+	int filter_nav[NNAVAIDS];
+	for(unsigned int n=0;n<NNAVAIDS;n++)
+	{
+		filter_nav[n]=0;
+		if(!(GB_fi_nav[n]=create_filter_switch(navpic[n], filter_nav+n)))
+		{
+			fprintf(stderr, "create_filter_switch failed\n");
+			return(1);
+		}
+		if(atg_pack_element(GB_fib, GB_fi_nav[n]))
 		{
 			perror("atg_pack_element");
 			return(1);
@@ -5989,88 +6059,6 @@ SDL_Surface *render_xhairs(game state, int seltarg)
 		SDL_gfxBlitRGBA(location, NULL, rv, &(SDL_Rect){.x=targs[seltarg].lon-3, .y=targs[seltarg].lat-3});
 	}
 	return(rv);
-}
-
-int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c)
-{
-	if(!s)
-		return(1);
-	if((x>=(unsigned int)s->w)||(y>=(unsigned int)s->h))
-		return(2);
-	size_t s_off = (y*s->pitch) + (x*s->format->BytesPerPixel);
-	uint32_t pixval = SDL_MapRGBA(s->format, c.r, c.g, c.b, c.a);
-	*(uint32_t *)((char *)s->pixels + s_off)=pixval;
-	return(0);
-}
-
-int line(SDL_Surface *s, unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1, atg_colour c)
-{
-	// Bresenham's line algorithm, based on http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-	int e=0;
-	if((e=pset(s, x0, y0, c)))
-		return(e);
-	bool steep = abs(y1 - y0) > abs(x1 - x0);
-	int tmp;
-	if(steep)
-	{
-		tmp=x0;x0=y0;y0=tmp;
-		tmp=x1;x1=y1;y1=tmp;
-	}
-	if(x0>x1)
-	{
-		tmp=x0;x0=x1;x1=tmp;
-		tmp=y0;y0=y1;y1=tmp;
-	}
-	int dx=x1-x0,dy=abs(y1-y0);
-	int ey=dx>>1;
-	int dely=(y0<y1?1:-1),y=y0;
-	for(int x=x0;x<(int)x1;x++)
-	{
-		if((e=pset(s, steep?y:x, steep?x:y, c)))
-			return(e);
-		ey-=dy;
-		if(ey<0)
-		{
-			y+=dely;
-			ey+=dx;
-		}
-	}
-	return(0);
-}
-
-atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y)
-{
-	if(!s)
-		return((atg_colour){.r=0, .g=0, .b=0, .a=0});
-	if((x>=(unsigned int)s->w)||(y>=(unsigned int)s->h))
-		return((atg_colour){.r=0, .g=0, .b=0, .a=0});
-	size_t s_off = (y*s->pitch) + (x*s->format->BytesPerPixel);
-	atg_colour c;
-	switch(s->format->BytesPerPixel)
-	{
-		case 1:
-		{
-			uint8_t pixval = *(uint8_t *)((char *)s->pixels + s_off);
-			SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
-		}
-		break;			
-		case 2:
-		{
-			uint16_t pixval = *(uint16_t *)((char *)s->pixels + s_off);
-			SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
-		}
-		break;
-		case 4:
-		{
-			uint32_t pixval = *(uint32_t *)((char *)s->pixels + s_off);
-			SDL_GetRGBA(pixval, s->format, &c.r, &c.g, &c.b, &c.a);
-		}
-		break;
-		default:
-			fprintf(stderr, "Bad BPP %d, failing!\n", s->format->BytesPerPixel);
-			exit(1);
-	}
-	return(c);
 }
 
 void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay)

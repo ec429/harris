@@ -9,3 +9,9 @@
 #include <atg.h>
 
 atg_element *create_priority_selector(unsigned int *prio); // create a selector widget.  prio is put in userdata
+atg_element *create_filter_switch(SDL_Surface *icon, int *value); // create a filter switch widget.  value is put in userdata
+
+/* Functions for drawing on an SDL_Surface */
+int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);
+int line(SDL_Surface *s, unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1, atg_colour c);
+atg_colour pget(SDL_Surface *s, unsigned int x, unsigned int y);
