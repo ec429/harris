@@ -167,6 +167,68 @@ void filter_switch_match_click_callback(struct atg_event_list *list, atg_element
 		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*u}});
 }
 
+SDL_Surface *load_selector_render_callback(const struct atg_element *e);
+void load_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
+
+atg_element *create_load_selector(bombertype *type, unsigned int *load)
+{
+	atg_element *rv=atg_create_element_image(NULL);
+	if(!rv) return(NULL);
+	rv->elem.image->data=(void *)type;
+	rv->type=ATG_CUSTOM;
+	rv->match_click_callback=load_selector_match_click_callback;
+	rv->render_callback=load_selector_render_callback;
+	rv->userdata=load;
+	return(rv);
+}
+
+SDL_Surface *load_selector_render_callback(const struct atg_element *e)
+{
+	if(!e) return(NULL);
+	if(!(e->type==ATG_CUSTOM)) return(NULL);
+	if(!e->userdata) return(NULL);
+	unsigned int *u=e->userdata;
+	if(*u>=NBOMBLOADS) return(NULL);
+	SDL_Surface *rv=bombloads[*u].pic;
+	if(rv) rv->refcount++;
+	return(rv);
+}
+
+void load_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, __attribute__((unused)) unsigned int xoff, __attribute__((unused)) unsigned int yoff)
+{
+	unsigned int *u=element->userdata;
+	if(!u) return;
+	atg_image *i=element->elem.image;
+	if(!i) return;
+	bombertype *t=(void *)i->data;
+	if(!t) return;
+	unsigned int old=*u;
+	int limit=0;
+	switch(button.button)
+	{
+		case ATG_MB_LEFT:
+		case ATG_MB_SCROLLUP:
+			do
+			{
+				if(limit++>NBOMBLOADS) return;
+				*u=(*u+1)%NBOMBLOADS;
+			}
+			while(!t->load[*u]);
+		break;
+		case ATG_MB_RIGHT:
+		case ATG_MB_SCROLLDN:
+			do
+			{
+				if(limit++>NBOMBLOADS) return;
+				*u=(*u+NBOMBLOADS-1)%NBOMBLOADS;
+			}
+			while(!t->load[*u]);
+		break;
+	}
+	if(*u!=old)
+		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*u}});
+}
+
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c)
 {
 	if(!s)

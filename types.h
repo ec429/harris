@@ -70,12 +70,21 @@ typedef enum
 	BL_ABNORMAL,
 	BL_PPLUS,
 	BL_PLUMDUFF,
+	BL_PONLY,
 	BL_USUAL,
 	BL_ARSON,
 	BL_ILLUM,
 	NBOMBLOADS
 }
 bombload;
+
+extern struct bombloadinfo
+{
+	const char *name;
+	const char *fn;
+	SDL_Surface *pic;
+}
+bombloads[NBOMBLOADS];
 
 typedef struct
 {
@@ -229,6 +238,7 @@ typedef struct
 {
 	unsigned int nbombers;
 	unsigned int *bombers; // offsets into the game.bombers list
+	bombload *loads; // indexed by type
 }
 raid;
 

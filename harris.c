@@ -74,17 +74,12 @@ struct gee
 }
 gee={.lat=107, .lon=64, .jrange=65};
 
-struct
-{
-	const char *name;
-	const char *fn;
-	SDL_Surface *pic;
-}
-bombloads[NBOMBLOADS]=
+struct bombloadinfo bombloads[NBOMBLOADS]=
 {
 	[BL_ABNORMAL]={.name="Ab", .fn="art/bombloads/abnormal.png"},
 	[BL_PPLUS	]={.name="Pp", .fn="art/bombloads/plumduff-plus.png"},
 	[BL_PLUMDUFF]={.name="Pd", .fn="art/bombloads/plumduff.png"},
+	[BL_PONLY	]={.name="Po", .fn="art/bombloads/plumduff-only.png"},
 	[BL_USUAL	]={.name="Us", .fn="art/bombloads/usual.png"},
 	[BL_ARSON	]={.name="Ar", .fn="art/bombloads/arson.png"},
 	[BL_ILLUM	]={.name="Il", .fn="art/bombloads/illuminator.png"},
@@ -928,6 +923,73 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	fprintf(stderr, "Data files loaded\n");
 	
+	fprintf(stderr, "Allocating game state...\n");
+	
+	game state;
+	state.nbombers=state.nfighters=0;
+	state.bombers=NULL;
+	state.fighters=NULL;
+	state.ntargs=ntargs;
+	if(!(state.dmg=malloc(ntargs*sizeof(*state.dmg))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(state.flk=malloc(ntargs*sizeof(*state.flk))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(state.heat=malloc(ntargs*sizeof(*state.heat))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(state.raids=malloc(ntargs*sizeof(*state.raids))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	for(unsigned int n=0;n<NNAVAIDS;n++)
+	{
+		state.nap[n]=0;
+		state.napb[n]=0;
+	}
+	for(unsigned int i=0;i<ntargs;i++)
+	{
+		state.raids[i].nbombers=0;
+		state.raids[i].bombers=NULL;
+		if(!(state.raids[i].loads=malloc(ntypes*sizeof(bombload))))
+		{
+			perror("malloc");
+			return(1);
+		}
+		for(unsigned int j=0;j<ntypes;j++)
+		{
+			state.raids[i].loads[j]=BL_PLUMDUFF;
+			int limit=0;
+			if(types[j].pff&&types[j].noarm) state.raids[i].loads[j]=BL_ILLUM;
+			while(!types[j].load[state.raids[i].loads[j]])
+			{
+				state.raids[i].loads[j]=(state.raids[i].loads[j]+1)%NBOMBLOADS;
+				if(++limit>=NBOMBLOADS)
+				{
+					fprintf(stderr, "No valid bombloads for type %s\n", types[j].name);
+					return(1);
+				}
+			}
+		}
+	}
+	state.roe.idtar=true;
+	for(unsigned int i=0;i<MAXMSGS;i++)
+		state.msg[i]=NULL;
+	
+	state.hist.nents=0;
+	state.hist.nalloc=0;
+	state.hist.ents=NULL;
+	
+	fprintf(stderr, "Game state allocated\n");
+	
 	fprintf(stderr, "Instantiating GUI elements...\n");
 	
 	atg_box *mainbox=canvas->box;
@@ -1659,7 +1721,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	atg_box *GB_raidbox[ntargs], *GB_raidbox_empty=GB_raid->elem.box;
-	atg_element *GB_rbrow[ntargs][ntypes], *GB_raidnum[ntargs][ntypes];
+	atg_element *GB_rbrow[ntargs][ntypes], *GB_rbpic[ntargs][ntypes], *GB_raidnum[ntargs][ntypes], *GB_raidload[ntargs][ntypes];
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		GB_raidbox[i]=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
@@ -1680,7 +1742,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				perror("atg_pack_element");
 				return(1);
 			}
-			GB_rbrow[i][j]->clickable=true;
 			GB_rbrow[i][j]->w=256;
 			atg_box *b=GB_rbrow[i][j]->elem.box;
 			if(!b)
@@ -1705,6 +1766,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 			picture->w=38;
 			picture->cache=true;
+			(GB_rbpic[i][j]=picture)->clickable=true;
 			if(atg_pack_element(b, picture))
 			{
 				perror("atg_pack_element");
@@ -1716,6 +1778,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				fprintf(stderr, "atg_create_element_box failed\n");
 				return(1);
 			}
+			vbox->w=202;
 			if(atg_pack_element(b, vbox))
 			{
 				perror("atg_pack_element");
@@ -1741,7 +1804,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						return(1);
 					}
 					name->cache=true;
-					name->w=216;
+					name->w=200;
 					if(atg_pack_element(vb, name))
 					{
 						perror("atg_pack_element");
@@ -1766,6 +1829,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				return(1);
 			}
 			if(atg_pack_element(vb, GB_raidnum[i][j]))
+			{
+				perror("atg_pack_element");
+				return(1);
+			}
+			if(!(GB_raidload[i][j]=create_load_selector(&types[j], &state.raids[i].loads[j])))
+			{
+				fprintf(stderr, "create_load_selector failed\n");
+				return(1);
+			}
+			if(atg_pack_element(b, GB_raidload[i][j]))
 			{
 				perror("atg_pack_element");
 				return(1);
@@ -2422,49 +2495,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	
 	fprintf(stderr, "GUI instantiated\n");
-	
-	game state;
-	state.nbombers=state.nfighters=0;
-	state.bombers=NULL;
-	state.fighters=NULL;
-	state.ntargs=ntargs;
-	if(!(state.dmg=malloc(ntargs*sizeof(*state.dmg))))
-	{
-		perror("malloc");
-		return(1);
-	}
-	if(!(state.flk=malloc(ntargs*sizeof(*state.flk))))
-	{
-		perror("malloc");
-		return(1);
-	}
-	if(!(state.heat=malloc(ntargs*sizeof(*state.heat))))
-	{
-		perror("malloc");
-		return(1);
-	}
-	if(!(state.raids=malloc(ntargs*sizeof(*state.raids))))
-	{
-		perror("malloc");
-		return(1);
-	}
-	for(unsigned int n=0;n<NNAVAIDS;n++)
-	{
-		state.nap[n]=0;
-		state.napb[n]=0;
-	}
-	for(unsigned int i=0;i<ntargs;i++)
-	{
-		state.raids[i].nbombers=0;
-		state.raids[i].bombers=NULL;
-	}
-	state.roe.idtar=true;
-	for(unsigned int i=0;i<MAXMSGS;i++)
-		state.msg[i]=NULL;
-	
-	state.hist.nents=0;
-	state.hist.nalloc=0;
-	state.hist.ents=NULL;
 	
 	main_menu:
 	canvas->box=mainbox;
@@ -3151,7 +3181,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							}
 							for(unsigned int j=0;j<ntypes;j++)
 							{
-								if(c.e==GB_rbrow[i][j])
+								if(c.e==GB_rbpic[i][j])
 								{
 									unsigned int amount;
 									switch(b)
