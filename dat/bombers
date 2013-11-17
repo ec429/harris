@@ -36,7 +36,7 @@ Handley Page:Hampden:       10000:202:190: 4000:65:12: 8:48:265:63:40:          
 # Wlng's cost falls to 8000 after EVENT_BROUGHTON
 Vickers:Wellington:         12000:190:180: 4500:85: 7: 2:40:311:87:39:          :21-10-1943:GEE,H2S,BROUGHTON,Ab,Pd,Us,Ar
 # while Manc's Sv may seem high, remember that its high Fa brings this right down in practice
-Avro:Manchester:            20000:210:185:10350:64:12:16:55:325:81:45:05-11-1940:26-06-1942:GEE,H2S,OBOE
+Avro:Manchester:            20000:210:185:10350:64:12:16:55:325:81:45:05-11-1940:26-06-1942:GEE,H2S,OBOE,Ab,Pd,Us,Ar
 Short:Stirling:             25000:200:175:14000:40: 9: 7:50:280:96:55:16-01-1941:08-07-1943:GEE,H2S,OBOE,Ab,Us,Ar
 Handley Page:Halifax I:     28000:225:200:13000:75:12: 6:65:330:63:38:14-05-1941:31-03-1944:GEE,H2S,OBOE,GH,Ab,Pd,Us,Ar
 Avro:Lancaster I:           40000:235:225:14000:80: 6: 4:80:350:84:44:07-02-1942:          :GEE,H2S,OBOE,GH,PFF,Ab,Pd,Us,Ar

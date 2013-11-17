@@ -22,7 +22,7 @@ Main force Halifaxes carry a higher proportion of incendiaries; up to 12 SBCs an
 For now we're not going to model the loads in quite that detail, just a balance of incendiaries vs. HE.  Also, the Main force settings are defaults; the following bombloads are available for Main Force bombers:
 	Abnormal - full HE
 		500lb or 1000lb GP/HE up to a/c weight limit (eg Wlng 9×500, Lanc 14×1000, Hal3 9×1000+9×500).  Also available for Mosq as 4×1000lb GP/HE
-	Plumduff-Plus - HE/HC - Lancaster only
+	Plumduff-Plus - HE/HC - Manchester/Lancaster only
 		8000lb HC, 6×500lb GP/HE
 	Plumduff - blast, demolition and fire (except Stirlings, which can't carry a cookie)
 		4000lb HC, up to 3×1000lb (or 500lb) GP/HE, SBCs or incendiaries (eg Wlng 4000+12×30i, Lanc 4000+3×1000+6SBC, Hal3 4000+3×500+6SBC)
@@ -33,6 +33,7 @@ For now we're not going to model the loads in quite that detail, just a balance 
 Tabular form of all loads, for if we do ever go into this much detail:
 Abnormal	cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
 Wlng		 -		 9		 -		 -	 -		 4500	-
+Manc		 -		 -		10		 -	 -		10000	-
 Stir		 -		 -		14		 -	 -		14000	-
 Hal1		 -		12		 6		 -	 -		12000	-
 Lan1		 -		 -		14		 -	 -		14000	-
@@ -41,11 +42,13 @@ LanX		 -		 -		15		 -	 -		15000	-
 Mosq		 -		 -		 4		 -	 -		 4000	-
 
 Plmdff-Plus	cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
+Manc		 4000lb	 -		 6		 -	 -		10000	-
 Lan1		 8000lb	 6		 -		 -	 -		11000	-
 LanX		12000lb	 4		 2		 -	 -		16000	-
 
 Plumduff	cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
 Wlng		 4000lb	 -		 -		 -	12		 4000	  360
+Manc		 4000lb	 4		 -		 4	12		 6000	 4360
 Hal1		 4000lb	 3		 -		 6	 -		 5500	 6000
 Lan1		 4000lb	 -		 3		 6	 -		 7000	 6000
 Hal3		 4000lb	 3		 -		 8	 -		 5500	 8000
@@ -54,6 +57,7 @@ Mosq		 4000lb	 -		 -		 -	 -		 4000	-
 
 Usual		cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
 Wlng		 -		 3		 -		 3	 -		 1500	 3000
+Manc		 4000lb	 -		 -		 6	12		 4000	 6360
 Stir		 -		 -		 4		10	 -		 4000	10000
 Hal1		 -		 2		 -		12	 -		 1000	12000
 Lan1		 4000lb	 -		 -		10	 -		 4000	10000
@@ -62,6 +66,7 @@ LanX		 4000lb	 -		 -		11	 -		 4000	11000
 
 Arson		cookie	500GP	1000GP	SBC	30i		Tot.HE	Tot.I
 Wlng		 -		 -		 -		 4	12		-		 4360
+Manc		 -		 -		 -		10	12		-		10360
 Stir		 -		 -		 -		14	 -		-		14000
 Hal1		 -		 -		 -		13	 -		-		13000
 Lan1		 -		 -		 -		14	 -		-		14000
