@@ -11,7 +11,7 @@
 #include <atg.h>
 
 #define NNAVAIDS	4
-#define MAXMSGS	8
+#define MAXMSGS		8
 
 #define HIST_LINE	240
 
@@ -65,9 +65,21 @@ typedef struct
 }
 w_state;
 
+typedef enum
+{
+	BL_ABNORMAL,
+	BL_PPLUS,
+	BL_PLUMDUFF,
+	BL_USUAL,
+	BL_ARSON,
+	BL_ILLUM,
+	NBOMBLOADS
+}
+bombload;
+
 typedef struct
 {
-	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
+	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS,BOMBLOADS
 	char * manu;
 	char * name;
 	unsigned int cost;
@@ -83,6 +95,7 @@ typedef struct
 	date novelty;
 	date exit;
 	bool nav[NNAVAIDS];
+	bool load[NBOMBLOADS];
 	bool noarm, pff, broughton;
 	unsigned int blat, blon;
 	SDL_Surface *picture;

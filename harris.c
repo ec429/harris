@@ -74,6 +74,22 @@ struct gee
 }
 gee={.lat=107, .lon=64, .jrange=65};
 
+struct
+{
+	const char *name;
+	const char *fn;
+	SDL_Surface *pic;
+}
+bombloads[NBOMBLOADS]=
+{
+	[BL_ABNORMAL]={.name="Ab", .fn="art/bombloads/abnormal.png"},
+	[BL_PPLUS	]={.name="Pp", .fn="art/bombloads/plumduff-plus.png"},
+	[BL_PLUMDUFF]={.name="Pd", .fn="art/bombloads/plumduff.png"},
+	[BL_USUAL	]={.name="Us", .fn="art/bombloads/usual.png"},
+	[BL_ARSON	]={.name="Ar", .fn="art/bombloads/arson.png"},
+	[BL_ILLUM	]={.name="Il", .fn="art/bombloads/illuminator.png"},
+};
+
 #define GAME_BG_COLOUR	(atg_colour){31, 31, 15, ATG_ALPHA_OPAQUE}
 
 #define default_w		800
@@ -199,6 +215,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				this.noarm=strstr(nav, "NOARM");
 				this.pff=strstr(nav, "PFF");
 				this.broughton=strstr(nav, "BROUGHTON");
+				for(unsigned int l=0;l<NBOMBLOADS;l++)
+					this.load[l]=strstr(nav, bombloads[l].name);
 				char pn[12+nlen+4];
 				strcpy(pn, "art/bombers/");
 				for(size_t p=0;p<=nlen;p++) pn[12+p]=tolower(this.name[p]);
@@ -873,7 +891,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		if(!(navpic[n]=IMG_Load(navpicfn[n])))
 		{
-			fprintf(stderr, "Navaid icon %u: IMG_Load: %s\n", n, IMG_GetError());
+			fprintf(stderr, "Navaid icon %s: IMG_Load: %s\n", navpicfn[n], IMG_GetError());
 			return(1);
 		}
 		SDL_SetAlpha(navpic[n], 0, SDL_ALPHA_OPAQUE);
@@ -882,6 +900,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		fprintf(stderr, "PFF icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
+	}
+	for(unsigned int l=0;l<NBOMBLOADS;l++)
+	{
+		if(!(bombloads[l].pic=IMG_Load(bombloads[l].fn)))
+		{
+			fprintf(stderr, "Bombload icon %s: IMG_Load: %s\n", bombloads[l].fn, IMG_GetError());
+			return(1);
+		}
 	}
 	
 	SDL_Surface *grey_overlay=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);

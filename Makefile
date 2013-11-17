@@ -29,7 +29,7 @@ harris.o: harris.c $(INCLUDES)
 events.h: dat/events mkevents.py
 	./mkevents.py >events.h
 
-widgets.o: widgets.c widgets.h bits.h
+widgets.o: widgets.c widgets.h bits.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 save/%.sav: save/%.sav.in gensave.py
@@ -39,7 +39,7 @@ weather.o: rand.h
 
 routing.o: rand.h globals.h date.h geom.h
 
-history.o: bits.h date.h
+history.o: bits.h date.h types.h
 
 %.o: %.c %.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
