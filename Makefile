@@ -29,7 +29,7 @@ harris.o: harris.c $(INCLUDES)
 events.h: dat/events mkevents.py
 	./mkevents.py >events.h
 
-widgets.o: widgets.c widgets.h
+widgets.o: widgets.c widgets.h bits.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 save/%.sav: save/%.sav.in gensave.py

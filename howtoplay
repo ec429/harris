@@ -14,10 +14,11 @@ Contents
 * Navaids
  - Gee
  - Oboe
- - H2S
+ - H₂S
  - G-H
 * PFF
 * Window
+* Filters
 * Budget
 * Reference
  - Bomber types
@@ -64,7 +65,7 @@ German fighters are the /other/ threat to your bombers.  The Germans will deploy
 
 Navaids
 ~~~~~~~
-Navigational aids help guide your bombers to the target.  There are four different systems: Gee, Oboe, H2S and G-H.  All except for H2S are reliant on ground-based transmissions, and thus their range depends on altitude.
+Navigational aids help guide your bombers to the target.  There are four different systems: Gee, Oboe, H₂S and G-H.  All except for H₂S are reliant on ground-based transmissions, and thus their range depends on altitude.
 When a navaid becomes available, sets will begin to be installed in your bombers.  You can control which type of bomber should receive sets by clicking on the appropriate navaid icon; the selected icon will be highlighted yellow.
 
 Gee
@@ -76,9 +77,9 @@ Oboe
 ----
 Oboe is a precision blind-bombing device.  By its nature a pair of Oboe stations can only be used by one aircraft at once.  The disposition of Oboe stations is made automatically, with priority given to Pathfinders.  It is invented in November 1941.
 
-H2S
+H₂S
 ---
-H2S is a terrain radar.  It enables your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.  It is most effective over coastlines and rivers, though forests, hills and even towns can also give good returns.
+H₂S is a terrain radar.  It enables your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.  It is most effective over coastlines and rivers, though forests, hills and even towns can also give good returns.
 
 G-H
 ---
@@ -91,6 +92,10 @@ After the 15th of August 1942, your Mosquitoes and one in five of your Lancaster
 Window
 ~~~~~~
 Window (known today as 'Chaff') is a radio countermeasure: thousands of strips of aluminium foil, dropped from your bombers to confuse the German radars.  [You should be able to tell a diversionary raid to Window more heavily thus making them look like a larger force, but that's not implemented yet.]
+
+Filters
+~~~~~~~
+Once navaids are available, it's possible to apply filters when adding bombers to, or removing them from, a raid.  These filters are controlled by a row of buttons (one per navaid, plus one for PFF) which can be set to '+' (only move bombers which HAVE this), blank (don't filter on this) or '-' (only move bombers which DON'T have this).  These filters allow more complicated raid planning, such as "Use only H₂S-equipped Pathfinders, but all the Main Force whether they have H₂S or not".
 
 Budget
 ~~~~~~
