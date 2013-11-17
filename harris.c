@@ -115,6 +115,7 @@ SDL_Surface *location=NULL;
 SDL_Surface *yellowhair=NULL;
 SDL_Surface *intelbtn=NULL;
 SDL_Surface *navpic[NNAVAIDS];
+SDL_Surface *pffpic=NULL;
 SDL_Surface *resizebtn=NULL;
 SDL_Surface *fullbtn=NULL;
 SDL_Surface *exitbtn=NULL;
@@ -876,6 +877,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		SDL_SetAlpha(navpic[n], 0, SDL_ALPHA_OPAQUE);
 	}
+	if(!(pffpic=IMG_Load("art/filters/pff.png")))
+	{
+		fprintf(stderr, "PFF icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	
 	SDL_Surface *grey_overlay=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!grey_overlay)
@@ -1541,7 +1547,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	atg_element *GB_fi_nav[NNAVAIDS];
-	int filter_nav[NNAVAIDS];
+	int filter_nav[NNAVAIDS], filter_pff=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		filter_nav[n]=0;
@@ -1555,6 +1561,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			perror("atg_pack_element");
 			return(1);
 		}
+	}
+	atg_element *GB_fi_pff=create_filter_switch(pffpic, &filter_pff);
+	if(!GB_fi_pff)
+	{
+		fprintf(stderr, "create_filter_switch failed\n");
+		return(1);
+	}
+	if(atg_pack_element(GB_fib, GB_fi_pff))
+	{
+		perror("atg_pack_element");
+		return(1);
 	}
 	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 	if(!map)
