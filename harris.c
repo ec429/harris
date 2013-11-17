@@ -209,6 +209,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					this.nav[i]=strstr(nav, navaids[i]);
 				this.noarm=strstr(nav, "NOARM");
 				this.pff=strstr(nav, "PFF");
+				this.inc=strstr(nav, "INC");
 				this.broughton=strstr(nav, "BROUGHTON");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
@@ -1833,15 +1834,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				perror("atg_pack_element");
 				return(1);
 			}
-			if(!(GB_raidload[i][j]=create_load_selector(&types[j], &state.raids[i].loads[j])))
+			if(targs[i].class==TCLASS_CITY)
 			{
-				fprintf(stderr, "create_load_selector failed\n");
-				return(1);
+				if(!(GB_raidload[i][j]=create_load_selector(&types[j], &state.raids[i].loads[j])))
+				{
+					fprintf(stderr, "create_load_selector failed\n");
+					return(1);
+				}
+				if(atg_pack_element(b, GB_raidload[i][j]))
+				{
+					perror("atg_pack_element");
+					return(1);
+				}
 			}
-			if(atg_pack_element(b, GB_raidload[i][j]))
+			else
 			{
-				perror("atg_pack_element");
-				return(1);
+				GB_raidload[i][j]=NULL;
 			}
 		}
 	}
@@ -3308,6 +3316,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		targs[i].threat=0;
 		targs[i].nfighters=0;
 		targs[i].fires=0;
+		targs[i].skym=-1;
 	}
 	for(unsigned int i=0;i<nflaks;i++)
 		flaks[i].ftr=-1;
@@ -3346,11 +3355,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		     wairad= datewithin(state.now, event[EVENT_WINDOW], event[EVENT_L_SN]);
 		unsigned int it=0, startt=768;
 		unsigned int plan[60], act[60][2];
+		bool skym[120];
 		double fire[120];
 		for(unsigned int dt=0;dt<60;dt++)
 			plan[dt]=act[dt][0]=act[dt][1]=0;
 		for(unsigned int dt=0;dt<120;dt++)
+		{
 			fire[dt]=0;
+			skym[dt]=false;
+		}
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			if(state.raids[i].nbombers && stream)
@@ -3379,11 +3392,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					dist+=d;
 					if(l<4) outward+=d;
 				}
-				if(targs[i].class==TCLASS_LEAFLET)
-					state.bombers[k].bmb=0;
-				else
-					state.bombers[k].bmb=types[type].cap;
-				if(state.bombers[k].pff) state.bombers[k].bmb*=.75;
+				unsigned int cap=types[type].cap;
 				state.bombers[k].bombed=false;
 				state.bombers[k].crashed=false;
 				state.bombers[k].landed=false;
@@ -3394,7 +3403,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].navlon=0;
 				state.bombers[k].driftlat=0;
 				state.bombers[k].driftlon=0;
-				state.bombers[k].speed=(types[type].speed+irandu(4)-2)/400.0;
+				state.bombers[k].speed=types[type].speed/450.0;
 				if(stream)
 				{
 					// aim for Zero Hour 01:00 plus up to 10 minutes
@@ -3402,7 +3411,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					// Zero Hour is t=480, and a minute is two t-steps
 					int tt=state.bombers[k].pff?(468+irandu(8)):(480+irandu(20));
 					int st=tt-(outward/state.bombers[k].speed)-3;
-					if(state.bombers[k].pff) st-=2;
+					if(state.bombers[k].pff) st-=3;
 					if(st<0)
 					{
 						tt-=st;
@@ -3415,17 +3424,56 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				else
 					state.bombers[k].startt=irandu(90);
 				startt=min(startt, state.bombers[k].startt);
-				state.bombers[k].fuelt=state.bombers[k].startt+types[type].range*0.8/(double)state.bombers[k].speed;
-				unsigned int eta=state.bombers[k].startt+outward*1.2/(double)state.bombers[k].speed+12;
+				state.bombers[k].fuelt=state.bombers[k].startt+types[type].range*0.6/(double)state.bombers[k].speed;
+				unsigned int eta=state.bombers[k].startt+outward*1.1/(double)state.bombers[k].speed+12;
 				if(!stream) eta+=36;
 				if(eta>state.bombers[k].fuelt)
 				{
 					unsigned int fu=eta-state.bombers[k].fuelt;
 					state.bombers[k].fuelt+=fu;
-					state.bombers[k].bmb*=120/(120.0+fu);
+					cap*=120.0/(120.0+fu);
 				}
 				else
 					state.bombers[k].fuelt=eta;
+				state.bombers[k].b_he=0;
+				state.bombers[k].b_in=0;
+				state.bombers[k].b_ti=0;
+				state.bombers[k].b_le=0;
+				switch(targs[i].class)
+				{
+					case TCLASS_LEAFLET:
+						state.bombers[k].b_le=types[type].cap*3;
+					break;
+					case TCLASS_CITY:
+						switch(state.raids[i].loads[type])
+						{
+							case BL_PLUMDUFF:
+								transfer(4000, cap, state.bombers[k].b_he);
+								transfer(types[type].inc?8000:6000, cap, state.bombers[k].b_in);
+								state.bombers[k].b_he+=cap;
+							break;
+							case BL_USUAL:
+								transfer(types[type].cap>=14000?4000:1500, cap, state.bombers[k].b_he);
+								state.bombers[k].b_in=cap;
+							break;
+							case BL_ARSON:
+								state.bombers[k].b_in=cap;
+							break;
+							case BL_ILLUM:
+								state.bombers[k].b_ti=min(cap, 3150);
+							break;
+							case BL_ABNORMAL:
+							case BL_PPLUS:
+							case BL_PONLY:
+							default:
+								state.bombers[k].b_he=cap;
+							break;
+						}
+					break;
+					default: // all other targets use all-HE loads
+						state.bombers[k].b_he=cap;
+					break;
+				}
 			}
 		}
 		oboe.k=-1;
@@ -3502,6 +3550,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					unsigned int x=dt*5+2, y[2]={max(240-fire[dt]/6, 0), max(240-fire[dt+1]/6, 0)};
 					line(RB_atime_image, x, y[0], x+5, y[1], (atg_colour){127, 127, 0, ATG_ALPHA_OPAQUE});
+					if(skym[dt])
+						line(RB_atime_image, x, 235, x, 239, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 				}
 			}
 			if(tameboar)
@@ -3553,6 +3603,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							continue;
 						}
 					}
+					state.bombers[k].fix=false;
 					unsigned int stage=state.bombers[k].routestage;
 					while((stage<8)&&!(state.bombers[k].route[stage][0]||state.bombers[k].route[stage][1]))
 						stage=++state.bombers[k].routestage;
@@ -3562,11 +3613,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(oboe.k==-1)
 							oboe.k=k;
 						if(oboe.k==(int)k)
-							state.bombers[k].navlon=state.bombers[k].navlat=0;
-						// the rest of these involve taking priority over an existing user and so they grab the k but don't get to use this turn
-						if(!state.bombers[oboe.k].pff) // PFF priority and priority for bigger loads
 						{
-							if(state.bombers[k].pff||(state.bombers[k].bmb>state.bombers[oboe.k].bmb))
+							state.bombers[k].navlon=state.bombers[k].navlat=0;
+							state.bombers[k].fix=true;
+						}
+						// the rest of these involve taking priority over an existing user and so they grab the k but don't get to use this turn
+						if(!state.bombers[oboe.k].b_ti) // PFF priority and priority for bigger loads
+						{
+							if(state.bombers[k].b_ti||(state.bombers[k].b_he>state.bombers[oboe.k].b_he))
 								oboe.k=k;
 						}
 					}
@@ -3605,7 +3659,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool fuel=(t>=state.bombers[k].fuelt);
 						bool damaged=(state.bombers[k].damage>=8);
 						bool roeok=state.bombers[k].idtar||(!state.roe.idtar&&brandp(0.2))||brandp(0.005);
-						bool leaf=!state.bombers[k].bmb;
+						bool leaf=state.bombers[k].b_le;
 						bool pffstop=stream&&(t<(state.bombers[k].pff?464:480));
 						double cr=1.2;
 						if(oboe.k==(int)k) cr=0.3;
@@ -3641,10 +3695,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										int dt=(t-450)/2;
 										if((dt>=0)&&(dt<60))
 											act[dt][state.bombers[k].pff?0:1]++;
-										if(state.bombers[k].pff)
-											targs[ta].fires+=30;
-										else
-											targs[ta].fires+=state.bombers[k].bmb/6000;
+										if(state.bombers[k].pff&&(state.bombers[k].fix||state.bombers[k].nav[NAV_H2S]))
+										{
+											targs[ta].skym=t;
+											int dt=t-450;
+											if((dt>0)&&(dt<120))
+												skym[dt]=true;
+										}
+										targs[ta].fires+=state.bombers[k].b_in/3000+state.bombers[k].b_ti/50;
 										break;
 									}
 								}
@@ -3828,8 +3886,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							dtm=i;
 						}
 					}
+					unsigned int sage=t-targs[dtm].skym;
+					bool sk=targs[dtm].skym>=0?brandp(5/(5.0+sage)):false;
 					bool c=brandp(targs[dtm].fires/2e3);
-					if(b||c)
+					if(b||c||sk)
 					{
 						unsigned int dm=0; // target crew believes is nearest
 						double mind=1e6;
@@ -3860,7 +3920,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									state.bombers[k].idtar=true;
 								}
-								else if(c&&(targs[dm].class==TCLASS_CITY)&&(targs[dtm].class==TCLASS_CITY))
+								else if((c||sk)&&(targs[dm].class==TCLASS_CITY)&&(targs[dtm].class==TCLASS_CITY))
 								{
 									state.bombers[k].navlon=(signed)targs[dtm].lon-(signed)targs[dm].lon;
 									state.bombers[k].navlat=(signed)targs[dtm].lat-(signed)targs[dm].lat;
@@ -4336,7 +4396,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			{
 				unsigned int k=state.raids[i].bombers[j], type=state.bombers[k].type;
 				dij[i][type]++;
-				bool leaf=!state.bombers[k].bmb;
+				bool leaf=state.bombers[k].b_le;
 				bool mine=(targs[i].class==TCLASS_MINING);
 				for(unsigned int l=0;l<ntargs;l++)
 				{
@@ -4354,13 +4414,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								heat[i]++;
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
-									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
-									double dmg=min(state.dmg[l], state.bombers[k].bmb*(targs[i].flammable?1.8:1.0)/(targs[i].psiz*10000.0));
+									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].b_he+state.bombers[k].b_in+state.bombers[k].b_ti);
+									double maybe_dmg=(state.bombers[k].b_he*1.2+state.bombers[k].b_in*(targs[i].flammable?1.8:1.0))/(targs[i].psiz*10000.0);
+									double dmg=min(state.dmg[l], maybe_dmg);
 									cidam+=dmg*(targs[i].berlin?2.0:1.0);
 									state.dmg[l]-=dmg;
 									tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
 									nij[l][type]++;
-									tij[l][type]+=state.bombers[k].bmb;
+									tij[l][type]+=state.bombers[k].b_he+state.bombers[k].b_in+state.bombers[k].b_ti;
 									state.bombers[k].bombed=false;
 								}
 							}
@@ -4372,13 +4433,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								heat[i]++;
 								if(brandp(targs[l].esiz/30.0))
 								{
-									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
-									double dmg=min(state.bombers[k].bmb/12000.0, state.dmg[l]);
+									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].b_he);
+									double dmg=min(state.bombers[k].b_he/12000.0, state.dmg[l]);
 									cidam+=dmg*(targs[i].berlin?2.0:1.0);
 									state.dmg[l]-=dmg;
 									tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
 									nij[l][type]++;
-									tij[l][type]+=state.bombers[k].bmb;
+									tij[l][type]+=state.bombers[k].b_he;
 								}
 								state.bombers[k].bombed=false;
 							}
@@ -4393,13 +4454,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(brandp(targs[l].esiz/30.0))
 									{
-										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
-										double dmg=min(state.bombers[k].bmb/2000.0, state.dmg[l]);
+										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].b_he);
+										double dmg=min(state.bombers[k].b_he/2000.0, state.dmg[l]);
 										cidam+=dmg*(targs[i].berlin?2.0:1.0);
 										state.dmg[l]-=dmg;
 										tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
 										nij[l][type]++;
-										tij[l][type]+=state.bombers[k].bmb;
+										tij[l][type]+=state.bombers[k].b_he;
 									}
 									state.bombers[k].bombed=false;
 								}
@@ -4414,8 +4475,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(brandp(targs[l].esiz/30.0))
 									{
-										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
-										if(brandp(log2(state.bombers[k].bmb/25.0)/200.0))
+										hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].b_he);
+										if(brandp(log2(state.bombers[k].b_he/25.0)/200.0))
 										{
 											cidam+=state.dmg[l];
 											bridge+=state.dmg[l];
@@ -4423,7 +4484,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											state.dmg[l]=0;
 										}
 										nij[l][type]++;
-										tij[l][type]+=state.bombers[k].bmb;
+										tij[l][type]+=state.bombers[k].b_he;
 									}
 									state.bombers[k].bombed=false;
 								}
@@ -4435,12 +4496,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							{
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
-									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, types[type].cap*3);
-									double dmg=min(types[type].cap/(targs[i].psiz*4000.0), state.dmg[l]);
+									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].b_le);
+									double dmg=min(state.bombers[k].b_le/(targs[i].psiz*12000.0), state.dmg[l]);
 									state.dmg[l]-=dmg;
 									tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
 									nij[l][type]++;
-									tij[l][type]+=types[type].cap*3;
+									tij[l][type]+=state.bombers[k].b_le;
 									state.bombers[k].bombed=false;
 								}
 							}
@@ -4453,8 +4514,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								if(brandp(targs[l].esiz/100.0))
 								{
 									nij[l][type]++;
-									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
-									if(brandp(log2(state.bombers[k].bmb/500.0)/8.0))
+									hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].b_he);
+									if(brandp(log2(state.bombers[k].b_he/500.0)/8.0))
 									{
 										tij[l][type]++;
 										tsh_append(&state.hist, state.now, maketime(state.bombers[k].bt), l);
@@ -4470,12 +4531,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							bool water=(x>=0)&&(y>=0)&&(x<128)&&(y<128)&&lorw[x][y];
 							if((abs(dx)<=8)&&(abs(dy)<=8)&&water)
 							{
-								hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].bmb);
-								double dmg=min(state.bombers[k].bmb/400000.0, state.dmg[l]);
+								hi_append(&state.hist, state.now, maketime(state.bombers[k].bt), state.bombers[k].id, false, type, l, state.bombers[k].b_he);
+								double dmg=min(state.bombers[k].b_he/400000.0, state.dmg[l]);
 								state.dmg[l]-=dmg;
 								tdm_append(&state.hist, state.now, maketime(state.bombers[k].bt), l, dmg, state.dmg[l]);
 								nij[l][type]++;
-								tij[l][type]+=state.bombers[k].bmb;
+								tij[l][type]+=state.bombers[k].b_he;
 								state.bombers[k].bombed=false;
 							}
 						break;

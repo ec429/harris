@@ -16,6 +16,7 @@
 #define min(a,b)		((a)<(b)?(a):(b))
 #define max(a,b)		((a)>(b)?(a):(b))
 #define clamp(v,a,b)	((v)=((v)<(a))?(a):(((v)<(b))?(v):(b)))
+#define transfer(v,f,t)	do { typeof(f) tmp=min(v, f); f-=tmp; t+=tmp;} while(0)
 
 char *fgetl(FILE *); // gets a line of string data; returns a malloc-like pointer
 char *slurp(FILE *); // gets a file of string data; returns a malloc-like pointer

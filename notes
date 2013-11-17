@@ -83,3 +83,4 @@ Bombload rules for now (distillation of the above):
 	Plumduff: 4000lb HE, up to 6000lb IN (8000lb for Hal3), rest HE
 	Usual: 4000lb HE if cap>=14000 else 1500lb HE; rest IN
 	Arson: 100% IN
+	Illuminator: 3150lb TI

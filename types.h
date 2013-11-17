@@ -105,7 +105,7 @@ typedef struct
 	date exit;
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
-	bool noarm, pff, broughton;
+	bool noarm, pff, inc, broughton;
 	unsigned int blat, blon;
 	SDL_Surface *picture;
 	char *text, *newtext;
@@ -170,6 +170,7 @@ typedef struct
 	/* for bomber guidance */
 	unsigned int route[8][2]; // [0123 out, 4 bmb, 567 in][0 lat, 1 lon]. {0, 0} indicates "not used, skip to next routestage"
 	double fires; // level of fires (and TIs) illuminating the target
+	int skym; // time of last skymarker over target
 	/* misc */
 	unsigned int shots; // number of shots the flak already fired this tick
 }
@@ -200,7 +201,7 @@ typedef struct
 	unsigned int routestage; // 8 means "passed route[7], heading for base"
 	bool nav[NNAVAIDS];
 	bool pff; // a/c is assigned to the PFF
-	unsigned int bmb; // bombload carried.  0 means leaflets
+	unsigned int b_he, b_in, b_ti, b_le; // bombload carried: high explosive or mines, incendiaries, target indicator flares, leaflets
 	bool bombed;
 	bool crashed;
 	bool failed; // for forces, read as !svble
@@ -209,12 +210,14 @@ typedef struct
 	double damage; // increases the probability of mech.fail and of consequent crashes
 	bool ldf; // last damage by a fighter?
 	bool idtar; // identified target?  (for use if RoE require it)
+	bool fix; // have a navaid fix?  (controls whether to drop skymarker)
 	unsigned int startt; // take-off time
 	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
 }
 ac_bomber;
 
-#define loadness(b)	((((b).bombed?0:(b).bmb)/(double)(types[(b).type].cap)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
+#define loadweight(b)	((b).b_he+(b).b_in/2+(b).b_ti+(b).b_le/20)
+#define loadness(b)	((((b).bombed?0:loadweight(b))/(double)(types[(b).type].cap)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
 
 typedef struct
 {
