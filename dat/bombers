@@ -1,5 +1,5 @@
 # Format: dsv
-# MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
+# MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS,BOMBLOADS
 # Cost in £
 # Speed in mph (cruising, approx)
 # Ceiling in 100ft (only affects Navaid range)
@@ -12,6 +12,7 @@
 # Dates are entry and exit from service (null in either case means open-ended)
 # Navaids lists which navigational aids this bomber can carry (a big set won't fit in a small bomber)
 # Flags: NOARM,PFF,BROUGHTON,...
+# Bombloads: Ab=Abnormal, Pp=Plumduff-plus, Pd=Plumduff, Us=Usual, Ar=Arson, Il=Illuminator
 
 # When changing this file, **Remember to update howtoplay** (section Reference/Bomber types)
 
@@ -33,12 +34,12 @@ Bristol:Blenheim:            5000:198:205: 1200:55:14: 6:60:190:96:61:          
 Armstrong-Whitworth:Whitley: 8000:165:176: 7000:70:16: 9:32:320:81:45:          :18-06-1941:GEE,H2S
 Handley Page:Hampden:       10000:202:190: 4000:65:12: 8:48:265:63:40:          :02-11-1941:GEE
 # Wlng's cost falls to 8000 after EVENT_BROUGHTON
-Vickers:Wellington:         12000:190:180: 4500:85: 7: 2:40:311:87:39:          :21-10-1943:GEE,H2S,BROUGHTON
+Vickers:Wellington:         12000:190:180: 4500:85: 7: 2:40:311:87:39:          :21-10-1943:GEE,H2S,BROUGHTON,Ab,Pd,Us,Ar
 # while Manc's Sv may seem high, remember that its high Fa brings this right down in practice
 Avro:Manchester:            20000:210:185:10350:64:12:16:55:325:81:45:05-11-1940:26-06-1942:GEE,H2S,OBOE
-Short:Stirling:             25000:200:175:14000:40: 9: 7:50:280:96:55:16-01-1941:08-07-1943:GEE,H2S,OBOE
-Handley Page:Halifax I:     28000:225:200:13000:75:12: 6:65:330:63:38:14-05-1941:31-03-1944:GEE,H2S,OBOE,GH
-Avro:Lancaster I:           40000:235:225:14000:80: 6: 4:80:350:84:44:07-02-1942:          :GEE,H2S,OBOE,GH,PFF
-de Havilland:Mosquito:      15000:340:300: 4000:80: 2: 4:90:400:98:44:12-08-1942:          :GEE,OBOE,GH,NOARM,PFF
-Handley Page:Halifax III:   30000:230:220:13500:90: 7: 5:75:335:63:38:30-04-1943:          :GEE,H2S,OBOE,GH
-Avro:Lancaster X:           45000:245:240:16000:90: 5: 3:85:360:81:41:13-02-1944:          :GEE,H2S,OBOE,GH,PFF
+Short:Stirling:             25000:200:175:14000:40: 9: 7:50:280:96:55:16-01-1941:08-07-1943:GEE,H2S,OBOE,Ab,Us,Ar
+Handley Page:Halifax I:     28000:225:200:13000:75:12: 6:65:330:63:38:14-05-1941:31-03-1944:GEE,H2S,OBOE,GH,Ab,Pd,Us,Ar
+Avro:Lancaster I:           40000:235:225:14000:80: 6: 4:80:350:84:44:07-02-1942:          :GEE,H2S,OBOE,GH,PFF,Ab,Pd,Us,Ar
+de Havilland:Mosquito:      15000:340:300: 4000:80: 2: 4:90:400:98:44:12-08-1942:          :GEE,OBOE,GH,NOARM,PFF,Ab,Pd,Il
+Handley Page:Halifax III:   30000:230:220:13500:90: 7: 5:75:335:63:38:30-04-1943:          :GEE,H2S,OBOE,GH,Ab,Pd,Us,Ar
+Avro:Lancaster X:           45000:245:240:16000:90: 5: 3:85:360:81:41:13-02-1944:          :GEE,H2S,OBOE,GH,PFF,Pp,Pd,Us,Ar
