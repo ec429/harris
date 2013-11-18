@@ -3468,7 +3468,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.bombers[k].b_in=cap;
 							break;
 							case BL_ILLUM:
-								state.bombers[k].b_ti=min(cap, 3150);
+								state.bombers[k].b_ti=min(cap, 3000);
 							break;
 							case BL_ABNORMAL:
 							case BL_PPLUS:

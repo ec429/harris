@@ -73,9 +73,9 @@ Lan1		 -		 -		 -		14	 -		-		14000
 Hal3		 -		 -		 -		13	12		-		13360
 LanX		 -		 -		 -		15	16		-		15480
 
-PFF Opener: "Usual" + 1×150lb release-point flare.  If no H₂S fall back to Usual
-PFF Finder: "Arson" + 1×150lb release-point flare.  If no H₂S fall back to Arson
-PFF Illuminator (Mosq): 12×250lb coloured TI + (if target within Oboe range) 1×150lb release-point flare
+PFF Opener: "Usual" + 1× release-point flare.  If no H₂S fall back to Usual
+PFF Finder: "Arson" + 1× release-point flare.  If no H₂S fall back to Arson
+PFF Illuminator (Mosq): 12×250lb coloured TI + (if target within Oboe range) 1× release-point flare
 PFF Backer-Up: as Opener (heavy) or Illuminator (Mosq), except that navaids are not required
 
 Bombload rules for now (distillation of the above):
@@ -83,4 +83,4 @@ Bombload rules for now (distillation of the above):
 	Plumduff: 4000lb HE, up to 6000lb IN (8000lb for Hal3), rest HE
 	Usual: 4000lb HE if cap>=14000 else 1500lb HE; rest IN
 	Arson: 100% IN
-	Illuminator: 3150lb TI
+	Illuminator: 3000lb TI

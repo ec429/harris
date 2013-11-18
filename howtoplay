@@ -103,6 +103,13 @@ Bombloads
 At first, you don't have to decide what bombload to carry, since all targets take high explosive bombs (except Minelaying and Leaflets, obviously).  However, after the Area Bombing Directive of February 1942, you will find that you can choose the bombload for raids on cities.  Mostly you just control the HE/incendiary mix, except for Mosquitos where the choice is between HE and "TIs", target indicator flares.
 In general, HE will do more damage than incendiaries (except for a few especially flammable cities: Hamburg, Dresden, Mannheim and Lübeck), but fires from incendiaries will light up the target and help following crews find it.  TIs, brightly coloured flares which burst and cascade over a target, are even more effective in this regard, and are usually dropped by Pathfinder Mosquitoes to provide a clear aiming point for the Main Force.
 Fires and TIs are generally not visible through thick cloud, so Pathfinder aircraft also carry "release-point flares", commonly known as "skymarkers".  These are suspended on parachutes so as to remain above the cloud for several minutes, and are only dropped if the aircraft has a 'fix' from OBOE or H₂S.
+The bombloads and their codenames are:
+	"Abnormal":	full HE, typically consisting of 1000lb General Purpose medium-capacity bombs.
+	"Plumduff":	one High-Capacity 4000lb blockbuster (known as a 'cookie'), plus a mixture of 500lb or 1000lb GP and incendiaries.  Stirlings cannot carry this load as their bomb cells are too narrow to hold a 'cookie'.
+	"Usual":	one 4000lb blockbuster or 1500lb of GP, plus incendiaries.  (Stirlings carry 4 × 1000lb GP plus incendiaries.)
+	"Arson":	full incendiaries, typically in the form of Small Bomb Containers (SBCs) full of 4lb magnesium stick incendiaries, and/or 30lb incendiary bombs.
+	"Plumduff-Plus"	(Lancaster X only):	one 12000lb blockbuster plus GP.
+	"Illuminator"	(Mosquito only):	12 × 250lb TI, plus several uncoloured flares.
 
 Budget
 ~~~~~~
