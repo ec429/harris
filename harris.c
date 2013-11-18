@@ -3895,7 +3895,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						}
 					}
 					unsigned int sage=t-targs[dtm].skym;
-					bool sk=targs[dtm].skym>=0?brandp(5/(5.0+sage)):false;
+					bool sk=targs[dtm].skym>=0?brandp(10/(5.0+sage)-0.6):false;
 					bool c=brandp(targs[dtm].fires/2e3);
 					if(b||c||sk)
 					{
