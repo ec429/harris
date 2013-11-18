@@ -6,6 +6,11 @@ import hhist, hdata, hsave
 
 # Intention for this report is to compute (total value of all bombers + cash) for each day
 def extract_value(save):
+	days = sorted(hhist.group_by_date(save.history))
+	broughton = hdata.Events.find('id', 'BROUGHTON')
+	wlng = hdata.Bombers.find('name', 'Wellington')
+	if broughton and days[0][0] > broughton['date']:
+		if wlng: wlng['cost'] *= 2/3.0
 	bcount = [0 for i in xrange(save.ntypes)]
 	for b in save.init.bombers:
 		bcount[b['type']] += 1
@@ -15,9 +20,6 @@ def extract_value(save):
 	bentry = [b.get('entry', hhist.date(0, 0, 0)) for b in hdata.Bombers]
 	total = sum(bvalues) + cash
 	res = [{'date':save.init.date, 'cash':cash, 'cshr':cshr, 'bombers':bcount, 'bvalues':bvalues, 'total':total}]
-	days = sorted(hhist.group_by_date(save.history))
-	broughton = hdata.Events.find('id', 'BROUGHTON')
-	wlng = hdata.Bombers.find('name', 'Wellington')
 	for d in days:
 		if broughton and d[0] == broughton['date']:
 			if wlng: wlng['cost'] *= 2/3.0
