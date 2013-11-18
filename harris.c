@@ -3611,7 +3611,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							continue;
 						}
 					}
-					state.bombers[k].fix=false;
 					unsigned int stage=state.bombers[k].routestage;
 					while((stage<8)&&!(state.bombers[k].route[stage][0]||state.bombers[k].route[stage][1]))
 						stage=++state.bombers[k].routestage;
@@ -3703,7 +3702,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										int dt=(t-450)/2;
 										if((dt>=0)&&(dt<60))
 											act[dt][state.bombers[k].pff?0:1]++;
-										if(state.bombers[k].pff&&(state.bombers[k].fix||state.bombers[k].nav[NAV_H2S]))
+										if(state.bombers[k].pff&&state.bombers[k].fix)
 										{
 											targs[ta].skym=t;
 											int dt=t-450;
@@ -3874,6 +3873,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					double navp=types[type].accu*0.05*(sqrt(moonillum)*.8+.5)/(double)(8+max(16-wea, 8));
 					if(home&&(state.bombers[k].lon<64)) navp=1;
 					bool b=brandp(navp);
+					state.bombers[k].fix=b;
 					if(b)
 					{
 						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
