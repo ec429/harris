@@ -7,7 +7,7 @@ CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 LIBS := -latg -lm
 OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o
 INCLUDES := $(OBJS:.o=.h) events.h types.h
-SAVES := save/qstart.sav save/civ.sav save/abd.sav
+SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
