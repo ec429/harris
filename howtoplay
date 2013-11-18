@@ -19,6 +19,7 @@ Contents
 * PFF
 * Window
 * Filters
+* Bombloads
 * Budget
 * Reference
  - Bomber types
@@ -96,6 +97,12 @@ Window (known today as 'Chaff') is a radio countermeasure: thousands of strips o
 Filters
 ~~~~~~~
 Once navaids are available, it's possible to apply filters when adding bombers to, or removing them from, a raid.  These filters are controlled by a row of buttons (one per navaid, plus one for PFF) which can be set to '+' (only move bombers which HAVE this), blank (don't filter on this) or '-' (only move bombers which DON'T have this).  These filters allow more complicated raid planning, such as "Use only H₂S-equipped Pathfinders, but all the Main Force whether they have H₂S or not".
+
+Bombloads
+~~~~~~~~~
+At first, you don't have to decide what bombload to carry, since all targets take high explosive bombs (except Minelaying and Leaflets, obviously).  However, after the Area Bombing Directive of February 1942, you will find that you can choose the bombload for raids on cities.  Mostly you just control the HE/incendiary mix, except for Mosquitos where the choice is between HE and "TIs", target indicator flares.
+In general, HE will do more damage than incendiaries (except for a few especially flammable cities: Hamburg, Dresden, Mannheim and Lübeck), but fires from incendiaries will light up the target and help following crews find it.  TIs, brightly coloured flares which burst and cascade over a target, are even more effective in this regard, and are usually dropped by Pathfinder Mosquitoes to provide a clear aiming point for the Main Force.
+Fires and TIs are generally not visible through thick cloud, so Pathfinder aircraft also carry "release-point flares", commonly known as "skymarkers".  These are suspended on parachutes so as to remain above the cloud for several minutes, and are only dropped if the aircraft has a 'fix' from OBOE or H₂S.
 
 Budget
 ~~~~~~

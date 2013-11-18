@@ -46,7 +46,7 @@ Boulogne Barges:      14:30:18:136: 70:04-07-1940:31-10-1940:SHIPPING
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Berlin:              100:20:50: 97:233:14-02-1942:          :CITY,BERLIN
 Berlin Leaflets:       8:10:50: 97:233:          :14-02-1942:LEAFLET,BERLIN
-Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY,OIL
+Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY,OIL,FLAMMABLE
 Hamburg Leaflets:      5: 8:35: 73:185:          :14-02-1942:LEAFLET
 Frankfurt:            40:13:30:151:168:14-02-1942:          :CITY
 Frankfurt Leaflets:    4: 7:30:151:168:          :14-02-1942:LEAFLET
