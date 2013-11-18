@@ -2,8 +2,6 @@ extension: .sav
 
 Format is textual (human-readable)
 
-NOTE: This file is currently somewhat out of date.  !TODO! update it!
-
 Format, sort of printfy
 "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV // Magic ID, Harris version.
 "DATE:%02d-%02d-%04d\n", day, month, year
@@ -12,7 +10,10 @@ Format, sort of printfy
 "Budget:%u+%u\n", cash, cshr
 "Types:%u\n", ntypes // should be a constant, but might change between versions/modpacks; if so, will need some code that's aware of old versions
 for(i=0;i<ntypes;i++)
-	"Prio %hhu:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
+	"Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
+"Navaids:%u\n", NNAVAIDS // should be constant
+for(i=0;i<NNAVAIDS;i++)
+	"Nprio %u:%u,%u\n", i, state.nap[i], state.napb[i]
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	either
@@ -58,3 +59,6 @@ or
 "Messages:%u\n", nmsgs
 for(i=0;i<nmsgs;i++)
 	"%s\n.\n", msg[i]
+"History:%u\n", hist.nents
+for(i=0;i<hist.nents;i++)
+	"%s\n", hist.ents[i] // for history entry format see '../stat-spec'
