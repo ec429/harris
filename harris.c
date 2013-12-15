@@ -5369,6 +5369,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.gprod[ICLASS_AC]-=ftypes[i].cost/3.0;
 		ct_append(&state.hist, state.now, (time){11, 50}, state.fighters[n].id, true, i);
 	}
+	for(unsigned int i=0;i<ICLASS_MIXED;i++)
+		gp_append(&state.hist, state.now, (time){11, 55}, i, state.gprod[i]);
 	state.now=tomorrow;
 	for(unsigned int i=0;i<ntypes;i++)
 		if(!diffdate(state.now, types[i].entry))

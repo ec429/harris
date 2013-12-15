@@ -133,7 +133,11 @@ def misc_parse(text):
 	def morale_parse(text):
 		if ' ' in text: raise ExcessData('M', 'MO', text.split(' ', 1)[1])
 		return {'morale':float.fromhex(text)}
-	parsers = {'CA':cash_parse, 'CO':confid_parse, 'MO':morale_parse}
+	def gprod_parse(text):
+		iclass, value = text.split(' ', 1)
+		if ' ' in value: raise ExcessData('M', 'GP', value.split(' ', 1)[1])
+		return {'iclass':int(iclass), 'gprod':float.fromhex(value)}
+	parsers = {'CA':cash_parse, 'CO':confid_parse, 'MO':morale_parse, 'GP':gprod_parse}
 	etyp, rest = text.split(' ', 1)
 	return {'etyp':etyp,
 			'text':rest,
