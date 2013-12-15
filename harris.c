@@ -5298,6 +5298,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	state.gprod[ICLASS_ARM]*=0.95;
+	state.gprod[ICLASS_UBOOT]*=0.95; // not actually used for anything
 	// German fighters
 	memset(fcount, 0, sizeof(fcount));
 	for(unsigned int i=0;i<state.nfighters;i++)
