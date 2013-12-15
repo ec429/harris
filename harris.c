@@ -5175,7 +5175,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	// assign PFF
-	if(!datebefore(state.now, event[EVENT_PFF]))
+	if(!datebefore(tomorrow, event[EVENT_PFF]))
 	{
 		for(unsigned int j=0;j<ntypes;j++)
 			types[j].count=types[j].pffcount=0;
