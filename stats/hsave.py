@@ -18,6 +18,11 @@ class UnknownHistClass(IntegrityError): pass
 class UnknownHistEvent(IntegrityError): pass
 class CannotFindAcid(IntegrityError): pass
 
+def readfloat(text):
+	if 'x' in text:
+		return float.fromhex(text)
+	return float(text)
+
 class Save(object):
 	def __init__(self): pass
 	@classmethod
@@ -116,10 +121,10 @@ class Save(object):
 			self.date = hhist.date.parse(rest)
 			return None, False
 		if tag == 'Confid':
-			self.confid = float.fromhex(rest)
+			self.confid = readfloat(rest)
 			return None, False
 		if tag == 'Morale':
-			self.morale = float.fromhex(rest)
+			self.morale = readfloat(rest)
 			return None, False
 		if tag == 'Budget':
 			self.cash, self.cshr = map(int, rest.split('+', 1))
@@ -159,7 +164,7 @@ class Save(object):
 		if tag == 'Targets init':
 			self.ntargets = len(hdata.Targets)
 			dmg, flk, heat = rest.split(',', 2)
-			self.targets = [dict({'dmg':float.fromhex(dmg), 'flk':float.fromhex(flk), 'heat':float.fromhex(heat)}) for i in xrange(self.ntargets)]
+			self.targets = [dict({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat)}) for i in xrange(self.ntargets)]
 			return None, False
 		if tag == 'Weather state':
 			self._wline = 0
@@ -215,13 +220,13 @@ class Save(object):
 			dmg, flk, heat = rest.split(',', 2)
 			while len(self.targets) < targ:
 				self.targets.append({'dmg':100, 'flk':100, 'heat':0})
-			self.targets.append({'dmg':float.fromhex(dmg), 'flk':float.fromhex(flk), 'heat':float.fromhex(heat)})
+			self.targets.append({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat)})
 			return len(self.targets) == self.ntargets
 		raise UnrecognisedSubtag('Targets', tag, rest)
 	def GProd(self, tag, rest):
 		if tag.startswith('IClass '):
 			iclass = int(tag[7:])
-			gprod = float.fromhex(rest)
+			gprod = readfloat(rest)
 			self.gprod[iclass]=gprod
 			return iclass + 1 == self.iclasses
 		raise UnrecognisedSubtag('Targets', tag, rest)
