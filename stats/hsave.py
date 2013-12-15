@@ -139,8 +139,9 @@ class Save(object):
 			self.bombers = []
 			return self.Bombers, False
 		if tag == 'GProd':
-			self.gprod = float.fromhex(rest)
-			return None, False
+			self.iclasses = int(rest)
+			self.gprod = {i:0 for i in xrange(self.iclasses)}
+			return self.GProd, False
 		if tag == 'FTypes':
 			self.nftypes = int(rest)
 			return None, False
@@ -216,6 +217,13 @@ class Save(object):
 				self.targets.append({'dmg':100, 'flk':100, 'heat':0})
 			self.targets.append({'dmg':float.fromhex(dmg), 'flk':float.fromhex(flk), 'heat':float.fromhex(heat)})
 			return len(self.targets) == self.ntargets
+		raise UnrecognisedSubtag('Targets', tag, rest)
+	def GProd(self, tag, rest):
+		if tag.startswith('IClass '):
+			iclass = int(tag[7:])
+			gprod = float.fromhex(rest)
+			self.gprod[iclass]=gprod
+			return iclass + 1 == self.iclasses
 		raise UnrecognisedSubtag('Targets', tag, rest)
 	def Wstate(self, tag, rest):
 		self._wline += 1
