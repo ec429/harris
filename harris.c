@@ -5299,6 +5299,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	state.gprod[ICLASS_ARM]*=0.95;
 	state.gprod[ICLASS_BB]*=0.99;
+	state.gprod[ICLASS_OIL]*=0.98;
 	state.gprod[ICLASS_UBOOT]*=0.95; // not actually used for anything
 	// German fighters
 	memset(fcount, 0, sizeof(fcount));
@@ -6439,7 +6440,7 @@ bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS])
 void produce(int targ, double gprod[ICLASS_MIXED], double amount)
 {
 	if((targs[targ].iclass!=ICLASS_RAIL)&&(targs[targ].iclass!=ICLASS_MIXED))
-		amount=min(amount, gprod[ICLASS_RAIL]*15.0);
+		amount=min(amount, gprod[ICLASS_RAIL]*6.0);
 	switch(targs[targ].iclass)
 	{
 		case ICLASS_BB:
@@ -6453,21 +6454,22 @@ void produce(int targ, double gprod[ICLASS_MIXED], double amount)
 			gprod[ICLASS_STEEL]-=amount;
 		break;
 		case ICLASS_AC:
-			amount=min(amount, gprod[ICLASS_BB]*8.0);
-			gprod[ICLASS_BB]-=amount/8.0;
+			amount=min(amount, gprod[ICLASS_BB]*2.0);
+			gprod[ICLASS_BB]-=amount/2.0;
 		break;
 		case ICLASS_MIXED:
 			gprod[ICLASS_OIL]+=amount/7.0;
-			gprod[ICLASS_RAIL]+=amount/7.0;
+			gprod[ICLASS_RAIL]+=amount/42.0;
 			gprod[ICLASS_UBOOT]+=amount/7.0;
 			gprod[ICLASS_ARM]+=amount/7.0;
 			gprod[ICLASS_AC]+=amount/7.0;
+			gprod[ICLASS_BB]-=amount/14.0;
 			return;
 		default:
 			fprintf(stderr, "Bad targs[%d].iclass = %d\n", targ, targs[targ].iclass);
 		break;
 	}
 	if(targs[targ].iclass!=ICLASS_RAIL)
-		gprod[ICLASS_RAIL]-=amount/15.0;
+		gprod[ICLASS_RAIL]-=amount/6.0;
 	gprod[targs[targ].iclass]+=amount;
 }
