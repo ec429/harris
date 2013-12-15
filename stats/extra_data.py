@@ -8,6 +8,9 @@ Per bombertype:
 	Graphing colour
 Per fightertype:
 	Graphing colour
+Per industry class:
+	Name
+	Graphing colour
 """
 
 Bombers = {
@@ -33,4 +36,15 @@ Fighters = {
 	"Ju88C": {"colour":'g',},
 	"Do217J":{"colour":'y',},
 	"Me262": {"colour":'b',},
+	}
+
+Industries = {
+	0:{"name":'Ball Bearings', "colour":'0.5',    },
+	1:{"name":'Petrochemical', "colour":'r',      },
+	2:{"name":'Rail',          "colour":'b',      },
+	3:{"name":'U-boats',       "colour":'c',      },
+	4:{"name":'Armament',      "colour":'y',      },
+	5:{"name":'Steel',         "colour":'m',      },
+	6:{"name":'Aircraft',      "colour":'g',      },
+	7:{"name":'Mixed',         "colour":'#806000',},
 	}
