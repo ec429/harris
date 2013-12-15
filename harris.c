@@ -2872,6 +2872,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.bombers[j].damage=0;
 		state.bombers[j].ldf=false;
 	}
+	double flakscale=state.gprod[ICLASS_ARM]/200000.0;
 	bool shownav=false;
 	filter_pff=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
@@ -3779,7 +3780,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							unsigned int x=targs[i].lon/2, y=targs[i].lat/2;
 							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 							double preccap=100.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
-							if(brandp(state.flk[i]/min((9+targs[i].shots++)*40.0, preccap)))
+							if(brandp(state.flk[i]*flakscale/min((9+targs[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
 								if(brandp(types[type].defn/400.0))
@@ -3812,7 +3813,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 							double preccap=160.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
 							if(rad) preccap=min(preccap, window?960.0:480.0);
-							if(brandp(flaks[i].strength/min((12+flaks[i].shots++)*40.0, preccap)))
+							if(brandp(flaks[i].strength*flakscale/min((12+flaks[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
 								if(brandp(types[type].defn/500.0))
@@ -4198,13 +4199,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							double T = (ud + sqrt(ud*ud + dd*(vv-uu))) / (vv-uu);
 							double fuelt=state.fighters[j].landed?40:state.fighters[j].fuelt-t-40;
+							if(state.gprod[ICLASS_OIL]<80) fuelt=-1;
 							if(T<fuelt)
 							{
 								boared=true;
 								if(state.fighters[j].landed)
 								{
 									state.fighters[j].landed=false;
-									state.fighters[j].fuelt=t+72+irandu(28);
+									int famount=72+irandu(28);
+									state.fighters[j].fuelt=t+famount;
+									state.gprod[ICLASS_OIL]-=famount*0.8;
 								}
 								double vx = dx/T + boarvx;
 								double vy = dy/T + boarvy;
@@ -4280,13 +4284,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
 							if(state.fighters[j].landed)
 							{
-								const unsigned int base=state.fighters[j].base;
-								signed int dx=(signed)flaks[i].lat-(signed)fbases[base].lat, dy=(signed)flaks[i].lon-(signed)fbases[base].lon;
-								unsigned int dd=dx*dx+dy*dy;
-								if(dd<mind&&dd<range*range)
+								if(state.gprod[ICLASS_OIL]>=80)
 								{
-									mind=dd;
-									minj=j;
+									const unsigned int base=state.fighters[j].base;
+									signed int dx=(signed)flaks[i].lat-(signed)fbases[base].lat, dy=(signed)flaks[i].lon-(signed)fbases[base].lon;
+									unsigned int dd=dx*dx+dy*dy;
+									if(dd<mind&&dd<range*range)
+									{
+										mind=dd;
+										minj=j;
+									}
 								}
 							}
 							else if(ftr_free(state.fighters[j]))
@@ -4304,7 +4311,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							unsigned int ft=state.fighters[minj].type;
 							if(state.fighters[minj].landed)
-								state.fighters[minj].fuelt=t+(ftypes[ft].night?(72+irandu(28)):(35+irandu(15)));
+							{
+								int famount=(ftypes[ft].night?(72+irandu(28)):(35+irandu(15)));
+								state.gprod[ICLASS_OIL]-=famount*(ftypes[ft].night?0.8:0.4);
+								state.fighters[minj].fuelt=t+famount;
+							}
 							state.fighters[minj].landed=false;
 							state.fighters[minj].hflak=i;
 							fightersleft--;
@@ -4335,13 +4346,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
 						if(state.fighters[j].landed)
 						{
-							const unsigned int base=state.fighters[j].base;
-							signed int dx=(signed)targs[i].lat-(signed)fbases[base].lat, dy=(signed)targs[i].lon-(signed)fbases[base].lon;
-							unsigned int dd=dx*dx+dy*dy;
-							if(dd<mind&&dd<range*range)
+							if(state.gprod[ICLASS_OIL]>=80)
 							{
-								mind=dd;
-								minj=j;
+								const unsigned int base=state.fighters[j].base;
+								signed int dx=(signed)targs[i].lat-(signed)fbases[base].lat, dy=(signed)targs[i].lon-(signed)fbases[base].lon;
+								unsigned int dd=dx*dx+dy*dy;
+								if(dd<mind&&dd<range*range)
+								{
+									mind=dd;
+									minj=j;
+								}
 							}
 						}
 						else if(ftr_free(state.fighters[j]))
@@ -4359,7 +4373,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						unsigned int ft=state.fighters[minj].type;
 						if(state.fighters[minj].landed)
-							state.fighters[minj].fuelt=t+(ftypes[ft].night?(72+irandu(28)):(35+irandu(15)));
+						{
+							int famount=(ftypes[ft].night?(72+irandu(28)):(35+irandu(15)));
+							state.gprod[ICLASS_OIL]-=famount*(ftypes[ft].night?0.8:0.4);
+							state.fighters[minj].fuelt=t+famount;
+						}
 						state.fighters[minj].landed=false;
 						state.fighters[minj].targ=i;
 						targs[i].threat-=(thresh*0.6);
@@ -5279,6 +5297,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			break;
 		}
 	}
+	state.gprod[ICLASS_ARM]*=0.95;
 	// German fighters
 	memset(fcount, 0, sizeof(fcount));
 	for(unsigned int i=0;i<state.nfighters;i++)
@@ -5702,7 +5721,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					}
 					unsigned int j;
 					f=sscanf(line, "IClass %u:%la\n", &j, &state->gprod[i]);
-					if(f!=4)
+					if(f!=2)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
