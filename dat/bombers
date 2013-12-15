@@ -7,7 +7,7 @@
 # Serviceability proportion
 # Defence is 'just a number', high is bad.  In fact it controls the amount of damage done by a 'hit' from flak or a fighter
 # Failure represents the chance of mech. fail. crashes and early returns, 'just a number', high is bad
-# Accuracy is an approximate percentage loads-on-target for a moderate raid to about the Ruhr...
+# Accuracy controls navigational errors
 # A range of 230 will reach Hamburg, 315 for Berlin.  Soesterberg could be under 120, while Schillig roads are about 175.  Munich (from Yorkshire) is up to 330
 # Dates are entry and exit from service (null in either case means open-ended)
 # Navaids lists which navigational aids this bomber can carry (a big set won't fit in a small bomber)
