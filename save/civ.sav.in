@@ -30,13 +30,13 @@ Bombers:411
 *98*Type 3:0,0,0,NOID
 *25*Type 3:1,0,0,NOID
 GProd:7
-IClass 0:0
-IClass 1:0
-IClass 2:0
-IClass 3:0
-IClass 4:0
-IClass 5:0
-IClass 6:0
+IClass 0:9000
+IClass 1:120000
+IClass 2:64000
+IClass 3:40000
+IClass 4:140000
+IClass 5:75000
+IClass 6:15000
 FTypes:8
 FBases:12
 Fighters:183
