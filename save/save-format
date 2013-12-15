@@ -20,7 +20,9 @@ for(i=0;i<nbombers;i++)
 		"Type %u:%u,%u,%u,NOID\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff
 	or
 		"Type %u:%u,%u,%u,%s\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id)
-"GProd:%la\n", gprod
+"GProd:%u\n", iclasses // should be a constant
+for(i=0;i<iclasses;i++)
+	"IClass %u:%la\n", i, gprod[i]
 "FTypes:%u\n", nftypes // should be a constant
 "FBases:%u\n", nfbases // should be a constant
 "Fighters:%u\n", nfighters
