@@ -33,7 +33,14 @@ Bombers:921
 *33*Type 7:1,1,0,NOID
 *51*Type 8:0,5,0,NOID
 *14*Type 8:1,5,0,NOID
-GProd:0
+GProd:7
+IClass 0:0
+IClass 1:0
+IClass 2:0
+IClass 3:0
+IClass 4:0
+IClass 5:0
+IClass 6:0
 FTypes:8
 FBases:12
 Fighters:257

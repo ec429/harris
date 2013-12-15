@@ -147,6 +147,9 @@ typedef struct
 }
 ftrbase;
 
+enum t_class {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,};
+enum i_class {ICLASS_BB, ICLASS_OIL, ICLASS_RAIL, ICLASS_UBOOT, ICLASS_ARM, ICLASS_STEEL, ICLASS_AC, ICLASS_MIXED,};
+
 typedef struct
 {
 	//NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
@@ -154,8 +157,8 @@ typedef struct
 	intel *p_intel;
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
-	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,} class;
-	enum {ICLASS_BB, ICLASS_OIL, ICLASS_RAIL, ICLASS_UBOOT, ICLASS_ARM, ICLASS_STEEL, ICLASS_AC, ICLASS_MIXED,} iclass;
+	enum t_class class;
+	enum i_class iclass;
 	bool berlin; // raids on Berlin are more valuable
 	bool flammable; // more easily damaged by incendiaries
 	SDL_Surface *picture;
@@ -253,7 +256,7 @@ typedef struct
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk, *heat;
-	double gprod;
+	double gprod[ICLASS_MIXED];
 	unsigned int nfighters;
 	ac_fighter *fighters;
 	raid *raids;

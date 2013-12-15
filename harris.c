@@ -113,6 +113,7 @@ SDL_Surface *render_xhairs(game state, int seltarg);
 unsigned int ntypes=0;
 void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
 bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS]);
+void produce(int targ, double gprod[ICLASS_MIXED], double amount);
 bombertype *types=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
@@ -5216,13 +5217,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	// German production
-	double dprod=0;
 	if(datebefore(state.now, event[EVENT_ABD]))
 	{
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			if(!datebefore(state.now, targs[i].entry)) continue;
-			if(targs[i].class==TCLASS_CITY) dprod+=100.0*targs[i].prod;
+			if(targs[i].class==TCLASS_CITY) produce(i, state.gprod, 100*targs[i].prod);
 		}
 	}
 	for(unsigned int i=0;i<ntargs;i++)
@@ -5244,20 +5244,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-				dprod+=state.dmg[i]*targs[i].prod;
+				produce(i, state.gprod, state.dmg[i]*targs[i].prod);
 			}
 			break;
 			case TCLASS_SHIPPING:
-			break;
 			case TCLASS_MINING:
-				dprod+=state.dmg[i]*targs[i].prod/6.0;
 			break;
 			case TCLASS_AIRFIELD:
 			case TCLASS_BRIDGE:
 			case TCLASS_ROAD:
-				if(state.dmg[i])
-					dprod+=state.dmg[i]*targs[i].prod/2.0;
-				else
+				if(!state.dmg[i])
 					goto unflak;
 			break;
 			case TCLASS_INDUSTRY:
@@ -5266,7 +5262,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					double ddmg=min(state.dmg[i]*.05, 100-state.dmg[i]);
 					state.dmg[i]+=ddmg;
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-					dprod+=state.dmg[i]*targs[i].prod/4.0;
+					produce(i, state.gprod, state.dmg[i]*targs[i].prod/2.0);
 				}
 				else
 				{
@@ -5313,8 +5309,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue;
 		mfcost=max(mfcost, ftypes[i].cost);
 	}
-	state.gprod+=dprod/18.0;
-	while(state.gprod>=mfcost)
+	while(state.gprod[ICLASS_AC]>=mfcost/3.0)
 	{
 		double p[nftypes], cumu_p=0;
 		for(unsigned int j=0;j<nftypes;j++)
@@ -5337,7 +5332,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		unsigned int i=0;
 		while(d>=p[i]) d-=p[i++];
 		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue; // should be impossible as p[i] == 0
-		if(ftypes[i].cost>state.gprod) break; // should also be impossible as cost <= mfcost <= state.gprod
+		if(ftypes[i].cost/3.0>state.gprod[ICLASS_AC]) break; // should also be impossible as cost <= mfcost <= state.gprod
 		unsigned int n=state.nfighters++;
 		ac_fighter *newf=realloc(state.fighters, state.nfighters*sizeof(ac_fighter));
 		if(!newf)
@@ -5351,7 +5346,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			base=irandu(nfbases);
 		while(!datewithin(state.now, fbases[base].entry, fbases[base].exit));
 		(state.fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0, .id=rand_acid()};
-		state.gprod-=ftypes[i].cost;
+		state.gprod[ICLASS_AC]-=ftypes[i].cost/3.0;
 		ct_append(&state.hist, state.now, (time){11, 50}, state.fighters[n].id, true, i);
 	}
 	state.now=tomorrow;
@@ -5676,11 +5671,50 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 		}
 		else if(strcmp(tag, "GProd")==0)
 		{
-			f=sscanf(dat, "%la\n", &state->gprod);
+			unsigned int snclass;
+			f=sscanf(dat, "%u\n", &snclass);
 			if(f!=1)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 				e|=1;
+			}
+			else if(snclass!=ICLASS_MIXED)
+			{
+				fprintf(stderr, "2 Value mismatch: different iclasses value\n");
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<snclass;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					if(*line=='#')
+					{
+						i--;
+						continue;
+					}
+					unsigned int j;
+					f=sscanf(line, "IClass %u:%la\n", &j, &state->gprod[i]);
+					if(f!=4)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+				}
 			}
 		}
 		else if(strcmp(tag, "FTypes")==0)
@@ -6020,7 +6054,9 @@ int savegame(const char *fn, game state)
 		pacid(state.bombers[i].id, p_id);
 		fprintf(fs, "Type %u:%u,%u,%u,%s\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id);
 	}
-	fprintf(fs, "GProd:%la\n", state.gprod);
+	fprintf(fs, "GProd:%u\n", ICLASS_MIXED);
+	for(unsigned int i=0;i<ICLASS_MIXED;i++)
+		fprintf(fs, "IClass %u:%la\n", i, state.gprod[i]);
 	fprintf(fs, "FTypes:%u\n", nftypes);
 	fprintf(fs, "FBases:%u\n", nfbases);
 	fprintf(fs, "Fighters:%u\n", state.nfighters);
@@ -6375,4 +6411,40 @@ bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS])
 		if(filter_nav[n]<0&&b.nav[n]) return(false);
 	}
 	return(true);
+}
+
+void produce(int targ, double gprod[ICLASS_MIXED], double amount)
+{
+	if((targs[targ].iclass!=ICLASS_RAIL)&&(targs[targ].iclass!=ICLASS_MIXED))
+		amount=min(amount, gprod[ICLASS_RAIL]*15.0);
+	switch(targs[targ].iclass)
+	{
+		case ICLASS_BB:
+		case ICLASS_RAIL:
+		case ICLASS_STEEL:
+		case ICLASS_OIL:
+		case ICLASS_UBOOT:
+		break;
+		case ICLASS_ARM:
+			amount=min(amount, gprod[ICLASS_STEEL]);
+			gprod[ICLASS_STEEL]-=amount;
+		break;
+		case ICLASS_AC:
+			amount=min(amount, gprod[ICLASS_BB]*8.0);
+			gprod[ICLASS_BB]-=amount/8.0;
+		break;
+		case ICLASS_MIXED:
+			gprod[ICLASS_OIL]+=amount/7.0;
+			gprod[ICLASS_RAIL]+=amount/7.0;
+			gprod[ICLASS_UBOOT]+=amount/7.0;
+			gprod[ICLASS_ARM]+=amount/7.0;
+			gprod[ICLASS_AC]+=amount/7.0;
+			return;
+		default:
+			fprintf(stderr, "Bad targs[%d].iclass = %d\n", targ, targs[targ].iclass);
+		break;
+	}
+	if(targs[targ].iclass!=ICLASS_RAIL)
+		gprod[ICLASS_RAIL]-=amount/15.0;
+	gprod[targs[targ].iclass]+=amount;
 }
