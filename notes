@@ -84,3 +84,12 @@ Bombload rules for now (distillation of the above):
 	Usual: 4000lb HE if cap>=14000 else 1500lb HE; rest IN
 	Arson: 100% IN
 	Illuminator: 3000lb TI
+
+
+industry tracking:
+Industry target flags (already in) are: BB, OIL, RAIL, UBOOT, AC, ARM, STEEL
+Fighter production depends on AC and BB; fuel supplies should also be tracked and depend on OIL.
+Flak strength should depend on ARM and STEEL.
+RAIL should scale all production.
+UBOOT doesn't affect the defences, but it makes the War Office happy.
+A city with no type flag contributes equally to all seven types.

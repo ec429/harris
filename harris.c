@@ -440,11 +440,21 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					fprintf(stderr, "  unrecognised :CLASS `%s'\n", class);
 					return(1);
 				}
-				this.bb=strstr(class, ",BB")||strstr(class, ",AC");
-				this.oil=strstr(class, ",OIL");
-				this.rail=strstr(class, ",RAIL");
-				this.uboot=strstr(class, ",UBOOT");
-				this.arm=strstr(class, ",ARM");
+				this.iclass=ICLASS_MIXED;
+				if(strstr(class, ",BB"))
+					this.iclass=ICLASS_BB;
+				if(strstr(class, ",OIL"))
+					this.iclass=ICLASS_OIL;
+				if(strstr(class, ",RAIL"))
+					this.iclass=ICLASS_RAIL;
+				if(strstr(class, ",UBOOT"))
+					this.iclass=ICLASS_UBOOT;
+				if(strstr(class, ",ARM"))
+					this.iclass=ICLASS_ARM;
+				if(strstr(class, ",STEEL"))
+					this.iclass=ICLASS_STEEL;
+				if(strstr(class, ",AC"))
+					this.iclass=ICLASS_AC;
 				this.berlin=strstr(class, ",BERLIN");
 				this.flammable=strstr(class, ",FLAMMABLE");
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));

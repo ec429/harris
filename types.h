@@ -155,13 +155,9 @@ typedef struct
 	unsigned int prod, flak, esiz, lat, lon;
 	date entry, exit;
 	enum {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,} class;
-	bool bb; // contains aircraft or ballbearing works (Pointblank Directive)
-	bool oil; // industry-type OIL refineries
-	bool rail; // industry-type RAIL yards
-	bool uboot; // industry-type UBOOT factories
-	bool arm; // industry-type ARMament production (incl. steel etc.)
+	enum {ICLASS_BB, ICLASS_OIL, ICLASS_RAIL, ICLASS_UBOOT, ICLASS_ARM, ICLASS_STEEL, ICLASS_AC, ICLASS_MIXED,} iclass;
 	bool berlin; // raids on Berlin are more valuable
-	bool flammable; // more easily damaged
+	bool flammable; // more easily damaged by incendiaries
 	SDL_Surface *picture;
 	unsigned int psiz; // 'physical' size (cities only) - #pixels in picture
 	/* for Type I fighter control */
