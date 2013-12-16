@@ -38,4 +38,4 @@ int evm_append(history *hist, date d, time t, const char *ev); // Append a misce
 int ca_append(history *hist, date d, time t, unsigned int cshr, unsigned int cash); // Append a CA (cash) event to the history
 int co_append(history *hist, date d, time t, double confid); // Append a CO (confid) event to the history
 int mo_append(history *hist, date d, time t, double morale); // Append a MO (morale) event to the history
-int gp_append(history *hist, date d, time t, unsigned int iclass, double value); // Append a GP (GProd) event to the history
+int gp_append(history *hist, date d, time t, unsigned int iclass, double gprod, double dprod); // Append a GP (GProd) event to the history

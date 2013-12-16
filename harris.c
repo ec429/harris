@@ -113,7 +113,7 @@ SDL_Surface *render_xhairs(game state, int seltarg);
 unsigned int ntypes=0;
 void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
 bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS]);
-void produce(int targ, double gprod[ICLASS_MIXED], double amount);
+void produce(int targ, game *state, double amount);
 bombertype *types=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
@@ -5241,6 +5241,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	// German production
+	for(unsigned int i=0;i<ICLASS_MIXED;i++)
+		state.dprod[i]=0;
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		if(!datebefore(state.now, targs[i].exit)) continue;
@@ -5257,9 +5259,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				if(ddmg)
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
 				if(datebefore(state.now, targs[i].entry))
-					produce(i, state.gprod, 80*targs[i].prod);
+					produce(i, &state, 80*targs[i].prod);
 				else
-					produce(i, state.gprod, state.dmg[i]*targs[i].prod);
+					produce(i, &state, state.dmg[i]*targs[i].prod);
 			}
 			break;
 			case TCLASS_LEAFLET:
@@ -5268,7 +5270,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-				produce(i, state.gprod, state.dmg[i]*targs[i].prod/20.0);
+				produce(i, &state, state.dmg[i]*targs[i].prod/20.0);
 			}
 			break;
 			case TCLASS_SHIPPING:
@@ -5286,7 +5288,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					double ddmg=min(state.dmg[i]*.05, 100-state.dmg[i]);
 					state.dmg[i]+=ddmg;
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-					produce(i, state.gprod, state.dmg[i]*targs[i].prod/2.0);
+					produce(i, &state, state.dmg[i]*targs[i].prod/2.0);
 				}
 				else
 				{
@@ -5379,7 +5381,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		ct_append(&state.hist, state.now, (time){11, 50}, state.fighters[n].id, true, i);
 	}
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
-		gp_append(&state.hist, state.now, (time){11, 55}, i, state.gprod[i]);
+		gp_append(&state.hist, state.now, (time){11, 55}, i, state.gprod[i], state.dprod[i]);
 	state.now=tomorrow;
 	for(unsigned int i=0;i<ntypes;i++)
 		if(!diffdate(state.now, types[i].entry))
@@ -6444,10 +6446,10 @@ bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS])
 	return(true);
 }
 
-void produce(int targ, double gprod[ICLASS_MIXED], double amount)
+void produce(int targ, game *state, double amount)
 {
 	if((targs[targ].iclass!=ICLASS_RAIL)&&(targs[targ].iclass!=ICLASS_MIXED))
-		amount=min(amount, gprod[ICLASS_RAIL]*8.0);
+		amount=min(amount, state->gprod[ICLASS_RAIL]*8.0);
 	switch(targs[targ].iclass)
 	{
 		case ICLASS_BB:
@@ -6457,25 +6459,28 @@ void produce(int targ, double gprod[ICLASS_MIXED], double amount)
 		case ICLASS_UBOOT:
 		break;
 		case ICLASS_ARM:
-			amount=min(amount, gprod[ICLASS_STEEL]);
-			gprod[ICLASS_STEEL]-=amount;
+			amount=min(amount, state->gprod[ICLASS_STEEL]);
+			state->gprod[ICLASS_STEEL]-=amount;
 		break;
 		case ICLASS_AC:
-			amount=min(amount, gprod[ICLASS_BB]*2.0);
-			gprod[ICLASS_BB]-=amount/2.0;
+			amount=min(amount, state->gprod[ICLASS_BB]*2.0);
+			state->gprod[ICLASS_BB]-=amount/2.0;
 		break;
 		case ICLASS_MIXED:
-			gprod[ICLASS_OIL]+=amount/7.0;
-			gprod[ICLASS_RAIL]+=amount/21.0;
-			gprod[ICLASS_ARM]+=amount/7.0;
-			gprod[ICLASS_AC]+=amount/7.0;
-			gprod[ICLASS_BB]-=amount/14.0;
+#define ADD(class, qty)	state->gprod[class]+=qty; state->dprod[class]+=qty;
+			ADD(ICLASS_OIL, amount/7.0);
+			ADD(ICLASS_RAIL, amount/21.0);
+			ADD(ICLASS_ARM, amount/7.0);
+			ADD(ICLASS_AC, amount/7.0);
+			ADD(ICLASS_BB, amount/14.0);
+#undef ADD
 			return;
 		default:
 			fprintf(stderr, "Bad targs[%d].iclass = %d\n", targ, targs[targ].iclass);
 		break;
 	}
 	if(targs[targ].iclass!=ICLASS_RAIL)
-		gprod[ICLASS_RAIL]-=amount/8.0;
-	gprod[targs[targ].iclass]+=amount;
+		state->gprod[ICLASS_RAIL]-=amount/8.0;
+	state->gprod[targs[targ].iclass]+=amount;
+	state->dprod[targs[targ].iclass]+=amount;
 }

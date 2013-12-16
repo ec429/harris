@@ -256,7 +256,7 @@ typedef struct
 	w_state weather;
 	unsigned int ntargs;
 	double *dmg, *flk, *heat;
-	double gprod[ICLASS_MIXED];
+	double gprod[ICLASS_MIXED], dprod[ICLASS_MIXED];
 	unsigned int nfighters;
 	ac_fighter *fighters;
 	raid *raids;

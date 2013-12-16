@@ -258,9 +258,9 @@ int mo_append(history *hist, date d, time t, double morale)
 	return(evm_append(hist, d, t, buf));
 }
 
-int gp_append(history *hist, date d, time t, unsigned int iclass, double value)
+int gp_append(history *hist, date d, time t, unsigned int iclass, double gprod, double dprod)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "GP %u %a", iclass, value);
+	snprintf(buf, HIST_LINE, "GP %u %a %a", iclass, gprod, dprod);
 	return(evm_append(hist, d, t, buf));
 }

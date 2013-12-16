@@ -23,4 +23,4 @@
 <cash-ev>::= CA <delta-cash:int> <current-cash:int> # Only for Budget payments, as CT costs are known
 <conf-ev>::= CO <confid:float>
 <mora-ev>::= MO <morale:float>
-<gprd-ev>::= GP <iclass:int> <gprod:float>
+<gprd-ev>::= GP <iclass:int> <gprod:float> <dprod:float> # dprod is _not_ the difference from the previous gprod!
