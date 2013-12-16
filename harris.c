@@ -489,6 +489,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					char cfn[48];
 					snprintf(cfn, 48, "dat/cities/%s.pbm", targs[t].name);
 					SDL_Surface *picsrc=IMG_Load(cfn);
+					if(!picsrc)
+					{
+						fprintf(stderr, "targs[%u].picture: IMG_Load: %s\n", t, IMG_GetError());
+						return(1);
+					}
 					int sz=((int)((targs[t].esiz+1)/3))|1;
 					if((sz!=picsrc->w)||(sz!=picsrc->h))
 					{
