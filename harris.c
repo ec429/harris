@@ -4636,6 +4636,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						unsigned int sf=1;
 						if(targs[i].berlin) sf*=2;
 						if(targs[i].class==TCLASS_INDUSTRY) sf*=2;
+						if(targs[i].iclass==ICLASS_UBOOT) sf*=1.2;
 						if(canscore[i]) scoretbj+=tij[i][j]*sf;
 					break;
 					case TCLASS_LEAFLET:
@@ -5235,17 +5236,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	// German production
-	if(datebefore(state.now, event[EVENT_ABD]))
-	{
-		for(unsigned int i=0;i<ntargs;i++)
-		{
-			if(!datebefore(state.now, targs[i].entry)) continue;
-			if(targs[i].class==TCLASS_CITY) produce(i, state.gprod, 100*targs[i].prod);
-		}
-	}
 	for(unsigned int i=0;i<ntargs;i++)
 	{
-		if(!datewithin(state.now, targs[i].entry, targs[i].exit)) continue;
+		if(!datebefore(state.now, targs[i].exit)) continue;
 		switch(targs[i].class)
 		{
 			case TCLASS_CITY:
@@ -5254,15 +5247,23 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.flk[i]+=dflk;
 				if(dflk)
 					tfk_append(&state.hist, state.now, (time){11, 45}, i, dflk, state.flk[i]);
+				double ddmg=min(state.dmg[i]*.01, 100-state.dmg[i]);
+				state.dmg[i]+=ddmg;
+				if(ddmg)
+					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
+				if(datebefore(state.now, targs[i].entry))
+					produce(i, state.gprod, 80*targs[i].prod);
+				else
+					produce(i, state.gprod, state.dmg[i]*targs[i].prod);
 			}
-				/* fallthrough */
+			break;
 			case TCLASS_LEAFLET:
 			{
 				double ddmg=min(state.dmg[i]*.01, 100-state.dmg[i]);
 				state.dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-				produce(i, state.gprod, state.dmg[i]*targs[i].prod);
+				produce(i, state.gprod, state.dmg[i]*targs[i].prod/20.0);
 			}
 			break;
 			case TCLASS_SHIPPING:
@@ -5331,7 +5332,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue;
 		mfcost=max(mfcost, ftypes[i].cost);
 	}
-	while(state.gprod[ICLASS_AC]>=mfcost/3.0)
+	while(state.gprod[ICLASS_AC]>=mfcost)
 	{
 		double p[nftypes], cumu_p=0;
 		for(unsigned int j=0;j<nftypes;j++)
@@ -5354,7 +5355,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		unsigned int i=0;
 		while(d>=p[i]) d-=p[i++];
 		if(!datewithin(state.now, ftypes[i].entry, ftypes[i].exit)) continue; // should be impossible as p[i] == 0
-		if(ftypes[i].cost/3.0>state.gprod[ICLASS_AC]) break; // should also be impossible as cost <= mfcost <= state.gprod
+		if(ftypes[i].cost>state.gprod[ICLASS_AC]) break; // should also be impossible as cost <= mfcost <= state.gprod
 		unsigned int n=state.nfighters++;
 		ac_fighter *newf=realloc(state.fighters, state.nfighters*sizeof(ac_fighter));
 		if(!newf)
@@ -5368,7 +5369,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			base=irandu(nfbases);
 		while(!datewithin(state.now, fbases[base].entry, fbases[base].exit));
 		(state.fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0, .id=rand_acid()};
-		state.gprod[ICLASS_AC]-=ftypes[i].cost/3.0;
+		state.gprod[ICLASS_AC]-=ftypes[i].cost;
 		ct_append(&state.hist, state.now, (time){11, 50}, state.fighters[n].id, true, i);
 	}
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
@@ -6440,7 +6441,7 @@ bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS])
 void produce(int targ, double gprod[ICLASS_MIXED], double amount)
 {
 	if((targs[targ].iclass!=ICLASS_RAIL)&&(targs[targ].iclass!=ICLASS_MIXED))
-		amount=min(amount, gprod[ICLASS_RAIL]*6.0);
+		amount=min(amount, gprod[ICLASS_RAIL]*8.0);
 	switch(targs[targ].iclass)
 	{
 		case ICLASS_BB:
@@ -6459,8 +6460,7 @@ void produce(int targ, double gprod[ICLASS_MIXED], double amount)
 		break;
 		case ICLASS_MIXED:
 			gprod[ICLASS_OIL]+=amount/7.0;
-			gprod[ICLASS_RAIL]+=amount/42.0;
-			gprod[ICLASS_UBOOT]+=amount/7.0;
+			gprod[ICLASS_RAIL]+=amount/21.0;
 			gprod[ICLASS_ARM]+=amount/7.0;
 			gprod[ICLASS_AC]+=amount/7.0;
 			gprod[ICLASS_BB]-=amount/14.0;
@@ -6470,6 +6470,6 @@ void produce(int targ, double gprod[ICLASS_MIXED], double amount)
 		break;
 	}
 	if(targs[targ].iclass!=ICLASS_RAIL)
-		gprod[ICLASS_RAIL]-=amount/6.0;
+		gprod[ICLASS_RAIL]-=amount/8.0;
 	gprod[targs[targ].iclass]+=amount;
 }

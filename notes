@@ -91,5 +91,5 @@ Industry target flags (already in) are: BB, OIL, RAIL, UBOOT, AC, ARM, STEEL
 Fighter production depends on AC and BB; fuel supplies should also be tracked and depend on OIL.
 Flak strength should depend on ARM and STEEL.
 RAIL should scale all production.
-UBOOT doesn't affect the defences, it just makes the War Office happy (and thus gets budget & confid like any other target).
+UBOOT doesn't affect the defences, it just makes the War Office happy (and thus gets 20% more budget).
 A city with no type flag contributes equally to all seven types.

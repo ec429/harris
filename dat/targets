@@ -80,6 +80,7 @@ Kassel:               11: 7:14:127:178:14-02-1942:          :CITY
 Kassel Leaflets:       1: 2:14:127:178:          :14-02-1942:LEAFLET
 Mainz:                 9: 5: 9:154:161:14-02-1942:          :CITY,RAIL
 Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY,FLAMMABLE
+Wilhelmshaven:        10: 9:14: 70:161:14-02-1942:          :CITY,UBOOT
 Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY,FLAMMABLE
 Rostock:              13: 6:16: 60:211:14-02-1942:          :CITY,UBOOT
 Peenemünde:           18:11: 7: 59:238:18-06-1943:          :CITY,ARM
@@ -97,16 +98,16 @@ Wesel road bridge:     8:16:10:115:139:10-05-1940:14-05-1940:BRIDGE
 
 # Specific industrial targets (CIV-ABD)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
-Berlin U-boat Works:  20:12:15: 98:233:24-05-1940:14-02-1942:INDUSTRY,UBOOT,BERLIN
+Berlin U-boat Works:   8:12:15: 98:233:24-05-1940:14-02-1942:INDUSTRY,UBOOT,BERLIN
 Tempelhof Airport:     5:14:12: 96:235:02-08-1940:14-02-1942:AIRFIELD,BERLIN
 Berlin Rail Junction: 10: 8:16: 96:231:24-05-1940:14-02-1942:INDUSTRY,RAIL,BERLIN
 Siemens, Berlin:      14: 9:10: 97:237:24-05-1940:14-02-1942:INDUSTRY,BERLIN
 München-Gladbach:      8: 8:20:130:136:11-05-1940:14-02-1942:INDUSTRY,RAIL
 Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:14-02-1942:INDUSTRY,OIL
 Cologne Power Station: 9: 6:13:135:145:19-05-1940:14-02-1942:INDUSTRY
-Dusseldorf Steel Mill:16: 4:30:128:142:15-05-1940:14-02-1942:INDUSTRY,STEEL
+Dusseldorf Steel Mill:22: 4:30:128:142:15-05-1940:14-02-1942:INDUSTRY,STEEL
 Krupps, Essen:        30:10:19:122:145:15-05-1940:14-02-1942:INDUSTRY,ARM
-Zollverein Coalmine:  14: 5:16:121:147:16-05-1940:14-02-1942:INDUSTRY
+Zollverein Coalmine:  14: 5:16:121:147:16-05-1940:14-02-1942:INDUSTRY,STEEL
 Hamburg Oil Refinery: 18: 6:18: 73:187:15-05-1940:14-02-1942:INDUSTRY,OIL
 Blohm + Voss:         12: 4:13: 75:184:16-05-1940:14-02-1942:INDUSTRY,AC
 VKF Frankfurt:        13: 9:16:148:167:15-05-1940:14-02-1942:INDUSTRY,BB
@@ -126,7 +127,7 @@ Henschel Tank Works:  13: 7:11:128:178:16-05-1940:14-02-1942:INDUSTRY,ARM
 Munich Railyards:     11:15:21:192:208:15-05-1940:14-02-1942:INDUSTRY,RAIL
 Siemens, Munich:      16: 9:15:194:207:18-05-1940:14-02-1942:INDUSTRY
 Hamm Railyards:       10: 5:18:117:154:19-05-1940:14-02-1942:INDUSTRY,RAIL
-Duisburg Ironworks:   11: 5:26:122:141:16-05-1940:14-02-1942:INDUSTRY,STEEL
+Duisburg Ironworks:   17: 5:26:122:141:16-05-1940:14-02-1942:INDUSTRY,STEEL
 Hanover Bauwerke:     10: 6:14:101:182:18-05-1940:14-02-1942:INDUSTRY,ARM
 Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:14-02-1942:INDUSTRY,UBOOT
 
