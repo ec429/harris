@@ -5305,6 +5305,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	state.gprod[ICLASS_ARM]*=0.95;
 	state.gprod[ICLASS_BB]*=0.99;
+	state.gprod[ICLASS_RAIL]*=0.99;
 	state.gprod[ICLASS_OIL]*=0.98;
 	state.gprod[ICLASS_UBOOT]*=0.95; // not actually used for anything
 	// German fighters
