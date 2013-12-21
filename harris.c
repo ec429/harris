@@ -4204,7 +4204,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							double T = (ud + sqrt(ud*ud + dd*(vv-uu))) / (vv-uu);
 							double fuelt=state.fighters[j].landed?40:state.fighters[j].fuelt-t-40;
-							if(state.gprod[ICLASS_OIL]<80) fuelt=-1;
+							if(state.gprod[ICLASS_OIL]<20) fuelt=-1;
 							if(T<fuelt)
 							{
 								boared=true;
@@ -4213,7 +4213,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									state.fighters[j].landed=false;
 									int famount=72+irandu(28);
 									state.fighters[j].fuelt=t+famount;
-									state.gprod[ICLASS_OIL]-=famount*0.8;
+									state.gprod[ICLASS_OIL]-=famount*0.2;
 								}
 								double vx = dx/T + boarvx;
 								double vy = dy/T + boarvy;
@@ -4289,7 +4289,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
 							if(state.fighters[j].landed)
 							{
-								if(state.gprod[ICLASS_OIL]>=80)
+								if(state.gprod[ICLASS_OIL]>=20)
 								{
 									const unsigned int base=state.fighters[j].base;
 									signed int dx=(signed)flaks[i].lat-(signed)fbases[base].lat, dy=(signed)flaks[i].lon-(signed)fbases[base].lon;
@@ -4318,7 +4318,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							if(state.fighters[minj].landed)
 							{
 								int famount=(ftypes[ft].night?(72+irandu(28)):(35+irandu(15)));
-								state.gprod[ICLASS_OIL]-=famount*(ftypes[ft].night?0.8:0.4);
+								state.gprod[ICLASS_OIL]-=famount*(ftypes[ft].night?0.2:0.1);
 								state.fighters[minj].fuelt=t+famount;
 							}
 							state.fighters[minj].landed=false;
@@ -4351,7 +4351,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
 						if(state.fighters[j].landed)
 						{
-							if(state.gprod[ICLASS_OIL]>=80)
+							if(state.gprod[ICLASS_OIL]>=20)
 							{
 								const unsigned int base=state.fighters[j].base;
 								signed int dx=(signed)targs[i].lat-(signed)fbases[base].lat, dy=(signed)targs[i].lon-(signed)fbases[base].lon;
@@ -4380,7 +4380,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(state.fighters[minj].landed)
 						{
 							int famount=(ftypes[ft].night?(72+irandu(28)):(35+irandu(15)));
-							state.gprod[ICLASS_OIL]-=famount*(ftypes[ft].night?0.8:0.4);
+							state.gprod[ICLASS_OIL]-=famount*(ftypes[ft].night?0.2:0.1);
 							state.fighters[minj].fuelt=t+famount;
 						}
 						state.fighters[minj].landed=false;
