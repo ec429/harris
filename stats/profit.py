@@ -51,6 +51,8 @@ def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 							raise TargetClassUnrecognised(targ['flags'])
 						if 'BERLIN' in targ['flags']:
 							f *= 2
+						if 'UBOOT' in targ['flags']:
+							f *= 1.2
 						if targets[ti]: # not 100% accurate but close enough
 							if start:
 								bombers[acid][1] += h['data']['data']['bombs'] * f
