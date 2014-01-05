@@ -6471,7 +6471,7 @@ void produce(int targ, game *state, double amount)
 			ADD(ICLASS_OIL, amount/7.0);
 			ADD(ICLASS_RAIL, amount/21.0);
 			ADD(ICLASS_ARM, amount/7.0);
-			ADD(ICLASS_AC, amount/7.0);
+			ADD(ICLASS_AC, amount/21.0);
 			ADD(ICLASS_BB, amount/14.0);
 #undef ADD
 			return;
