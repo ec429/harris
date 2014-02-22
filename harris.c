@@ -2877,7 +2877,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.bombers[j].damage=0;
 		state.bombers[j].ldf=false;
 	}
-	double flakscale=state.gprod[ICLASS_ARM]/300000.0;
+	double flakscale=state.gprod[ICLASS_ARM]/250000.0;
 	bool shownav=false;
 	filter_pff=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
@@ -5305,7 +5305,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			break;
 		}
 	}
-	state.gprod[ICLASS_ARM]*=0.95;
+	state.gprod[ICLASS_ARM]*=datebefore(state.now, event[EVENT_BARBAROSSA])?0.96:0.94;
 	state.gprod[ICLASS_BB]*=0.99;
 	state.gprod[ICLASS_RAIL]*=0.99;
 	state.gprod[ICLASS_OIL]*=0.98;
