@@ -163,8 +163,8 @@ class Save(object):
 			return self.Targets, False
 		if tag == 'Targets init':
 			self.ntargets = len(hdata.Targets)
-			dmg, flk, heat = rest.split(',', 2)
-			self.targets = [dict({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat)}) for i in xrange(self.ntargets)]
+			dmg, flk, heat, flam = rest.split(',', 3)
+			self.targets = [dict({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat), 'flam':readfloat(flam)}) for i in xrange(self.ntargets)]
 			return None, False
 		if tag == 'Weather state':
 			self._wline = 0
@@ -217,10 +217,10 @@ class Save(object):
 	def Targets(self, tag, rest):
 		if tag.startswith('Targ '):
 			targ = int(tag[5:])
-			dmg, flk, heat = rest.split(',', 2)
+			dmg, flk, heat, flam = rest.split(',', 3)
 			while len(self.targets) < targ:
-				self.targets.append({'dmg':100, 'flk':100, 'heat':0})
-			self.targets.append({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat)})
+				self.targets.append({'dmg':100, 'flk':100, 'heat':0, 'flam':40})
+			self.targets.append({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat), 'flam':readfloat(flam)})
 			return len(self.targets) == self.ntargets
 		raise UnrecognisedSubtag('Targets', tag, rest)
 	def GProd(self, tag, rest):

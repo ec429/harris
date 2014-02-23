@@ -6214,7 +6214,7 @@ int savegame(const char *fn, game state)
 	}
 	fprintf(fs, "Targets:%hhu\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
-		fprintf(fs, "Targ %hhu:%la,%la,%la\n", i, state.dmg[i], targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0, state.heat[i]);
+		fprintf(fs, "Targ %hhu:%la,%la,%la,%la\n", i, state.dmg[i], targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0, state.heat[i], state.flam[i]);
 	fprintf(fs, "Weather state:%la,%la\n", state.weather.push, state.weather.slant);
 	for(unsigned int x=0;x<256;x++)
 	{
