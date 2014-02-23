@@ -105,7 +105,7 @@ typedef struct
 	date exit;
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
-	bool noarm, pff, inc, broughton;
+	bool noarm, pff, heavy, inc, broughton;
 	unsigned int blat, blon;
 	SDL_Surface *picture;
 	char *text, *newtext;

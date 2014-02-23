@@ -210,6 +210,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					this.nav[i]=strstr(nav, navaids[i]);
 				this.noarm=strstr(nav, "NOARM");
 				this.pff=strstr(nav, "PFF");
+				this.heavy=strstr(nav, "HEAVY");
 				this.inc=strstr(nav, "INC");
 				this.broughton=strstr(nav, "BROUGHTON");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
@@ -3856,7 +3857,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						bool airad=ftypes[type].night&&!datebefore(state.now, event[EVENT_L_BC]);
 						unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
-						double seerange=airad?1.9:(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+						bool heavy=types[state.bombers[k].type].heavy;
+						double seerange=airad?(heavy?1.9:1.2):((heavy?5.0:2.1)*(moonillum+.3)/(double)(8+max(4-wea, 0)));
 						if(xyr(state.bombers[k].lon-state.fighters[j].lon, state.bombers[k].lat-state.fighters[j].lat, seerange))
 						{
 							double findp=airad?0.7:0.8/(double)(8+max(4-wea, 0));
