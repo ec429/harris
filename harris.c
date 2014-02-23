@@ -3812,7 +3812,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if((abs(dx)<=hx)&&(abs(dy)<=hy)&&(pget(targs[ta].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE))
 									{
 										unsigned int he=state.bombers[k].b_hc+state.bombers[k].b_gp;
-										hi_append(&state.hist, state.now, maketime(t), state.bombers[k].id, false, type, ta, he+state.bombers[k].b_in+state.bombers[k].b_ti);
+										hi_append(&state.hist, state.now, maketime(t), state.bombers[k].id, false, type, ta, he+state.bombers[k].b_in/2+state.bombers[k].b_ti);
 										state.flam[ta]=min(state.flam[ta]+state.bombers[k].b_hc/5000.0, 100); // HC (cookies) increase target flammability
 										double maybe_dmg=(he*1.2+state.bombers[k].b_in*(targs[ta].flammable?1.8:1.0)*state.flam[ta]/40.0)/(targs[ta].psiz*10000.0);
 										double dmg=min(state.dmg[ta], maybe_dmg);
@@ -4568,7 +4568,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									// most of it was already handled when the bombs were dropped
 									heat[l]++;
 									nij[l][type]++;
-									tij[l][type]+=state.bombers[k].b_hc+state.bombers[k].b_gp+state.bombers[k].b_in+state.bombers[k].b_ti;
+									tij[l][type]+=state.bombers[k].b_hc+state.bombers[k].b_gp+state.bombers[k].b_in/2+state.bombers[k].b_ti;
 									state.bombers[k].bombed=false;
 								}
 							}
