@@ -51,7 +51,7 @@ Fighters:162
 *15*Type 3:4,NOID
 *17*Type 4:5,NOID
 *13*Type 5:4,NOID
-Targets:106
+Targets:108
 #Berlin
 Targ 20:100,120,0
 #Cologne
@@ -79,7 +79,7 @@ Targ 47:93,87,0
 #Mannheim
 Targ 53:45,30,0
 #!LAST!
-Targ 105:100,100,0
+Targ 107:100,100,0
 Weather rand:2282901
 Messages:1
 14-02-1942:ORDERS
