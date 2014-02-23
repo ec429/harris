@@ -1002,7 +1002,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				if(types[j].noarm)
 					state.raids[i].pffloads[j]=BL_ILLUM;
 				else
-					state.raids[i].pffloads[j]=BL_ARSON;
+					state.raids[i].pffloads[j]=BL_USUAL;
 			}
 			else
 				state.raids[i].pffloads[j]=0; // doesn't matter
