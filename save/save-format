@@ -36,11 +36,11 @@ either
 	"Targets:%hhu\n", ntargs // should be a constant
 	for(i=0;i<ntargs;i++)
 		optionally // otherwise assume 100, 100, 0; cannot omit last Targ line
-			"Targ %hhu:%la,%la,%la\n", i, targs[i].dmg, targs[i].flk, targs[i].heat
+			"Targ %hhu:%la,%la,%la,%la\n", i, targs[i].dmg, targs[i].flk, targs[i].heat, targs[i].flam
 }
 or
 {
-	"Targets init:%la,%la,%la\n", targs[*].dmg, targs[*].flk, targs[*].heat
+	"Targets init:%la,%la,%la,%la\n", targs[*].dmg, targs[*].flk, targs[*].heat, targs[*].flam
 }
 either
 {

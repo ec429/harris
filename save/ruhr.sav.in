@@ -54,35 +54,35 @@ Fighters:257
 *23*Type 5:1,NOID
 Targets:108
 #Berlin
-Targ 20:100,120,0
+Targ 20:100,120,0,40
 #Cologne
-Targ 27:97,98,0
+Targ 27:97,98,0,40
 #Essen
-Targ 29:99,100,0
+Targ 29:99,100,0,40
 #Dusseldorf
-Targ 31:96,95,0
+Targ 31:96,95,0,40
 #Dortmund
-Targ 32:98,99,0
+Targ 32:98,99,0,40
 #Bochum
-Targ 33:96,93,0
+Targ 33:96,93,0,40
 #Duisburg
-Targ 34:87,89,0
+Targ 34:87,89,0,44
 #Hagen
-Targ 35:90,93,0
+Targ 35:90,93,0,41
 #Wuppertal
-Targ 37:95,97,0
+Targ 37:95,97,0,40
 #Hamm
-Targ 38:89,91,0
+Targ 38:89,91,0,40
 #Bremen
-Targ 39:92,93,0
+Targ 39:92,93,0,40
 #Hanover
-Targ 47:93,95,0
+Targ 47:93,95,0,40
 #Kassel
-Targ 51:96,88,0
+Targ 51:96,88,0,40
 #Mannheim
-Targ 53:64,60,0
+Targ 53:64,60,0,56
 #!LAST!
-Targ 107:100,100,0
+Targ 107:100,100,0,40
 Weather rand:521193
 Messages:1
 04-03-1943:ORDERS

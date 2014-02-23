@@ -83,6 +83,7 @@ struct bombloadinfo bombloads[NBOMBLOADS]=
 	[BL_USUAL	]={.name="Us", .fn="art/bombloads/usual.png"},
 	[BL_ARSON	]={.name="Ar", .fn="art/bombloads/arson.png"},
 	[BL_ILLUM	]={.name="Il", .fn="art/bombloads/illuminator.png"},
+	[BL_HALFHALF]={.name="Hh", .fn="art/bombloads/halfandhalf.png"},
 };
 
 #define GAME_BG_COLOUR	(atg_colour){31, 31, 15, ATG_ALPHA_OPAQUE}
@@ -959,6 +960,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	if(!(state.heat=malloc(ntargs*sizeof(*state.heat))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(state.flam=malloc(ntargs*sizeof(*state.flam))))
 	{
 		perror("malloc");
 		return(1);
@@ -3392,6 +3398,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		for(unsigned int i=0;i<ntargs;i++)
 		{
+			unsigned int halfhalf=0; // count for halfandhalf bombloads
 			if(state.raids[i].nbombers && stream)
 			{
 				genroute((unsigned int [2]){0, 0}, i, targs[i].route, state, 10000);
@@ -3481,7 +3488,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							break;
 							case BL_USUAL:
 								if(types[type].load[BL_PLUMDUFF])
-									transfer(types[type].cap>=14000?4000:1500, cap, state.bombers[k].b_hc);
+								{
+									if(types[type].cap>=14000)
+										transfer(4000, cap, state.bombers[k].b_hc);
+									else
+										transfer(1500, cap, state.bombers[k].b_gp);
+								}
 								else // Stirling can't carry cookies
 									transfer(4000, cap, state.bombers[k].b_gp);
 								state.bombers[k].b_in=cap;
@@ -3489,18 +3501,28 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							case BL_ARSON:
 								state.bombers[k].b_in=cap;
 							break;
+							case BL_HALFHALF:
+								if(cap>=4000&&(halfhalf++%2))
+								{
+									state.bombers[k].b_hc=(cap/4000)*4000;
+									break;
+								}
+								// else fallthrough to BL_ILLUM
 							case BL_ILLUM:
 								transfer(1000, cap, state.bombers[k].b_ti);
 								transfer(2000, cap, state.bombers[k].b_in);
 							break;
-							case BL_PPLUS: // LanX, 12,000lb cookie.
-								transfer(cap%4000, cap, state.bombers[k].b_gp);
-								transfer(12000, cap, state.bombers[k].b_hc);
+							case BL_PPLUS: // LanX, up to 12,000lb cookie
+								transfer(min(3, cap/4000)*4000, cap, state.bombers[k].b_hc);
 								state.bombers[k].b_gp=cap;
 							break;
 							case BL_PONLY:
-								state.bombers[k].b_hc=(cap/4000)*4000;
-							break;
+								if(cap>=4000)
+								{
+									state.bombers[k].b_hc=(cap/4000)*4000;
+									break;
+								}
+								// else fallthrough to BL_ABNORMAL
 							case BL_ABNORMAL:
 							default:
 								state.bombers[k].b_gp=cap;
@@ -3735,7 +3757,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									{
 										unsigned int he=state.bombers[k].b_hc+state.bombers[k].b_gp;
 										hi_append(&state.hist, state.now, maketime(t), state.bombers[k].id, false, type, ta, he+state.bombers[k].b_in+state.bombers[k].b_ti);
-										double maybe_dmg=(he*1.2+state.bombers[k].b_in*(targs[ta].flammable?1.8:1.0))/(targs[ta].psiz*10000.0);
+										state.flam[ta]=min(state.flam[ta]+state.bombers[k].b_hc/5000.0, 100); // HC (cookies) increase target flammability
+										double maybe_dmg=(he*1.2+state.bombers[k].b_in*(targs[ta].flammable?1.8:1.0)*state.flam[ta]/40.0)/(targs[ta].psiz*10000.0);
 										double dmg=min(state.dmg[ta], maybe_dmg);
 										cidam+=dmg*(targs[ta].berlin?2.0:1.0);
 										state.dmg[ta]-=dmg;
@@ -3750,7 +3773,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											if((dt>0)&&(dt<120))
 												skym[dt]=true;
 										}
-										targs[ta].fires+=state.bombers[k].b_in/3000+state.bombers[k].b_ti/30;
+										targs[ta].fires+=state.bombers[k].b_in*(state.flam[ta]/40.0)/3000+state.bombers[k].b_ti/30;
 										break;
 									}
 								}
@@ -5281,6 +5304,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			case TCLASS_CITY:
 			{
+				state.flam[i]=(state.flam[i]*0.8)+8.0;
 				double dflk=(targs[i].flak*state.dmg[i]*.0005)-(state.flk[i]*.05);
 				state.flk[i]+=dflk;
 				if(dflk)
@@ -5869,9 +5893,9 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 		}
 		else if(strcmp(tag, "Targets init")==0)
 		{
-			double dmg,flk,heat;
-			f=sscanf(dat, "%la,%la,%la\n", &dmg, &flk, &heat);
-			if(f!=3)
+			double dmg,flk,heat,flam;
+			f=sscanf(dat, "%la,%la,%la,%la\n", &dmg, &flk, &heat, &flam);
+			if(f!=4)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 				e|=1;
@@ -5882,6 +5906,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				state->dmg[i]=dmg;
 				state->flk[i]=flk*targs[i].flak/100.0;
 				state->heat[i]=heat;
+				state->flam[i]=flam;
 			}
 		}
 		else if(strcmp(tag, "Targets")==0)
@@ -5916,11 +5941,11 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						continue;
 					}
 					unsigned int j;
-					double dmg, flk, heat;
-					f=sscanf(line, "Targ %u:%la,%la,%la\n", &j, &dmg, &flk, &heat);
-					if(f!=4)
+					double dmg, flk, heat, flam;
+					f=sscanf(line, "Targ %u:%la,%la,%la,%la\n", &j, &dmg, &flk, &heat, &flam);
+					if(f!=5)
 					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", j, tag);
 						e|=1;
 						break;
 					}
@@ -5929,6 +5954,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						state->dmg[i]=100;
 						state->flk[i]=targs[i].flak;
 						state->heat[i]=0;
+						state->flam[i]=40;
 						i++;
 					}
 					if(j!=i)
@@ -5940,6 +5966,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					state->dmg[i]=dmg;
 					state->flk[i]=flk*targs[i].flak/100.0;
 					state->heat[i]=heat;
+					state->flam[i]=flam;
 				}
 			}
 		}

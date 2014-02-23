@@ -46,7 +46,7 @@ Fighters:90
 *11*Type 3:2,NOID
 *11*Type 3:4,NOID
 *11*Type 3:5,NOID
-Targets init:100,100,0
+Targets init:100,100,0,40
 Weather rand:14410
 Messages:1
 03-09-1939:ORDERS

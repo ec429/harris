@@ -46,7 +46,7 @@ Fighters:183
 *24*Type 3:2,NOID
 *22*Type 3:4,NOID
 *20*Type 3:5,NOID
-Targets init:100,100,0
+Targets init:100,100,0,40
 Weather rand:327019
 Messages:1
 15-05-1940:ORDERS

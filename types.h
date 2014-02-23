@@ -74,6 +74,7 @@ typedef enum
 	BL_USUAL,
 	BL_ARSON,
 	BL_ILLUM,
+	BL_HALFHALF,
 	NBOMBLOADS
 }
 bombload;
@@ -256,7 +257,7 @@ typedef struct
 	unsigned int napb[NNAVAIDS];
 	w_state weather;
 	unsigned int ntargs;
-	double *dmg, *flk, *heat;
+	double *dmg, *flk, *heat, *flam; // arrays of target damage, flak strength, 'heat' (been attacked much lately), and increased flammability through cookie hits
 	double gprod[ICLASS_MIXED], dprod[ICLASS_MIXED];
 	unsigned int nfighters;
 	ac_fighter *fighters;
