@@ -75,7 +75,7 @@ LanX		 -		 -		 -		15	16		-		15480
 
 PFF Opener: "Usual" + 1× release-point flare.  If no H₂S fall back to Usual
 PFF Finder: "Arson" + 1× release-point flare.  If no H₂S fall back to Arson
-PFF Illuminator (Mosq): 12×250lb coloured TI + (if target within Oboe range) 1× release-point flare
+PFF Illuminator (Mosq): 4×250lb coloured TI + 8×250lb incendiary + (if target within Oboe range) 1× release-point flare
 PFF Backer-Up: as Opener (heavy) or Illuminator (Mosq), except that navaids are not required
 
 Bombload rules for now (distillation of the above):

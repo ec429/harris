@@ -201,7 +201,7 @@ typedef struct
 	unsigned int routestage; // 8 means "passed route[7], heading for base"
 	bool nav[NNAVAIDS];
 	bool pff; // a/c is assigned to the PFF
-	unsigned int b_he, b_in, b_ti, b_le; // bombload carried: high explosive or mines, incendiaries, target indicator flares, leaflets
+	unsigned int b_hc, b_gp, b_in, b_ti, b_le; // bombload carried: high capacity explosive, general purpose high explosive or mines, incendiaries, target indicator flares, leaflets
 	bool bombed;
 	bool crashed;
 	bool failed; // for forces, read as !svble
@@ -216,7 +216,7 @@ typedef struct
 }
 ac_bomber;
 
-#define loadweight(b)	((b).b_he+(b).b_in/2+(b).b_ti+(b).b_le/20)
+#define loadweight(b)	((b).b_hc+(b).b_gp+(b).b_in/2+(b).b_ti+(b).b_le/20)
 #define loadness(b)	((((b).bombed?0:loadweight(b))/(double)(types[(b).type].cap)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
 
 typedef struct
