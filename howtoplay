@@ -100,8 +100,9 @@ Once navaids are available, it's possible to apply filters when adding bombers t
 
 Bombloads
 ~~~~~~~~~
-At first, you don't have to decide what bombload to carry, since all targets take high explosive bombs (except Minelaying and Leaflets, obviously).  However, after the Area Bombing Directive of February 1942, you will find that you can choose the bombload for raids on cities.  Mostly you just control the HE/incendiary mix, except for Mosquitos where the choice is between HE and "TIs", target indicator flares.
+At first, you don't have to decide what bombload to carry, since all targets take high explosive bombs (except Minelaying and Leaflets, obviously).  However, after the Area Bombing Directive of February 1942, you will find that you can choose the bombload for raids on cities.  Mostly you just control the HE/incendiary mix, except for Mosquitos where the choice is between HE and "TIs", target indicator flares.  Another variable is the HC 'blockbuster' bombs.
 In general, HE will do more damage than incendiaries (except for a few especially flammable cities: Hamburg, Dresden, Mannheim and Lübeck), but fires from incendiaries will light up the target and help following crews find it.  TIs, brightly coloured flares which burst and cascade over a target, are even more effective in this regard, and are usually dropped by Pathfinder Mosquitoes to provide a clear aiming point for the Main Force.
+High Capacity 'blockbuster' bombs are thin-skinned cylinders filled with high explosive.  They are principally blast bombs, and tend to make buildings much more flammable, so ideally you want lots of these early in the raid, followed up by incendiaries later.  This effect lingers for the first few days after a raid, but then repairs to the buildings end it.
 Fires and TIs are generally not visible through thick cloud, so Pathfinder aircraft also carry "release-point flares", commonly known as "skymarkers".  These are suspended on parachutes so as to remain above the cloud for several minutes, and are only dropped if the aircraft has a 'fix' from OBOE or H₂S.
 The bombloads and their codenames are:
 	"Abnormal":	full HE, typically consisting of 1000lb General Purpose medium-capacity bombs.  (Symbol: three small bombs.)
@@ -109,7 +110,9 @@ The bombloads and their codenames are:
 	"Usual":	one 4000lb blockbuster or 1500lb of GP, plus incendiaries.  (Stirlings carry 4 × 1000lb GP plus incendiaries.)  (Symbol: one large bomb, two fires.)
 	"Arson":	full incendiaries, typically in the form of Small Bomb Containers (SBCs) full of 4lb magnesium stick incendiaries, and/or 30lb incendiary bombs.  (Symbol: three fires.)
 	"Plumduff-Plus"	(Lancaster X only):	one 12000lb blockbuster plus GP.  (Symbol: one large bomb, two small bombs.)
-	"Illuminator"	(Mosquito only):	12 × 250lb TI, plus several uncoloured flares.  (Symbol: multiple coloured lights.)
+	"Illuminator"	(Mosquito only):	4 × 250lb TI, 8 × 250lb incendiaries, plus several uncoloured flares.  (Symbol: multiple coloured lights.)
+	"Half and Half"	(Mosquito only):	Half of these aircraft will carry Illuminator, the other half will carry Plumduff.  (Symbol: multiple coloured lights / one large bomb)
+One final note: Lancasters (of both marks) are split between the Main Force and the Pathfinders (after the introduction of the latter), and the bombloads for the two are controlled independently.  The selector on the left is for the PFF, that on the right is for the Main Force.
 
 Budget
 ~~~~~~
