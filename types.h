@@ -181,6 +181,7 @@ typedef struct
 	unsigned int strength, lat, lon;
 	date entry, radar, exit;
 	/* for Himmelbett fighter control */
+	unsigned int heat; // number of bombers in the vicinity
 	signed int ftr; // index of fighter under this radar's control (-1 for none)
 	unsigned int shots; // number of shots already fired this tick
 }

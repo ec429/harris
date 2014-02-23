@@ -3589,7 +3589,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			for(unsigned int i=0;i<ntargs;i++)
 				targs[i].shots=0;
 			for(unsigned int i=0;i<nflaks;i++)
+			{
 				flaks[i].shots=0;
+				flaks[i].heat=0;
+			}
 			for(unsigned int i=0;i<ntargs;i++)
 				for(unsigned int j=0;j<state.raids[i].nbombers;j++)
 				{
@@ -3813,7 +3816,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						if(!datewithin(state.now, flaks[i].entry, flaks[i].exit)) continue;
 						bool rad=!datebefore(state.now, flaks[i].radar);
-						if(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 3.0))
+						double dx=state.bombers[k].lon-flaks[i].lon,
+						       dy=state.bombers[k].lat-flaks[i].lat;
+						if(xyr(dx, dy, 3.0))
 						{
 							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
 							double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
@@ -3834,9 +3839,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								}
 							}
 						}
-						if(brandp(0.1))
+						if(rad&&xyr(dx, dy, 12)) // 36 miles range for Würzburg radar (Wikipedia gives range as "up to 43mi")
 						{
-							if(rad&&(xyr(state.bombers[k].lon-flaks[i].lon, state.bombers[k].lat-flaks[i].lat, 12))) // 36 miles range for Würzburg radar (Wikipedia gives range as "up to 43mi")
+							flaks[i].heat++;
+							if(brandp(0.1))
+							{
 								if(flaks[i].ftr>=0)
 								{
 									unsigned int ftr=flaks[i].ftr;
@@ -3847,6 +3854,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									}
 								}
 							}
+						}
 					}
 					for(unsigned int j=0;j<state.nfighters;j++)
 					{
@@ -4280,10 +4288,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						continue;
 					}
 					if(!datewithin(state.now, flaks[i].radar, flaks[i].exit)) continue;
+					if(!flaks[i].heat) continue;
 					if(fightersleft)
 					{
 						unsigned int mind=1000000;
 						int minj=-1;
+						unsigned int oilme=300/max(flaks[i].heat, 15); // don't use up the last of your oil just to chase one bomber...
 						for(unsigned int j=0;j<state.nfighters;j++)
 						{
 							if(state.fighters[j].damage>=1) continue;
@@ -4291,7 +4301,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
 							if(state.fighters[j].landed)
 							{
-								if(state.gprod[ICLASS_OIL]>=20)
+								if(state.gprod[ICLASS_OIL]>=oilme)
 								{
 									const unsigned int base=state.fighters[j].base;
 									signed int dx=(signed)flaks[i].lat-(signed)fbases[base].lat, dy=(signed)flaks[i].lon-(signed)fbases[base].lon;
