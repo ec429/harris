@@ -243,6 +243,7 @@ typedef struct
 	unsigned int nbombers;
 	unsigned int *bombers; // offsets into the game.bombers list
 	bombload *loads; // indexed by type
+	bombload *pffloads; // indexed by type, only used for LanI/LanX (which have partial PFF)
 }
 raid;
 

@@ -988,17 +988,39 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			perror("malloc");
 			return(1);
 		}
+		if(!(state.raids[i].pffloads=malloc(ntypes*sizeof(bombload))))
+		{
+			perror("malloc");
+			return(1);
+		}
 		for(unsigned int j=0;j<ntypes;j++)
 		{
 			state.raids[i].loads[j]=BL_PLUMDUFF;
 			int limit=0;
-			if(types[j].pff&&types[j].noarm) state.raids[i].loads[j]=BL_ILLUM;
+			if(types[j].pff)
+			{
+				if(types[j].noarm)
+					state.raids[i].pffloads[j]=BL_ILLUM;
+				else
+					state.raids[i].pffloads[j]=BL_ARSON;
+			}
+			else
+				state.raids[i].pffloads[j]=0; // doesn't matter
 			while(!types[j].load[state.raids[i].loads[j]])
 			{
 				state.raids[i].loads[j]=(state.raids[i].loads[j]+1)%NBOMBLOADS;
 				if(++limit>=NBOMBLOADS)
 				{
 					fprintf(stderr, "No valid bombloads for type %s\n", types[j].name);
+					return(1);
+				}
+			}
+			while(!types[j].load[state.raids[i].pffloads[j]])
+			{
+				state.raids[i].pffloads[j]=(state.raids[i].pffloads[j]+1)%NBOMBLOADS;
+				if(++limit>=NBOMBLOADS)
+				{
+					fprintf(stderr, "No valid PFF bombloads for type %s\n", types[j].name);
 					return(1);
 				}
 			}
@@ -1745,7 +1767,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	atg_box *GB_raidbox[ntargs], *GB_raidbox_empty=GB_raid->elem.box;
-	atg_element *GB_rbrow[ntargs][ntypes], *GB_rbpic[ntargs][ntypes], *GB_raidnum[ntargs][ntypes], *GB_raidload[ntargs][ntypes];
+	atg_element *GB_rbrow[ntargs][ntypes], *GB_rbpic[ntargs][ntypes], *GB_raidnum[ntargs][ntypes], *GB_raidload[ntargs][ntypes][2];
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		GB_raidbox[i]=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
@@ -1803,6 +1825,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				return(1);
 			}
 			vbox->w=202;
+			if(types[j].pff)
+				vbox->w-=16;
 			if(atg_pack_element(b, vbox))
 			{
 				perror("atg_pack_element");
@@ -1829,6 +1853,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					}
 					name->cache=true;
 					name->w=200;
+					if(types[j].pff)
+						name->w-=16;
 					if(atg_pack_element(vb, name))
 					{
 						perror("atg_pack_element");
@@ -1859,12 +1885,41 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 			if(targs[i].class==TCLASS_CITY)
 			{
-				if(!(GB_raidload[i][j]=create_load_selector(&types[j], &state.raids[i].loads[j])))
+				if(types[j].pff)
 				{
-					fprintf(stderr, "create_load_selector failed\n");
-					return(1);
+					if(!(GB_raidload[i][j][1]=create_load_selector(&types[j], &state.raids[i].pffloads[j])))
+					{
+						fprintf(stderr, "create_load_selector failed\n");
+						return(1);
+					}
+					if(atg_pack_element(b, GB_raidload[i][j][1]))
+					{
+						perror("atg_pack_element");
+						return(1);
+					}
 				}
-				if(atg_pack_element(b, GB_raidload[i][j]))
+				else
+				{
+					GB_raidload[i][j][1]=NULL;
+				}
+				if(!types[j].noarm)
+				{
+					if(!(GB_raidload[i][j][0]=create_load_selector(&types[j], &state.raids[i].loads[j])))
+					{
+						fprintf(stderr, "create_load_selector failed\n");
+						return(1);
+					}
+				}
+				else
+				{
+					if(!(GB_raidload[i][j][0]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+					{
+						fprintf(stderr, "atg_create_element_box failed\n");
+						return(1);
+					}
+					GB_raidload[i][j][0]->w=16;
+				}
+				if(atg_pack_element(b, GB_raidload[i][j][0]))
 				{
 					perror("atg_pack_element");
 					return(1);
@@ -1872,7 +1927,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 			else
 			{
-				GB_raidload[i][j]=NULL;
+				GB_raidload[i][j][0]=NULL;
+				GB_raidload[i][j][1]=NULL;
 			}
 		}
 	}
@@ -3479,7 +3535,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						state.bombers[k].b_le=types[type].cap*3;
 					break;
 					case TCLASS_CITY:
-						switch(state.raids[i].loads[type])
+						switch(state.bombers[k].pff?state.raids[i].pffloads[type]:state.raids[i].loads[type])
 						{
 							case BL_PLUMDUFF:
 								transfer(4000, cap, state.bombers[k].b_hc);
