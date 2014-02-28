@@ -21,7 +21,7 @@ if __name__ == '__main__':
 	mr = float(max([bar[1][1] for bar in fbars]))
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	ax.vlines(loss, 0, len(fbars)+1)
+	ax.vlines(loss[2], 0, len(fbars)+1)
 	yl = xrange(1, len(fbars)+1)
 	gl = plt.barh(yl, [bar[1][2] for bar in fbars], height=[max(bar[1][1]/mr, 0.03) for bar in fbars], color=[extra[bar[0]['name']]['colour'] for bar in fbars], align='center', linewidth=0)
 	ax.set_yticks(yl)
