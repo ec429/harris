@@ -6,7 +6,7 @@ import hhist, hsave, hdata
 import extra_data
 import optparse
 
-def extract_losstype(save, after=None, before=None, targ=None):
+def extract_losstype(save, after=None, before=None):
 	rcount = [0 for i in xrange(save.ntypes)]
 	lcount = list(rcount)
 	days = sorted(hhist.group_by_date(save.history))
@@ -19,10 +19,8 @@ def extract_losstype(save, after=None, before=None, targ=None):
 				if h['data']['type']['fb'] == 'B':
 					if h['data']['etyp'] == 'RA':
 						raiding[h['data']['acid']] = h['data']['data']['target']
-						if targ is not None and h['data']['data']['target'] != targ: continue
 						rcount[h['data']['type']['ti']] += 1
 					elif h['data']['etyp'] == 'CR':
-						if targ is not None and raiding[h['data']['acid']] != targ: continue
 						lcount[h['data']['type']['ti']] += 1
 	return ((sum(lcount), sum(rcount), sum(lcount)*100/float(sum(rcount)) if sum(rcount) else None), [(l, r, l*100/float(r) if r else None) for l, r in zip(lcount, rcount)])
 
@@ -74,9 +72,9 @@ if __name__ == '__main__':
 	def tbl_nrow(n, s, l, p):
 		tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ")
 	opts, args = parse_args(sys.argv)
-	save = hsave.Save.parse(sys.stdin)
 	before = hhist.date.parse(opts.before) if opts.before else None
 	after = hhist.date.parse(opts.after) if opts.after else None
+	save = hsave.Save.parse(sys.stdin)
 	if opts.stratify:
 		overall, losstype = stratified_losstype(save, after, before)
 		def tbl_row(n, s, l, p, q):
