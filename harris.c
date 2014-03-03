@@ -1824,9 +1824,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				fprintf(stderr, "atg_create_element_box failed\n");
 				return(1);
 			}
-			vbox->w=202;
-			if(types[j].pff)
-				vbox->w-=16;
+			vbox->w=186;
 			if(atg_pack_element(b, vbox))
 			{
 				perror("atg_pack_element");
@@ -1852,9 +1850,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						return(1);
 					}
 					name->cache=true;
-					name->w=200;
-					if(types[j].pff)
-						name->w-=16;
+					name->w=184;
 					if(atg_pack_element(vb, name))
 					{
 						perror("atg_pack_element");
@@ -1892,15 +1888,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						fprintf(stderr, "create_load_selector failed\n");
 						return(1);
 					}
-					if(atg_pack_element(b, GB_raidload[i][j][1]))
-					{
-						perror("atg_pack_element");
-						return(1);
-					}
 				}
 				else
 				{
-					GB_raidload[i][j][1]=NULL;
+					if(!(GB_raidload[i][j][1]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+					{
+						fprintf(stderr, "atg_create_element_box failed\n");
+						return(1);
+					}
+					GB_raidload[i][j][1]->w=16;
+				}
+				if(atg_pack_element(b, GB_raidload[i][j][1]))
+				{
+					perror("atg_pack_element");
+					return(1);
 				}
 				if(!types[j].noarm)
 				{
@@ -3034,6 +3035,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		{
 			if(GB_rbrow[i][j])
 				GB_rbrow[i][j]->hidden=GB_btrow[j]?GB_btrow[j]->hidden:true;
+			if(GB_raidload[i][j][1])
+				GB_raidload[i][j][1]->hidden=datebefore(state.now, event[EVENT_PFF]);
 			if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
 			{
 				unsigned int count=0;
