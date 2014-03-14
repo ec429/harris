@@ -3542,7 +3542,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							case BL_PLUMDUFF:
 								transfer(4000, cap, state.bombers[k].b_hc);
-								transfer(types[type].inc?8000:6000, cap, state.bombers[k].b_in);
+								transfer(6000, cap, state.bombers[k].b_in);
 								state.bombers[k].b_gp=cap;
 							break;
 							case BL_USUAL:
@@ -3553,8 +3553,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									else
 										transfer(1500, cap, state.bombers[k].b_gp);
 								}
-								else // Stirling can't carry cookies
-									transfer(4000, cap, state.bombers[k].b_gp);
+								else // can't carry cookies
+									transfer(types[type].inc?2500:4000, cap, state.bombers[k].b_gp);
 								state.bombers[k].b_in=cap;
 							break;
 							case BL_ARSON:
@@ -3571,8 +3571,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								transfer(1000, cap, state.bombers[k].b_ti);
 								transfer(2000, cap, state.bombers[k].b_in);
 							break;
-							case BL_PPLUS: // LanX, up to 12,000lb cookie
-								transfer(min(3, cap/4000)*4000, cap, state.bombers[k].b_hc);
+							case BL_PPLUS: // LanX, up to 12,000lb cookie; LanI, up to 8,000lb cookie
+								transfer(min(types[type].cap/5333, cap/4000)*4000, cap, state.bombers[k].b_hc);
 								state.bombers[k].b_gp=cap;
 							break;
 							case BL_PONLY:
