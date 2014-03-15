@@ -3608,12 +3608,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.bombers[k].b_gp=cap;
 							break;
 						}
-						//fprintf(stderr, "%s: %ulb hc + %u lb gp + %ulb in + %ulb ti = %ulb\n", types[type].name, state.bombers[k].b_hc, state.bombers[k].b_gp, state.bombers[k].b_in, state.bombers[k].b_ti, loadweight(state.bombers[k]))
 					break;
 					default: // all other targets use all-GP loads
 						state.bombers[k].b_gp=cap;
 					break;
 				}
+				#define b_roundto(what, n)	state.bombers[k].b_##what=(state.bombers[k].b_##what/n)*n
+				b_roundto(hc, 4000); // should never affect anything
+				b_roundto(gp, 50);
+				b_roundto(in, 10);
+				b_roundto(ti, 50);
+				b_roundto(le, 1000);
+				//fprintf(stderr, "%s: %ulb hc + %u lb gp + %ulb in + %ulb ti = %ulb\n", types[type].name, state.bombers[k].b_hc, state.bombers[k].b_gp, state.bombers[k].b_in, state.bombers[k].b_ti, loadweight(state.bombers[k]));
+				#undef b_roundto
 			}
 		}
 		oboe.k=-1;
