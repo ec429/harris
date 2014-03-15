@@ -1881,46 +1881,40 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 			if(targs[i].class==TCLASS_CITY)
 			{
-				if(types[j].pff)
+				atg_element *pffloadbox = atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE}),
+							*mainloadbox = atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+				if(!pffloadbox||!mainloadbox)
 				{
-					if(!(GB_raidload[i][j][1]=create_load_selector(&types[j], &state.raids[i].pffloads[j])))
-					{
-						fprintf(stderr, "create_load_selector failed\n");
-						return(1);
-					}
+					fprintf(stderr, "atg_create_element_box failed\n");
+					return(1);
 				}
-				else
-				{
-					if(!(GB_raidload[i][j][1]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
-					{
-						fprintf(stderr, "atg_create_element_box failed\n");
-						return(1);
-					}
-					GB_raidload[i][j][1]->w=16;
-				}
-				if(atg_pack_element(b, GB_raidload[i][j][1]))
+				pffloadbox->w=mainloadbox->w=16;
+				if(atg_pack_element(b, pffloadbox))
 				{
 					perror("atg_pack_element");
 					return(1);
 				}
-				if(!types[j].noarm)
+				if(atg_pack_element(b, mainloadbox))
 				{
-					if(!(GB_raidload[i][j][0]=create_load_selector(&types[j], &state.raids[i].loads[j])))
-					{
-						fprintf(stderr, "create_load_selector failed\n");
-						return(1);
-					}
+					perror("atg_pack_element");
+					return(1);
 				}
-				else
+				if(!(GB_raidload[i][j][1]=create_load_selector(&types[j], &state.raids[i].pffloads[j])))
 				{
-					if(!(GB_raidload[i][j][0]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
-					{
-						fprintf(stderr, "atg_create_element_box failed\n");
-						return(1);
-					}
-					GB_raidload[i][j][0]->w=16;
+					fprintf(stderr, "create_load_selector failed\n");
+					return(1);
 				}
-				if(atg_pack_element(b, GB_raidload[i][j][0]))
+				if(atg_pack_element(pffloadbox->elem.box, GB_raidload[i][j][1]))
+				{
+					perror("atg_pack_element");
+					return(1);
+				}
+				if(!(GB_raidload[i][j][0]=create_load_selector(&types[j], &state.raids[i].loads[j])))
+				{
+					fprintf(stderr, "create_load_selector failed\n");
+					return(1);
+				}
+				if(atg_pack_element(mainloadbox->elem.box, GB_raidload[i][j][0]))
 				{
 					perror("atg_pack_element");
 					return(1);
@@ -3031,12 +3025,15 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			}
 		if(GB_ttflk[i])
 			GB_ttflk[i]->w=floor(state.flk[i]);
+		bool pff=!datebefore(state.now, event[EVENT_PFF]);
 		for(unsigned int j=0;j<ntypes;j++)
 		{
 			if(GB_rbrow[i][j])
 				GB_rbrow[i][j]->hidden=GB_btrow[j]?GB_btrow[j]->hidden:true;
+			if(GB_raidload[i][j][0])
+				GB_raidload[i][j][0]->hidden=pff&&types[j].noarm;
 			if(GB_raidload[i][j][1])
-				GB_raidload[i][j][1]->hidden=datebefore(state.now, event[EVENT_PFF]);
+				GB_raidload[i][j][1]->hidden=!pff||!types[j].pff;
 			if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elem.label&&GB_raidnum[i][j]->elem.label->text)
 			{
 				unsigned int count=0;
