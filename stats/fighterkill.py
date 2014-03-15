@@ -6,7 +6,7 @@ import hhist, hdata, hsave
 
 def extract_kills(save):
 	days = sorted(hhist.group_by_date(save.history))
-	res = []
+	res = {}
 	ftr = {f['id']:f['type'] for f in save.init.fighters}
 	for d in days:
 		kills = [0 for i in xrange(save.nftypes)]
@@ -58,12 +58,12 @@ def extract_kills(save):
 			except Exception:
 				print h
 				raise
-		res.append({'date':d[0].next(), 'kills':kills, 'losses':losses, 'total':(sum(kills),sum(losses))})
+		res[d[0].next()] = {'kills':kills, 'losses':losses, 'total':{'kills':sum(kills), 'losses':sum(losses)}}
 	return res
 
 if __name__ == '__main__':
 	save = hsave.Save.parse(sys.stdin)
 	kills = extract_kills(save)
-	by_type = [(hdata.Fighters[i]['name'], sum([d['kills'][i] for d in kills]), sum([d['losses'][i] for d in kills])) for i in xrange(save.nftypes)]
+	by_type = [(hdata.Fighters[i]['name'], sum([d['kills'][i] for d in kills.values()]), sum([d['losses'][i] for d in kills.values()])) for i in xrange(save.nftypes)]
 	for b in by_type:
 		print "%s: kills=%d losses=%d"%b
