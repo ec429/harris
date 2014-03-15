@@ -3532,33 +3532,48 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.bombers[k].b_in=0;
 				state.bombers[k].b_ti=0;
 				state.bombers[k].b_le=0;
+				unsigned int bulk=types[type].cap;
+				bool inext=true;
 				switch(targs[i].class)
 				{
 					case TCLASS_LEAFLET:
-						state.bombers[k].b_le=types[type].cap*3;
+						state.bombers[k].b_le=min(types[type].cap*3, cap*20);
 					break;
 					case TCLASS_CITY:
 						switch(state.bombers[k].pff?state.raids[i].pffloads[type]:state.raids[i].loads[type])
 						{
 							case BL_PLUMDUFF:
 								transfer(4000, cap, state.bombers[k].b_hc);
-								transfer(6000, cap, state.bombers[k].b_in);
-								state.bombers[k].b_gp=cap;
+								while(cap&&(bulk=types[type].cap-loadbulk(state.bombers[k])))
+								{
+									if(inext)
+										transfer(min(bulk/1.5, 800), cap, state.bombers[k].b_in);
+									else
+										transfer(min(bulk, 500), cap, state.bombers[k].b_gp);
+									inext=!inext;
+								}
 							break;
 							case BL_USUAL:
-								if(types[type].load[BL_PLUMDUFF])
+								if(types[type].load[BL_PLUMDUFF]&&types[type].cap>=10000) // cookie + incendiaries
 								{
-									if(types[type].cap>=14000)
-										transfer(4000, cap, state.bombers[k].b_hc);
-									else
-										transfer(1500, cap, state.bombers[k].b_gp);
+									transfer(4000, cap, state.bombers[k].b_hc);
+									bulk=types[type].cap-loadbulk(state.bombers[k]);
+									state.bombers[k].b_in=min(cap, bulk/1.5);
 								}
-								else // can't carry cookies
-									transfer(types[type].inc?2500:4000, cap, state.bombers[k].b_gp);
-								state.bombers[k].b_in=cap;
+								else // gp+in mix
+								{
+									while(cap&&(bulk=types[type].cap-loadbulk(state.bombers[k])))
+									{
+										if(inext)
+											transfer(min(bulk/1.5, 800), cap, state.bombers[k].b_in);
+										else
+											transfer(min(bulk, types[type].inc?250:500), cap, state.bombers[k].b_gp);
+										inext=!inext;
+									}
+								}
 							break;
 							case BL_ARSON:
-								state.bombers[k].b_in=cap;
+								state.bombers[k].b_in=min(cap, bulk/1.5);
 							break;
 							case BL_HALFHALF:
 								if(cap>=4000&&(halfhalf++%2))
@@ -3568,8 +3583,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								}
 								// else fallthrough to BL_ILLUM
 							case BL_ILLUM:
-								transfer(1000, cap, state.bombers[k].b_ti);
-								transfer(2000, cap, state.bombers[k].b_in);
+								while(cap&&(bulk=types[type].cap-loadbulk(state.bombers[k])))
+								{
+									if(inext)
+										transfer(min(bulk/2.0, 250), cap, state.bombers[k].b_ti);
+									else
+										transfer(min(bulk, 500), cap, state.bombers[k].b_gp);
+									inext=!inext;
+								}
 							break;
 							case BL_PPLUS: // LanX, up to 12,000lb cookie; LanI, up to 8,000lb cookie
 								transfer(min(types[type].cap/5333, cap/4000)*4000, cap, state.bombers[k].b_hc);
@@ -3587,6 +3608,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								state.bombers[k].b_gp=cap;
 							break;
 						}
+						//fprintf(stderr, "%s: %ulb hc + %u lb gp + %ulb in + %ulb ti = %ulb\n", types[type].name, state.bombers[k].b_hc, state.bombers[k].b_gp, state.bombers[k].b_in, state.bombers[k].b_ti, loadweight(state.bombers[k]))
 					break;
 					default: // all other targets use all-GP loads
 						state.bombers[k].b_gp=cap;
@@ -3815,9 +3837,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if((abs(dx)<=hx)&&(abs(dy)<=hy)&&(pget(targs[ta].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE))
 									{
 										unsigned int he=state.bombers[k].b_hc+state.bombers[k].b_gp;
-										hi_append(&state.hist, state.now, maketime(t), state.bombers[k].id, false, type, ta, he+state.bombers[k].b_in/2+state.bombers[k].b_ti);
+										hi_append(&state.hist, state.now, maketime(t), state.bombers[k].id, false, type, ta, he+state.bombers[k].b_in+state.bombers[k].b_ti);
 										state.flam[ta]=min(state.flam[ta]+state.bombers[k].b_hc/5000.0, 100); // HC (cookies) increase target flammability
-										double maybe_dmg=(he*1.2+state.bombers[k].b_in*(targs[ta].flammable?1.8:1.0)*state.flam[ta]/40.0)/(targs[ta].psiz*10000.0);
+										double maybe_dmg=(he*1.2+state.bombers[k].b_in*(targs[ta].flammable?2.4:1.5)*state.flam[ta]/40.0)/(targs[ta].psiz*10000.0);
 										double dmg=min(state.dmg[ta], maybe_dmg);
 										cidam+=dmg*(targs[ta].berlin?2.0:1.0);
 										state.dmg[ta]-=dmg;
@@ -3832,7 +3854,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 											if((dt>0)&&(dt<120))
 												skym[dt]=true;
 										}
-										targs[ta].fires+=state.bombers[k].b_in*(state.flam[ta]/40.0)/3000+state.bombers[k].b_ti/30;
+										targs[ta].fires+=state.bombers[k].b_in*(state.flam[ta]/40.0)/1500+state.bombers[k].b_ti/30;
 										break;
 									}
 								}
@@ -4571,7 +4593,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									// most of it was already handled when the bombs were dropped
 									heat[l]++;
 									nij[l][type]++;
-									tij[l][type]+=state.bombers[k].b_hc+state.bombers[k].b_gp+state.bombers[k].b_in/2+state.bombers[k].b_ti;
+									tij[l][type]+=state.bombers[k].b_hc+state.bombers[k].b_gp+state.bombers[k].b_in+state.bombers[k].b_ti;
 									state.bombers[k].bombed=false;
 								}
 							}

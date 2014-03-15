@@ -217,7 +217,8 @@ typedef struct
 }
 ac_bomber;
 
-#define loadweight(b)	((b).b_hc+(b).b_gp+(b).b_in/2+(b).b_ti+(b).b_le/20)
+#define loadweight(b)	((b).b_hc+(b).b_gp+(b).b_in+(b).b_ti+(b).b_le/20)
+#define loadbulk(b)	((b).b_hc+(b).b_gp+(b).b_in*1.5+(b).b_ti*2+(b).b_le/3)
 #define loadness(b)	((((b).bombed?0:loadweight(b))/(double)(types[(b).type].cap)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
 
 typedef struct
