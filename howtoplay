@@ -67,7 +67,7 @@ German fighters are the /other/ threat to your bombers.  The Germans will deploy
 Navaids
 ~~~~~~~
 Navigational aids help guide your bombers to the target.  There are four different systems: Gee, Oboe, H₂S and G-H.  All except for H₂S are reliant on ground-based transmissions, and thus their range depends on altitude.
-When a navaid becomes available, sets will begin to be installed in your bombers.  You can control which type of bomber should receive sets by clicking on the appropriate navaid icon; the selected icon will be highlighted yellow.
+When a navaid becomes available, sets will begin to be installed in your bombers.  You can control which type of bomber should receive sets by clicking on the appropriate navaid icon; the selected icon will be highlighted yellow.  Alternatively, by middle-clicking (or ctrl-clicking) on the icon, you can set that type of navaid to be distributed among all your bomber types.
 
 Gee
 ---

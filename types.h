@@ -255,7 +255,7 @@ typedef struct
 	double confid, morale;
 	unsigned int nbombers;
 	ac_bomber *bombers;
-	unsigned int nap[NNAVAIDS];
+	int nap[NNAVAIDS];
 	unsigned int napb[NNAVAIDS];
 	w_state weather;
 	unsigned int ntargs;

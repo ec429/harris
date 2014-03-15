@@ -3171,7 +3171,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 								{
 									if(b==ATG_MB_LEFT)
 									{
-										if(types[i].nav[n]&&!datebefore(state.now, event[navevent[n]]))
+										if(m&KMOD_CTRL)
+										{
+											state.nap[n]=-1;
+											for(unsigned int j=0;j<ntypes;j++)
+												update_navbtn(state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
+										}
+										else if(types[i].nav[n]&&!datebefore(state.now, event[navevent[n]]))
 										{
 											state.nap[n]=i;
 											for(unsigned int j=0;j<ntypes;j++)
@@ -3180,6 +3186,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									}
 									else if(b==ATG_MB_RIGHT)
 										fprintf(stderr, "%ux %s in %ux %s %s\n", types[i].navcount[n], navaids[n], types[i].count, types[i].manu, types[i].name);
+									else if(b==ATG_MB_MIDDLE)
+									{
+										state.nap[n]=-1;
+										for(unsigned int j=0;j<ntypes;j++)
+											update_navbtn(state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
+									}
 								}
 							}
 							if(c.e==GB_btpic[i])
@@ -5337,12 +5349,19 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		if(x.month>12) {x.month-=12;x.year++;}
 		bool notnew=datebefore(x, state.now);
 		state.napb[n]+=notnew?25:10;
-		unsigned int i=state.nap[n];
-		if(!datewithin(state.now, types[i].entry, types[i].exit)) continue;
+		int i=state.nap[n];
+		if(i>=0&&!datewithin(state.now, types[i].entry, types[i].exit)) continue;
 		unsigned int j, nac=0;
 		for(j=0;(state.napb[n]>=navprod[n])&&(j<state.nbombers);j++)
 		{
-			if(state.bombers[j].type!=i) continue;
+			if(i<0)
+			{
+				if(!types[state.bombers[j].type].nav[n]) continue;
+			}
+			else
+			{
+				if((int)state.bombers[j].type!=i)	continue;
+			}
 			if(state.bombers[j].failed) continue;
 			if(state.bombers[j].nav[n]) continue;
 			state.bombers[j].nav[n]=true;
@@ -5761,8 +5780,9 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						e|=64;
 						break;
 					}
-					unsigned int j, prio, pbuf;
-					f=sscanf(line, "NPrio %u:%u,%u\n", &j, &prio, &pbuf);
+					unsigned int j, pbuf;
+					int prio;
+					f=sscanf(line, "NPrio %u:%d,%u\n", &j, &prio, &pbuf);
 					if(f!=3)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
@@ -6223,7 +6243,7 @@ int savegame(const char *fn, game state)
 		fprintf(fs, "Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf);
 	fprintf(fs, "Navaids:%u\n", NNAVAIDS);
 	for(unsigned int n=0;n<NNAVAIDS;n++)
-		fprintf(fs, "NPrio %u:%u,%u\n", n, state.nap[n], state.napb[n]);
+		fprintf(fs, "NPrio %u:%d,%u\n", n, state.nap[n], state.napb[n]);
 	fprintf(fs, "Bombers:%u\n", state.nbombers);
 	for(unsigned int i=0;i<state.nbombers;i++)
 	{
@@ -6451,7 +6471,7 @@ void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigne
 				SDL_BlitSurface(navpic[n], NULL, pic, NULL);
 				if(datebefore(state.now, event[navevent[n]]))
 					SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
-				if(state.nap[n]==i)
+				if(state.nap[n]==(int)i)
 					SDL_BlitSurface(yellow_overlay, NULL, pic, NULL);
 			}
 		}
