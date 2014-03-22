@@ -995,14 +995,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 		for(unsigned int j=0;j<ntypes;j++)
 		{
-			state.raids[i].loads[j]=BL_PLUMDUFF;
+			state.raids[i].loads[j]=BL_USUAL;
 			int limit=0;
 			if(types[j].pff)
 			{
 				if(types[j].noarm)
 					state.raids[i].pffloads[j]=BL_ILLUM;
 				else
-					state.raids[i].pffloads[j]=BL_USUAL;
+					state.raids[i].pffloads[j]=BL_PPLUS;
 			}
 			else
 				state.raids[i].pffloads[j]=0; // doesn't matter
