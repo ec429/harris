@@ -1,5 +1,5 @@
 # Format: dsv
-# NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS[,Flags]@City
+# NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS[,Flags],@City
 # Prod: contributed production
 # Flak: strength of flak guns, predictors etc.
 # Esiz: 'effective' size, ease-to-hit.
@@ -100,40 +100,40 @@ Wesel road bridge:     8:16:10:115:139:10-05-1940:14-05-1940:BRIDGE
 
 # Specific industrial targets (CIV-ABD)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
-Berlin U-boat Works:   8:12:15: 98:233:24-05-1940:14-02-1942:INDUSTRY,UBOOT,BERLIN@Berlin
-Tempelhof Airport:     5:14:12: 96:235:02-08-1940:14-02-1942:AIRFIELD,BERLIN@Berlin
-Berlin Rail Junction: 10: 8:16: 96:231:24-05-1940:14-02-1942:INDUSTRY,RAIL,BERLIN@Berlin
-Siemens, Berlin:      14: 9:10: 97:237:24-05-1940:14-02-1942:INDUSTRY,BERLIN@Berlin
-München-Gladbach:      8: 8:20:130:136:11-05-1940:14-02-1942:INDUSTRY,RAIL@Cologne
-Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:14-02-1942:INDUSTRY,OIL@Cologne
-Cologne Power Station: 9: 6:13:135:145:19-05-1940:14-02-1942:INDUSTRY@Cologne
-Dusseldorf Steel Mill:22: 4:30:128:142:15-05-1940:14-02-1942:INDUSTRY,STEEL@Dusseldorf
-Krupps, Essen:        30:10:19:122:145:15-05-1940:14-02-1942:INDUSTRY,ARM@Essen
-Zollverein Coalmine:  14: 5:16:121:147:16-05-1940:14-02-1942:INDUSTRY,STEEL@Essen
-Hamburg Oil Refinery: 18: 6:18: 73:187:15-05-1940:14-02-1942:INDUSTRY,OIL@Hamburg
-Blohm + Voss:         12: 4:13: 75:184:16-05-1940:14-02-1942:INDUSTRY,AC@Hamburg
-VKF Frankfurt:        13: 9:16:148:167:15-05-1940:14-02-1942:INDUSTRY,BB@Frankfurt
-IG Farben, Frankfurt: 14: 7:22:152:168:20-05-1940:14-02-1942:INDUSTRY,ARM@Frankfurt
-Bremen Oil Refinery:  12: 5:16: 85:168:16-05-1940:14-02-1942:INDUSTRY,OIL@Bremen
-Focke-Wulf, Bremen:   20: 8:10: 84:171:17-05-1940:14-02-1942:INDUSTRY,AC@Bremen
+Berlin U-boat Works:   8:12:15: 98:233:24-05-1940:14-02-1942:INDUSTRY,UBOOT,BERLIN,@Berlin
+Tempelhof Airport:     5:14:12: 96:235:02-08-1940:14-02-1942:AIRFIELD,BERLIN,@Berlin
+Berlin Rail Junction: 10: 8:16: 96:231:24-05-1940:14-02-1942:INDUSTRY,RAIL,BERLIN,@Berlin
+Siemens, Berlin:      14: 9:10: 97:237:24-05-1940:14-02-1942:INDUSTRY,BERLIN,@Berlin
+München-Gladbach:      8: 8:20:130:136:11-05-1940:14-02-1942:INDUSTRY,RAIL,@Cologne
+Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:14-02-1942:INDUSTRY,OIL,@Cologne
+Cologne Power Station: 9: 6:13:135:145:19-05-1940:14-02-1942:INDUSTRY,@Cologne
+Dusseldorf Steel Mill:22: 4:30:128:142:15-05-1940:14-02-1942:INDUSTRY,STEEL,@Dusseldorf
+Krupps, Essen:        30:10:19:122:145:15-05-1940:14-02-1942:INDUSTRY,ARM,@Essen
+Zollverein Coalmine:  14: 5:16:121:147:16-05-1940:14-02-1942:INDUSTRY,STEEL,@Essen
+Hamburg Oil Refinery: 18: 6:18: 73:187:15-05-1940:14-02-1942:INDUSTRY,OIL,@Hamburg
+Blohm + Voss:         12: 4:13: 75:184:16-05-1940:14-02-1942:INDUSTRY,AC,@Hamburg
+VKF Frankfurt:        13: 9:16:148:167:15-05-1940:14-02-1942:INDUSTRY,BB,@Frankfurt
+IG Farben, Frankfurt: 14: 7:22:152:168:20-05-1940:14-02-1942:INDUSTRY,ARM,@Frankfurt
+Bremen Oil Refinery:  12: 5:16: 85:168:16-05-1940:14-02-1942:INDUSTRY,OIL,@Bremen
+Focke-Wulf, Bremen:   20: 8:10: 84:171:17-05-1940:14-02-1942:INDUSTRY,AC,@Bremen
 Antwerp Oil Depot:     6: 3:16:126:108:21-05-1940:14-02-1942:INDUSTRY,OIL
-BFW, Augsburg:        15:10:12:187:202:18-05-1940:14-02-1942:INDUSTRY,AC@Munich
-Gelsenkirchen Oil:     9: 6:13:120:143:16-05-1940:14-02-1942:INDUSTRY,OIL@Cologne
-Hüls Chemical Works:  12: 8:14:124:139:15-05-1940:14-02-1942:INDUSTRY,ARM@Duisburg
-Zollern Colliery:     11: 4:15:120:152:22-05-1940:14-02-1942:INDUSTRY,STEEL@Dortmund
-Bochumer Verein:      14: 6:28:122:149:19-05-1940:14-02-1942:INDUSTRY,STEEL@Bochum
-Bremerhaven Shipyards:12: 6:22: 74:167:18-05-1940:14-02-1942:INDUSTRY,UBOOT@Hamburg
-Dorniers, Wismar:      8: 7:11: 65:206:21-05-1940:14-02-1942:INDUSTRY,AC@Lübeck
-Junkers, Dessau:      14: 8:12:109:217:15-05-1940:14-02-1942:INDUSTRY,AC@Magdeburg
-Stuttgart U-boat Works:9: 6:12:180:174:17-05-1940:14-02-1942:INDUSTRY,UBOOT@Stuttgart
-VKF Schweinfurt:      18:11: 9:152:189:19-05-1940:14-02-1942:INDUSTRY,BB@Schweinfurt
-Henschel Tank Works:  13: 7:11:128:178:16-05-1940:14-02-1942:INDUSTRY,ARM@Kassel
-Munich Railyards:     11:15:21:192:208:15-05-1940:14-02-1942:INDUSTRY,RAIL@Munich
-Siemens, Munich:      16: 9:15:194:207:18-05-1940:14-02-1942:INDUSTRY@Munich
-Hamm Railyards:       10: 5:18:117:154:19-05-1940:14-02-1942:INDUSTRY,RAIL@Hamm
-Duisburg Ironworks:   17: 5:26:122:141:16-05-1940:14-02-1942:INDUSTRY,STEEL@Duisburg
-Hanover Bauwerke:     10: 6:14:101:182:18-05-1940:14-02-1942:INDUSTRY,ARM@Hanover
-Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:14-02-1942:INDUSTRY,UBOOT@Wilhelmshaven
+BFW, Augsburg:        15:10:12:187:202:18-05-1940:14-02-1942:INDUSTRY,AC,@Munich
+Gelsenkirchen Oil:     9: 6:13:120:143:16-05-1940:14-02-1942:INDUSTRY,OIL,@Cologne
+Hüls Chemical Works:  12: 8:14:124:139:15-05-1940:14-02-1942:INDUSTRY,ARM,@Duisburg
+Zollern Colliery:     11: 4:15:120:152:22-05-1940:14-02-1942:INDUSTRY,STEEL,@Dortmund
+Bochumer Verein:      14: 6:28:122:149:19-05-1940:14-02-1942:INDUSTRY,STEEL,@Bochum
+Bremerhaven Shipyards:12: 6:22: 74:167:18-05-1940:14-02-1942:INDUSTRY,UBOOT,@Hamburg
+Dorniers, Wismar:      8: 7:11: 65:206:21-05-1940:14-02-1942:INDUSTRY,AC,@Lübeck
+Junkers, Dessau:      14: 8:12:109:217:15-05-1940:14-02-1942:INDUSTRY,AC,@Magdeburg
+Stuttgart U-boat Works:9: 6:12:180:174:17-05-1940:14-02-1942:INDUSTRY,UBOOT,@Stuttgart
+VKF Schweinfurt:      18:11: 9:152:189:19-05-1940:14-02-1942:INDUSTRY,BB,@Schweinfurt
+Henschel Tank Works:  13: 7:11:128:178:16-05-1940:14-02-1942:INDUSTRY,ARM,@Kassel
+Munich Railyards:     11:15:21:192:208:15-05-1940:14-02-1942:INDUSTRY,RAIL,@Munich
+Siemens, Munich:      16: 9:15:194:207:18-05-1940:14-02-1942:INDUSTRY,@Munich
+Hamm Railyards:       10: 5:18:117:154:19-05-1940:14-02-1942:INDUSTRY,RAIL,@Hamm
+Duisburg Ironworks:   17: 5:26:122:141:16-05-1940:14-02-1942:INDUSTRY,STEEL,@Duisburg
+Hanover Bauwerke:     10: 6:14:101:182:18-05-1940:14-02-1942:INDUSTRY,ARM,@Hanover
+Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:14-02-1942:INDUSTRY,UBOOT,@Wilhelmshaven
 
 # Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
