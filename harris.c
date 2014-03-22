@@ -4354,7 +4354,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							double T = (ud + sqrt(ud*ud + dd*(vv-uu))) / (vv-uu);
 							double fuelt=state.fighters[j].landed?40:state.fighters[j].fuelt-t-40;
-							if(state.gprod[ICLASS_OIL]<20) fuelt=-1;
+							if(state.gprod[ICLASS_OIL]<(state.nfighters-fightersleft)*100) fuelt=-1;
 							if(T<fuelt)
 							{
 								boared=true;
@@ -4406,6 +4406,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						else
 						{
 							state.fighters[j].landed=true;
+							if(state.fighters[j].fuelt>t) // return unused fuel
+								state.gprod[ICLASS_OIL]+=(state.fighters[j].fuelt-t)*(ftypes[type].night?0.2:0.1);
 							state.fighters[j].lon=bx;
 							state.fighters[j].lat=by;
 						}
@@ -4433,7 +4435,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						unsigned int mind=1000000;
 						int minj=-1;
-						unsigned int oilme=300/max(flaks[i].heat, 15); // don't use up the last of your oil just to chase one bomber...
+						unsigned int oilme=(state.nfighters-fightersleft)*3000/max(flaks[i].heat, 15); // don't use up the last of your oil just to chase one bomber...
 						for(unsigned int j=0;j<state.nfighters;j++)
 						{
 							if(state.fighters[j].damage>=1) continue;
@@ -4477,11 +4479,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 							state.fighters[minj].hflak=i;
 							fightersleft--;
 							flaks[i].ftr=minj;
-							//fprintf(stderr, "Assigned fighter to hflak %u\n", i);
-						}
-						else
-						{
-							//fprintf(stderr, "Out of fighters (hflak %u)\n", i);
 						}
 					}
 				}
@@ -4503,7 +4500,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
 						if(state.fighters[j].landed)
 						{
-							if(state.gprod[ICLASS_OIL]>=20)
+							if(state.gprod[ICLASS_OIL]>=(state.nfighters-fightersleft)*100)
 							{
 								const unsigned int base=state.fighters[j].base;
 								signed int dx=(signed)targs[i].lat-(signed)fbases[base].lat, dy=(signed)targs[i].lon-(signed)fbases[base].lon;
@@ -4540,12 +4537,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						targs[i].threat-=(thresh*0.6);
 						fightersleft--;
 						targs[i].nfighters++;
-						//fprintf(stderr, "Assigned fighter #%u to %s\n", targs[i].nfighters, targs[i].name);
-					}
-					else
-					{
-						/*fprintf(stderr, "Out of fighters (%s)\n", targs[i].name);
-						targs[i].threat=0;*/
 					}
 				}
 				targs[i].threat*=.98;
@@ -4555,7 +4546,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					for(unsigned int j=0;j<state.nfighters;j++)
 						if(state.fighters[j].targ==(int)i)
 						{
-							//fprintf(stderr, "Released fighter #%u from %s\n", targs[i].nfighters, targs[i].name);
 							targs[i].nfighters--;
 							fightersleft++;
 							state.fighters[j].targ=-1;
