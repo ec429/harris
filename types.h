@@ -160,6 +160,7 @@ typedef struct
 	date entry, exit;
 	enum t_class class;
 	enum i_class iclass;
+	int city; // owning city for TCLASS_INDUSTRY (or -1)
 	bool berlin; // raids on Berlin are more valuable
 	bool flammable; // more easily damaged by incendiaries
 	SDL_Surface *picture;

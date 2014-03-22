@@ -376,7 +376,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(*next!='#')
 			{
 				target this;
-				// NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS
+				// NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS[,Flags][@City]
 				this.name=(char *)malloc(strcspn(next, ":")+1);
 				this.p_intel=NULL;
 				ssize_t db;
@@ -397,6 +397,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				exit++;
 				this.exit=readdate(exit, (date){9999, 99, 99});
+				this.city=-1;
 				const char *class=strchr(exit, ':');
 				if(!class)
 				{
@@ -436,6 +437,26 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				else if(strstr(class, "INDUSTRY"))
 				{
 					this.class=TCLASS_INDUSTRY;
+					const char *at=strchr(class, '@');
+					if(at)
+					{
+						at++;
+						for(unsigned int i=0;i<ntargs;i++)
+						{
+							if(targs[i].class!=TCLASS_CITY) continue;
+							if(strcmp(at, targs[i].name)==0)
+							{
+								this.city=i;
+								break;
+							}
+						}
+						if(this.city<0)
+						{
+							fprintf(stderr, "Unrecognised `targets' @City reference `%s'\n", at);
+							fprintf(stderr, "  (note: City must precede target referring to it)\n");
+							return(1);
+						}
+					}
 				}
 				else
 				{
@@ -5393,7 +5414,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.dprod[i]=0;
 	for(unsigned int i=0;i<ntargs;i++)
 	{
-		if(!datebefore(state.now, targs[i].exit)) continue;
+		if(targs[i].city<0)
+		{
+			if(!datebefore(state.now, targs[i].exit)) continue;
+		}
+		else
+		{
+			if(!datebefore(state.now, targs[targs[i].city].exit)) continue;
+		}
 		switch(targs[i].class)
 		{
 			case TCLASS_CITY:
@@ -5434,10 +5462,14 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			case TCLASS_INDUSTRY:
 				if(state.dmg[i])
 				{
-					double ddmg=min(state.dmg[i]*.05, 100-state.dmg[i]);
+					double ddmg=min(state.dmg[i]*.05, 100-state.dmg[i]), cscale=targs[i].city<0?1.0:state.dmg[targs[i].city]/100.0;
+					if(cscale==0)
+						ddmg=100-state.dmg[i];
 					state.dmg[i]+=ddmg;
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-					produce(i, &state, state.dmg[i]*targs[i].prod/2.0);
+					produce(i, &state, state.dmg[i]*targs[i].prod*cscale/2.0);
+					if(cscale==0)
+						goto unflak;
 				}
 				else
 				{
@@ -6626,6 +6658,7 @@ void produce(int targ, game *state, double amount)
 			ADD(ICLASS_ARM, amount/7.0);
 			ADD(ICLASS_AC, amount/21.0);
 			ADD(ICLASS_BB, amount/14.0);
+			ADD(ICLASS_STEEL, amount/35.0);
 #undef ADD
 			return;
 		default:
