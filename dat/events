@@ -105,8 +105,8 @@ CRETE:01-06-1941
 BARBAROSSA:22-06-1941
 # Pearl Harbour
 AMERICA:07-12-1941
-# Invasion of North Africe
-AFRICA:08-11-1942
+# Invasion of French North Africa
+TORCH:08-11-1942
 # Second Battle of El Alamein
 EL_ALAMEIN:10-11-1942
 # Russians encircle Stalingrad
