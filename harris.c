@@ -5435,10 +5435,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
-				if(datebefore(state.now, targs[i].entry))
-					produce(i, &state, 80*targs[i].prod);
-				else
-					produce(i, &state, state.dmg[i]*targs[i].prod);
+				produce(i, &state, state.dmg[i]*targs[i].prod*0.8);
 			}
 			break;
 			case TCLASS_LEAFLET:
