@@ -3190,26 +3190,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 									if(b==ATG_MB_LEFT)
 									{
 										if(m&KMOD_CTRL)
-										{
 											state.nap[n]=-1;
-											for(unsigned int j=0;j<ntypes;j++)
-												update_navbtn(state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
-										}
+										else if((m&KMOD_ALT)&&(m&KMOD_SHIFT))
+											state.nap[n]=ntypes;
 										else if(types[i].nav[n]&&!datebefore(state.now, event[navevent[n]]))
-										{
 											state.nap[n]=i;
-											for(unsigned int j=0;j<ntypes;j++)
-												update_navbtn(state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
-										}
 									}
 									else if(b==ATG_MB_RIGHT)
 										fprintf(stderr, "%ux %s in %ux %s %s\n", types[i].navcount[n], navaids[n], types[i].count, types[i].manu, types[i].name);
 									else if(b==ATG_MB_MIDDLE)
-									{
 										state.nap[n]=-1;
-										for(unsigned int j=0;j<ntypes;j++)
-											update_navbtn(state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
-									}
+									for(unsigned int j=0;j<ntypes;j++)
+										update_navbtn(state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
 								}
 							}
 							if(c.e==GB_btpic[i])
@@ -6487,7 +6479,7 @@ void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigne
 				SDL_BlitSurface(navpic[n], NULL, pic, NULL);
 				if(datebefore(state.now, event[navevent[n]]))
 					SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
-				if(state.nap[n]==(int)i)
+				if((state.nap[n]==(int)i) || (state.nap[n]<0))
 					SDL_BlitSurface(yellow_overlay, NULL, pic, NULL);
 			}
 		}
