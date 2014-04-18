@@ -20,17 +20,19 @@ NPrio 0:0,400
 NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
-Bombers:921
-*403*Type 3:0,1,0,NOID
+Bombers:901
+*323*Type 3:0,1,0,NOID
 *96*Type 3:1,1,0,NOID
 *48*Type 5:0,1,0,NOID
 *9*Type 5:0,5,0,NOID
 *32*Type 5:1,1,0,NOID
 *90*Type 6:0,1,0,NOID
 *42*Type 6:1,1,0,NOID
-*93*Type 7:0,1,0,NOID
+*103*Type 7:0,1,0,NOID
 *10*Type 7:0,3,1,NOID
-*33*Type 7:1,1,0,NOID
+*20*Type 7:0,1,1,NOID
+*10*Type 7:1,1,1,NOID
+*53*Type 7:1,1,0,NOID
 *51*Type 8:0,5,1,NOID
 *14*Type 8:1,5,1,NOID
 GProd:7
@@ -96,14 +98,14 @@ The Navy have asked you to drop mines in strategic sea lanes; such operations ar
 Your front-line forces consist of the following types:
 Vickers Wellington:
  A rugged and reliable all-rounder, but starting to show its age.
-Avro Manchester:
- A disappointing medium bomber, suffering from unreliable engines.
 Short Stirling:
  A large but slow heavy bomber, with limited range.
 Handley Page Halifax:
  A long-range 'heavy', mainly effective but vulnerable to fighter attack.
 Avro Lancaster:
  A successful heavy bomber, with impressive performance.
+De Havilland Mosquito:
+ A small and high-performance unarmed bomber.
 
 The Third Reich is known to be operating the following fighter types:
 Messerschmitt Bf109:
