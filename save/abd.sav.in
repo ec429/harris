@@ -50,8 +50,10 @@ Fighters:162
 *36*Type 0:3,0,NOID
 *18*Type 3:2,0,NOID
 *15*Type 3:4,0,NOID
-*17*Type 4:5,0,NOID
-*13*Type 5:4,0,NOID
+*6*Type 4:5,0,NOID
+*7*Type 5:4,0,NOID
+*11*Type 4:5,0,NOID
+*6*Type 5:4,0,NOID
 Targets:109
 #Berlin
 Targ 20:100,120,0,40
