@@ -29,7 +29,7 @@ Bombers:406
 *41*Type 2:1,0,0,NOID
 *50*Type 3:0,0,0,NOID
 *23*Type 3:1,0,0,NOID
-GProd:7
+GProd:8
 IClass 0:6000
 IClass 1:80000
 IClass 2:50000
@@ -37,15 +37,16 @@ IClass 3:25000
 IClass 4:90000
 IClass 5:40000
 IClass 6:12000
+IClass 7:0
 FTypes:8
 FBases:12
 Fighters:90
-*19*Type 0:1,NOID
-*19*Type 0:2,NOID
-*19*Type 0:3,NOID
-*11*Type 3:2,NOID
-*11*Type 3:4,NOID
-*11*Type 3:5,NOID
+*19*Type 0:1,0,NOID
+*19*Type 0:2,0,NOID
+*19*Type 0:3,0,NOID
+*11*Type 3:2,0,NOID
+*11*Type 3:4,0,NOID
+*11*Type 3:5,0,NOID
 Targets init:100,100,0,40
 Weather rand:14410
 Messages:1

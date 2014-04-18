@@ -6,7 +6,7 @@
 # Lat, long: where it is (within the 256x256 map)
 # Dates: when is this a valid target (eg. early on there are ports and things, later on it's cities)
 # Class: what kind of target is it?  (CITY, SHIPPING, MINING, LEAFLET, AIRFIELD, BRIDGE, ROAD, INDUSTRY...)
-# Flags: extra target flags (BB, OIL, RAIL, UBOOT, AC, ARM, STEEL, BERLIN, FLAMMABLE...)
+# Flags: extra target flags (BB, OIL, RAIL, UBOOT, AC, ARM, STEEL, RADAR, BERLIN, FLAMMABLE...)
 # City: which city owns this (industrial) target and provides its workers?
 
 # Historicity notes:
@@ -47,7 +47,7 @@ Boulogne Barges:      14:30:18:136: 70:04-07-1940:31-10-1940:SHIPPING
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Berlin:              100:20:50: 97:233:14-02-1942:          :CITY,BERLIN
 Berlin Leaflets:       8:10:50: 97:233:          :14-02-1942:LEAFLET,BERLIN
-Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY,OIL,FLAMMABLE
+Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY,FLAMMABLE
 Hamburg Leaflets:      5: 8:35: 73:185:          :14-02-1942:LEAFLET
 Frankfurt:            40:13:30:151:168:14-02-1942:          :CITY
 Frankfurt Leaflets:    4: 7:30:151:168:          :14-02-1942:LEAFLET
@@ -102,8 +102,9 @@ Wesel road bridge:     8:16:10:115:139:10-05-1940:14-05-1940:BRIDGE
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Berlin U-boat Works:   8:12:15: 98:233:24-05-1940:14-02-1942:INDUSTRY,UBOOT,BERLIN,@Berlin
 Tempelhof Airport:     5:14:12: 96:235:02-08-1940:14-02-1942:AIRFIELD,BERLIN,@Berlin
-Berlin Rail Junction: 10: 8:16: 96:231:24-05-1940:14-02-1942:INDUSTRY,RAIL,BERLIN,@Berlin
-Siemens, Berlin:      14: 9:10: 97:237:24-05-1940:14-02-1942:INDUSTRY,BERLIN,@Berlin
+Berlin Rail Junction: 10: 8:16: 96:231:22-05-1940:14-02-1942:INDUSTRY,RAIL,BERLIN,@Berlin
+Siemens, Berlin:       9: 9:10: 97:237:27-05-1940:14-02-1942:INDUSTRY,BERLIN,@Berlin
+Telefunken, Berlin:   14:11:13: 99:230:30-05-1940:14-02-1942:INDUSTRY,RADAR,BERLIN,@Berlin
 München-Gladbach:      8: 8:20:130:136:11-05-1940:14-02-1942:INDUSTRY,RAIL,@Cologne
 Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:14-02-1942:INDUSTRY,OIL,@Cologne
 Cologne Power Station: 9: 6:13:135:145:19-05-1940:14-02-1942:INDUSTRY,@Cologne
@@ -129,7 +130,7 @@ Stuttgart U-boat Works:9: 6:12:180:174:17-05-1940:14-02-1942:INDUSTRY,UBOOT,@Stu
 VKF Schweinfurt:      18:11: 9:152:189:19-05-1940:14-02-1942:INDUSTRY,BB,@Schweinfurt
 Henschel Tank Works:  13: 7:11:128:178:16-05-1940:14-02-1942:INDUSTRY,ARM,@Kassel
 Munich Railyards:     11:15:21:192:208:15-05-1940:14-02-1942:INDUSTRY,RAIL,@Munich
-Siemens, Munich:      16: 9:15:194:207:18-05-1940:14-02-1942:INDUSTRY,@Munich
+Siemens, Munich:      16: 9:15:194:207:18-05-1940:14-02-1942:INDUSTRY,RADAR,@Munich
 Hamm Railyards:       10: 5:18:117:154:19-05-1940:14-02-1942:INDUSTRY,RAIL,@Hamm
 Duisburg Ironworks:   17: 5:26:122:141:16-05-1940:14-02-1942:INDUSTRY,STEEL,@Duisburg
 Hanover Bauwerke:     10: 6:14:101:182:18-05-1940:14-02-1942:INDUSTRY,ARM,@Hanover

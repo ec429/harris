@@ -133,6 +133,7 @@ typedef struct
 	unsigned int speed;
 	unsigned char arm;
 	unsigned char mnv;
+	unsigned char radpri;
 	date entry;
 	date exit;
 	bool night;
@@ -149,7 +150,7 @@ typedef struct
 ftrbase;
 
 enum t_class {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,};
-enum i_class {ICLASS_BB, ICLASS_OIL, ICLASS_RAIL, ICLASS_UBOOT, ICLASS_ARM, ICLASS_STEEL, ICLASS_AC, ICLASS_MIXED,};
+enum i_class {ICLASS_BB, ICLASS_OIL, ICLASS_RAIL, ICLASS_UBOOT, ICLASS_ARM, ICLASS_STEEL, ICLASS_AC, ICLASS_RADAR, ICLASS_MIXED,};
 
 typedef struct
 {
@@ -231,6 +232,7 @@ typedef struct
 	bool crashed;
 	bool landed;
 	double damage;
+	bool radar;
 	unsigned int fuelt;
 	signed int k; // which bomber this fighter is attacking (-1 for none)
 	signed int targ; // which target this fighter is covering (-1 for none)
@@ -238,6 +240,7 @@ typedef struct
 }
 ac_fighter;
 
+#define ftr_speed(f)	((ftypes[(f).type].speed-((f).radar?30:0)) / 400.0)
 #define ftr_free(f)	(((f).targ<0)&&((f).hflak<0)&&((f).fuelt>t)) // f is of type ac_fighter
 
 typedef struct

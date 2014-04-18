@@ -8,6 +8,7 @@ Per bombertype:
 	Graphing colour
 Per fightertype:
 	Graphing colour
+	Secondary graphing colour
 Per industry class:
 	Name
 	Graphing colour
@@ -28,14 +29,14 @@ Bombers = {
 	}
 
 Fighters = {
-	"Bf109E":{"colour":'0.6',},
-	"Bf109G":{"colour":'0.4',},
-	"Fw190A":{"colour":'r',  },
-	"Do17Z": {"colour":'y',  },
-	"Bf110": {"colour":'m',  },
-	"Ju88C": {"colour":'g',  },
-	"Do217J":{"colour":'y',  },
-	"Me262": {"colour":'b',  },
+	"Bf109E":{"colour":'0.6', "2colour":'0.9',    },
+	"Bf109G":{"colour":'0.4', "2colour":'0.75',   },
+	"Fw190A":{"colour":'r',   "2colour":'#ff7f7f',},
+	"Do17Z": {"colour":'y',   "2colour":'#ffff7f',},
+	"Bf110": {"colour":'m',   "2colour":'#ff7fff',},
+	"Ju88C": {"colour":'g',   "2colour":'#7fff7f',},
+	"Do217J":{"colour":'y',   "2colour":'#ffff7f',},
+	"Me262": {"colour":'b',   "2colour":'#7f7fff',},
 	}
 
 Industries = {
@@ -46,5 +47,6 @@ Industries = {
 	4:{"name":'Armament',      "colour":'y',      },
 	5:{"name":'Steel',         "colour":'m',      },
 	6:{"name":'Aircraft',      "colour":'g',      },
-	7:{"name":'Mixed',         "colour":'#806000',},
+	7:{"name":'Radar',         "colour":'#80e000',},
+	8:{"name":'Mixed',         "colour":'#806000',},
 	}

@@ -35,7 +35,7 @@ Bombers:901
 *53*Type 7:1,1,0,NOID
 *51*Type 8:0,5,1,NOID
 *14*Type 8:1,5,1,NOID
-GProd:7
+GProd:8
 IClass 0:6000
 IClass 1:135000
 IClass 2:60000
@@ -43,18 +43,21 @@ IClass 3:75000
 IClass 4:180000
 IClass 5:64000
 IClass 6:24000
+IClass 7:2000
 FTypes:8
 FBases:12
-Fighters:257
-*70*Type 0:1,NOID
-*45*Type 2:2,NOID
-*31*Type 1:3,NOID
-*18*Type 6:2,NOID
-*34*Type 4:2,NOID
-*21*Type 4:5,NOID
-*15*Type 5:4,NOID
-*23*Type 5:1,NOID
-Targets:108
+Fighters:267
+*70*Type 0:1,0,NOID
+*45*Type 2:2,0,NOID
+*31*Type 1:3,0,NOID
+*18*Type 6:2,0,NOID
+*34*Type 4:2,1,NOID
+*4*Type 4:2,0,NOID
+*21*Type 4:5,1,NOID
+*15*Type 5:4,1,NOID
+*23*Type 5:1,1,NOID
+*6*Type 5:1,0,NOID
+Targets:109
 #Berlin
 Targ 20:100,120,0,40
 #Cologne
@@ -84,7 +87,7 @@ Targ 51:96,88,0,40
 #Mannheim
 Targ 53:64,60,0,56
 #!LAST!
-Targ 107:100,100,0,40
+Targ 108:100,100,0,40
 Weather rand:521193
 Messages:1
 04-03-1943:ORDERS

@@ -28,9 +28,9 @@ for(i=0;i<iclasses;i++)
 "Fighters:%u\n", nfighters
 for(i=0;i<nfighters;i++)
 	either
-		"Type %u:%u,NOID\n", fighter[i].type, fighter[i].base
+		"Type %u:%u,%u,NOID\n", fighter[i].type, fighter[i].base, fighter[i].radar
 	or
-		"Type %u:%u,%s\n", fighter[i].type, fighter[i].base, pacid(fighter[i].id)
+		"Type %u:%u,%u,%s\n", fighter[i].type, fighter[i].base, fighter[i].radar, pacid(fighter[i].id)
 either
 {
 	"Targets:%hhu\n", ntargs // should be a constant

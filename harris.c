@@ -262,12 +262,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			if(*next&&(*next!='#'))
 			{
 				fightertype this;
-				// MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:DD-MM-YYYY:DD-MM-YYYY:FLAGS
+				// MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:RADPRI:DD-MM-YYYY:DD-MM-YYYY:FLAGS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%hhu:%hhu:%zn", this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &db))!=6)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%hhu:%hhu:%hhu:%zn", this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &this.radpri, &db))!=7)
 				{
 					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -479,6 +479,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					this.iclass=ICLASS_STEEL;
 				if(strstr(class, ",AC"))
 					this.iclass=ICLASS_AC;
+				if(strstr(class, ",RADAR"))
+					this.iclass=ICLASS_RADAR;
 				this.berlin=strstr(class, ",BERLIN");
 				this.flammable=strstr(class, ",FLAMMABLE");
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
@@ -4014,8 +4016,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						if(state.fighters[j].landed) continue;
 						if(state.fighters[j].k>=0) continue;
 						if(state.fighters[j].hflak>=0) continue;
-						unsigned int type=state.fighters[j].type;
-						bool airad=ftypes[type].night&&!datebefore(state.now, event[EVENT_L_BC]);
+						bool airad=state.fighters[j].radar;
 						unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
 						bool heavy=types[state.bombers[k].type].heavy;
@@ -4243,7 +4244,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						radcon=xyr((signed)flaks[f].lat-state.fighters[j].lat, (signed)flaks[f].lon-state.fighters[j].lon, 12);
 					}
 					if(window) radcon=false;
-					bool airad=ftypes[ft].night&&!datebefore(state.now, event[EVENT_L_BC]);
+					bool airad=state.fighters[j].radar;
 					if(airad&&wairad) airad=brandp(0.8);
 					unsigned int x=state.fighters[j].lon/2, y=state.fighters[j].lat/2;
 					double wea=((x<128)&&(y<128))?state.weather.p[x][y]-1000:0;
@@ -4259,7 +4260,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						double d=hypot(x-tx, y-ty);
 						if(d)
 						{
-							double spd=ftypes[ft].speed/400.0;
+							double spd=ftr_speed(state.fighters[j]);
 							double cx=(tx-x)/d,
 								cy=(ty-y)/d;
 							state.fighters[j].lon+=cx*spd;
@@ -4302,8 +4303,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					int tx=targs[t].lon,
 						ty=targs[t].lat;
 					double d=hypot(x-tx, y-ty);
-					unsigned int type=state.fighters[j].type;
-					double spd=ftypes[type].speed/400.0;
+					double spd=ftr_speed(state.fighters[j]);
 					if(d>0.2)
 					{
 						double cx=(tx-x)/d,
@@ -4327,8 +4327,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					int fx=flaks[f].lon,
 						fy=flaks[f].lat;
 					double d=hypot(x-fx, y-fy);
-					unsigned int type=state.fighters[j].type;
-					double spd=ftypes[type].speed/400.0;
+					double spd=ftr_speed(state.fighters[j]);
 					if(d>0.2)
 					{
 						double cx=(fx-x)/d,
@@ -4348,7 +4347,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				{
 					boarable:;
 					unsigned int type=state.fighters[j].type;
-					double spd=ftypes[type].speed/400.0;
+					double spd=ftr_speed(state.fighters[j]);
 					bool boared=false;
 					if(tameboar&&ftypes[type].night&&boar_up&&(state.fighters[j].landed||t<state.fighters[j].fuelt))
 					{
@@ -4453,7 +4452,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 						{
 							if(state.fighters[j].damage>=1) continue;
 							unsigned int type=state.fighters[j].type;
-							unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
+							unsigned int range=(ftypes[type].night?100:50)*ftr_speed(state.fighters[j]);
 							if(state.fighters[j].landed)
 							{
 								if(state.gprod[ICLASS_OIL]>=oilme)
@@ -4510,7 +4509,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					{
 						if(state.fighters[j].damage>=1) continue;
 						unsigned int type=state.fighters[j].type;
-						unsigned int range=(ftypes[type].night?100:50)*(ftypes[type].speed/400.0);
+						unsigned int range=(ftypes[type].night?100:50)*ftr_speed(state.fighters[j]);
 						if(state.fighters[j].landed)
 						{
 							if(state.gprod[ICLASS_OIL]>=(state.nfighters-fightersleft)*100)
@@ -5478,10 +5477,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	state.gprod[ICLASS_ARM]*=datebefore(state.now, event[EVENT_BARBAROSSA])?0.96:0.94;
 	state.gprod[ICLASS_BB]*=0.99;
 	state.gprod[ICLASS_RAIL]*=0.99;
-	state.gprod[ICLASS_OIL]*=0.98;
+	state.gprod[ICLASS_OIL]*=0.984;
 	state.gprod[ICLASS_UBOOT]*=0.95; // not actually used for anything
 	// German fighters
 	memset(fcount, 0, sizeof(fcount));
+	unsigned int maxradpri=0;
 	for(unsigned int i=0;i<state.nfighters;i++)
 	{
 		unsigned int type=state.fighters[i].type;
@@ -5495,6 +5495,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			i--;
 			continue;
 		}
+		if((!state.fighters[i].radar)&&(ftypes[type].radpri>maxradpri))
+			maxradpri=ftypes[type].radpri;
 		fcount[type]++;
 		if(brandp(0.1))
 		{
@@ -5502,6 +5504,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			do
 				base=state.fighters[i].base=irandu(nfbases);
 			while(!datewithin(state.now, fbases[base].entry, fbases[base].exit));
+		}
+	}
+	for(unsigned int i=0;i<state.nfighters;i++)
+	{
+		if(state.gprod[ICLASS_RADAR]<5000) break;
+		unsigned int type=state.fighters[i].type;
+		if((!state.fighters[i].radar)&&(ftypes[type].radpri==maxradpri))
+		{
+			state.fighters[i].radar=true;
+			na_append(&state.hist, state.now, (time){11, 49}, state.fighters[i].id, true, type, 0);
+			state.gprod[ICLASS_RADAR]-=5000;
 		}
 	}
 	unsigned int mfcost=0;
@@ -5975,15 +5988,10 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 					}
 					unsigned int j;
 					unsigned int base;
+					unsigned int flags;
 					char p_id[9];
-					f=sscanf(line, "Type %u:%u,%8s\n", &j, &base, p_id);
-					// TODO: this is for oldsave compat and should probably be removed later
-					if(f==2)
-					{
-						f=3;
-						strcpy(p_id, "NOID");
-					}
-					if(f!=3)
+					f=sscanf(line, "Type %u:%u,%u,%8s\n", &j, &base, &flags, p_id);
+					if(f!=4)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -5995,10 +6003,8 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 						e|=4;
 						break;
 					}
-					state->fighters[i]=(ac_fighter){.type=j, .base=base};
-					if(strcmp(p_id, "NOID")==0)
-						state->fighters[i].id=rand_acid();
-					else if(gacid(p_id, &state->fighters[i].id))
+					state->fighters[i]=(ac_fighter){.type=j, .base=base, .radar=flags&1};
+					if(gacid(p_id, &state->fighters[i].id))
 					{
 						fprintf(stderr, "32 Invalid value \"%s\" for a/c ID in tag \"%s\"\n", p_id, tag);
 						e|=32;
@@ -6270,7 +6276,10 @@ int savegame(const char *fn, game state)
 	for(unsigned int i=0;i<state.nfighters;i++)
 	{
 		pacid(state.fighters[i].id, p_id);
-		fprintf(fs, "Type %u:%u,%s\n", state.fighters[i].type, state.fighters[i].base, p_id);
+		unsigned int flags = 0;
+		if(state.fighters[i].radar)
+			flags |= 1;
+		fprintf(fs, "Type %u:%u,%u,%s\n", state.fighters[i].type, state.fighters[i].base, flags, p_id);
 	}
 	fprintf(fs, "Targets:%hhu\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
@@ -6640,6 +6649,10 @@ void produce(int targ, game *state, double amount)
 			amount=min(amount, state->gprod[ICLASS_BB]*2.0);
 			state->gprod[ICLASS_BB]-=amount/2.0;
 		break;
+		case ICLASS_RADAR:
+			if(datebefore(state->now, event[EVENT_LICHTENSTEIN]))
+				return;
+		break;
 		case ICLASS_MIXED:
 #define ADD(class, qty)	state->gprod[class]+=qty; state->dprod[class]+=qty;
 			ADD(ICLASS_OIL, amount/7.0);
@@ -6648,6 +6661,8 @@ void produce(int targ, game *state, double amount)
 			ADD(ICLASS_AC, amount/21.0);
 			ADD(ICLASS_BB, amount/14.0);
 			ADD(ICLASS_STEEL, amount/35.0);
+			if(!datebefore(state->now, event[EVENT_LICHTENSTEIN]))
+				ADD(ICLASS_RADAR, amount/200.0);
 #undef ADD
 			return;
 		default:
