@@ -20,7 +20,7 @@ NPrio 0:0,400
 NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
-Bombers:652
+Bombers:672
 *298*Type 3:0,0,0,NOID
 *114*Type 3:1,0,0,NOID
 *20*Type 4:0,0,0,NOID
@@ -29,8 +29,8 @@ Bombers:652
 *6*Type 5:0,4,0,NOID
 *47*Type 5:1,0,0,NOID
 *4*Type 5:1,4,0,NOID
-*26*Type 6:0,0,0,NOID
-*18*Type 6:1,0,0,NOID
+*36*Type 6:0,0,0,NOID
+*28*Type 6:1,0,0,NOID
 *15*Type 7:0,0,0,NOID
 *3*Type 7:1,0,0,NOID
 GProd:8
