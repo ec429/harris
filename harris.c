@@ -5506,15 +5506,20 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			while(!datewithin(state.now, fbases[base].entry, fbases[base].exit));
 		}
 	}
-	for(unsigned int i=0;i<state.nfighters;i++)
+	if(!datebefore(state.now, event[EVENT_L_BC]))
 	{
-		if(state.gprod[ICLASS_RADAR]<5000) break;
-		unsigned int type=state.fighters[i].type;
-		if((!state.fighters[i].radar)&&(ftypes[type].radpri==maxradpri))
+		unsigned int rcount=4;
+		for(unsigned int i=0;i<state.nfighters;i++)
 		{
-			state.fighters[i].radar=true;
-			na_append(&state.hist, state.now, (time){11, 49}, state.fighters[i].id, true, type, 0);
-			state.gprod[ICLASS_RADAR]-=5000;
+			if(state.gprod[ICLASS_RADAR]<5000 || !rcount) break;
+			unsigned int type=state.fighters[i].type;
+			if((!state.fighters[i].radar)&&(ftypes[type].radpri==maxradpri))
+			{
+				state.fighters[i].radar=true;
+				na_append(&state.hist, state.now, (time){11, 49}, state.fighters[i].id, true, type, 0);
+				state.gprod[ICLASS_RADAR]-=5000;
+				rcount--;
+			}
 		}
 	}
 	unsigned int mfcost=0;
