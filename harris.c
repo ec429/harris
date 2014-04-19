@@ -5506,7 +5506,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			while(!datewithin(state.now, fbases[base].entry, fbases[base].exit));
 		}
 	}
-	if(!datebefore(state.now, event[EVENT_L_BC]))
+	if(!datebefore(state.now, event[EVENT_L_BC]) && maxradpri)
 	{
 		unsigned int rcount=4;
 		for(unsigned int i=0;i<state.nfighters;i++)
