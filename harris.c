@@ -6437,7 +6437,7 @@ SDL_Surface *render_ac(game state)
 			if(state.bombers[k].crashed)
 				pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 			else if(state.bombers[k].damage>6)
-				pset(rv, x, y, (atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE});
+				pset(rv, x, y, (atg_colour){255, 127, 63, ATG_ALPHA_OPAQUE});
 			else if(state.bombers[k].failed)
 				pset(rv, x, y, (atg_colour){0, 255, 255, ATG_ALPHA_OPAQUE});
 			else if(state.bombers[k].bombed)
@@ -6452,6 +6452,8 @@ SDL_Surface *render_ac(game state)
 			pset(rv, x, y, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 		else if(state.fighters[i].landed)
 			pset(rv, x, y, (atg_colour){127, 0, 0, ATG_ALPHA_OPAQUE});
+		else if(state.fighters[i].radar)
+			pset(rv, x, y, (atg_colour){255, 191, 127, ATG_ALPHA_OPAQUE});
 		else
 			pset(rv, x, y, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
 	}
