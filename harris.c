@@ -3870,7 +3870,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 										unsigned int he=state.bombers[k].b_hc+state.bombers[k].b_gp;
 										hi_append(&state.hist, state.now, maketime(t), state.bombers[k].id, false, type, ta, he+state.bombers[k].b_in+state.bombers[k].b_ti);
 										state.flam[ta]=min(state.flam[ta]+state.bombers[k].b_hc/5000.0, 100); // HC (cookies) increase target flammability
-										double maybe_dmg=(he*1.2+state.bombers[k].b_in*(targs[ta].flammable?2.4:1.5)*state.flam[ta]/40.0)/(targs[ta].psiz*10000.0);
+										double maybe_dmg=(he*1.2+state.bombers[k].b_in*(targs[ta].flammable?2.4:1.5)*state.flam[ta]/40.0)/(targs[ta].psiz*20000.0);
 										double dmg=min(state.dmg[ta], maybe_dmg);
 										cidam+=dmg*(targs[ta].berlin?2.0:1.0);
 										state.dmg[ta]-=dmg;
@@ -5425,7 +5425,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				state.flk[i]+=dflk;
 				if(dflk)
 					tfk_append(&state.hist, state.now, (time){11, 45}, i, dflk, state.flk[i]);
-				double ddmg=min(state.dmg[i]*.01, 100-state.dmg[i]);
+				double ddmg=min(state.dmg[i]*.005, 100-state.dmg[i]);
 				state.dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state.hist, state.now, (time){11, 45}, i, ddmg, state.dmg[i]);
