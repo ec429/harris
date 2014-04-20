@@ -5379,8 +5379,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 			unsigned int type=state.bombers[i].type;
 			if(types[type].pff&&types[type].noarm)
 			{
-				state.bombers[i].pff=true;
-				pf_append(&state.hist, state.now, (time){11, 40}, state.bombers[i].id, false, type);
+				if(!state.bombers[i].pff)
+				{
+					state.bombers[i].pff=true;
+					pf_append(&state.hist, state.now, (time){11, 40}, state.bombers[i].id, false, type);
+				}
 				continue;
 			}
 			types[type].count++;
