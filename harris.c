@@ -97,7 +97,7 @@ struct bombloadinfo bombloads[NBOMBLOADS]=
 #define RS_lastrow_h	100
 
 #define VER_MAJ	0
-#define VER_MIN	1
+#define VER_MIN	2
 #define VER_REV	0
 
 int loadgame(const char *fn, game *state, bool lorw[128][128]);
