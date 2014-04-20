@@ -44,45 +44,37 @@ IClass 6:20000
 IClass 7:0
 FTypes:8
 FBases:12
-Fighters:162
+Fighters:181
 *39*Type 0:1,0,NOID
 *24*Type 2:2,0,NOID
 *36*Type 0:3,0,NOID
 *18*Type 3:2,0,NOID
 *15*Type 3:4,0,NOID
-*6*Type 4:5,0,NOID
+*16*Type 4:5,0,NOID
 *7*Type 5:4,0,NOID
 *11*Type 4:4,0,NOID
-*6*Type 5:5,0,NOID
+*15*Type 5:5,0,NOID
 Targets:109
-#Berlin
-Targ 20:100,120,0,40
-#Cologne
-Targ 27:97,98,0,40
-#Essen
-Targ 29:99,100,0,40
-#Dusseldorf
-Targ 31:94,90,0,40
-#Dortmund
-Targ 32:98,99,0,40
-#Bochum
-Targ 33:96,92,0,40
-#Duisburg
-Targ 34:68,82,0,64
-#Hagen
-Targ 35:90,93,0,40
-#Wuppertal
-Targ 37:95,97,0,40
-#Hamm
-Targ 38:81,76,0,52
-#Bremen
-Targ 39:88,93,0,44
-#Hanover
-Targ 47:93,87,0,40
 #Mannheim
 Targ 53:45,30,0,48
-#!LAST!
-Targ 108:100,100,0,40
+#München-Gladbach
+Targ 73:64,80,0,40
+#Dusseldorf Steel Mill
+Targ 76:40,60,0,40
+#Krupps, Essen
+Targ 77:86,100,0,40
+#Hamburg Oil Refinery
+Targ 79:78,80,0,40
+#Hamm Railyards
+Targ 99:60,56,0,40
+#Duisburg Ironworks
+Targ 100:50,75,0,40
+#Heligoland Minelaying
+Targ 103:60,100,0,40
+#Biscay Minelaying
+Targ 104:48,100,0,40
+#!LAST! Baltic Minelaying
+Targ 108:92,100,0,40
 Weather rand:2282901
 Messages:1
 14-02-1942:ORDERS

@@ -86,8 +86,16 @@ Targ 47:93,95,0,40
 Targ 51:96,88,0,40
 #Mannheim
 Targ 53:64,60,0,56
-#!LAST!
-Targ 108:100,100,0,40
+#Heligoland Minelaying
+Targ 103:32,100,0,40
+#Biscay Minelaying
+Targ 104:18,100,0,40
+#Fehmarn Minelaying
+Targ 105:94,100,0,40
+#Kattegat Minelaying
+Targ 107:90,100,0,40
+#!LAST! Baltic Minelaying
+Targ 108:86,100,0,40
 Weather rand:521193
 Messages:1
 04-03-1943:ORDERS
