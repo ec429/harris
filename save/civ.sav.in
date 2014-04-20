@@ -1,8 +1,8 @@
-HARR:0.1.0
+HARR:0.2.0
 DATE:15-05-1940
 Confid:30
 Morale:80
-Budget:40000+18000
+Budget:40000+28000
 Types:13
 Prio 0:2,0,22500,0
 Prio 1:1,0,32000,0
@@ -18,30 +18,42 @@ Prio 10:2,0,15000,0
 Prio 11:2,0,40000,128000
 Prio 12:2,0,50000,90000
 Navaids:4
-NPrio 0:0,200
+NPrio 0:0,40
 NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
-Bombers:405
+Bombers:411
 *52*Type 0:0,0,0,NOID
 *50*Type 0:1,0,0,NOID
-*42*Type 1:0,0,0,NOID
-*24*Type 1:1,0,0,NOID
+*44*Type 1:0,0,0,NOID
+*28*Type 1:1,0,0,NOID
 *74*Type 2:0,0,0,NOID
 *40*Type 2:1,0,0,NOID
 *98*Type 3:0,0,0,NOID
 *25*Type 3:1,0,0,NOID
-GProd:0
+GProd:8
+IClass 0:9000
+IClass 1:120000
+IClass 2:64000
+IClass 3:40000
+IClass 4:140000
+IClass 5:75000
+IClass 6:15000
+IClass 7:0
 FTypes:8
-FBases:11
-Fighters:123
-*29*Type 0:0,NOID
-*24*Type 0:1,NOID
-*34*Type 0:2,NOID
-*14*Type 3:1,NOID
-*12*Type 3:3,NOID
-*10*Type 3:4,NOID
-Targets init:100,100,0
+FBases:12
+Fighters:183
+*39*Type 0:1,0,NOID
+*34*Type 0:2,0,NOID
+*44*Type 0:3,0,NOID
+*24*Type 3:2,0,NOID
+*22*Type 3:4,0,NOID
+*20*Type 3:5,0,NOID
+Targets:109
+#Heligoland Minelaying
+Targ 103:92,100,0,40
+#!LAST! Baltic Minelaying
+Targ 108:98,100,0,40
 Weather rand:327019
 Messages:1
 15-05-1940:ORDERS
@@ -56,6 +68,13 @@ In light of the costs of waging the bomber campaign, and of the enemy's clear in
 The Air Ministry further reminds you that due to the shortage of industrial capacity, and the lack of trained
  aircrews, losses must be conserved as much as possible.  Nonetheless you are expected to strike against the enemy
  with as much force as these restrictions allow.
+
+Strategic attacks are to be made upon German industry, with the intention of breaking the economic base of the
+ Nazi war machine.  Priority targets include oil refineries, the aircraft and ballbearing industries, steelworks,
+ and the huge Krupps armament works at Essen.
+
+Your bombers will also be required to support the battle for France, with attacks on communications and enemy
+ troop concentrations.
 
 You are also notified that the Political Warfare department wishes you to drop their propaganda leaflets
  (Operation "Nickel") over Germany whenever you can spare the forces to do so, in order to sow dissent and

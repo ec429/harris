@@ -1,8 +1,8 @@
-HARR:0.1.0
+HARR:0.2.0
 DATE:14-02-1942
 Confid:50
 Morale:40
-Budget:24000+24000
+Budget:24000+36000
 Types:13
 Prio 0:0,0,22500,0
 Prio 1:0,0,32000,0
@@ -18,63 +18,65 @@ Prio 10:2,0,15000,0
 Prio 11:2,0,40000,128000
 Prio 12:2,0,50000,90000
 Navaids:4
-NPrio 0:0,200
+NPrio 0:0,40
 NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
-Bombers:664
+Bombers:672
 *298*Type 3:0,0,0,NOID
 *114*Type 3:1,0,0,NOID
 *20*Type 4:0,0,0,NOID
-*85*Type 4:1,0,0,NOID
+*65*Type 4:1,0,0,NOID
 *36*Type 6:0,0,0,NOID
 *6*Type 6:0,4,0,NOID
 *47*Type 6:1,0,0,NOID
 *4*Type 6:1,4,0,NOID
-*26*Type 8:0,0,0,NOID
-*18*Type 8:1,0,0,NOID
-*9*Type 9:0,0,0,NOID
-*1*Type 9:1,0,0,NOID
-GProd:0
+*36*Type 8:0,0,0,NOID
+*28*Type 8:1,0,0,NOID
+*15*Type 9:0,0,0,NOID
+*3*Type 9:1,0,0,NOID
+GProd:8
+IClass 0:7500
+IClass 1:100000
+IClass 2:50000
+IClass 3:50000
+IClass 4:160000
+IClass 5:50000
+IClass 6:20000
+IClass 7:0
 FTypes:8
-FBases:11
-Fighters:131
-*29*Type 0:0,NOID
-*24*Type 2:1,NOID
-*34*Type 0:2,NOID
-*14*Type 3:1,NOID
-*12*Type 3:3,NOID
-*10*Type 4:4,NOID
-*8*Type 5:3,NOID
-Targets:95
-#Berlin
-Targ 20:100,120,0
-#Cologne
-Targ 28:97,98,0
-#Essen
-Targ 30:99,100,0
-#Dusseldorf
-Targ 32:94,90,0
-#Dortmund
-Targ 33:98,99,0
-#Bochum
-Targ 34:96,92,0
-#Duisburg
-Targ 35:68,82,0
-#Hagen
-Targ 36:90,93,0
-#Wuppertal
-Targ 37:95,97,0
-#Hamm
-Targ 38:81,76,0
-#Bremen
-Targ 39:88,93,0
-#Hanover
-Targ 47:93,87,0
+FBases:12
+Fighters:181
+*39*Type 0:1,0,NOID
+*24*Type 2:2,0,NOID
+*36*Type 0:3,0,NOID
+*18*Type 3:2,0,NOID
+*15*Type 3:4,0,NOID
+*16*Type 4:5,0,NOID
+*7*Type 5:4,0,NOID
+*11*Type 4:4,0,NOID
+*15*Type 5:5,0,NOID
+Targets:109
 #Mannheim
-Targ 53:45,30,0
-#!LAST!
-Targ 94:100,100,0
+Targ 53:45,30,0,48
+#München-Gladbach
+Targ 73:64,80,0,40
+#Dusseldorf Steel Mill
+Targ 76:40,60,0,40
+#Krupps, Essen
+Targ 77:86,100,0,40
+#Hamburg Oil Refinery
+Targ 79:78,80,0,40
+#Hamm Railyards
+Targ 99:60,56,0,40
+#Duisburg Ironworks
+Targ 100:50,75,0,40
+#Heligoland Minelaying
+Targ 103:60,100,0,40
+#Biscay Minelaying
+Targ 104:48,100,0,40
+#!LAST! Baltic Minelaying
+Targ 108:92,100,0,40
 Weather rand:2282901
 Messages:1
 14-02-1942:ORDERS

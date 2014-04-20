@@ -10,11 +10,9 @@ import hsave, hdata, losstarg
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
-	if '--type' in sys.argv:
-		typ = int(sys.argv[sys.argv.index('--type')+1])
-	else: typ = None
+	opts, args = losstarg.parse_args(sys.argv)
 	save = hsave.Save.parse(sys.stdin)
-	loss, data = losstarg.extract_losstarg(save, typ=typ)
+	loss, data = losstarg.extract_losstarg(save, opts)
 	bars = reversed(zip(hdata.Targets, data))
 	fbars = [bar for bar in bars if bar[1][2] is not None]
 	mr = float(max([bar[1][1] for bar in fbars]))
@@ -22,7 +20,7 @@ if __name__ == '__main__':
 	ax = fig.add_subplot(1,1,1)
 	ax.vlines(loss, 0, len(fbars)+1)
 	yl = xrange(1, len(fbars)+1)
-	gl = plt.barh(yl, [bar[1][2] for bar in fbars], height=[bar[1][1]/mr for bar in fbars], color='b', align='center')
+	gl = plt.barh(yl, [bar[1][2] for bar in fbars], height=[max(bar[1][1]/mr, 0.2) for bar in fbars], color='b', align='center', linewidth=0)
 	ax.set_yticks(yl)
 	ax.set_yticklabels([bar[0]['name'] for bar in fbars])
 	plt.show()

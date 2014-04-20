@@ -8,6 +8,8 @@
 */
 #include "history.h"
 #include <stdlib.h>
+#include "bits.h"
+#include "date.h"
 
 char *hist_alloc(history *hist)
 {
@@ -253,5 +255,12 @@ int mo_append(history *hist, date d, time t, double morale)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "MO %a", morale);
+	return(evm_append(hist, d, t, buf));
+}
+
+int gp_append(history *hist, date d, time t, unsigned int iclass, double gprod, double dprod)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "GP %u %a %a", iclass, gprod, dprod);
 	return(evm_append(hist, d, t, buf));
 }

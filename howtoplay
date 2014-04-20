@@ -2,7 +2,7 @@
 by Edward Cree
 --How to play--
 
-NOTE: Harris is considerably unfinished; several gameplay mechanics are still entirely missing.  At present, the first unimplemented feature (the electronic countermeasure "Window") comes in July 1943, so you can play at least that far without experiencing problems.  Be warned, however, that future versions of Harris may not preserve savegame compatibility.
+NOTE: Harris is considerably unfinished; some gameplay mechanics are still not finalised, some game data haven't been written yet, and there are a few balance issues.  At present, the first major unimplemented part is the Invasion preparations in April 1944, so you can play at least that far without experiencing problems.  Be warned, however, that future versions of Harris may not preserve savegame compatibility.
 
 Contents
 ~~~~~~~~
@@ -14,10 +14,12 @@ Contents
 * Navaids
  - Gee
  - Oboe
- - H2S
+ - H₂S
  - G-H
 * PFF
 * Window
+* Filters
+* Bombloads
 * Budget
 * Reference
  - Bomber types
@@ -37,7 +39,7 @@ The targets are divided into several classes, as follows:
 * Specific Industrial targets.  Named factory complexes are the main strategic targets from mid 1940 to early 1942.
 * Cities.  From February 1942 onwards, entire cities are the target of most strategic raids.  Destroying them all will cripple Germany's capacity to wage war.
 * Leafleting.  Many cities are also, from the beginning of the war, targets for the dropping of propaganda leaflets.
-Geographically, the target map can be partitioned somewhat: (Todo - a labelled map to accompany this)
+Geographically, the target map can be partitioned somewhat: (See the accompanying map in map/target_map.png)
 * France and the Low Countries.  Occasional tactical targets will pop up here.
 * Niedersachsen and Schleswig-Holstein.  Many docks, ports and shipyards; also the major industrial cities of Hamburg and Bremen.
 * Ruhr Valley.  The heart of Germany's coal-driven heavy industry is here, with such industrial centres as Essen, Cologne and Duisburg.
@@ -47,34 +49,38 @@ Geographically, the target map can be partitioned somewhat: (Todo - a labelled m
 Bombers
 ~~~~~~~
 You start with an assortment of light and medium bombers - Blenheims, Whitleys, Hampdens and Wellingtons.  You can direct, in broad terms, the priorities for further production, by means of a control on each bomber type labelled "NONE", "LOW", "MED" and "HIGH".  For every bomber built of a type with LOW priority, 3 will be built on MED and 6 on HIGH.  The total volume produced depends on your Budget, which is an abstraction of the amount of resources the Government is willing to devote to building up the bomber force.  This is increased by successfully attacking, and otherwise gradually diminishes over time.  (See the section "Budget" below for details)
+There are also limitations on the maximum production capacity of each bomber type.  This capacity can 'store up' over a few days; its level is shown in the vertical green bar to the right of the priority indicator.  If a bomber purchase is held up by lack of capacity, an orange "P!" will appear to the right of the priority indicator.  Note that this will hold up purchases of ALL types; your budget will be stored up, not spent on other bomber types.
 As the months and years pass, new types of bomber are developed, and older ones become obsolete and are retired from the front line.  Each type of bomber has its own combination of (among other factors) speed, payload, serviceability, survivability and range.
+Because the Government wishes to encourage the development of new aircraft types, for the first four months of any new type's life, you will be forced to buy them at least at LOW priority, though you can set the priority higher than this if you wish.  This will be denoted by a green 'N' to the right of the priority indicator.
+Also, when a new type enters service, you will receive a flight of 15 bombers of that type, which are not paid for out of your budget.
 
 Flak
 ~~~~
 Anti-aircraft defences, or 'Flak' (from the German 'Fliegerabwehrkanone' - anti-aircraft cannon) are one of the threats to your bombers' survival.  Flak takes two forms: flak batteries positioned to cover the approaches to Germany, and defences around the targets themselves.  The strength of a target's flak defences are indicated by the grey bar against the target's name in the target list (the blue bar indicates how damaged the target is, excluding shipping targets).  Flak batteries are marked on the map with purple dots.  A few are a brighter pink colour; this denotes that the flak is controlled by radar, making it much more accurate and deadly.  These radars can also control individual fighter aircraft (in so-called 'Himmelbett' fighting), which will be covered in the next section.
 It will usually be impossible for your bombers to avoid all of the flak batteries, as the Germans lay them out in great belts - the Kammhuber Line and the Atlantic Wall - which your bombers must cross to reach Germany.  There are also clusters of flak batteries in major target areas such as the Ruhr Valley.
+The more rapidly flak fires, the less accurate it becomes; so losses can be reduced by concentration.  Conversely, if you send aircraft on separate raids all over Germany, each one will get a flak gun all to itself.
 
 Fighters
 ~~~~~~~~
-German fighters are the /other/ threat to your bombers.  The Germans will deploy their fighters in different ways as the war progresses.  Initially, they will simply send fighters to cover any target that's threatened by the approach of your bombers; these fighters will attack visually, so are much more effective in strong moonlight and clear skies.  As the Germans begin to build Würzburg radars alongside their Flak batteries, they will use these radars for 'Himmelbett' ground-controlled interception - each radar station controlling a single patrolling fighter; the remaining fighters will be disposed as before.  Late in 1942 the Germans will deploy 'Liechtenstein' airborne radar into their twin-engined nightfighters (single-engined fighters are too small to carry radar), enabling them to find and attack bombers without individual ground-control.  In 1943 their tactics will change to the 'Tame Boar' system, where a single ground controller will broadcast to all fighters informing them of the progress of the bomber stream and directing them to its general location [Not yet implemented].
+German fighters are the /other/ threat to your bombers.  The Germans will deploy their fighters in different ways as the war progresses.  Initially, they will simply send fighters to cover any target that's threatened by the approach of your bombers; these fighters will attack visually, so are much more effective in strong moonlight and clear skies.  As the Germans begin to build Würzburg radars alongside their Flak batteries, they will use these radars for 'Himmelbett' ground-controlled interception - each radar station controlling a single patrolling fighter; the remaining fighters will be disposed as before.  Late in 1942 the Germans will deploy 'Liechtenstein' airborne radar into their twin-engined nightfighters (single-engined fighters are too small to carry radar), enabling them to find and attack bombers without individual ground-control.  In 1943 their tactics will change to the 'Tame Boar' system, where a single ground controller will broadcast to all fighters informing them of the progress of the bomber stream and directing them to its general location.
 
 Navaids
 ~~~~~~~
-Navigational aids help guide your bombers to the target.  There are four different systems: Gee, Oboe, H2S and G-H.  All except for H2S are reliant on ground-based transmissions, and thus their range depends on altitude.
-When a navaid becomes available, sets will begin to be installed in your bombers.  You can control which type of bomber should receive sets by clicking on the appropriate navaid icon; the selected icon will be highlighted yellow.
+Navigational aids help guide your bombers to the target.  There are four different systems: Gee, Oboe, H₂S and G-H.  All except for H₂S are reliant on ground-based transmissions, and thus their range depends on altitude.
+When a navaid becomes available, sets will begin to be installed in your bombers.  You can control which type of bomber should receive sets by clicking on the appropriate navaid icon; the selected icon will be highlighted yellow.  Alternatively, by middle-clicking (or ctrl-clicking) on the icon, you can set that type of navaid to be distributed among all your bomber types.  If you wish to store up navaids and not install them in any bombers (perhaps because you are waiting for a new bomber type to arrive), click the navaid icon while holding both Alt and Shift.
 
 Gee
 ---
 Gee gives your bombers a rough 'fix' of their position at ranges up to about 360mi.  It is available from March 1942.  The introduction of GEE also triggers 'bomber stream' tactics: instead of choosing their own routes and times on target, every aircraft is fitted into a large-scale plan.  All aircraft raiding a given target will follow the same route, and they will be timed to bomb from Zero Hour (01:00) until "Zero plus ten" (01:10).
-Later (September 1942) the Germans will jam GEE, reducing the range to 200mi.
+Later (September 1942) the Germans will jam GEE, reducing the range to 200mi.  Late in December 1942, GEE sets will be plentiful enough that one is installed in every new bomber off the production line.
 
 Oboe
 ----
 Oboe is a precision blind-bombing device.  By its nature a pair of Oboe stations can only be used by one aircraft at once.  The disposition of Oboe stations is made automatically, with priority given to Pathfinders.  It is invented in November 1941.
 
-H2S
+H₂S
 ---
-H2S is a terrain radar.  It enables your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.
+H₂S is a terrain radar.  It enables your bombers to navigate by ground features even in heavy cloud.  It is developed in January 1943.  It is most effective over coastlines and rivers, though forests, hills and even towns can also give good returns.
 
 G-H
 ---
@@ -86,19 +92,39 @@ After the 15th of August 1942, your Mosquitoes and one in five of your Lancaster
 
 Window
 ~~~~~~
-Window (known today as 'Chaff') has not been implemented yet.  When it has, it will confuse the German radars.  You will also be able to tell a diversionary raid to Window more heavily thus making them look like a larger force.
+Window (known today as 'Chaff') is a radio countermeasure: thousands of strips of aluminium foil, dropped from your bombers to confuse the German radars.  [You should be able to tell a diversionary raid to Window more heavily thus making them look like a larger force, but that's not implemented yet.]
+
+Filters
+~~~~~~~
+Once navaids are available, it's possible to apply filters when adding bombers to, or removing them from, a raid.  These filters are controlled by a row of buttons (one per navaid, plus one for PFF) which can be set to '+' (only move bombers which HAVE this), blank (don't filter on this) or '-' (only move bombers which DON'T have this).  These filters allow more complicated raid planning, such as "Use only H₂S-equipped Pathfinders, but all the Main Force whether they have H₂S or not".
+
+Bombloads
+~~~~~~~~~
+At first, you don't have to decide what bombload to carry, since all targets take high explosive bombs (except Minelaying and Leaflets, obviously).  However, after the Area Bombing Directive of February 1942, you will find that you can choose the bombload for raids on cities.  Mostly you just control the HE/incendiary mix, except for Mosquitos where the choice is between HE and "TIs", target indicator flares.  Another variable is the HC 'blockbuster' bombs.
+In general, HE will do more damage than incendiaries (except for a few especially flammable cities: Hamburg, Dresden, Mannheim and Lübeck), but fires from incendiaries will light up the target and help following crews find it.  TIs, brightly coloured flares which burst and cascade over a target, are even more effective in this regard, and are usually dropped by Pathfinder Mosquitoes to provide a clear aiming point for the Main Force.
+High Capacity 'blockbuster' bombs are thin-skinned cylinders filled with high explosive.  They are principally blast bombs, and tend to make buildings much more flammable, so ideally you want lots of these early in the raid, followed up by incendiaries later.  This effect lingers for the first few days after a raid, but then repairs to the buildings end it.
+Fires and TIs are generally not visible through thick cloud, so Pathfinder aircraft also carry "release-point flares", commonly known as "skymarkers".  These are suspended on parachutes so as to remain above the cloud for several minutes, and are only dropped if the aircraft has a 'fix' from OBOE or H₂S.
+The bombloads and their codenames are:
+	"Abnormal":	full HE, typically consisting of 1000lb General Purpose medium-capacity bombs.  (Symbol: three small bombs.)
+	"Plumduff":	one High-Capacity 4000lb blockbuster (known as a 'cookie'), plus a mixture of 500lb or 1000lb GP and incendiaries.  Stirlings and Halifaxes cannot carry this load as their bomb bays are too narrow to hold a 'cookie'.  (Symbol: one large bomb, one small bomb, one fire.)  Or for Mosquitoes, single HC 4000lb blockbuster (Symbol: one large bomb).
+	"Usual":	one 4000lb blockbuster (Lancaster/Manchester) or a small amount of GP (others), plus incendiaries.  (Symbol: one large bomb, two fires.)
+	"Arson":	full incendiaries, typically in the form of Small Bomb Containers (SBCs) full of 4lb magnesium stick incendiaries, and/or 30lb incendiary bombs.  (Symbol: three fires.)
+	"Plumduff-Plus"	(Lancaster only):	one 8000lb or 12000lb blockbuster plus GP.  (Symbol: one large bomb, two small bombs.)
+	"Illuminator"	(Mosquito only):	4 × 250lb TI, 8 × 250lb GP, plus several uncoloured flares.  (Symbol: multiple coloured lights.)
+	"Half and Half"	(Mosquito only):	Half of these aircraft will carry Illuminator, the other half will carry Plumduff.  (Symbol: multiple coloured lights / one large bomb)
+One final note: Lancasters (of both marks) are split between the Main Force and the Pathfinders (after the introduction of the latter), and the bombloads for the two are controlled independently.  The selector on the left is for the PFF, that on the right is for the Main Force.
 
 Budget
 ~~~~~~
 The budget decreases by 4% each day, and is increased by successful raids as follows:
 Item            Per day   Total
-10,000lb bombs     £50    £1250  Note: This is doubled for 'specific industrial targets', and doubled for Berlin
-10,000 leaflets     £2      £50  Note: This is doubled for Berlin
-10,000lb mines     £10     £250
-Ship sunk         £800   £20000
-Bridge destroyed £1600   £40000
+10,000lb bombs     £80    £2000  Note: This is doubled for 'specific industrial targets', and doubled for Berlin.  It is 20% higher for the U-boat industry.  Bombs dropped on shipping are not counted here, but bridges are.
+10,000 leaflets     £6     £150  Note: This is doubled for Berlin
+10,000lb mines     £12     £300
+Ship sunk         £600   £15000
+Bridge destroyed £2000   £50000
 In the above table, the extra column headed "Total" gives the (approximate) total payout, based on the formula for the sum of a geometric progression.  Since the common ratio is 0.96, this is (1/1-0.96) = 25 times the value in the "Per day" column.
-The budget is also increased by £1/day for each percentage point of Confidence, and 50p/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£150 * 25 =) £3750/day.
+The budget is also increased by £2/day for each percentage point of Confidence, and £1/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£300 * 25 =) £7500/day.
 
 Reference
 ~~~~~~~~~
@@ -106,17 +132,18 @@ Bomber types
 ------------
 Manufacturer & Type           Cost Speed  Ceiling Payload Sv De Fa Ac Range Available  Obsolete
  Bristol Blenheim            £5000 198mph 20500ft  1200lb 55 14  6 60 190   From start 10-01-1941
- Armstrong-Whitworth Whitley £8000 165mph 17600ft  7000lb 70 17  9 32 320   From start 18-06-1941
+ Armstrong-Whitworth Whitley £8000 165mph 17600ft  7000lb 70 16  9 32 320   From start 18-06-1941
  Handley Page Hampden       £10000 202mph 19000ft  4000lb 65 12  8 48 265   From start 02-11-1941
- Vickers Wellington         £12000 190mph 18000ft  4500lb 85  8  3 36 311   From start 21-10-1943
- Avro Manchester            £20000 210mph 18500ft 10350lb 70 12 16 45 325   05-11-1940 26-06-1942
- Short Stirling             £25000 200mph 17500ft 14000lb 40  9  7 40 280   16-01-1941 08-07-1943
- Handley Page Halifax I     £30000 225mph 20000ft 13000lb 75 12  6 65 330   14-05-1941 31-03-1944
+ Vickers Wellington         £12000 190mph 18000ft  4500lb 85  7  2 40 311   From start 21-10-1943
+ Avro Manchester            £20000 210mph 18500ft 10350lb 64 12 16 55 325   05-11-1940 26-06-1942
+ Short Stirling             £25000 200mph 17500ft 14000lb 40  9  7 50 280   16-01-1941 08-07-1943
+ Handley Page Halifax I     £28000 225mph 20000ft 13000lb 75 11  6 72 330   14-05-1941 31-03-1944
  Avro Lancaster I           £40000 235mph 22500ft 14000lb 80  6  4 80 350   07-02-1942   Never
  de Havilland Mosquito      £15000 340mph 30000ft  4000lb 80  2  4 90 400   12-08-1942   Never
- Handley Page Halifax III   £32000 230mph 22000ft 13500lb 90  7  5 75 335   30-04-1943   Never
+ Handley Page Halifax III   £30000 230mph 22000ft 13500lb 90  7  5 75 335   30-04-1943   Never
  Avro Lancaster X           £45000 245mph 24000ft 16000lb 90  5  3 85 360   13-02-1944   Never
 Column index: "Sv" is serviceability, "De" is defence (bigger = more likely to be shot down), "Fa" is failure (bigger = more likely to turn back with mechanical trouble), "Ac" is accuracy (bigger = better navigation and bombing), "Range" is measured in map pixels which are about 3 miles.  "Ceiling" is only important for navaid range.
+Note also that the Wellington's cost falls to £8000 after the event 'BROUGHTON'.
 The authoritative version of this information is the file "dat/bombers".
 
 General
@@ -136,11 +163,11 @@ Tutorial
 ~~~~~~~~
 After starting Harris, choose "Quick Start Game" from the main menu.  This will start the game on 3rd September 1939 (the outbreak of war).  The other main menu options are Set Up Game (to start a game at a different point [Not yet implemented]), Load Game (to load from a saved game), and Exit.
 Now you are presented with the main 'control center'.  On the left: the date and moon-phase, your bombers, and some misc. info.  In the middle, the map.  On the right, the list of targets.
-We'll start with a raid on shipping in the Heligoland Bight.  In the target list, click that name (it should be second from the top).  It should then be highlighted yellow, and a cross-hair will appear on the map at its location.
-But merely selecting a target doesn't mount a raid; we need to assign some bombers to it.  We'll send some Hampdens.  From the bomber list, left-click on the picture of the Handley Page Hampden (it should be third from the top).  This assigns 10 Hampdens to raid the selected target.  You can also add one at a time (right-click instead), or all the remaining unassigned aircraft of this type (middle-click).  If you have a scroll wheel, you can also assign by hovering over the picture and scrolling up (for 10) or down (for 1).
+We'll start with a raid on shipping in the Heligoland Bight.  In the target list, click that name (it should be second from the top).  It should then be highlighted yellow, and a red cross-hair will appear on the map at its location.
+But merely selecting a target doesn't mount a raid; we need to assign some bombers to it.  We'll send some Hampdens.  From the bomber list, left-click on the picture of the Handley Page Hampden (it should be third from the top).  This assigns 10 Hampdens to raid the selected target.  You can also add one at a time (right-click instead), or all the remaining unassigned aircraft of this type (middle-click or ctrl+left-click).  If you have a scroll wheel, you can also assign by hovering over the picture and scrolling up (for 10) or down (for 1).
 You can also un-assign bombers from a raid; below the map there should be details of the raid on the selected target.  All the same clicks will, on this row, remove bombers from the raid.
 Use these controls to assign a total of 24 Hampdens to the raid.  Next, we'll go elsewhere...
-At the same time as we're raiding Heligoland, let's also send other bombers out to drop leaflets on the Big City.  Berlin Leaflets should be fourth on the target list; click on it to select it.  You should notice that Heligoland Bight is now highlighted in red to remind us that there's a raid ordered.
+At the same time as we're raiding Heligoland, let's also send other bombers out to drop leaflets on the Big City.  Berlin Leaflets should be fourth on the target list; click on it to select it.  You should notice that Heligoland Bight is now highlighted in red to remind us that there's a raid ordered.  There's also a yellow cross-hair on the map.
 We'll send some Whitleys and Wellingtons on this leaflet raid.  Assign 20 of each.
 Now, try to assign some Blenheims to the raid as well.  You'll notice that nothing happens.  This is because Berlin is beyond the range of Blenheims; they're light bombers and can only carry enough fuel to get about halfway across the map.  This is indicated by the greying-out of the Blenheim's picture.
 Now that we've told our bombers where to raid, and in what numbers, we can start the night's action by clicking "Run tonight's raids" (which is just below the list of aircraft on the left).  Immediately the raids will begin.  During the course of the raid, the display consists of the map, with lots of dots travelling across it.  Each dot is an aircraft, and its colour indicates various things about the aircraft it represents.
@@ -162,7 +189,7 @@ If we did score any hits, it might instead look like
 On the next row appear the results of the leaflet raid on Berlin; we'll see how many Whitleys and how many Wellingtons dropped their leaflets in the right place, and how many leaflets that comes to in total.  (Each bomber carries rather a lot of leaflets, so the numbers are quite big.)
 On the bottom and right-hand edges of the table is a row and a column of totals, showing the aggregate performance.
 Once you've seen enough of these statistics, click the 'Continue' button (at the top).  This will take you back to the control centre, ready to plan the next night's ops.
-Now that we're back here, let's point out some more features of this display.  In the list of bomber types, clicking on a bomber's name will show you that bomber's description (click the signature to return).  Under each name is a line that reads, for example, "54/123".  This means that you have 123 of that aircraft type, of which 54 are serviceable.  You can only send serviceable aircraft on operations; the proportion of aircraft which are serviceable depends on the type.  Also, repeatedly launching large raids every night will tend to reduce serviceability levels; giving the bombers a few nights of rest will allow them to bounce back.
+Now that we're back here, let's point out some more features of this display.  In the list of bomber types, clicking on a bomber's name will show you that bomber's description (click 'Continue' to return).  Under each name is a line that reads, for example, "54/123".  This means that you have 123 of that aircraft type, of which 54 are serviceable.  You can only send serviceable aircraft on operations; the proportion of aircraft which are serviceable depends on the type.  Also, repeatedly launching large raids every night will tend to reduce serviceability levels; giving the bombers a few nights of rest will allow them to bounce back.
 Below these numbers is a row of four buttons, labelled "NONE", "LOW", "MED" and "HIGH".  These select the (relative) priority for production of each type, thereby controlling how much of your budget is spent on building each type of bomber.  However, as well as the limitations of your budget, there are also limits on the maximum production capacity of each type; if you run up against these limits, budget gets stockpiled (rather than spending it on other types).  This is indicated by "P!" appearing to the right of the priority buttons.
 Turning to the map in the middle, you will notice that there are large greyed-out areas.  These are cloud formations, and represent the output of the game's weather model (which isn't very sophisticated, and produces somewhat unrealistic results, but it's good enough for gameplay).  Cloud negatively affects bombers' ability to navigate visually, making it harder for them to hit their targets, but also affords some protection from enemy fighters.  It does not, however, affect radionavigation, radar, or barrage flak (none of which rely on visual contact).  It is also worth noting that (owing to prevailing westerly winds) weather patterns tend to travel east, i.e. from left to right.  When planning your raids, remember that the weather will continue to develop after the raid has been launched and throughout its progress.
 As you continue to play the game, new technologies and new aircraft types will be developed, and new kinds of target will appear in the list.

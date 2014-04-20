@@ -5,13 +5,20 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
 LIBS := -latg -lm
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o
-INCLUDES := $(OBJS:.o=.h) events.h
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o
+INCLUDES := $(OBJS:.o=.h) events.h types.h
+SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
-SDL := `sdl-config --libs` -lSDL_ttf -lSDL_image
+SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
 
-all: harris save/qstart.sav save/civ.sav save/abd.sav
+all: harris $(SAVES)
+
+clean:
+	-rm harris $(OBJS) $(SAVES)
+
+realclean: clean
+	-rm events.h
 
 harris: harris.o $(OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) harris.o -o $@ $(SDL)
@@ -19,13 +26,10 @@ harris: harris.o $(OBJS)
 harris.o: harris.c $(INCLUDES)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
-events.h: evh mkevh.sh
-	sh ./mkevh.sh <evh >events.h
+events.h: dat/events mkevents.py
+	./mkevents.py >events.h
 
-evh: dat/events mkevh.awk
-	awk -f mkevh.awk -- dat/events >evh
-
-widgets.o: widgets.c widgets.h
+widgets.o: widgets.c widgets.h bits.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 save/%.sav: save/%.sav.in gensave.py
@@ -33,8 +37,10 @@ save/%.sav: save/%.sav.in gensave.py
 
 weather.o: rand.h
 
-history.o: bits.h date.h
+routing.o: rand.h globals.h date.h geom.h
 
-%.o: %.c %.h
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+history.o: bits.h date.h types.h
+
+%.o: %.c %.h types.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 

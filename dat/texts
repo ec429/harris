@@ -46,6 +46,13 @@ In light of the costs of waging the bomber campaign, and of the enemy's clear in
  still directed to aim your attacks upon military and industrial targets; the War Office does not believe this
  country should engage in the indiscriminate bombing of civilians.
 
+Strategic attacks are to be made upon German industry, with the intention of breaking the economic base of the
+ Nazi war machine.  Priority targets include oil refineries, the aircraft and ballbearing industries, steelworks,
+ and the huge Krupps armament works at Essen.
+
+Your bombers will also be required to support the battle for France, with attacks on communications and enemy
+ troop concentrations.
+
 ==BARGE==
 
 The Germans have begun amassing barges in several Continental ports; it appears they are preparing for an
@@ -56,12 +63,38 @@ The Germans have begun amassing barges in several Continental ports; it appears 
 The invasion fleet appears to have been dispersed.  The Germans, defeated in the Battle of Britain, appear to have
  postponed their plans for invasion.  You can now return to the primary objectives.
 
+==LONDON==
+
+Last night, Luftwaffe bombers attacked London.  The Air Ministry urges you to retaliate, and authorises immediate
+ attacks on the German capital, Berlin.
+
+==COVENTRY==
+
+After last night's heavy Luftwaffe raids on Coventry, discussions are taking place at the highest level on whether
+ Bomber Command should mount retaliatory area raids on German cities.
+Until a decision is taken, you are to continue attacking industrial and military targets, as previously.
+
+==MANNHEIM==
+
+The government has decided to authorise Operation Abigail Rachel, an area attack upon the city of Mannheim.
+This is to be considered an experiment.
+
+==UBOAT==
+
+Losses in the Battle of the Atlantic are becoming critical.  The Air Ministry has asked you to attack German
+ U-boats, in their factories and in the Kiel and Bremerhaven shipyards.
+
 ==ABD==
 
 As experience has shown that precision bombing requires much greater accuracy than appears to be attainable, you
  are now directed to pursue the area bombing of cities.  Your attacks should now be focused upon the morale of the
  enemy civil population, and in particular industrial workers.  You are accordingly authorised to employ your
  forces without restriction.
+
+==ITALY==
+
+The Air Ministry has asked you to attack the Italian cities of Turin and Milan, as part of the preparations for
+ the invasion of North-West Africa.
 
 ==INV==
 
@@ -109,6 +142,11 @@ The bombers' job is done, and the aircrews can stand down at last.
 
 Congratulations!
 
+==BROUGHTON==
+
+As the shadow factory at Broughton is now fully operational, Vickers Wellingtons can now be produced much more
+ rapidly and cheaply.  Accordingly, they now cost only £8,000 out of your budget, rather than £12,000.
+
 ==PFF==
 
 The Air Ministry have mandated the creation of "Pathfinder Force", a unit drawn from the best crews in the
@@ -141,6 +179,10 @@ A new blind bombing aid, Gee-H, has been developed.  Based on the OBOE principle
  accuracy but can be used by several aircraft at the same time.  A pair of ground stations can typically support
  about twenty concurrent users.
 
+==ALLGEE==
+
+GEE sets are now plentiful enough to be installed on the production line in every new bomber.
+
 ==BOOZER==
 
 A new radio countermeasure, codenamed "Boozer", is now being installed into your bombers.  It detects the
@@ -149,8 +191,7 @@ A new radio countermeasure, codenamed "Boozer", is now being installed into your
 ==WINDOW==
 
 A new radio countermeasure, codenamed "Window", is ready for introduction.  It consists of strips of metal foil
- which are pushed out of the bombers and which blind the enemy radar.  To obtain maximum mutual protection from
- Window, bombers will henceforth fly together in one big stream.
+ which are pushed out of the bombers and which blind the enemy radar by producing spurious echoes.
 
 The War Office advises that the first use is likely to cause extra confusion and disruption to the enemy defences,
  and should thus be on a large-scale raid.
@@ -191,10 +232,15 @@ Intelligence reports that the Germans are building a line of flak, searchlights 
 Intelligence reports that the Germans are changing their night-fighting tactics.  The new system, "Zahme Sau", is
  reportedly a response to Window.
 
+==LICHTENSTEIN==
+
+Intelligence reports that the enemy have developed an airborne radar set, called "Lichtenstein", but have not
+ deployed it yet owing to operational difficulties.
+
 ==L_BC==
 
-Intelligence reports that the enemy have developed an airborne radar set, the Lichtenstein B/C, and are installing
- it in their nightfighters.
+Intelligence reports that the German airborne radar set, the Lichtenstein B/C, is now becoming operational in the
+ Luftwaffe's nightfighters.
 
 ==NAXOS==
 
@@ -216,6 +262,11 @@ Intelligence reports that the Germans are applying a mod known as "Schräge Musi
 The Germans have begun to jam GEE on a large scale; aircrews report that the system becomes unusable shortly after
  crossing the Continental coast.
 
+==FREYA==
+
+Intelligence reports that the German defences are being directed by 'Freya', a coastal radar network.  It is
+ believed to operate on a similar principle to our Chain Home.
+
 ==V_WEAPONS==
 
 Intelligence reports that the Germans are developing pilotless aircraft, long-range rockets, and other
@@ -229,6 +280,61 @@ Intelligence reports that the Germans have an undisclosed secret weapon "against
 
 Intelligence reports a new German anti-aircraft weapon, "FLAK GAS", which is alleged to stop the engines of
  aircraft.  No further details are available at this time.
+
+==FRANCE==
+
+Today, the French forces surrendered to Germany at Compiègne.  We now fight alone against the Nazi terror.
+
+In a speech to the House of Commons, Churchill said,
+    "…the Battle of France is over.  I expect that the Battle of Britain is about to begin."
+
+==CRETE==
+
+Bad news from the Mediterranean: the island of Crete has surrendered to German troops.  With this defeat, we have
+ lost our last remaining positions in the Balkans.
+
+==BARBAROSSA==
+
+The Germans have launched Operation Barbarossa, the invasion of the Soviet Union.  It is expected that this will
+ dilute their home defence forces.
+
+==AMERICA==
+
+With the attack today by Japanese aircraft on the American base at Pearl Harbour, the United States has joined
+ the war.
+In other news, the German offensive against Soviet Russia has stalled.  Although within sight of Moscow, they are
+ being rapidly pushed back by the Russian counter-offensive.
+
+==TORCH==
+
+Today Allied forces commenced Operation Torch, with landings in Morocco and Algiers.  By taking French North
+ Africa, we hope to trap Rommel's Afrika Korps in a pincer.
+
+==EL_ALAMEIN==
+
+Good news from Egypt, where Lt Gen Montgomery's forces have won a major victory at El Alamein.  The tide of the
+ North African campaign appears finally to have turned.
+In the words of Churchill,
+    "This is not the end; it is not even the beginning of the end.  But it is, perhaps, the end of the beginning."
+
+==STALINGRAD==
+
+Good news from the Eastern Front: the Soviet forces have surrounded the city of Stalingrad, trapping approximately
+ 30,000 German troops.
+
+==KURSK==
+
+The Soviets have won a decisive victory at the Battle of Kursk, and begun the long march to Berlin.  While Germany
+ is certainly not defeated yet, an eventual Allied victory finally seems probable.
+
+==BADOGLIO==
+
+Italy, under Marshal Pietro Badoglio, has signed an armistice with Eisenhower's forces.
+
+==RSI==
+
+German forces have taken northern Italy and proclaimed the Italian Social Republic, a fascist puppet state of
+ Nazi Germany.  However, the Air Ministry does not believe the RAF should resume the bombing of Italy.
 
 ==Blenheim==
 

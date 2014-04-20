@@ -2,8 +2,6 @@ extension: .sav
 
 Format is textual (human-readable)
 
-NOTE: This file is currently somewhat out of date.  !TODO! update it!
-
 Format, sort of printfy
 "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV // Magic ID, Harris version.
 "DATE:%02d-%02d-%04d\n", day, month, year
@@ -12,32 +10,37 @@ Format, sort of printfy
 "Budget:%u+%u\n", cash, cshr
 "Types:%u\n", ntypes // should be a constant, but might change between versions/modpacks; if so, will need some code that's aware of old versions
 for(i=0;i<ntypes;i++)
-	"Prio %hhu:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
+	"Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
+"Navaids:%u\n", NNAVAIDS // should be constant
+for(i=0;i<NNAVAIDS;i++)
+	"Nprio %u:%d,%u\n", i, state.nap[i], state.napb[i]
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	either
 		"Type %u:%u,%u,%u,NOID\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff
 	or
 		"Type %u:%u,%u,%u,%s\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id)
-"GProd:%la\n", gprod
+"GProd:%u\n", iclasses // should be a constant
+for(i=0;i<iclasses;i++)
+	"IClass %u:%la\n", i, gprod[i]
 "FTypes:%u\n", nftypes // should be a constant
 "FBases:%u\n", nfbases // should be a constant
 "Fighters:%u\n", nfighters
 for(i=0;i<nfighters;i++)
 	either
-		"Type %u:%u,NOID\n", fighter[i].type, fighter[i].base
+		"Type %u:%u,%u,NOID\n", fighter[i].type, fighter[i].base, fighter[i].radar
 	or
-		"Type %u:%u,%s\n", fighter[i].type, fighter[i].base, pacid(fighter[i].id)
+		"Type %u:%u,%u,%s\n", fighter[i].type, fighter[i].base, fighter[i].radar, pacid(fighter[i].id)
 either
 {
 	"Targets:%hhu\n", ntargs // should be a constant
 	for(i=0;i<ntargs;i++)
 		optionally // otherwise assume 100, 100, 0; cannot omit last Targ line
-			"Targ %hhu:%la,%la,%la\n", i, targs[i].dmg, targs[i].flk, targs[i].heat
+			"Targ %hhu:%la,%la,%la,%la\n", i, targs[i].dmg, targs[i].flk, targs[i].heat, targs[i].flam
 }
 or
 {
-	"Targets init:%la,%la,%la\n", targs[*].dmg, targs[*].flk, targs[*].heat
+	"Targets init:%la,%la,%la,%la\n", targs[*].dmg, targs[*].flk, targs[*].heat, targs[*].flam
 }
 either
 {
@@ -58,3 +61,6 @@ or
 "Messages:%u\n", nmsgs
 for(i=0;i<nmsgs;i++)
 	"%s\n.\n", msg[i]
+"History:%u\n", hist.nents
+for(i=0;i<hist.nents;i++)
+	"%s\n", hist.ents[i] // for history entry format see '../stat-spec'

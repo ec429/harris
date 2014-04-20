@@ -9,18 +9,7 @@
 */
 #include <stdio.h>
 #include <stddef.h>
-#include "bits.h"
-#include "date.h"
-
-#define HIST_LINE	240
-
-typedef struct
-{
-	size_t nents;
-	size_t nalloc;
-	char (*ents)[HIST_LINE];
-}
-history;
+#include "types.h"
 
 char *hist_alloc(history *hist); // Create a new history line, return a pointer for writing
 int hist_append(history *hist, const char line[HIST_LINE]); // Append a line to the history
@@ -49,3 +38,4 @@ int evm_append(history *hist, date d, time t, const char *ev); // Append a misce
 int ca_append(history *hist, date d, time t, unsigned int cshr, unsigned int cash); // Append a CA (cash) event to the history
 int co_append(history *hist, date d, time t, double confid); // Append a CO (confid) event to the history
 int mo_append(history *hist, date d, time t, double morale); // Append a MO (morale) event to the history
+int gp_append(history *hist, date d, time t, unsigned int iclass, double gprod, double dprod); // Append a GP (GProd) event to the history

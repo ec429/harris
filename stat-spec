@@ -6,7 +6,7 @@
 <b-or-f> ::= B | F
 <a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev> | <obs-ev>
 <ct-ev>  ::= CT
-<nav-ev> ::= NA <navaid:int> # installation of a navaid
+<nav-ev> ::= NA <navaid:int> # installation of a navaid (or, for fighters, radar)
 <pff-ev> ::= PF # assignment to PFF - not reversible
 <raid-ev>::= RA <targ-id:int>
 <hit-ev> ::= HI <targ-id:int> <bmb:int> # bmb is either lb of bombs, lb of mines, or # of leaflets.  Need targ-id as we might have hit a different target to the one we were aiming for
@@ -19,7 +19,8 @@
 <t-dmg>  ::= DM <delta-dmg:float> <current-dmg:float>
 <t-flk>  ::= FK <delta-flk:float> <current-flk:float>
 <t-ship> ::= SH
-<misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev>
+<misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev>
 <cash-ev>::= CA <delta-cash:int> <current-cash:int> # Only for Budget payments, as CT costs are known
 <conf-ev>::= CO <confid:float>
 <mora-ev>::= MO <morale:float>
+<gprd-ev>::= GP <iclass:int> <gprod:float> <dprod:float> # dprod is _not_ the difference from the previous gprod!

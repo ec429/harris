@@ -18,6 +18,14 @@ class Counter(object):
 		self.value += 1
 		return self.value - 1
 
+def inservice(date, b):
+	"""Test whether a given Bomber or Fighter type is in service at a given date"""
+	entry = b['entry']
+	exit = b['exit']
+	if entry and entry > date: return False
+	if exit and exit < date: return False
+	return True
+
 class Table(object):
 	def __init__(self, keys):
 		counter = Counter(0)
@@ -37,13 +45,19 @@ class Table(object):
 	def __unicode__(self):
 		widths = {k:max(len(str(k[0])), max((len(unicode(row[k[0]])) for row in self.data))) for k in self.keys}
 		return '\n'.join((' '.join((str(k[0]).ljust(widths[k]) for k in self.keys)), '\n'.join((' '.join((unicode(row[k[0]]).ljust(widths[k]) for k in self.keys)) for row in self.data))))
-	__str__ = __unicode__
+	def __str__(self):
+		return unicode(self).encode('utf-8')
 	def __repr__(self):
 		return repr(self.data)
 	def __len__(self):
 		return len(self.data)
 	def __getitem__(self, index):
 		return self.data[index]
+	def find(self, key, value):
+		for row in self.data:
+			if row[key] == value:
+				return row
+		return None
 
 def parse_string(text):
 	return unicode(text.strip(), encoding='utf8')
@@ -80,13 +94,14 @@ Bombers.read(open('dat/bombers'))
 Events = Table([('id', parse_string), ('date', parse_date)])
 Events.read(open('dat/events'))
 
-# Fighters: MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:DD-MM-YYYY:DD-MM-YYYY:FLAGS
+# Fighters: MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:RADPRI:DD-MM-YYYY:DD-MM-YYYY:FLAGS
 Fighters = Table([('manf', parse_string),
 				  ('name', parse_string),
 				  ('cost', parse_int),
 				  ('speed', parse_int),
 				  ('arm', parse_int),
 				  ('mnv', parse_int),
+				  ('radpri', parse_int),
 				  ('entry', parse_date),
 				  ('exit', parse_date),
 				  ('flags', parse_flags),
@@ -142,4 +157,4 @@ if __name__ == "__main__":
 		print Ftrbases
 	if '--targets' in sys.argv or '--all' in sys.argv:
 		print '%d targets' % len(Targets)
-		print unicode(Targets)
+		print Targets

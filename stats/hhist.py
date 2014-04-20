@@ -6,6 +6,7 @@ lists thereof.
 """
 
 import sys
+import datetime
 
 class BadHistLine(Exception): pass
 class NoSuchEvent(BadHistLine): pass
@@ -27,9 +28,12 @@ class date(object):
 		return '%02d-%02d-%04d' % (self.day, self.month, self.year)
 	__repr__ = __str__
 	def __cmp__(self, other):
+		if not isinstance(other, date): return NotImplemented
 		if self.year != other.year: return self.year - other.year
 		if self.month != other.month: return self.month - other.month
 		return self.day - other.day
+	def __hash__(self):
+		return hash(self.ordinal())
 	def copy(self):
 		return date(self.day, self.month, self.year)
 	def next(self):
@@ -45,6 +49,16 @@ class date(object):
 				next.month = 1
 				next.year += 1
 		return next
+	def nextmonth(self):
+		next = self.copy()
+		next.day = 1
+		next.month += 1
+		if next.month > 12:
+			next.month = 1
+			next.year += 1
+		return next
+	def ordinal(self):
+		return datetime.date(self.year, self.month, self.day).toordinal()
 
 def ac_parse(text):
 	def ct_parse(text):
@@ -83,7 +97,7 @@ def ac_parse(text):
 		if text: raise ExcessData('A', 'CR', text)
 		return {}
 	def obs_parse(text):
-		if text: raise ExcessData('A', 'CR', text)
+		if text: raise ExcessData('A', 'OB', text)
 		return {}
 	parsers = {'CT':ct_parse, 'NA':nav_parse, 'PF':pff_parse, 'RA':raid_parse, 'HI':hit_parse, 'DM':dmg_parse, 'FA':fail_parse, 'CR':crash_parse, 'OB':obs_parse}
 	parts = text.split(' ', 3)
@@ -119,7 +133,11 @@ def misc_parse(text):
 	def morale_parse(text):
 		if ' ' in text: raise ExcessData('M', 'MO', text.split(' ', 1)[1])
 		return {'morale':float.fromhex(text)}
-	parsers = {'CA':cash_parse, 'CO':confid_parse, 'MO':morale_parse}
+	def gprod_parse(text):
+		iclass, gprod, dprod = text.split(' ', 2)
+		if ' ' in dprod: raise ExcessData('M', 'GP', dprod.split(' ', 1)[1])
+		return {'iclass':int(iclass), 'gprod':float.fromhex(gprod), 'dprod':float.fromhex(dprod)}
+	parsers = {'CA':cash_parse, 'CO':confid_parse, 'MO':morale_parse, 'GP':gprod_parse}
 	etyp, rest = text.split(' ', 1)
 	return {'etyp':etyp,
 			'text':rest,
@@ -144,7 +162,7 @@ def targ_parse(text):
 		rest = parts[2]
 	else:
 		rest = ''
-	return {'target':target,
+	return {'target':int(target),
 			'etyp':etyp,
 			'text':rest,
 			'data':parsers.get(etyp, lambda x: {})(rest)}
