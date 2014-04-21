@@ -45,7 +45,6 @@ Handley Page:Halifax I:     28000:225:200:13000:75:11: 6:72:330:63:38:14-05-1941
 Avro:Lancaster I:           40000:235:225:14000:80: 6: 4:80:350:84:44:07-02-1942:          :GEE,H2S,OBOE,GH,PFF,HEAVY,Ab,Pp,Pd,Us,Ar
 de Havilland:Mosquito:      15000:340:300: 4000:80: 2: 4:90:400:98:44:12-08-1942:          :GEE,OBOE,GH,NOARM,PFF,Ab,Po,Il,Hh
 Handley Page:Halifax III:   30000:230:220:13500:90: 7: 5:75:345:63:38:30-04-1943:          :GEE,H2S,OBOE,GH,HEAVY,INC,Ab,Us,Ar
-# Need to do art for the Windsor and Selkirk
-#Vickers:Windsor:            50000:260:270:15000:80: 4: 5:70:365:87:39:26-06-1943:          :GEE,H2S,OBOE,GH,HEAVY,Ab,Pp,Pd,Us,Ar
-#Short:Selkirk:              36000:210:185:18000:72: 9: 6:58:300:96:55:13-08-1943:02-02-1945:GEE,H2S,OBOE,GH,HEAVY,Ab,Us,Ar
+Vickers:Windsor:            50000:260:270:15000:80: 4: 5:70:365:87:39:26-06-1943:          :GEE,H2S,OBOE,GH,HEAVY,Ab,Pp,Pd,Us,Ar
+Short:Selkirk:              36000:210:185:18000:72: 9: 6:58:300:96:55:13-08-1943:02-02-1945:GEE,H2S,OBOE,GH,HEAVY,Ab,Us,Ar
 Avro:Lancaster X:           45000:245:240:16000:90: 5: 3:85:360:81:41:13-02-1944:          :GEE,H2S,OBOE,GH,PFF,HEAVY,Pp,Pd,Us,Ar
