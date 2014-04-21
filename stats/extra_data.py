@@ -27,6 +27,8 @@ Bombers = {
 	"Lancaster I":{"crew":7, "short":"LAN1", "colour":'b',      },
 	"Mosquito":   {"crew":2, "short":"MOSQ", "colour":'r',      },
 	"Halifax III":{"crew":7, "short":"HAL3", "colour":'y',      },
+	"Windsor":    {"crew":6, "short":"WIND", "colour":'m',      },
+	"Selkirk":    {"crew":7, "short":"SELK", "colour":'0.5',    },
 	"Lancaster X":{"crew":7, "short":"LANX", "colour":'c',      },
 	}
 
