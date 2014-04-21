@@ -5350,8 +5350,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		state.napb[n]+=notnew?25:10;
 		int i=state.nap[n];
 		if(i>=0&&!datewithin(state.now, types[i].entry, types[i].exit)) continue;
-		unsigned int j, nac=0;
-		for(j=0;(state.napb[n]>=navprod[n])&&(j<state.nbombers);j++)
+		unsigned int nac=0;
+		for(int j=state.nbombers-1;(state.napb[n]>=navprod[n])&&(j>=0);j--)
 		{
 			if(i<0)
 			{
@@ -5374,9 +5374,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	{
 		for(unsigned int j=0;j<ntypes;j++)
 			types[j].count=types[j].pffcount=0;
-		for(unsigned int i=0;i<state.nbombers;i++)
+		for(int i=state.nbombers-1;i>=0;i--)
 		{
 			unsigned int type=state.bombers[i].type;
+			types[type].count++;
+			if(state.bombers[i].pff) types[type].pffcount++;
 			if(types[type].pff&&types[type].noarm)
 			{
 				if(!state.bombers[i].pff)
@@ -5386,14 +5388,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 				}
 				continue;
 			}
-			types[type].count++;
-			if(state.bombers[i].pff) types[type].pffcount++;
 		}
 		for(unsigned int j=0;j<ntypes;j++)
 		{
 			if(!types[j].pff) continue;
+			if(types[j].noarm) continue;
 			int pffneed=ceil(types[j].count*0.2)-types[j].pffcount;
-			for(unsigned int i=0;(pffneed>0)&&(i<state.nbombers);i++)
+			for(int i=state.nbombers-1;(pffneed>0)&&(i>=0);i--)
 			{
 				if(state.bombers[i].type!=j) continue;
 				if(state.bombers[i].pff) continue;
@@ -5512,7 +5513,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	if(!datebefore(state.now, event[EVENT_L_BC]) && maxradpri)
 	{
 		unsigned int rcount=4;
-		for(unsigned int i=0;i<state.nfighters;i++)
+		for(int i=state.nfighters-1;i>=0;i--)
 		{
 			if(state.gprod[ICLASS_RADAR]<5000 || !rcount) break;
 			unsigned int type=state.fighters[i].type;
