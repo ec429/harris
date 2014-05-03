@@ -18,6 +18,7 @@
 #include "date.h"
 #include "bits.h"
 #include "render.h"
+#include "intel_bombers.h"
 
 extern game state;
 
@@ -1189,7 +1190,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 				break;
 				default: // shouldn't ever get here
 					fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
-					return(1);
+					return(NUM_SCREENS);
 				break;
 			}
 		if(GB_ttflk[i])
@@ -1415,7 +1416,9 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							}
 							if((c.e==GB_btdesc[i])&&types[i].text)
 							{
-								message_box(canvas, "From the Bomber Command files:", types[i].text, "R.H.M.S. Saundby, SASO");
+								IB_i=i;
+								intel_caller=SCRN_CONTROL;
+								return(SCRN_INTELBMB);
 							}
 						}
 						if(c.e==GB_ttl)

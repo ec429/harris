@@ -93,6 +93,15 @@ int load_bombers(void)
 					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
 					return(1);
 				}
+				char sn[18+nlen+9];
+				strcpy(sn, "art/large/bombers/");
+				for(size_t p=0;p<nlen;p++) sn[18+p]=tolower(this.name[p]);
+				strcat(sn, "-side.png");
+				if(!(this.side_image=IMG_Load(sn)))
+				{
+					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
+					//return(1); // XXX ignoring for now
+				}
 				this.prio=2;
 				this.pribuf=0;
 				this.text=this.newtext=NULL;

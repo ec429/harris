@@ -30,6 +30,7 @@
 #include "run_raid.h"
 #include "raid_results.h"
 #include "post_raid.h"
+#include "intel_bombers.h"
 
 #include "version.h"
 
@@ -325,6 +326,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	screens[SCRN_RUNRAID] =MAKE_SCRN(run_raid);
 	screens[SCRN_RRESULTS]=MAKE_SCRN(raid_results);
 	screens[SCRN_POSTRAID]=MAKE_SCRN(post_raid);
+	screens[SCRN_INTELBMB]=MAKE_SCRN(intel_bombers);
 	#undef MAKE_SCRN
 
 	for(unsigned int i=0;i<NUM_SCREENS;i++)

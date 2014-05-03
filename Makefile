@@ -5,7 +5,7 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
 LIBS := -latg -lm
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o main_menu.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o main_menu.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o intel_bombers.o
 INCLUDES := $(OBJS:.o=.h) types.h globals.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
@@ -60,13 +60,15 @@ load_game.o: ui.h globals.h events.h saving.h
 
 save_game.o: ui.h globals.h events.h saving.h
 
-control.o: ui.h globals.h events.h widgets.h date.h bits.h render.h
+control.o: ui.h globals.h events.h widgets.h date.h bits.h render.h intel_bombers.h
 
 run_raid.o: ui.h globals.h events.h date.h history.h render.h rand.h routing.h weather.h geom.h
 
 raid_results.o: ui.h globals.h events.h bits.h date.h history.h weather.h run_raid.h
 
 post_raid.o: ui.h globals.h events.h bits.h date.h history.h rand.h
+
+intel_bombers.o: ui.h globals.h events.h
 
 %.o: %.c %.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<

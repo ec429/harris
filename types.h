@@ -108,7 +108,7 @@ typedef struct
 	bool load[NBOMBLOADS];
 	bool noarm, pff, heavy, inc, broughton;
 	unsigned int blat, blon;
-	SDL_Surface *picture;
+	SDL_Surface *picture, *side_image;
 	char *text, *newtext;
 	
 	unsigned int count;

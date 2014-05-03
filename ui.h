@@ -28,6 +28,7 @@ typedef enum
 	SCRN_RUNRAID,
 	SCRN_RRESULTS,
 	SCRN_POSTRAID,
+	SCRN_INTELBMB,
 	NUM_SCREENS,
 }
 screen_id;
@@ -48,6 +49,7 @@ int control_create(void);
 int run_raid_create(void);
 int raid_results_create(void);
 int post_raid_create(void);
+int intel_bombers_create(void);
 
 screen_id main_menu_screen(atg_canvas *, game *);
 screen_id load_game_screen(atg_canvas *, game *);
@@ -56,6 +58,7 @@ screen_id control_screen(atg_canvas *, game *);
 screen_id run_raid_screen(atg_canvas *, game *);
 screen_id raid_results_screen(atg_canvas *, game *);
 screen_id post_raid_screen(atg_canvas *, game *);
+screen_id intel_bombers_screen(atg_canvas *, game *);
 
 void main_menu_free(void);
 void load_game_free(void);
@@ -64,8 +67,9 @@ void control_free(void);
 void run_raid_free(void);
 void raid_results_free(void);
 void post_raid_free(void);
+void intel_bombers_free(void);
 
-extern atg_box *main_menu_box, *load_game_box, *save_game_box, *control_box, *run_raid_box, *raid_results_box;
+extern screen_id intel_caller;
 
 void update_navbtn(game state, atg_element *(*GB_navbtn)[NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
 void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext);

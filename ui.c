@@ -12,6 +12,8 @@
 #include "globals.h"
 #include "date.h"
 
+screen_id intel_caller=SCRN_MAINMENU;
+
 void update_navbtn(game state, atg_element *(*GB_navbtn)[NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay)
 {
 	if(GB_navbtn[i][n]&&GB_navbtn[i][n]->elem.image)
