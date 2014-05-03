@@ -62,3 +62,6 @@ void run_raid_free(void);
 void raid_results_free(void);
 
 extern atg_box *main_menu_box, *load_game_box, *save_game_box, *control_box, *run_raid_box, *raid_results_box;
+
+void update_navbtn(game state, atg_element *(*GB_navbtn)[NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
+void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext);

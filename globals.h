@@ -8,6 +8,20 @@
 	globals: game entity data
 */
 #include "types.h"
+#include "events.h"
+
+#define NAV_GEE		0
+#define NAV_H2S		1
+#define NAV_OBOE	2
+#define NAV_GH		3
+
+extern const char * const navaids[NNAVAIDS];
+extern const char * const navpicfn[NNAVAIDS];
+extern unsigned int navevent[NNAVAIDS];
+extern unsigned int navprod[NNAVAIDS];
+
+extern date event[NEVENTS];
+extern char *evtext[NEVENTS];
 
 extern unsigned int ntypes;
 extern bombertype *types;
@@ -20,7 +34,10 @@ extern target *targs;
 extern unsigned int nflaks;
 extern flaksite *flaks;
 
-extern SDL_Surface *fullbtn, *exitbtn;
+extern SDL_Surface *terrain, *location, *yellowhair, *intelbtn, *navpic[NNAVAIDS], *pffpic, *resizebtn, *fullbtn, *exitbtn;
+
+extern SDL_Surface *grey_overlay, *yellow_overlay;
+extern SDL_Surface *weather_overlay, *target_overlay, *flak_overlay, *xhair_overlay;
 
 extern bool lorw[128][128];
 

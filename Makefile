@@ -5,8 +5,8 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
 LIBS := -latg -lm
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o main_menu.o load_game.o save_game.o
-INCLUDES := $(OBJS:.o=.h) events.h types.h ui.h version.h
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o main_menu.o load_game.o save_game.o control.o events.o
+INCLUDES := $(OBJS:.o=.h) types.h ui.h globals.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
@@ -27,7 +27,10 @@ harris.o: harris.c $(INCLUDES)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 events.h: dat/events mkevents.py
-	./mkevents.py >events.h
+	./mkevents.py h >events.h
+
+events.c: dat/events mkevents.py
+	./mkevents.py c >events.c
 
 widgets.o: widgets.c widgets.h bits.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
@@ -37,17 +40,23 @@ save/%.sav: save/%.sav.in gensave.py
 
 weather.o: rand.h
 
-routing.o: rand.h globals.h date.h geom.h
+date.o: ui.h bits.h widgets.h
+
+routing.o: rand.h globals.h events.h date.h geom.h
 
 history.o: bits.h date.h types.h
 
-saving.o: bits.h date.h globals.h history.h rand.h weather.h version.h
+saving.o: bits.h date.h globals.h events.h history.h rand.h weather.h version.h
 
-main_menu.o: ui.h types.h globals.h saving.h
+main_menu.o: ui.h globals.h events.h saving.h
 
-load_game.o: ui.h types.h globals.h saving.h
+load_game.o: ui.h globals.h events.h saving.h
 
-save_game.o: ui.h types.h globals.h saving.h
+save_game.o: ui.h globals.h events.h saving.h
+
+control.o: ui.h globals.h events.h widgets.h date.h bits.h render.h
+
+render.o: bits.h globals.h date.h widgets.h
 
 %.o: %.c %.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<

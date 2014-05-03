@@ -10,6 +10,10 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "ui.h"
+#include "bits.h"
+#include "widgets.h"
+
 date readdate(const char *t, date nulldate)
 {
 	date d;
@@ -57,6 +61,39 @@ double pom(date when)
 double foldpom(double pom)
 {
 	return((1-cos(pom*M_PI*2))/2.0);
+}
+
+void drawmoon(SDL_Surface *s, double phase)
+{
+	SDL_FillRect(s, &(SDL_Rect){.x=0, .y=0, .w=s->w, .h=s->h}, SDL_MapRGB(s->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b));
+	double left=(phase<0.5)?phase*2:1,
+	      right=(phase>0.5)?phase*2-1:0;
+	double halfx=(s->w-1)/2.0,
+	       halfy=(s->h-1)/2.0;
+	for(int y=1;y<s->h-1;y++)
+	{
+		double width=sqrt(((s->w/2)-1)*((s->w/2)-1)-(y-halfy)*(y-halfy));
+		double startx=halfx-width, endx=halfx+width;
+		double leftx=width*cos( left*M_PI)+halfx,
+		      rightx=width*cos(right*M_PI)+halfx;
+		for(unsigned int x=floor(startx);x<=ceil(endx);x++)
+		{
+			double a;
+			if(x<startx)
+				a=x+1-startx;
+			else if(x>endx)
+				a=endx+1-x;
+			else
+				a=1;
+			unsigned int alpha=ceil(ATG_ALPHA_OPAQUE*a);
+			double lf=x+1-leftx,
+			       rf=rightx-x;
+			clamp(lf, 0, 1);
+			clamp(rf, 0, 1);
+			unsigned int br=floor(lf*rf*224);
+			pset(s, x, y, (atg_colour){br, br, br, alpha});
+		}
+	}
 }
 
 time maketime(int t)
