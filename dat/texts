@@ -483,20 +483,24 @@ These new variants carry more bombs and mount better defensive armament.
 
 ==Bf109E==
 
-The main German day-fighter of the Battle of Britain, early raids saw the Messerschmitt Bf109E "Emil" pressed into
- service in defence of the Reich.  While fast and maneuvrable, it's too small to carry radar, so is only effective
- with searchlight support or on clear moonlit nights.
+The main German day-fighter of the Battle of Britain, early raids
+saw the Messerschmitt Bf109E "Emil" pressed into service in defence
+of the Reich.  While fast and maneuvrable, it's too small to carry
+radar, so is only effective with searchlight support or on clear
+moonlit nights.
 
 ==Do17Z==
 
-Converted versions of the Dornier Do17Z "Fliegende Bleistift" bomber were among Nazi Germany's first night-
- fighters.  Initially these relied upon searchlight support and infrared equipment.  The Dorniers are slow and not
- very effective.
+Converted versions of the Dornier Do17Z "Fliegende Bleistift" bomber
+were among Nazi Germany's first night-fighters.  Lacking airborne
+radar, they relied upon searchlight support and infrared equipment.
+The Dorniers are slow and not very effective.
 
 ==Ju88C==
 
-The Junkers Ju88 was to become the backbone of the German night-fighter force.  In every way an improvement over
- the Dornier, it's a stable gun platform and carries airborne radar.
+The Junkers Ju88 serves in almost every rôle from bombing to
+reconnaissance.  The nightfighter variant of this versatile aircraft
+is fast and maneuvrable, but its armament is only moderate.
 
 ==NEW_Ju88C==
 
@@ -505,9 +509,10 @@ The Germans are bringing a new type of night-fighter into service.  The Junkers 
 
 ==Bf110==
 
-The Messerschmitt Bf110 "Zerstörer" (Destroyer) was designed as a 'heavy fighter'.  It's well suited to night
- operations and mounts a heavy armament.
-However, it's slower than its contemporary, the Ju88, and slightly less maneuvrable.
+The Messerschmitt Bf110 "Zerstörer" (Destroyer) was designed as a
+'heavy fighter'.  It's well suited to night operations and mounts a
+heavy armament.  However, it's slower than its contemporary, the
+Ju88, and slightly less maneuvrable.
 
 ==NEW_Bf110==
 
@@ -515,8 +520,9 @@ The Germans are bringing a night-fighter variant of the Messerschmitt Bf110 into
 
 ==Fw190A==
 
-The Focke-Wulf Fw190A is a high-performance, rugged day-fighter, with very heavy armament.  Like all day-fighters,
- it's too small to carry radar, so must rely on "Wilde Sau" tactics.
+The Focke-Wulf Fw190A is a high-performance, rugged day-fighter,
+with very heavy armament.  Like all day-fighters, it's too small to
+carry radar, so must rely on "Wilde Sau" tactics.
 
 ==NEW_Fw190A==
 
@@ -525,8 +531,10 @@ The Germans are beginning to deploy a new day-fighter, the Focke-Wulf Fw190A.  I
 
 ==Do217J==
 
-The Dornier Do217J is a development of the old Dornier 17.  With more powerful engines and improved avionics, it's
- a cheap-and-cheerful night-fighter, though its capabilities are less than its contemporaries.
+The Dornier Do217J is a development of the old Dornier 17.  With
+more powerful engines and improved avionics, it's a
+cheap-and-cheerful night-fighter, though its capabilities are less
+than its contemporaries.
 
 ==NEW_Do217J==
 
@@ -535,8 +543,9 @@ The Germans are bringing a new type of night-fighter into service.  The Dornier 
 
 ==Bf109G==
 
-The Messerschmitt Bf109G "Gustav" is an enhanced variant of the earlier 109E.
-Its greater speed and heavier armament come at the cost of a slight reduction in maneuvrability.
+The Messerschmitt Bf109G "Gustav" is an enhanced variant of the
+earlier 109E.  Its greater speed and heavier armament come at the
+cost of a slight reduction in maneuvrability.
 
 ==NEW_Bf109G==
 
@@ -545,8 +554,9 @@ The Messerschmitt Bf109G is faster than both the Bf109E and the Fw190.
 
 ==Me262==
 
-The Messerschmitt Me262 Schwalbe ("Swallow") is a jet-powered fighter.
-It's extremely fast, but relatively rare due to production difficulties.
+The Messerschmitt Me262 Schwalbe ("Swallow") is a jet-powered
+nightfighter.  It's extremely fast, but relatively rare due to
+production difficulties.
 
 ==NEW_Me262==
 

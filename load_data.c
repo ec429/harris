@@ -99,7 +99,7 @@ int load_bombers(void)
 				strcat(sn, "-side.png");
 				if(!(this.side_image=IMG_Load(sn)))
 				{
-					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
+					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
 					//return(1); // XXX ignoring for now
 				}
 				this.prio=2;
@@ -148,7 +148,7 @@ int load_fighters(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%hhu:%hhu:%hhu:%zn", this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &this.radpri, &db))!=7)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%hhu:%zn", this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &this.radpri, &db))!=7)
 				{
 					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -185,6 +185,24 @@ int load_fighters(void)
 					return(1);
 				}
 				this.text=this.newtext=NULL;
+				char pn[13+nlen+4];
+				strcpy(pn, "art/fighters/");
+				for(size_t p=0;p<nlen;p++) pn[13+p]=tolower(this.name[p]);
+				strcat(pn, ".png");
+				if(!(this.picture=IMG_Load(pn)))
+				{
+					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
+					return(1);
+				}
+				char sn[19+nlen+9];
+				strcpy(sn, "art/large/fighters/");
+				for(size_t p=0;p<nlen;p++) sn[19+p]=tolower(this.name[p]);
+				strcat(sn, "-side.png");
+				if(!(this.side_image=IMG_Load(sn)))
+				{
+					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
+					//return(1); // XXX ignoring for now
+				}
 				ftypes=realloc(ftypes, (nftypes+1)*sizeof(fightertype));
 				ftypes[nftypes]=this;
 				nftypes++;

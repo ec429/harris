@@ -131,12 +131,13 @@ typedef struct
 	char *name;
 	unsigned int cost;
 	unsigned int speed;
-	unsigned char arm;
-	unsigned char mnv;
+	unsigned int arm;
+	unsigned int mnv;
 	unsigned char radpri;
 	date entry;
 	date exit;
 	bool night;
+	SDL_Surface *picture, *side_image;
 	char *text, *newtext;
 }
 fightertype;

@@ -16,7 +16,7 @@
 #include "render.h"
 
 atg_box *intel_targets_box;
-atg_element *IT_full, *IT_bombers_tab, *IT_targets_tab, *IT_cont;
+atg_element *IT_full, *IT_bombers_tab, *IT_targets_tab, *IT_fighters_tab, *IT_cont;
 atg_element **IT_targs, *IT_map, *IT_text_box, *IT_stat_box;
 unsigned int IT_i;
 
@@ -107,6 +107,16 @@ int intel_targets_create(void)
 		return(1);
 	}
 	if(atg_pack_element(tb, IT_targets_tab))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	if(!(IT_fighters_tab=atg_create_element_button("Fighters", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_pack_element(tb, IT_fighters_tab))
 	{
 		perror("atg_pack_element");
 		return(1);
@@ -399,6 +409,12 @@ screen_id intel_targets_screen(atg_canvas *canvas, game *state)
 					{
 						// do nothing
 					}
+					else if(trigger.e==IT_fighters_tab)
+					{
+						mainsizex=canvas->surface->w;
+						mainsizey=canvas->surface->h;
+						return(SCRN_INTELFTR);
+					}
 					else if(trigger.e==IT_cont)
 					{
 						mainsizex=canvas->surface->w;
@@ -430,6 +446,8 @@ void update_intel_targets(const game *state)
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		IT_targs[i]->hidden=!datewithin(state->now, targs[i].entry, targs[i].exit);
+		if((IT_i<i)&&IT_targs[IT_i]->hidden&&!IT_targs[i]->hidden)
+			IT_i=i;
 		atg_box *tb=IT_targs[i]->elem.box;
 		if(tb)
 		{

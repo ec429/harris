@@ -27,7 +27,7 @@ atg_box *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map, *GB_filters;
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btnum, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
-atg_element *GB_go, *GB_msgrow[MAXMSGS], *GB_save;
+atg_element *GB_go, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element ***GB_rbrow, ***GB_rbpic, ***GB_raidnum, *(**GB_raidload)[2], *GB_raid_label, *GB_raid;
 atg_box **GB_raidbox, *GB_raidbox_empty;
@@ -497,6 +497,18 @@ int control_create(void)
 				return(1);
 			}
 		}
+	}
+	GB_fintel=atg_create_element_button("Intel: Enemy Fighters", (atg_colour){127, 159, 223, ATG_ALPHA_OPAQUE}, (atg_colour){63, 31, 31, ATG_ALPHA_OPAQUE});
+	if(!GB_fintel)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	GB_fintel->w=159;
+	if(atg_pack_element(GB_btb, GB_fintel))
+	{
+		perror("atg_pack_element");
+		return(1);
 	}
 	GB_go=atg_create_element_button("Run tonight's raids", (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE}, (atg_colour){31, 63, 31, ATG_ALPHA_OPAQUE});
 	if(!GB_go)
@@ -1571,6 +1583,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								GB_go->elem.button->content->bgcolour=(atg_colour){55, 55, 55, ATG_ALPHA_OPAQUE};
 							atg_flip(canvas);
 							return(SCRN_RUNRAID);
+						}
+						else if(trigger.e==GB_fintel)
+						{
+							intel_caller=SCRN_CONTROL;
+							return(SCRN_INTELFTR);
 						}
 						else if(trigger.e==GB_save)
 						{
