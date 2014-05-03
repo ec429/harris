@@ -1,7 +1,7 @@
 #pragma once
 /*
 	harris - a strategy game
-	Copyright (C) 2012-2013 Edward Cree
+	Copyright (C) 2012-2014 Edward Cree
 
 	licensed under GPLv3+ - see top of harris.c for details
 	
@@ -9,6 +9,7 @@
 */
 #include <stddef.h>
 #include <stdbool.h>
+#include <SDL.h>
 #include "types.h"
 
 date readdate(const char *t, date nulldate); // converts date from string
@@ -18,5 +19,6 @@ bool datebefore(date date1, date date2); // returns true if date1 is strictly be
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2
 double pom(date when); // returns in [0,1); 0 for new moon, 0.5 for full moon
 double foldpom(double pom); // returns illumination in [0,1]
+void drawmoon(SDL_Surface *s, double phase); // renders moon to image
 time maketime(int t); // converts run_raid time to clock time
 date nextday(date when); // computes the date 1 day after the given one

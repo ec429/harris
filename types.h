@@ -1,7 +1,7 @@
 #pragma once
 /*
 	harris - a strategy game
-	Copyright (C) 2012-2013 Edward Cree
+	Copyright (C) 2012-2014 Edward Cree
 
 	licensed under GPLv3+ - see top of harris.c for details
 	
@@ -277,3 +277,15 @@ typedef struct
 	history hist;
 }
 game;
+
+struct oboe
+{
+	signed int lat, lon;
+	signed int k; // bomber number, or -1 for none
+};
+
+struct gee
+{
+	signed int lat, lon;
+	unsigned int range, jrange;
+};
