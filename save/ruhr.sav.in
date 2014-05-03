@@ -3,18 +3,22 @@ DATE:04-03-1943
 Confid:60
 Morale:75
 Budget:24000+36000
-Types:11
+Types:15
 Prio 0:0,0,22500,0
 Prio 1:0,0,32000,0
 Prio 2:0,0,36000,0
 Prio 3:2,0,120000,144000
 Prio 4:0,0,18000,0
-Prio 5:1,0,72000,0
-Prio 6:2,0,56000,0
-Prio 7:3,0,64000,120000
-Prio 8:2,0,35000,0
-Prio 9:2,0,40000,128000
-Prio 10:2,0,50000,90000
+Prio 5:0,0,32000,40000
+Prio 6:1,0,72000,0
+Prio 7:0,0,15000,20000
+Prio 8:2,0,56000,0
+Prio 9:3,0,64000,120000
+Prio 10:2,0,35000,0
+Prio 11:2,0,40000,128000
+Prio 12:2,0,30000,26000
+Prio 13:2,0,36000,20000
+Prio 14:2,0,50000,90000
 Navaids:4
 NPrio 0:0,0
 NPrio 1:0,118
@@ -23,18 +27,18 @@ NPrio 3:0,96
 Bombers:901
 *323*Type 3:0,1,0,NOID
 *96*Type 3:1,1,0,NOID
-*48*Type 5:0,1,0,NOID
-*9*Type 5:0,5,0,NOID
-*32*Type 5:1,1,0,NOID
-*90*Type 6:0,1,0,NOID
-*42*Type 6:1,1,0,NOID
-*103*Type 7:0,1,0,NOID
-*10*Type 7:0,3,1,NOID
-*20*Type 7:0,1,1,NOID
-*10*Type 7:1,1,1,NOID
-*53*Type 7:1,1,0,NOID
-*51*Type 8:0,5,1,NOID
-*14*Type 8:1,5,1,NOID
+*48*Type 6:0,1,0,NOID
+*9*Type 6:0,5,0,NOID
+*32*Type 6:1,1,0,NOID
+*90*Type 8:0,1,0,NOID
+*42*Type 8:1,1,0,NOID
+*103*Type 9:0,1,0,NOID
+*10*Type 9:0,3,1,NOID
+*20*Type 9:0,1,1,NOID
+*10*Type 9:1,1,1,NOID
+*53*Type 9:1,1,0,NOID
+*51*Type 10:0,5,1,NOID
+*14*Type 10:1,5,1,NOID
 GProd:8
 IClass 0:6000
 IClass 1:135000
