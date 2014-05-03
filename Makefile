@@ -68,7 +68,7 @@ raid_results.o: ui.h globals.h events.h bits.h date.h history.h weather.h run_ra
 
 post_raid.o: ui.h globals.h events.h bits.h date.h history.h rand.h
 
-intel_bombers.o: ui.h globals.h events.h
+intel_bombers.o: ui.h globals.h events.h bits.h
 
 %.o: %.c %.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<

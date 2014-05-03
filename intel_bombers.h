@@ -7,7 +7,6 @@
 	intel_bombers: bombers' intel screen
 */
 
-
 #include <atg.h>
 
 extern atg_box *intel_bombers_box;

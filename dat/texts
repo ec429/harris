@@ -353,18 +353,18 @@ The Armstrong Whitworth A.W.38 Whitley is a twin-engined medium
 bomber, designed for night operations.  Due to the high angle of
 incidence of the wings (to ensure good takeoff performance), the
 Whitley flies with a nose-down attitude; the resulting high drag
-makes it rather slow.  However, it can carry a bomb load of about
-7,000lb, the heaviest of the bombers available to you at the start
-of the war.  It's best used for mining, leaflet raids, and
-long-range sorties.
+makes it rather slow, and consequently vulnerable.  However, it can
+carry a bomb load of about 7,000lb, the heaviest of the bombers
+available to you at the start of the war.  It's best used for
+mining, leaflet raids, and long-range sorties.
 
 ==Hampden==
 
 The Handley Page HP.52 Hampden was conceived as a fast, manoeuvrable
 "fighting bomber".  It's a twin-engined medium bomber, and the
-fastest of the bombers available in 1939.  Its bomb load of 4,000lb
-is lighter than the other medium bombers, and it's fairly vulnerable
-to modern fighters.  Consequently, it may struggle to reach
+fastest of the bombers available in 1939.  Its bomb load is lighter
+than the other medium bombers, and its range is fairly limited.
+It's fairly vulnerable to modern fighters, and may struggle to reach
 well-defended targets.  It's a good bombing platform, though, so
 accuracy is good.
 
@@ -374,8 +374,8 @@ The Vickers Wellington, popularly dubbed the "Wimpy", is anything
 but; its geodesic construction allows it to withstand terrible
 damage and continue with the operation.  It's the most survivable,
 and also the most reliable, of the twin-engined medium bombers at
-the start of the war.  It carries a load of 4,500lb, and is a solid
-all-rounder.
+the start of the war.  It carries a reasonable medium-bomber payload
+of 4,500lb, and is a solid all-rounder.
 
 ==Manchester==
 
@@ -409,11 +409,10 @@ The first of the new four-engined heavy bombers is now going into production.  T
 ==Halifax I==
 
 The Handley Page H.P.57 Halifax I is a four-engined heavy.  Its load
-of 13,000lb is slightly less than the Stirling, and it suffers from
-a fatal yaw spiral in violent evasive manoeuvres, but it's faster,
-more reliable, and much more serviceable.  It's also a better
-bombing platform.  It gives you a realistic long-range heavy
-capability.
+is slightly less than the Stirling, and it suffers from a fatal yaw
+spiral in violent evasive manoeuvres, but it's faster, more
+reliable, and much more serviceable.  It's also a better bombing
+platform.  It gives you a realistic long-range heavy capability.
 
 ==NEW_Halifax I==
 
@@ -427,7 +426,7 @@ the Manchester, but re-engined with four Merlins, it carries
 14,000lb of bombs, is reliable and survivable, and makes a good
 bombing platform.  It's a great all-round heavy, capable of anything
 from area bombing cities at night to precision strikes on special
-targets by day.
+targets by day.  However, it's fairly expensive to build.
 
 ==NEW_Lancaster I==
 
@@ -440,13 +439,11 @@ A new type of bomber has been developed and is now going into production.  All t
 The de Havilland DH.98 Mosquito is a high-performance, multi-rôle
 aircraft.  It's made chiefly of wood, making it easy to produce;
 it's extremely fast, reliable, and almost impossible to shoot down.
-Although it only carries 4,000lb of bombs, it's capable of applying
-them with considerable accuracy.  It's best used as an OBOE-equipped
-Pathfinder, marking targets with pyrotechnics for the heavies to aim
-at.  It can also make 'nuisance raids' deep into enemy territory,
-keeping the Germans awake and nervous on nights without a major
-raid, and it's handy for diversionary attacks too.  A remarkable
-aircraft.
+However, its 4,000lb bombload is fairly small.  It's best used as an
+OBOE-equipped Pathfinder, marking targets with pyrotechnics for the
+heavies to aim at.  It can also make 'nuisance raids' deep into
+enemy territory, keeping the Germans awake and nervous on nights
+without a major raid, and it's handy for diversionary attacks too.
 
 ==NEW_Mosquito==
 
@@ -476,8 +473,8 @@ built in Canada by Victory Aircraft Ltd., but in Harris it
 represents all the developed variants of the Lanc.  With more
 powerful engines and better armament (the four .303 Brownings in the
 tail are replaced with twin .50s), the upgraded Lanc is faster,
-carries more (16,000lb of bombs), is more reliable and survivable -
-it's simply the ultimate heavy bomber.
+carries a heavier payload, is more reliable and survivable - in many
+ways it's the ultimate heavy bomber.
 
 ==NEW_Lancaster X==
 

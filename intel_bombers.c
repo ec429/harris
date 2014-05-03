@@ -8,16 +8,59 @@
 */
 
 #include "intel_bombers.h"
+#include <stdbool.h>
 #include "ui.h"
 #include "globals.h"
+#include "bits.h"
 
 atg_box *intel_bombers_box;
 atg_element *IB_full, *IB_bombers_tab, *IB_targets_tab, *IB_cont;
-atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box;
+atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box;
 unsigned int IB_i;
 SDL_Surface *IB_blank;
 
 void update_intel_bombers(void);
+
+enum stat_i
+{
+	/* Numbers with units */
+	STAT_COST,
+	STAT_SPEED,
+	STAT_CEILING,
+	STAT_LOAD,
+	STAT_RANGE,
+	/* Woolly gameplay numbers */
+	STAT_SV,
+	STAT_DE,
+	STAT_FA,
+	STAT_AC,
+
+	NUM_STATS
+};
+
+struct stat_row
+{
+	const char *name;
+	char value_buf[6];
+	const char *unit;
+	bool unit_first;
+	unsigned int bar_min, bar_max;
+	bool bar_rev; // reverse colours
+	size_t v_off;
+	int v_shift, v_scale; // shift is applied first
+}
+stat_rows[NUM_STATS]=
+{
+	[STAT_COST]   ={.name="Cost",           .unit="£",   .unit_first=true,  .bar_min=0,     .bar_max=50000, .v_off=offsetof(bombertype, cost ), .v_shift=0,   .v_scale=1,   .bar_rev=true },
+	[STAT_SPEED]  ={.name="Speed",          .unit="mph", .unit_first=false, .bar_min=120,   .bar_max=275,   .v_off=offsetof(bombertype, speed), .v_shift=0,   .v_scale=1,   .bar_rev=false},
+	[STAT_CEILING]={.name="Ceiling",        .unit="ft",  .unit_first=false, .bar_min=16000, .bar_max=26000, .v_off=offsetof(bombertype, alt  ), .v_shift=0,   .v_scale=100, .bar_rev=false},
+	[STAT_LOAD]   ={.name="Max. Bombload",  .unit="lb",  .unit_first=false, .bar_min=0,     .bar_max=20000, .v_off=offsetof(bombertype, cap  ), .v_shift=0,   .v_scale=1,   .bar_rev=false},
+	[STAT_SV]     ={.name="Serviceability", .unit="%",   .unit_first=false, .bar_min=0,     .bar_max=100,   .v_off=offsetof(bombertype, svp  ), .v_shift=0,   .v_scale=1,   .bar_rev=false},
+	[STAT_DE]     ={.name="Survivability",  .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=20,    .v_off=offsetof(bombertype, defn ), .v_shift=-20, .v_scale=-1,  .bar_rev=false},
+	[STAT_FA]     ={.name="Reliability",    .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=20,    .v_off=offsetof(bombertype, fail ), .v_shift=-20, .v_scale=-1,  .bar_rev=false},
+	[STAT_AC]     ={.name="Accuracy",       .unit=" ",   .unit_first=false, .bar_min=20,    .bar_max=80,    .v_off=offsetof(bombertype, accu ), .v_shift=0,   .v_scale=1,   .bar_rev=false},
+	[STAT_RANGE]  ={.name="Max. Range",     .unit="mi",  .unit_first=false, .bar_min=450,   .bar_max=1200,  .v_off=offsetof(bombertype, range), .v_shift=0,   .v_scale=3,   .bar_rev=false},
+};
 
 int intel_bombers_create(void)
 {
@@ -263,7 +306,11 @@ int intel_bombers_create(void)
 		fprintf(stderr, "right_box->elem.box==NULL\n");
 		return(1);
 	}
-	IB_blank=SDL_CreateRGBSurface(SDL_HWSURFACE, 414, 150, 24, 0xff0000, 0xff00, 0xff, 0);
+	if(!(IB_blank=SDL_CreateRGBSurface(SDL_HWSURFACE, 414, 150, 24, 0xff0000, 0xff00, 0xff, 0)))
+	{
+		fprintf(stderr, "IB_blank: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(1);
+	}
 	SDL_FillRect(IB_blank, &(SDL_Rect){0, 0, IB_blank->w, IB_blank->h}, SDL_MapRGB(IB_blank->format, 0, 0, 23));
 	IB_side_image=atg_create_element_image(IB_blank);
 	if(!IB_side_image)
@@ -274,6 +321,17 @@ int intel_bombers_create(void)
 	IB_side_image->w=414;
 	IB_side_image->h=150;
 	if(atg_pack_element(rb, IB_side_image))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	if(!(IB_stat_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	IB_stat_box->w=414;
+	if(atg_pack_element(rb, IB_stat_box))
 	{
 		perror("atg_pack_element");
 		return(1);
@@ -373,13 +431,7 @@ screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 				break;
 				case ATG_EV_TRIGGER:;
 					atg_ev_trigger trigger=e.event.trigger;
-					/*if(trigger.e==IB_Exit)
-					{
-						mainsizex=canvas->surface->w;
-						mainsizey=canvas->surface->h;
-						return(intel_caller);
-					}
-					else */if(trigger.e==IB_bombers_tab)
+					if(trigger.e==IB_bombers_tab)
 					{
 						// do nothing
 					}
@@ -458,10 +510,121 @@ void update_intel_bombers(void)
 			if(atg_pack_element(ntb, r))
 			{
 				perror("atg_pack_element");
+				atg_free_element(r);
 				break;
 			}
 			x+=l;
 			if(bodytext[x]=='\n') x++;
+		}
+	}
+	atg_box *nsb=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+	if(nsb)
+	{
+		atg_free_box_box(IB_stat_box->elem.box);
+		IB_stat_box->elem.box=nsb;
+		for(unsigned int i=0;i<NUM_STATS;i++)
+		{
+			atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+			if(!row)
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				break;
+			}
+			if(atg_pack_element(nsb, row))
+			{
+				perror("atg_pack_element");
+				atg_free_element(row);
+				break;
+			}
+			atg_box *rb=row->elem.box;
+			if(!rb)
+			{
+				fprintf(stderr, "row->elem.box==NULL\n");
+				break;
+			}
+			int val=*(unsigned int *)((char *)&types[IB_i]+stat_rows[i].v_off);
+			val=(val+stat_rows[i].v_shift)*stat_rows[i].v_scale;
+			atg_element *s_name=atg_create_element_label(stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+			if(s_name)
+			{
+				s_name->w=100+(stat_rows[i].unit_first?0:8);
+				if(atg_pack_element(rb, s_name))
+				{
+					perror("atg_pack_element");
+					atg_free_element(s_name);
+					break;
+				}
+			}
+			if(stat_rows[i].unit_first)
+			{
+				atg_element *s_unit=atg_create_element_label(stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+				if(s_unit)
+				{
+					s_unit->w=8;
+					if(atg_pack_element(rb, s_unit))
+					{
+						perror("atg_pack_element");
+						atg_free_element(s_unit);
+						break;
+					}
+				}
+			}
+			snprintf(stat_rows[i].value_buf, 6, "%5d", val);
+			atg_element *s_value=atg_create_element_label(stat_rows[i].value_buf, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+			if(s_value)
+			{
+				s_value->w=40+(stat_rows[i].unit_first?32:0);
+				if(atg_pack_element(rb, s_value))
+				{
+					perror("atg_pack_element");
+					atg_free_element(s_name);
+					break;
+				}
+			}
+			if(!stat_rows[i].unit_first)
+			{
+				atg_element *s_unit=atg_create_element_label(stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+				if(s_unit)
+				{
+					s_unit->w=32;
+					if(atg_pack_element(rb, s_unit))
+					{
+						perror("atg_pack_element");
+						atg_free_element(s_unit);
+						break;
+					}
+				}
+			}
+			SDL_Surface *bar=SDL_CreateRGBSurface(SDL_HWSURFACE, 102, 14, 24, 0xff0000, 0xff00, 0xff, 0);
+			if(!bar)
+			{
+				fprintf(stderr, "bar: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+				break;
+			}
+			SDL_FillRect(bar, &(SDL_Rect){0, 0, bar->w, bar->h}, SDL_MapRGB(bar->format, 191, 191, 191));
+			SDL_FillRect(bar, &(SDL_Rect){1, 1, bar->w-2, bar->h-2}, SDL_MapRGB(bar->format, 0, 0, 23));
+			int bar_x=(val-stat_rows[i].bar_min)*100.0/(stat_rows[i].bar_max-stat_rows[i].bar_min);
+			clamp(bar_x, 0, 100);
+			int dx=bar_x;
+			if(stat_rows[i].bar_rev)
+				dx=100-dx;
+			unsigned int r=255-(dx*2.55), g=dx*2.55;
+			SDL_FillRect(bar, &(SDL_Rect){1, 1, bar_x, bar->h-2}, SDL_MapRGB(bar->format, r, g, 0));
+			atg_element *s_bar=atg_create_element_image(bar);
+			SDL_FreeSurface(bar);
+			if(!s_bar)
+			{
+				break;
+			}
+			else
+			{
+				if(atg_pack_element(rb, s_bar))
+				{
+					perror("atg_pack_element");
+					atg_free_element(s_bar);
+					break;
+				}
+			}
 		}
 	}
 }
