@@ -32,7 +32,7 @@ double bridge, cidam;
 
 int run_raid_create(void)
 {
-	atg_box *run_raid_box=atg_create_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	run_raid_box=atg_create_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!run_raid_box)
 	{
 		fprintf(stderr, "atg_create_box failed\n");
