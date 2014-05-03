@@ -26,7 +26,7 @@ extern game state;
 atg_box *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map, *GB_filters;
-atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btnum, **GB_btpic, **GB_btdesc, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
+atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btnum, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgrow[MAXMSGS], *GB_save;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element ***GB_rbrow, ***GB_rbpic, ***GB_raidnum, *(**GB_raidload)[2], *GB_raid_label, *GB_raid;
@@ -204,7 +204,7 @@ int control_create(void)
 		perror("calloc");
 		return(1);
 	}
-	if(!(GB_btdesc=calloc(ntypes, sizeof(atg_element *))))
+	if(!(GB_btint=calloc(ntypes, sizeof(atg_element *))))
 	{
 		perror("calloc");
 		return(1);
@@ -282,6 +282,52 @@ int control_create(void)
 			fprintf(stderr, "vbox->elem.box==NULL\n");
 			return(1);
 		}
+		atg_element *nibox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!nibox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_pack_element(vb, nibox))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
+		atg_box *nib=nibox->elem.box;
+		if(!nib)
+		{
+			fprintf(stderr, "vbox->elem.box==NULL\n");
+			return(1);
+		}
+		atg_element *item;
+		if(targs[i].p_intel)
+		{
+			GB_btint[i]=atg_create_element_image(intelbtn);
+			if(!GB_btint[i])
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+				return(1);
+			}
+			GB_btint[i]->clickable=true;
+			item=GB_btint[i];
+		}
+		else
+		{
+			GB_btint[i]=NULL;
+			item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+			if(!item)
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
+		}
+		item->w=10;
+		item->h=12;
+		if(atg_pack_element(nib, item))
+		{
+			perror("atg_pack_element");
+			return(1);
+		}
 		if(types[i].manu&&types[i].name)
 		{
 			size_t len=strlen(types[i].manu)+strlen(types[i].name)+2;
@@ -289,15 +335,15 @@ int control_create(void)
 			if(fullname)
 			{
 				snprintf(fullname, len, "%s %s", types[i].manu, types[i].name);
-				if(!(GB_btdesc[i]=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE})))
+				atg_element *btname=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+				if(!btname)
 				{
 					fprintf(stderr, "atg_create_element_label failed\n");
 					return(1);
 				}
-				GB_btdesc[i]->w=201;
-				GB_btdesc[i]->cache=true;
-				GB_btdesc[i]->clickable=true;
-				if(atg_pack_element(vb, GB_btdesc[i]))
+				btname->w=191;
+				btname->cache=true;
+				if(atg_pack_element(nib, btname))
 				{
 					perror("atg_pack_element");
 					return(1);
@@ -1419,7 +1465,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									}
 								}
 							}
-							if((c.e==GB_btdesc[i])&&types[i].text)
+							if((c.e==GB_btint[i])&&types[i].text)
 							{
 								IB_i=i;
 								intel_caller=SCRN_CONTROL;
