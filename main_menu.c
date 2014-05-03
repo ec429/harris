@@ -30,6 +30,11 @@ int main_menu_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
+	if(atg_pack_element(main_menu_box, MM_topbox))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
 	atg_box *tb=MM_topbox->elem.box;
 	if(!tb)
 	{
