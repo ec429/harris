@@ -8,7 +8,6 @@
 */
 
 #include <stdio.h>
-#include <atg.h>
 
 #include "save_game.h"
 #include "ui.h"

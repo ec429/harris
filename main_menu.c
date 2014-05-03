@@ -8,7 +8,6 @@
 */
 
 #include <stdio.h>
-#include <atg.h>
 
 #include "main_menu.h"
 #include "ui.h"
