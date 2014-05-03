@@ -193,7 +193,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 					this.load[l]=strstr(nav, bombloads[l].name);
 				char pn[12+nlen+4];
 				strcpy(pn, "art/bombers/");
-				for(size_t p=0;p<=nlen;p++) pn[12+p]=tolower(this.name[p]);
+				for(size_t p=0;p<nlen;p++) pn[12+p]=tolower(this.name[p]);
 				strcat(pn, ".png");
 				if(!(this.picture=IMG_Load(pn)))
 				{
