@@ -126,7 +126,7 @@ SDL_Surface *render_flak(date now)
 	return(rv);
 }
 
-SDL_Surface *render_ac(game state)
+SDL_Surface *render_ac(const game *state)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
@@ -135,30 +135,30 @@ SDL_Surface *render_ac(game state)
 		return(NULL);
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
-	for(unsigned int i=0;i<state.ntargs;i++)
-		for(unsigned int j=0;j<state.raids[i].nbombers;j++)
+	for(unsigned int i=0;i<state->ntargs;i++)
+		for(unsigned int j=0;j<state->raids[i].nbombers;j++)
 		{
-			unsigned int k=state.raids[i].bombers[j];
-			unsigned int x=floor(state.bombers[k].lon), y=floor(state.bombers[k].lat);
-			if(state.bombers[k].crashed)
+			unsigned int k=state->raids[i].bombers[j];
+			unsigned int x=floor(state->bombers[k].lon), y=floor(state->bombers[k].lat);
+			if(state->bombers[k].crashed)
 				pset(rv, x, y, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
-			else if(state.bombers[k].damage>6)
+			else if(state->bombers[k].damage>6)
 				pset(rv, x, y, (atg_colour){255, 127, 63, ATG_ALPHA_OPAQUE});
-			else if(state.bombers[k].failed)
+			else if(state->bombers[k].failed)
 				pset(rv, x, y, (atg_colour){0, 255, 255, ATG_ALPHA_OPAQUE});
-			else if(state.bombers[k].bombed)
+			else if(state->bombers[k].bombed)
 				pset(rv, x, y, (atg_colour){127, 255, 63, ATG_ALPHA_OPAQUE});
 			else
 				pset(rv, x, y, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 		}
-	for(unsigned int i=0;i<state.nfighters;i++)
+	for(unsigned int i=0;i<state->nfighters;i++)
 	{
-		unsigned int x=floor(state.fighters[i].lon), y=floor(state.fighters[i].lat);
-		if(state.fighters[i].crashed)
+		unsigned int x=floor(state->fighters[i].lon), y=floor(state->fighters[i].lat);
+		if(state->fighters[i].crashed)
 			pset(rv, x, y, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-		else if(state.fighters[i].landed)
+		else if(state->fighters[i].landed)
 			pset(rv, x, y, (atg_colour){127, 0, 0, ATG_ALPHA_OPAQUE});
-		else if(state.fighters[i].radar)
+		else if(state->fighters[i].radar)
 			pset(rv, x, y, (atg_colour){255, 191, 127, ATG_ALPHA_OPAQUE});
 		else
 			pset(rv, x, y, (atg_colour){255, 0, 0, ATG_ALPHA_OPAQUE});
@@ -166,7 +166,7 @@ SDL_Surface *render_ac(game state)
 	return(rv);
 }
 
-SDL_Surface *render_xhairs(game state, int seltarg)
+SDL_Surface *render_xhairs(const game *state, int seltarg)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
@@ -175,8 +175,8 @@ SDL_Surface *render_xhairs(game state, int seltarg)
 		return(NULL);
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
-	for(unsigned int i=0;i<state.ntargs;i++)
-		if(state.raids[i].nbombers)
+	for(unsigned int i=0;i<state->ntargs;i++)
+		if(state->raids[i].nbombers)
 		{
 			SDL_gfxBlitRGBA(yellowhair, NULL, rv, &(SDL_Rect){.x=targs[i].lon-3, .y=targs[i].lat-3});
 		}

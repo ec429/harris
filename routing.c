@@ -13,7 +13,7 @@
 #include "date.h"
 #include "geom.h"
 
-int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], game state, unsigned int iter)
+int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], const game *state, unsigned int iter)
 {
 	for(unsigned int i=0;i<iter;i++)
 	{
@@ -73,7 +73,7 @@ int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], ga
 			for(unsigned int t=0;t<ntargs;t++)
 			{
 				if(t==ti) continue;
-				if(!datewithin(state.now, targs[t].entry, targs[t].exit)) continue;
+				if(!datewithin(state->now, targs[t].entry, targs[t].exit)) continue;
 				double d, lambda;
 				linedist(try[l+1][1]-try[l][1],
 					try[l+1][0]-try[l][0],
@@ -82,14 +82,14 @@ int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], ga
 					&d, &lambda);
 				if(d<9)
 				{
-					double sv=targs[t].flak*0.6+state.heat[t]*3.0+3.6;
+					double sv=targs[t].flak*0.6+state->heat[t]*3.0+3.6;
 					double s=sv/(2.0+d);
 					scare+=s;
 				}
 			}
 			for(unsigned int f=0;f<nflaks;f++)
 			{
-				if(!datewithin(state.now, flaks[f].entry, flaks[f].exit)) continue;
+				if(!datewithin(state->now, flaks[f].entry, flaks[f].exit)) continue;
 				double d, lambda;
 				linedist(try[l+1][1]-try[l][1],
 					try[l+1][0]-try[l][0],

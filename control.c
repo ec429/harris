@@ -1226,7 +1226,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	weather_overlay=render_weather(state->weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 	int seltarg=-1;
-	xhair_overlay=render_xhairs(*state, seltarg);
+	xhair_overlay=render_xhairs(state, seltarg);
 	SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
 	free(GB_raid_label->elem.label->text);
 	GB_raid_label->elem.label->text=strdup("Select a Target");
@@ -1288,7 +1288,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
 			SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 			SDL_FreeSurface(xhair_overlay);
-			xhair_overlay=render_xhairs(*state, seltarg);
+			xhair_overlay=render_xhairs(state, seltarg);
 			SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
 			atg_flip(canvas);
 			rfsh=false;

@@ -8,4 +8,4 @@
 */
 #include "types.h"
 
-int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], game state, unsigned int iter); // [0=lat, 1=long]
+int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], const game *state, unsigned int iter); // [0=lat, 1=long]

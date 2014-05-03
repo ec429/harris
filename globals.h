@@ -23,6 +23,9 @@ extern unsigned int navprod[NNAVAIDS];
 extern date event[NEVENTS];
 extern char *evtext[NEVENTS];
 
+extern struct oboe oboe;
+extern struct gee gee;
+
 extern unsigned int ntypes;
 extern bombertype *types;
 extern unsigned int nftypes;
@@ -40,6 +43,7 @@ extern SDL_Surface *grey_overlay, *yellow_overlay;
 extern SDL_Surface *weather_overlay, *target_overlay, *flak_overlay, *xhair_overlay;
 
 extern bool lorw[128][128];
+extern unsigned char tnav[128][128];
 
 extern unsigned int mainsizex, mainsizey;
 extern bool fullscreen;

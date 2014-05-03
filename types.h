@@ -277,3 +277,15 @@ typedef struct
 	history hist;
 }
 game;
+
+struct oboe
+{
+	signed int lat, lon;
+	signed int k; // bomber number, or -1 for none
+};
+
+struct gee
+{
+	signed int lat, lon;
+	unsigned int range, jrange;
+};

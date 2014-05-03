@@ -5,7 +5,7 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
 LIBS := -latg -lm
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o main_menu.o load_game.o save_game.o control.o events.o
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o main_menu.o load_game.o save_game.o control.o run_raid.o
 INCLUDES := $(OBJS:.o=.h) types.h ui.h globals.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
@@ -55,6 +55,8 @@ load_game.o: ui.h globals.h events.h saving.h
 save_game.o: ui.h globals.h events.h saving.h
 
 control.o: ui.h globals.h events.h widgets.h date.h bits.h render.h
+
+run_raid.o: ui.h globals.h events.h date.h history.h render.h rand.h routing.h weather.h widgets.h geom.h
 
 render.o: bits.h globals.h date.h widgets.h
 
