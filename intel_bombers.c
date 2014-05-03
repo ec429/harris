@@ -12,6 +12,7 @@
 #include "ui.h"
 #include "globals.h"
 #include "bits.h"
+#include "date.h"
 
 atg_box *intel_bombers_box;
 atg_element *IB_full, *IB_bombers_tab, *IB_targets_tab, *IB_cont;
@@ -19,7 +20,7 @@ atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box
 unsigned int IB_i;
 SDL_Surface *IB_blank;
 
-void update_intel_bombers(void);
+void update_intel_bombers(const game *state);
 
 enum b_stat_i
 {
@@ -388,7 +389,7 @@ screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 	(void)state;
 	while(1)
 	{
-		update_intel_bombers();
+		update_intel_bombers(state);
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
@@ -467,15 +468,18 @@ void intel_bombers_free(void)
 	atg_free_box_box(intel_bombers_box);
 }
 
-void update_intel_bombers(void)
+void update_intel_bombers(const game *state)
 {
 	for(unsigned int i=0;i<ntypes;i++)
 	{
+		IB_types[i]->hidden=datebefore(state->now, types[i].entry);
 		atg_box *nb=IB_namebox[i]->elem.box;
 		if(nb)
 		{
 			if(i==IB_i)
 				nb->bgcolour=(atg_colour){47, 47, 63, ATG_ALPHA_OPAQUE};
+			else if(!datebefore(state->now, types[i].exit))
+				nb->bgcolour=(atg_colour){15, 15, 63, ATG_ALPHA_OPAQUE};
 			else
 				nb->bgcolour=(atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE};
 		}
