@@ -386,7 +386,6 @@ screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
 	atg_resize_canvas(canvas, mainsizex, mainsizey);
-	(void)state;
 	while(1)
 	{
 		update_intel_bombers(state);
