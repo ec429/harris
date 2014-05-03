@@ -745,7 +745,7 @@ int control_create(void)
 		perror("malloc");
 		return(1);
 	}
-	if(!(GB_raidload=malloc(ntargs*sizeof(atg_element *(**)[2]))))
+	if(!(GB_raidload=malloc(ntargs*sizeof(atg_element *(*)[2]))))
 	{
 		perror("malloc");
 		return(1);
@@ -767,7 +767,7 @@ int control_create(void)
 			perror("calloc");
 			return(1);
 		}
-		if(!(GB_raidload[i]=calloc(ntypes, sizeof(atg_element *(*)[2]))))
+		if(!(GB_raidload[i]=calloc(ntypes, sizeof(atg_element *[2]))))
 		{
 			perror("calloc");
 			return(1);
