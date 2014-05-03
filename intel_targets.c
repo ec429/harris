@@ -24,6 +24,7 @@ void update_intel_targets(const game *state);
 
 enum t_stat_i
 {
+	STAT_TCLASS,
 	STAT_DMG,
 	STAT_FLAK,
 	STAT_PROD,
@@ -32,6 +33,7 @@ enum t_stat_i
 	NUM_STATS
 };
 
+const char *tclass_fn(unsigned int ti);
 int dmg_fn(unsigned int ti, const game *state);
 int flak_fn(unsigned int ti, const game *state);
 int prod_fn(unsigned int ti, const game *state);
@@ -41,15 +43,17 @@ struct t_stat_row
 {
 	const char *name;
 	int (*v_fn)(unsigned int ti, const game *state);
+	const char *(*t_fn)(unsigned int ti);
 	unsigned int bar_min, bar_max;
 	bool bar_rev; // reverse colours
 }
 t_stat_rows[NUM_STATS]=
 {
-	[STAT_DMG ]={.name="How intact",    .v_fn=dmg_fn,  .bar_min=0, .bar_max=100, .bar_rev=false},
-	[STAT_FLAK]={.name="Flak strength", .v_fn=flak_fn, .bar_min=0, .bar_max=40,  .bar_rev=true },
-	[STAT_PROD]={.name="Production",    .v_fn=prod_fn, .bar_min=0, .bar_max=100, .bar_rev=false},
-	[STAT_ESIZ]={.name="Ease to hit",   .v_fn=esiz_fn, .bar_min=0, .bar_max=50,  .bar_rev=false},
+	[STAT_TCLASS]={.name="Target class",  .t_fn=tclass_fn},
+	[STAT_DMG   ]={.name="How intact",    .v_fn=dmg_fn,  .bar_min=0, .bar_max=100, .bar_rev=false},
+	[STAT_FLAK  ]={.name="Flak strength", .v_fn=flak_fn, .bar_min=0, .bar_max=40,  .bar_rev=true },
+	[STAT_PROD  ]={.name="Production",    .v_fn=prod_fn, .bar_min=0, .bar_max=100, .bar_rev=false},
+	[STAT_ESIZ  ]={.name="Ease to hit",   .v_fn=esiz_fn, .bar_min=0, .bar_max=50,  .bar_rev=false},
 };
 
 int intel_targets_create(void)
@@ -266,7 +270,8 @@ int intel_targets_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	IT_stat_box->w=160;
+	IT_stat_box->w=396;
+	IT_stat_box->h=256;
 	if(atg_pack_element(dmb, IT_stat_box))
 	{
 		perror("atg_pack_element");
@@ -487,6 +492,16 @@ void update_intel_targets(const game *state)
 	{
 		atg_free_box_box(IT_stat_box->elem.box);
 		IT_stat_box->elem.box=nsb;
+		atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+		if(!shim)
+			fprintf(stderr, "atg_create_element_box failed\n");
+		shim->w=396;
+		shim->h=256-14*NUM_STATS;
+		if(atg_pack_element(nsb, shim))
+		{
+			perror("atg_pack_element");
+			atg_free_element(shim);
+		}
 		for(unsigned int i=0;i<NUM_STATS;i++)
 		{
 			atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
@@ -507,77 +522,130 @@ void update_intel_targets(const game *state)
 				fprintf(stderr, "row->elem.box==NULL\n");
 				break;
 			}
-			int val=t_stat_rows[i].v_fn(IT_i, state);
-			if(val<0)
+			atg_element *s_name=atg_create_element_label(t_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+			if(s_name)
 			{
-				atg_element *s_name=atg_create_element_label(t_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-				if(s_name)
+				s_name->w=100;
+				if(atg_pack_element(rb, s_name))
 				{
-					s_name->w=100;
-					if(atg_pack_element(rb, s_name))
-					{
-						perror("atg_pack_element");
-						atg_free_element(s_name);
-						break;
-					}
-				}
-				atg_element *na=atg_create_element_label("n/a", 12, (atg_colour){95, 95, 95, ATG_ALPHA_OPAQUE});
-				if(na)
-				{
-					na->w=100;
-					if(atg_pack_element(rb, na))
-					{
-						perror("atg_pack_element");
-						atg_free_element(na);
-						break;
-					}
+					perror("atg_pack_element");
+					atg_free_element(s_name);
+					break;
 				}
 			}
-			else
+			if(t_stat_rows[i].v_fn)
 			{
-				atg_element *s_name=atg_create_element_label(t_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-				if(s_name)
+				int val=t_stat_rows[i].v_fn(IT_i, state);
+				if(val<0)
 				{
-					s_name->w=100;
-					if(atg_pack_element(rb, s_name))
+					atg_element *na=atg_create_element_label("n/a", 12, (atg_colour){95, 95, 95, ATG_ALPHA_OPAQUE});
+					if(na)
 					{
-						perror("atg_pack_element");
-						atg_free_element(s_name);
-						break;
+						na->w=100;
+						if(atg_pack_element(rb, na))
+						{
+							perror("atg_pack_element");
+							atg_free_element(na);
+							break;
+						}
 					}
-				}
-				SDL_Surface *bar=SDL_CreateRGBSurface(SDL_HWSURFACE, 102, 14, 24, 0xff0000, 0xff00, 0xff, 0);
-				if(!bar)
-				{
-					fprintf(stderr, "bar: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-					break;
-				}
-				SDL_FillRect(bar, &(SDL_Rect){0, 0, bar->w, bar->h}, SDL_MapRGB(bar->format, 191, 191, 191));
-				SDL_FillRect(bar, &(SDL_Rect){1, 1, bar->w-2, bar->h-2}, SDL_MapRGB(bar->format, 0, 0, 23));
-				int bar_x=(val-t_stat_rows[i].bar_min)*100.0/(t_stat_rows[i].bar_max-t_stat_rows[i].bar_min);
-				clamp(bar_x, 0, 100);
-				int dx=bar_x;
-				if(t_stat_rows[i].bar_rev)
-					dx=100-dx;
-				unsigned int r=255-(dx*2.55), g=dx*2.55;
-				SDL_FillRect(bar, &(SDL_Rect){1, 1, bar_x, bar->h-2}, SDL_MapRGB(bar->format, r, g, 0));
-				atg_element *s_bar=atg_create_element_image(bar);
-				SDL_FreeSurface(bar);
-				if(!s_bar)
-				{
-					break;
 				}
 				else
 				{
-					if(atg_pack_element(rb, s_bar))
+					SDL_Surface *bar=SDL_CreateRGBSurface(SDL_HWSURFACE, 102, 14, 24, 0xff0000, 0xff00, 0xff, 0);
+					if(!bar)
+					{
+						fprintf(stderr, "bar: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+						break;
+					}
+					SDL_FillRect(bar, &(SDL_Rect){0, 0, bar->w, bar->h}, SDL_MapRGB(bar->format, 191, 191, 191));
+					SDL_FillRect(bar, &(SDL_Rect){1, 1, bar->w-2, bar->h-2}, SDL_MapRGB(bar->format, 0, 0, 23));
+					int bar_x=(val-t_stat_rows[i].bar_min)*100.0/(t_stat_rows[i].bar_max-t_stat_rows[i].bar_min);
+					clamp(bar_x, 0, 100);
+					int dx=bar_x;
+					if(t_stat_rows[i].bar_rev)
+						dx=100-dx;
+					unsigned int r=255-(dx*2.55), g=dx*2.55;
+					SDL_FillRect(bar, &(SDL_Rect){1, 1, bar_x, bar->h-2}, SDL_MapRGB(bar->format, r, g, 0));
+					atg_element *s_bar=atg_create_element_image(bar);
+					SDL_FreeSurface(bar);
+					if(!s_bar)
+					{
+						break;
+					}
+					else
+					{
+						if(atg_pack_element(rb, s_bar))
+						{
+							perror("atg_pack_element");
+							atg_free_element(s_bar);
+							break;
+						}
+					}
+				}
+			}
+			else if(t_stat_rows[i].t_fn)
+			{
+				atg_element *text=atg_create_element_label(t_stat_rows[i].t_fn(IT_i), 12, (atg_colour){0, 0, 31, ATG_ALPHA_OPAQUE});
+				if(text)
+				{
+					text->w=296;
+					if(atg_pack_element(rb, text))
 					{
 						perror("atg_pack_element");
-						atg_free_element(s_bar);
+						atg_free_element(text);
 						break;
 					}
 				}
 			}
 		}
+	}
+}
+
+const char *tclass_fn(unsigned int ti)
+{
+	switch(targs[ti].class)
+	{
+		case TCLASS_CITY:
+			return("City");
+		case TCLASS_SHIPPING:
+			return("Shipping");
+		case TCLASS_MINING:
+			return("Minelaying");
+		case TCLASS_LEAFLET:
+			return("Leafleting");
+		case TCLASS_AIRFIELD:
+			return("Airfield");
+		case TCLASS_BRIDGE:
+			return("Bridge");
+		case TCLASS_ROAD:
+			return("Road junction");
+		case TCLASS_INDUSTRY:
+			switch(targs[ti].iclass)
+			{
+				case ICLASS_BB:
+					return("Industry - Ball Bearings");
+				case ICLASS_OIL:
+					return("Industry - Oil/Petrochemical");
+				case ICLASS_RAIL:
+					return("Industry - Rail/Transportation");
+				case ICLASS_UBOOT:
+					return("Industry - U-Boats/Shipyards");
+				case ICLASS_ARM:
+					return("Industry - Armament");
+				case ICLASS_STEEL:
+					return("Industry - Steel/Smelting");
+				case ICLASS_AC:
+					return("Industry - Aircraft");
+				case ICLASS_RADAR:
+					return("Industry - Radar/Electronics");
+				case ICLASS_MIXED:
+					return("Industry - Mixed");
+				default:
+					return("Industry - unknown");
+			}
+		default:
+			return("unknown");
 	}
 }
 
