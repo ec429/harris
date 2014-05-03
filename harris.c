@@ -1094,7 +1094,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	fprintf(stderr, "Game state allocated\n");
 	
 	fprintf(stderr, "Instantiating GUI elements...\n");
-	#define MAKE_SCRN(t)	(struct screen){.name=#t, .create=t##_create, .func=t##_screen, .free=t##_free, .box=t##_box}
+	#define MAKE_SCRN(t)	(struct screen){.name=#t, .create=t##_create, .func=t##_screen, .free=t##_free, .box=&t##_box}
 	screens[SCRN_MAINMENU]=MAKE_SCRN(main_menu);
 	screens[SCRN_LOADGAME]=MAKE_SCRN(load_game);
 	screens[SCRN_SAVEGAME]=MAKE_SCRN(save_game);
@@ -1119,7 +1119,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	while(current < NUM_SCREENS)
 	{
-		canvas->box=screens[current].box;
+		canvas->box=*screens[current].box;
 		current=screens[current].func(canvas, &state);
 	}
 
