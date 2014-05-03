@@ -19,6 +19,7 @@
 #include "bits.h"
 #include "render.h"
 #include "intel_bombers.h"
+#include "intel_targets.h"
 
 extern game state;
 
@@ -1190,7 +1191,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 				break;
 				default: // shouldn't ever get here
 					fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
-					return(NUM_SCREENS);
+					GB_ttdmg[i]->w=0;
 				break;
 			}
 		if(GB_ttflk[i])
@@ -1226,9 +1227,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state->weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
-	int seltarg=-1;
-	xhair_overlay=render_xhairs(state, seltarg);
+	xhair_overlay=render_xhairs(state);
 	SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
+	int seltarg=-1;
+	seltarg_overlay=render_seltarg(seltarg);
+	SDL_BlitSurface(seltarg_overlay, NULL, GB_map->elem.image->data, NULL);
 	free(GB_raid_label->elem.label->text);
 	GB_raid_label->elem.label->text=strdup("Select a Target");
 	GB_raid->elem.box=GB_raidbox_empty;
@@ -1289,8 +1292,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			SDL_BlitSurface(target_overlay, NULL, GB_map->elem.image->data, NULL);
 			SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 			SDL_FreeSurface(xhair_overlay);
-			xhair_overlay=render_xhairs(state, seltarg);
+			xhair_overlay=render_xhairs(state);
 			SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
+			seltarg_overlay=render_seltarg(seltarg);
+			SDL_BlitSurface(seltarg_overlay, NULL, GB_map->elem.image->data, NULL);
 			atg_flip(canvas);
 			rfsh=false;
 		}
@@ -1433,14 +1438,9 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							if(!datewithin(state->now, targs[i].entry, targs[i].exit)) continue;
 							if(c.e==GB_ttint[i])
 							{
-								intel *ti=targs[i].p_intel;
-								if(ti&&ti->ident&&ti->text)
-								{
-									size_t il=strlen(ti->ident), ml=il+32;
-									char *msg=malloc(ml);
-									snprintf(msg, ml, "Target Intelligence File: %s", ti->ident);
-									message_box(canvas, msg, ti->text, "Wg Cdr Fawssett, OC Targets");
-								}
+								IT_i=i;
+								intel_caller=SCRN_CONTROL;
+								return(SCRN_INTELTRG);
 							}
 							if(c.e==GB_ttrow[i])
 							{
@@ -1559,8 +1559,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		weather_overlay=render_weather(state->weather);
 		SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
 		SDL_FreeSurface(xhair_overlay);
-		xhair_overlay=render_xhairs(state, seltarg);
+		xhair_overlay=render_xhairs(state);
 		SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
+		seltarg_overlay=render_seltarg(seltarg);
+		SDL_BlitSurface(seltarg_overlay, NULL, GB_map->elem.image->data, NULL);
 		#endif
 	}
 }

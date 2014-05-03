@@ -31,6 +31,7 @@
 #include "raid_results.h"
 #include "post_raid.h"
 #include "intel_bombers.h"
+#include "intel_targets.h"
 
 #include "version.h"
 
@@ -93,7 +94,7 @@ SDL_Surface *fullbtn=NULL;
 SDL_Surface *exitbtn=NULL;
 
 SDL_Surface *grey_overlay=NULL, *yellow_overlay=NULL;
-SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *xhair_overlay=NULL;
+SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
 
 bool lorw[128][128]; // TRUE for water
 unsigned char tnav[128][128]; // Recognisability of terrain.  High for rivers, even higher for coastline
@@ -327,6 +328,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	screens[SCRN_RRESULTS]=MAKE_SCRN(raid_results);
 	screens[SCRN_POSTRAID]=MAKE_SCRN(post_raid);
 	screens[SCRN_INTELBMB]=MAKE_SCRN(intel_bombers);
+	screens[SCRN_INTELTRG]=MAKE_SCRN(intel_targets);
 	#undef MAKE_SCRN
 
 	for(unsigned int i=0;i<NUM_SCREENS;i++)
@@ -353,6 +355,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	atg_free_canvas(canvas);
 	for(unsigned int i=0;i<NUM_SCREENS;i++)
 		screens[i].free();
+	SDL_FreeSurface(seltarg_overlay);
 	SDL_FreeSurface(xhair_overlay);
 	SDL_FreeSurface(weather_overlay);
 	SDL_FreeSurface(target_overlay);

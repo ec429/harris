@@ -21,7 +21,7 @@ SDL_Surface *IB_blank;
 
 void update_intel_bombers(void);
 
-enum stat_i
+enum b_stat_i
 {
 	/* Numbers with units */
 	STAT_COST,
@@ -38,7 +38,7 @@ enum stat_i
 	NUM_STATS
 };
 
-struct stat_row
+struct b_stat_row
 {
 	const char *name;
 	char value_buf[6];
@@ -49,7 +49,7 @@ struct stat_row
 	size_t v_off;
 	int v_shift, v_scale; // shift is applied first
 }
-stat_rows[NUM_STATS]=
+b_stat_rows[NUM_STATS]=
 {
 	[STAT_COST]   ={.name="Cost",           .unit="£",   .unit_first=true,  .bar_min=0,     .bar_max=50000, .v_off=offsetof(bombertype, cost ), .v_shift=0,   .v_scale=1,   .bar_rev=true },
 	[STAT_SPEED]  ={.name="Speed",          .unit="mph", .unit_first=false, .bar_min=120,   .bar_max=275,   .v_off=offsetof(bombertype, speed), .v_shift=0,   .v_scale=1,   .bar_rev=false},
@@ -435,13 +435,13 @@ screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 					{
 						// do nothing
 					}
-					else /*if(trigger.e==IB_targets_tab)
+					else if(trigger.e==IB_targets_tab)
 					{
 						mainsizex=canvas->surface->w;
 						mainsizey=canvas->surface->h;
 						return(SCRN_INTELTRG);
 					}
-					else */if(trigger.e==IB_cont)
+					else if(trigger.e==IB_cont)
 					{
 						mainsizex=canvas->surface->w;
 						mainsizey=canvas->surface->h;
@@ -542,12 +542,12 @@ void update_intel_bombers(void)
 				fprintf(stderr, "row->elem.box==NULL\n");
 				break;
 			}
-			int val=*(unsigned int *)((char *)&types[IB_i]+stat_rows[i].v_off);
-			val=(val+stat_rows[i].v_shift)*stat_rows[i].v_scale;
-			atg_element *s_name=atg_create_element_label(stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+			int val=*(unsigned int *)((char *)&types[IB_i]+b_stat_rows[i].v_off);
+			val=(val+b_stat_rows[i].v_shift)*b_stat_rows[i].v_scale;
+			atg_element *s_name=atg_create_element_label(b_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 			if(s_name)
 			{
-				s_name->w=100+(stat_rows[i].unit_first?0:8);
+				s_name->w=100+(b_stat_rows[i].unit_first?0:8);
 				if(atg_pack_element(rb, s_name))
 				{
 					perror("atg_pack_element");
@@ -555,9 +555,9 @@ void update_intel_bombers(void)
 					break;
 				}
 			}
-			if(stat_rows[i].unit_first)
+			if(b_stat_rows[i].unit_first)
 			{
-				atg_element *s_unit=atg_create_element_label(stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+				atg_element *s_unit=atg_create_element_label(b_stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 				if(s_unit)
 				{
 					s_unit->w=8;
@@ -569,11 +569,11 @@ void update_intel_bombers(void)
 					}
 				}
 			}
-			snprintf(stat_rows[i].value_buf, 6, "%5d", val);
-			atg_element *s_value=atg_create_element_label(stat_rows[i].value_buf, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+			snprintf(b_stat_rows[i].value_buf, 6, "%5d", val);
+			atg_element *s_value=atg_create_element_label(b_stat_rows[i].value_buf, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 			if(s_value)
 			{
-				s_value->w=40+(stat_rows[i].unit_first?32:0);
+				s_value->w=40+(b_stat_rows[i].unit_first?32:0);
 				if(atg_pack_element(rb, s_value))
 				{
 					perror("atg_pack_element");
@@ -581,9 +581,9 @@ void update_intel_bombers(void)
 					break;
 				}
 			}
-			if(!stat_rows[i].unit_first)
+			if(!b_stat_rows[i].unit_first)
 			{
-				atg_element *s_unit=atg_create_element_label(stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+				atg_element *s_unit=atg_create_element_label(b_stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 				if(s_unit)
 				{
 					s_unit->w=32;
@@ -603,10 +603,10 @@ void update_intel_bombers(void)
 			}
 			SDL_FillRect(bar, &(SDL_Rect){0, 0, bar->w, bar->h}, SDL_MapRGB(bar->format, 191, 191, 191));
 			SDL_FillRect(bar, &(SDL_Rect){1, 1, bar->w-2, bar->h-2}, SDL_MapRGB(bar->format, 0, 0, 23));
-			int bar_x=(val-stat_rows[i].bar_min)*100.0/(stat_rows[i].bar_max-stat_rows[i].bar_min);
+			int bar_x=(val-b_stat_rows[i].bar_min)*100.0/(b_stat_rows[i].bar_max-b_stat_rows[i].bar_min);
 			clamp(bar_x, 0, 100);
 			int dx=bar_x;
-			if(stat_rows[i].bar_rev)
+			if(b_stat_rows[i].bar_rev)
 				dx=100-dx;
 			unsigned int r=255-(dx*2.55), g=dx*2.55;
 			SDL_FillRect(bar, &(SDL_Rect){1, 1, bar_x, bar->h-2}, SDL_MapRGB(bar->format, r, g, 0));
