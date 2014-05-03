@@ -18,7 +18,7 @@
 #include "weather.h"
 #include "version.h"
 
-bool version_newer(const unsigned char v1[3], const unsigned char v2[3])
+bool version_newer(const unsigned char v1[3], const unsigned char v2[3]) // true iff v1 newer than v2
 {
 	for(unsigned int i=0;i<3;i++)
 	{
