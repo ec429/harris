@@ -19,3 +19,10 @@ extern unsigned int ntargs;
 extern target *targs;
 extern unsigned int nflaks;
 extern flaksite *flaks;
+
+extern SDL_Surface *fullbtn, *exitbtn;
+
+extern bool lorw[128][128];
+
+extern unsigned int mainsizex, mainsizey;
+extern bool fullscreen;

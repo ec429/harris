@@ -5,8 +5,8 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
 LIBS := -latg -lm
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o
-INCLUDES := $(OBJS:.o=.h) events.h types.h
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o main_menu.o load_game.o
+INCLUDES := $(OBJS:.o=.h) events.h types.h ui.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
@@ -40,6 +40,12 @@ weather.o: rand.h
 routing.o: rand.h globals.h date.h geom.h
 
 history.o: bits.h date.h types.h
+
+saving.o: bits.h date.h globals.h history.h rand.h weather.h version.h
+
+main_menu.o: ui.h types.h globals.h saving.h
+
+load_game.o: ui.h types.h globals.h saving.h
 
 %.o: %.c %.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<

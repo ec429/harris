@@ -34,6 +34,13 @@
 #include "date.h"
 #include "types.h"
 #include "routing.h"
+#include "saving.h"
+#include "ui.h"
+
+#include "main_menu.h"
+#include "load_game.h"
+
+#include "version.h"
 
 //#define NOWEATHER	1	// skips weather phase of 'next-day' (w/o raid), allowing quicker time passage.  For testing/debugging
 
@@ -86,35 +93,9 @@ struct bombloadinfo bombloads[NBOMBLOADS]=
 	[BL_HALFHALF]={.name="Hh", .fn="art/bombloads/halfandhalf.png"},
 };
 
-#define GAME_BG_COLOUR	(atg_colour){31, 31, 15, ATG_ALPHA_OPAQUE}
+struct screen screens[NUM_SCREENS];
 
-#define default_w		800
-#define default_h		720
-
-#define RS_cell_w		112
-#define RS_firstcol_w	128
-#define RS_cell_h		56
-#define RS_lastrow_h	100
-
-#define VER_MAJ	0
-#define VER_MIN	2
-#define VER_REV	0
-
-int loadgame(const char *fn, game *state, bool lorw[128][128]);
-int savegame(const char *fn, game state);
-int msgadd(atg_canvas *canvas, game *state, date when, const char *ref, const char *msg);
-void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext);
-void drawmoon(SDL_Surface *s, double phase);
-bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
-SDL_Surface *render_weather(w_state weather);
-SDL_Surface *render_targets(date now);
-SDL_Surface *render_flak(date now);
-SDL_Surface *render_ac(game state);
-SDL_Surface *render_xhairs(game state, int seltarg);
 unsigned int ntypes=0;
-void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
-bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS]);
-void produce(int targ, game *state, double amount);
 bombertype *types=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
@@ -124,6 +105,7 @@ unsigned int ntargs=0;
 target *targs=NULL;
 unsigned int nflaks=0;
 flaksite *flaks=NULL;
+
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
 SDL_Surface *yellowhair=NULL;
@@ -134,11 +116,29 @@ SDL_Surface *resizebtn=NULL;
 SDL_Surface *fullbtn=NULL;
 SDL_Surface *exitbtn=NULL;
 
+bool lorw[128][128]; // TRUE for water
+
 unsigned int mainsizex=default_w, mainsizey=default_h;
 bool fullscreen=false;
 
+int msgadd(atg_canvas *canvas, game *state, date when, const char *ref, const char *msg);
+void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext);
+void drawmoon(SDL_Surface *s, double phase);
+bool version_newer(const unsigned char v1[3], const unsigned char v2[3]); // true iff v1 newer than v2
+SDL_Surface *render_weather(w_state weather);
+SDL_Surface *render_targets(date now);
+SDL_Surface *render_flak(date now);
+SDL_Surface *render_ac(game state);
+SDL_Surface *render_xhairs(game state, int seltarg);
+void update_navbtn(game state, atg_element *GB_navbtn[ntypes][NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
+bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS]);
+void produce(int targ, game *state, double amount);
+
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 {
+	int rc;
+	atg_event e; /* TODO remove */
+	
 	atg_canvas *canvas=atg_create_canvas_with_opts(136, 24, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
 	if(!canvas)
 	{
@@ -847,7 +847,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	
-	bool lorw[128][128]; // TRUE for water
 	{
 		SDL_Surface *water;
 		if(!(water=IMG_Load("map/overlay_water.png")))
@@ -1060,93 +1059,25 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	fprintf(stderr, "Game state allocated\n");
 	
 	fprintf(stderr, "Instantiating GUI elements...\n");
-	
-	atg_box *mainbox=canvas->box;
-	atg_element *MM_top=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-	if(!MM_top)
+	#define MAKE_SCRN(t)	(struct screen){.name=#t, .create=t##_create, .func=t##_screen, .free=t##_free, .box=t##_box}
+	screens[SCRN_MAINMENU]=MAKE_SCRN(main_menu);
+	screens[SCRN_LOADGAME]=MAKE_SCRN(load_game);
+	screens[SCRN_SAVEGAME]=MAKE_SCRN(save_game);
+	screens[SCRN_CONTROL] =MAKE_SCRN(control);
+	screens[SCRN_RUNRAID] =MAKE_SCRN(run_raid);
+	screens[SCRN_RRESULTS]=MAKE_SCRN(raid_results);
+	#undef MAKE_SCRN
+
+	for(unsigned int i=0;i<NUM_SCREENS;i++)
 	{
-		fprintf(stderr, "atg_create_element_box failed\n");
-		return(1);
+		rc=screens[i].create();
+		if(rc)
+		{
+			fprintf(stderr, "Failed to instantiate screen \"%s\"\n", screens[i].name);
+			return(rc);
+		}
 	}
-	if(atg_pack_element(mainbox, MM_top))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_box *MM_tb=MM_top->elem.box;
-	if(!MM_tb)
-	{
-		fprintf(stderr, "MM_top->elem.box==NULL\n");
-		return(1);
-	}
-	atg_element *MM_title=atg_create_element_label("HARRIS: Main Menu", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
-	if(!MM_title)
-	{
-		fprintf(stderr, "atg_create_element_label failed\n");
-		return(1);
-	}
-	if(atg_pack_element(MM_tb, MM_title))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_element *MM_full=atg_create_element_image(fullbtn);
-	if(!MM_full)
-	{
-		fprintf(stderr, "atg_create_element_image failed\n");
-		return(1);
-	}
-	MM_full->clickable=true;
-	if(atg_pack_element(MM_tb, MM_full))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_element *MM_QuickStart=atg_create_element_button("Quick Start Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
-	if(!MM_QuickStart)
-	{
-		fprintf(stderr, "atg_create_element_button failed\n");
-		return(1);
-	}
-	if(atg_pack_element(mainbox, MM_QuickStart))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_element *MM_NewGame=atg_create_element_button("Set Up New Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
-	if(!MM_NewGame)
-	{
-		fprintf(stderr, "atg_create_element_button failed\n");
-		return(1);
-	}
-	if(atg_pack_element(mainbox, MM_NewGame))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_element *MM_LoadGame=atg_create_element_button("Load Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
-	if(!MM_LoadGame)
-	{
-		fprintf(stderr, "atg_create_element_button failed\n");
-		return(1);
-	}
-	if(atg_pack_element(mainbox, MM_LoadGame))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_element *MM_Exit=atg_create_element_button("Exit", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
-	if(!MM_Exit)
-	{
-		fprintf(stderr, "atg_create_element_button failed\n");
-		return(1);
-	}
-	if(atg_pack_element(mainbox, MM_Exit))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	MM_QuickStart->w=MM_NewGame->w=MM_LoadGame->w=MM_Exit->w=canvas->surface->w;
+	fprintf(stderr, "Instantiated %d screens\n", NUM_SCREENS);
 	
 	atg_box *gamebox=atg_create_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
 	if(!gamebox)
@@ -2158,123 +2089,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		return(1);
 	}
 	
-	atg_box *loadbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
-	if(!loadbox)
-	{
-		fprintf(stderr, "atg_create_box failed\n");
-		return(1);
-	}
-	atg_element *LB_file=atg_create_element_filepicker("Load Game", NULL, (atg_colour){239, 239, 255, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
-	if(!LB_file)
-	{
-		fprintf(stderr, "atg_create_element_filepicker failed\n");
-		return(1);
-	}
-	LB_file->h=mainsizey-30;
-	LB_file->w=mainsizex;
-	if(atg_pack_element(loadbox, LB_file))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_element *LB_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE}), *LB_text=NULL, *LB_load=NULL, *LB_full=NULL, *LB_exit=NULL;
-	char **LB_btext=NULL;
-	if(!LB_hbox)
-	{
-		fprintf(stderr, "atg_create_box failed\n");
-		return(1);
-	}
-	else if(atg_pack_element(loadbox, LB_hbox))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	else
-	{
-		atg_box *b=LB_hbox->elem.box;
-		if(!b)
-		{
-			fprintf(stderr, "LB_hbox->elem.box==NULL\n");
-			return(1);
-		}
-		LB_load=atg_create_element_button("Load", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
-		if(!LB_load)
-		{
-			fprintf(stderr, "atg_create_element_button failed\n");
-			return(1);
-		}
-		LB_load->w=34;
-		if(atg_pack_element(b, LB_load))
-		{
-			perror("atg_pack_element");
-			return(1);
-		}
-		LB_text=atg_create_element_button(NULL, (atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
-		if(!LB_text)
-		{
-			fprintf(stderr, "atg_create_element_button failed\n");
-			return(1);
-		}
-		LB_text->h=24;
-		LB_text->w=mainsizex-64;
-		if(atg_pack_element(b, LB_text))
-		{
-			perror("atg_pack_element");
-			return(1);
-		}
-		atg_button *tb=LB_text->elem.button;
-		if(!tb)
-		{
-			fprintf(stderr, "LB_text->elem.button==NULL\n");
-			return(1);
-		}
-		atg_box *t=tb->content;
-		if(!t)
-		{
-			fprintf(stderr, "tb->content==NULL\n");
-			return(1);
-		}
-		if(t->nelems&&t->elems&&t->elems[0]->type==ATG_LABEL)
-		{
-			atg_label *l=t->elems[0]->elem.label;
-			if(!l)
-			{
-				fprintf(stderr, "t->elems[0]->elem.label==NULL\n");
-				return(1);
-			}
-			LB_btext=&l->text;
-		}
-		else
-		{
-			fprintf(stderr, "LB_text has wrong content\n");
-			return(1);
-		}
-		LB_full=atg_create_element_image(fullbtn);
-		if(!LB_full)
-		{
-			fprintf(stderr, "atg_create_element_image failed\n");
-			return(1);
-		}
-		LB_full->w=16;
-		LB_full->clickable=true;
-		if(atg_pack_element(b, LB_full))
-		{
-			perror("atg_pack_element");
-			return(1);
-		}
-		LB_exit=atg_create_element_image(exitbtn);
-		if(!LB_exit)
-		{
-			fprintf(stderr, "atg_create_element_image failed\n");
-			return(1);
-		}
-		LB_exit->clickable=true;
-		if(atg_pack_element(b, LB_exit))
-		{
-			perror("atg_pack_element");
-			return(1);
-		}
-	}
+	
 	
 	atg_box *savebox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
 	if(!savebox)
@@ -2602,182 +2417,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	fprintf(stderr, "GUI instantiated\n");
 	
 	main_menu:
-	canvas->box=mainbox;
-	atg_resize_canvas(canvas, 136, 86);
-	atg_event e;
-	while(1)
-	{
-		atg_flip(canvas);
-		while(atg_poll_event(&e, canvas))
-		{
-			switch(e.type)
-			{
-				case ATG_EV_RAW:;
-					SDL_Event s=e.event.raw;
-					switch(s.type)
-					{
-						case SDL_QUIT:
-							goto do_exit;
-						break;
-					}
-				break;
-				case ATG_EV_CLICK:;
-					atg_ev_click c=e.event.click;
-					if(c.e==MM_full)
-					{
-						fullscreen=!fullscreen;
-						atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
-					}
-					else if(c.e)
-					{
-						fprintf(stderr, "Clicked on unknown clickable!\n");
-					}
-				break;
-				case ATG_EV_TRIGGER:;
-					atg_ev_trigger trigger=e.event.trigger;
-					if(trigger.e==MM_Exit)
-						goto do_exit;
-					else if(trigger.e==MM_QuickStart)
-					{
-						fprintf(stderr, "Loading game state from Quick Start file...\n");
-						if(!loadgame("save/qstart.sav", &state, lorw))
-						{
-							fprintf(stderr, "Quick Start Game loaded\n");
-							goto gameloop;
-						}
-						else
-						{
-							fprintf(stderr, "Failed to load Quick Start save file\n");
-						}
-					}
-					else if(trigger.e==MM_LoadGame)
-					{
-						*LB_btext=NULL;
-						free(LB_file->elem.filepicker->value);
-						LB_file->elem.filepicker->value=NULL;
-						goto loader;
-					}
-					else if(!trigger.e)
-					{
-						// internal error
-					}
-					else
-						fprintf(stderr, "Clicked on unknown button!\n");
-				break;
-				default:
-				break;
-			}
-		}
-		SDL_Delay(50);
-	}
+	/*canvas->box=mainbox;*/
 	
-	loader:
-	canvas->box=loadbox;
-	atg_resize_canvas(canvas, mainsizex, mainsizey);
-	while(1)
-	{
-		LB_file->w=mainsizex;
-		LB_file->h=mainsizey-30;
-		LB_text->w=mainsizex-64;
-		atg_flip(canvas);
-		while(atg_poll_event(&e, canvas))
-		{
-			switch(e.type)
-			{
-				case ATG_EV_RAW:;
-					SDL_Event s=e.event.raw;
-					switch(s.type)
-					{
-						case SDL_QUIT:
-							goto main_menu;
-						case SDL_VIDEORESIZE:
-							mainsizex=canvas->surface->w;
-							mainsizey=canvas->surface->h;
-						break;
-					}
-				break;
-				case ATG_EV_CLICK:;
-					atg_ev_click c=e.event.click;
-					if(c.e==LB_full)
-					{
-						fullscreen=!fullscreen;
-						atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
-					}
-					else if (c.e==LB_exit)
-						goto main_menu;
-					else if(c.e)
-					{
-						fprintf(stderr, "Clicked on unknown clickable!\n");
-					}
-				break;
-				case ATG_EV_TRIGGER:;
-					atg_ev_trigger trigger=e.event.trigger;
-					if(trigger.e==LB_load)
-					{
-						atg_filepicker *f=LB_file->elem.filepicker;
-						if(!f)
-						{
-							fprintf(stderr, "Error: LB_file->elem.filepicker==NULL\n");
-						}
-						else if(!f->curdir)
-						{
-							fprintf(stderr, "Error: f->curdir==NULL\n");
-						}
-						else if(!f->value)
-						{
-							fprintf(stderr, "Select a file first!\n");
-						}
-						else
-						{
-							char *file=malloc(strlen(f->curdir)+strlen(f->value)+1);
-							sprintf(file, "%s%s", f->curdir, f->value);
-							fprintf(stderr, "Loading game state from '%s'...\n", file);
-							if(!loadgame(file, &state, lorw))
-							{
-								fprintf(stderr, "Game loaded\n");
-								mainsizex=canvas->surface->w;
-								mainsizey=canvas->surface->h;
-								goto gameloop;
-							}
-							else
-							{
-								fprintf(stderr, "Failed to load from save file\n");
-							}
-						}
-					}
-					else if(trigger.e==LB_text)
-					{
-						if(LB_btext&&*LB_btext)
-							**LB_btext=0;
-					}
-					else if(!trigger.e)
-					{
-						// internal error
-					}
-					else
-						fprintf(stderr, "Clicked on unknown button!\n");
-				break;
-				case ATG_EV_VALUE:;
-					atg_ev_value value=e.event.value;
-					if(value.e==LB_file)
-					{
-						atg_filepicker *f=LB_file->elem.filepicker;
-						if(!f)
-						{
-							fprintf(stderr, "Error: LB_file->elem.filepicker==NULL\n");
-						}
-						else
-						{
-							if(LB_btext) *LB_btext=f->value;
-						}
-					}
-				break;
-				default:
-				break;
-			}
-		}
-		SDL_Delay(50);
-	}
+	/*loader:*/
+	/*canvas->box=loadbox;*/
+	
 	
 	saver:
 	canvas->box=savebox;
@@ -5599,15 +5243,17 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	mainsizey=canvas->surface->h;
 	goto gameloop;
 	
-	do_exit:
+	/*do_exit:*/
+	fprintf(stderr, "Exiting\n");
 	canvas->box=NULL;
 	atg_free_canvas(canvas);
-	atg_free_box_box(mainbox);
-	atg_free_box_box(gamebox);
+	for(unsigned int i=0;i<NUM_SCREENS;i++)
+		screens[i].free();
+	/*atg_free_box_box(gamebox);
 	if(LB_btext) *LB_btext=NULL;
 	atg_free_box_box(loadbox);
 	if(SA_btext) *SA_btext=NULL;
-	atg_free_box_box(savebox);
+	atg_free_box_box(savebox);*/
 	SDL_FreeSurface(xhair_overlay);
 	SDL_FreeSurface(weather_overlay);
 	SDL_FreeSurface(target_overlay);
@@ -5650,669 +5296,6 @@ void drawmoon(SDL_Surface *s, double phase)
 			pset(s, x, y, (atg_colour){br, br, br, alpha});
 		}
 	}
-}
-
-bool version_newer(const unsigned char v1[3], const unsigned char v2[3])
-{
-	for(unsigned int i=0;i<3;i++)
-	{
-		if(v1[i]>v2[i]) return(true);
-		if(v1[i]<v2[i]) return(false);
-	}
-	return(false);
-}
-
-int loadgame(const char *fn, game *state, bool lorw[128][128])
-{
-	FILE *fs = fopen(fn, "r");
-	if(!fs)
-	{
-		fprintf(stderr, "Failed to open %s!\n", fn);
-		perror("fopen");
-		return(1);
-	}
-	unsigned char s_version[3]={0,0,0};
-	unsigned char version[3]={VER_MAJ,VER_MIN,VER_REV};
-	bool warned_pff=false, warned_acid=false;
-	while(!feof(fs))
-	{
-		char *line=fgetl(fs);
-		if(!line) break;
-		if((!*line)||(*line=='#'))
-		{
-			free(line);
-			continue;
-		}
-		char tag[64];
-		char *dat=strchr(line, ':');
-		if(dat) *dat++=0;
-		strncpy(tag, line, 64);
-		int e=0,f; // poor-man's try...
-		if(strcmp(tag, "HARR")==0)
-		{
-			f=sscanf(dat, "%hhu.%hhu.%hhu\n", s_version, s_version+1, s_version+2);
-			if(f!=3)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			if(version_newer(s_version, version))
-			{
-				fprintf(stderr, "Warning - file is newer version than program;\n may cause strange behaviour\n");
-			}
-		}
-		else if(!(s_version[0]||s_version[1]||s_version[2]))
-		{
-			fprintf(stderr, "8 File does not start with valid HARR tag\n");
-			e|=8;
-		}
-		else if(strcmp(tag, "DATE")==0)
-		{
-			state->now=readdate(dat, (date){3, 9, 1939});
-		}
-		else if(strcmp(tag, "Confid")==0)
-		{
-			f=sscanf(dat, "%la\n", &state->confid);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-		}
-		else if(strcmp(tag, "Morale")==0)
-		{
-			f=sscanf(dat, "%la\n", &state->morale);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-		}
-		else if(strcmp(tag, "Budget")==0)
-		{
-			f=sscanf(dat, "%u+%u\n", &state->cash, &state->cshr);
-			if(f!=2)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-		}
-		else if(strcmp(tag, "Types")==0)
-		{
-			unsigned int sntypes;
-			f=sscanf(dat, "%u\n", &sntypes);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if(sntypes!=ntypes)
-			{
-				fprintf(stderr, "2 Value mismatch: different ntypes value\n");
-				e|=2;
-			}
-			else
-			{
-				for(unsigned int i=0;i<ntypes;i++)
-				{
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-					unsigned int j, prio, pribuf, pc, pcbuf;
-					f=sscanf(line, "Prio %u:%u,%u,%u,%u\n", &j, &prio, &pribuf, &pc, &pcbuf);
-					if(f!=5)
-					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-						e|=1;
-						break;
-					}
-					if(j!=i)
-					{
-						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
-						e|=4;
-						break;
-					}
-					types[j].prio=prio;
-					types[j].pribuf=pribuf;
-					types[j].pc=pc;
-					types[j].pcbuf=pcbuf;
-				}
-			}
-		}
-		else if(strcmp(tag, "Navaids")==0)
-		{
-			unsigned int snnav;
-			f=sscanf(dat, "%u\n", &snnav);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if(snnav!=NNAVAIDS)
-			{
-				fprintf(stderr, "2 Value mismatch: different nnav value\n");
-				e|=2;
-			}
-			else
-			{
-				for(unsigned int i=0;i<NNAVAIDS;i++)
-				{
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-					unsigned int j, pbuf;
-					int prio;
-					f=sscanf(line, "NPrio %u:%d,%u\n", &j, &prio, &pbuf);
-					if(f!=3)
-					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-						e|=1;
-						break;
-					}
-					if(j!=i)
-					{
-						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
-						e|=4;
-						break;
-					}
-					state->nap[j]=prio;
-					state->napb[j]=pbuf;
-				}
-			}
-		}
-		else if(strcmp(tag, "Bombers")==0)
-		{
-			f=sscanf(dat, "%u\n", &state->nbombers);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else
-			{
-				free(state->bombers);
-				state->bombers=malloc(state->nbombers*sizeof(ac_bomber));
-				for(unsigned int i=0;i<state->nbombers;i++)
-				{
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-					unsigned int j;
-					unsigned int failed,nav,pff;
-					char p_id[9];
-					f=sscanf(line, "Type %u:%u,%u,%u,%8s\n", &j, &failed, &nav, &pff, p_id);
-					// TODO: this is for oldsave compat and should probably be removed later
-					if(f==3)
-					{
-						f=4;
-						if(!warned_pff) fprintf(stderr, "Warning: added missing 'PFF' field in tag \"%s\"\n", tag);
-						warned_pff=true;
-						pff=0;
-					}
-					if(f==4)
-					{
-						f=5;
-						if(!warned_acid) fprintf(stderr, "Warning: added missing 'A/c ID' field in tag \"%s\"\n", tag);
-						warned_acid=true;
-						pacid(rand_acid(), p_id);
-					}
-					if(f!=5)
-					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-						e|=1;
-						break;
-					}
-					if(j>ntypes)
-					{
-						fprintf(stderr, "4 Index mismatch in part %u of tag \"%s\"\n", j, tag);
-						e|=4;
-						break;
-					}
-					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff};
-					for(unsigned int n=0;n<NNAVAIDS;n++)
-						state->bombers[i].nav[n]=(nav>>n)&1;
-					if(gacid(p_id, &state->bombers[i].id))
-					{
-						fprintf(stderr, "32 Invalid value \"%s\" for a/c ID in tag \"%s\"\n", p_id, tag);
-						e|=32;
-						break;
-					}
-				}
-			}
-		}
-		else if(strcmp(tag, "GProd")==0)
-		{
-			unsigned int snclass;
-			f=sscanf(dat, "%u\n", &snclass);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if(snclass!=ICLASS_MIXED)
-			{
-				fprintf(stderr, "2 Value mismatch: different iclasses value\n");
-				e|=2;
-			}
-			else
-			{
-				for(unsigned int i=0;i<snclass;i++)
-				{
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-					if(*line=='#')
-					{
-						i--;
-						continue;
-					}
-					unsigned int j;
-					f=sscanf(line, "IClass %u:%la\n", &j, &state->gprod[i]);
-					if(f!=2)
-					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-						e|=1;
-						break;
-					}
-					if(j!=i)
-					{
-						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
-						e|=4;
-						break;
-					}
-				}
-			}
-		}
-		else if(strcmp(tag, "FTypes")==0)
-		{
-			unsigned int snftypes;
-			f=sscanf(dat, "%u\n", &snftypes);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if(snftypes!=nftypes)
-			{
-				fprintf(stderr, "2 Value mismatch: different nftypes value\n");
-				e|=2;
-			}
-		}
-		else if(strcmp(tag, "FBases")==0)
-		{
-			unsigned int snfbases;
-			f=sscanf(dat, "%u\n", &snfbases);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if(snfbases!=nfbases)
-			{
-				fprintf(stderr, "2 Value mismatch: different nfbases value\n");
-				e|=2;
-			}
-		}
-		else if(strcmp(tag, "Fighters")==0)
-		{
-			f=sscanf(dat, "%u\n", &state->nfighters);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else
-			{
-				free(state->fighters);
-				state->fighters=malloc(state->nfighters*sizeof(ac_fighter));
-				for(unsigned int i=0;i<state->nfighters;i++)
-				{
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-					unsigned int j;
-					unsigned int base;
-					unsigned int flags;
-					char p_id[9];
-					f=sscanf(line, "Type %u:%u,%u,%8s\n", &j, &base, &flags, p_id);
-					if(f!=4)
-					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-						e|=1;
-						break;
-					}
-					if(j>nftypes)
-					{
-						fprintf(stderr, "4 Index mismatch in part %u of tag \"%s\"\n", j, tag);
-						e|=4;
-						break;
-					}
-					state->fighters[i]=(ac_fighter){.type=j, .base=base, .radar=flags&1};
-					if(gacid(p_id, &state->fighters[i].id))
-					{
-						fprintf(stderr, "32 Invalid value \"%s\" for a/c ID in tag \"%s\"\n", p_id, tag);
-						e|=32;
-						break;
-					}
-				}
-			}
-		}
-		else if(strcmp(tag, "Targets init")==0)
-		{
-			double dmg,flk,heat,flam;
-			f=sscanf(dat, "%la,%la,%la,%la\n", &dmg, &flk, &heat, &flam);
-			if(f!=4)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-				break;
-			}
-			for(unsigned int i=0;i<ntargs;i++)
-			{
-				state->dmg[i]=dmg;
-				state->flk[i]=flk*targs[i].flak/100.0;
-				state->heat[i]=heat;
-				state->flam[i]=flam;
-			}
-		}
-		else if(strcmp(tag, "Targets")==0)
-		{
-			unsigned int sntargs;
-			f=sscanf(dat, "%u\n", &sntargs);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if(sntargs!=ntargs)
-			{
-				fprintf(stderr, "2 Value mismatch: different ntargs value\n");
-				e|=2;
-			}
-			else
-			{
-				for(unsigned int i=0;i<ntargs;i++)
-				{
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-					if(*line=='#')
-					{
-						i--;
-						continue;
-					}
-					unsigned int j;
-					double dmg, flk, heat, flam;
-					f=sscanf(line, "Targ %u:%la,%la,%la,%la\n", &j, &dmg, &flk, &heat, &flam);
-					if(f!=5)
-					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", j, tag);
-						e|=1;
-						break;
-					}
-					while((i<j)&&(i<ntargs))
-					{
-						state->dmg[i]=100;
-						state->flk[i]=targs[i].flak;
-						state->heat[i]=0;
-						state->flam[i]=40;
-						i++;
-					}
-					if(j!=i)
-					{
-						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
-						e|=4;
-						break;
-					}
-					state->dmg[i]=dmg;
-					state->flk[i]=flk*targs[i].flak/100.0;
-					state->heat[i]=heat;
-					state->flam[i]=flam;
-				}
-			}
-		}
-		else if(strcmp(tag, "Weather state")==0)
-		{
-			f=sscanf(dat, "%la,%la\n", &state->weather.push, &state->weather.slant);
-			if(f!=2)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else
-			{
-				free(line);
-				line=fgetl(fs);
-				if(!line)
-				{
-					fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-					e|=64;
-				}
-				for(unsigned int x=0;x<256;x++)
-				{
-					size_t p=0;
-					for(unsigned int y=0;y<128;y++)
-					{
-						int bytes;
-						if(sscanf(line+p, "%la,%la,%n", &state->weather.p[x][y], &state->weather.t[x][y], &bytes)!=2)
-						{
-							fprintf(stderr, "1 Too few arguments to part (%u,%u) of tag \"%s\"\n", x, y, tag);
-							e|=1;
-							break;
-						}
-						p+=bytes;
-					}
-					if(e) break;
-					if(x==255) break;
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-				}
-			}
-		}
-		else if(strcmp(tag, "Weather rand")==0)
-		{
-			unsigned int seed;
-			f=sscanf(dat, "%u\n", &seed);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			srand(seed);
-			w_init(&state->weather, 256, lorw);
-		}
-		else if(strcmp(tag, "Messages")==0)
-		{
-			unsigned int snmsgs;
-			f=sscanf(dat, "%u\n", &snmsgs);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if(snmsgs > MAXMSGS)
-			{
-				fprintf(stderr, "2 Value mismatch: too many messages\n");
-				e|=2;
-			}
-			else
-			{
-				for(unsigned int i=0;i<MAXMSGS;i++)
-				{
-					free(state->msg[i]);
-					state->msg[i]=NULL;
-				}
-				unsigned int msg=0;
-				size_t len=0;
-				while(msg<snmsgs)
-				{
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-					if(strcmp(line, ".")==0)
-					{
-						msg++;
-						len=0;
-					}
-					else
-					{
-						size_t nl=len+strlen(line);
-						char *nmsg=realloc(state->msg[msg], nl+2);
-						if(!nmsg)
-						{
-							perror("16 realloc");
-							e|=16;
-						}
-						else
-						{
-							state->msg[msg]=nmsg;
-							strcpy(state->msg[msg]+len, line);
-							strcpy(state->msg[msg]+nl, "\n");
-							len=nl+1;
-						}
-					}
-				}
-			}
-		}
-		else if(strcmp(tag, "History")==0)
-		{
-			size_t nents;
-			f=sscanf(dat, "%zu\n", &nents);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if((f=hist_load(fs, nents, &state->hist)))
-			{
-				fprintf(stderr, "32 Invalid value: error %d somewhere in hist_load, in tag \"%s\"\n", f, tag);
-				e|=32;
-			}
-		}
-		else
-		{
-			fprintf(stderr, "128 Bad tag \"%s\"\n", tag);
-			e|=128;
-		}
-		free(line);
-		if(e!=0) // ...catch
-		{
-			fprintf(stderr, "Error (%d) reading from %s\n", e, fn);
-			fclose(fs);
-			return(e);
-		}
-	}
-	return(0);
-}
-
-int savegame(const char *fn, game state)
-{
-	FILE *fs = fopen(fn, "w");
-	if(!fs)
-	{
-		fprintf(stderr, "Failed to open %s!\n", fn);
-		perror("fopen");
-		return(1);
-	}
-	char p_id[9];
-	fprintf(fs, "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV);
-	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
-	fprintf(fs, "Confid:%la\n", state.confid);
-	fprintf(fs, "Morale:%la\n", state.morale);
-	fprintf(fs, "Budget:%u+%u\n", state.cash, state.cshr);
-	fprintf(fs, "Types:%u\n", ntypes);
-	for(unsigned int i=0;i<ntypes;i++)
-		fprintf(fs, "Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf);
-	fprintf(fs, "Navaids:%u\n", NNAVAIDS);
-	for(unsigned int n=0;n<NNAVAIDS;n++)
-		fprintf(fs, "NPrio %u:%d,%u\n", n, state.nap[n], state.napb[n]);
-	fprintf(fs, "Bombers:%u\n", state.nbombers);
-	for(unsigned int i=0;i<state.nbombers;i++)
-	{
-		unsigned int nav=0;
-		for(unsigned int n=0;n<NNAVAIDS;n++)
-			nav|=(state.bombers[i].nav[n]?(1<<n):0);
-		pacid(state.bombers[i].id, p_id);
-		fprintf(fs, "Type %u:%u,%u,%u,%s\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id);
-	}
-	fprintf(fs, "GProd:%u\n", ICLASS_MIXED);
-	for(unsigned int i=0;i<ICLASS_MIXED;i++)
-		fprintf(fs, "IClass %u:%la\n", i, state.gprod[i]);
-	fprintf(fs, "FTypes:%u\n", nftypes);
-	fprintf(fs, "FBases:%u\n", nfbases);
-	fprintf(fs, "Fighters:%u\n", state.nfighters);
-	for(unsigned int i=0;i<state.nfighters;i++)
-	{
-		pacid(state.fighters[i].id, p_id);
-		unsigned int flags = 0;
-		if(state.fighters[i].radar)
-			flags |= 1;
-		fprintf(fs, "Type %u:%u,%u,%s\n", state.fighters[i].type, state.fighters[i].base, flags, p_id);
-	}
-	fprintf(fs, "Targets:%hhu\n", ntargs);
-	for(unsigned int i=0;i<ntargs;i++)
-		fprintf(fs, "Targ %hhu:%la,%la,%la,%la\n", i, state.dmg[i], targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0, state.heat[i], state.flam[i]);
-	fprintf(fs, "Weather state:%la,%la\n", state.weather.push, state.weather.slant);
-	for(unsigned int x=0;x<256;x++)
-	{
-		for(unsigned int y=0;y<128;y++)
-			fprintf(fs, "%la,%la,", state.weather.p[x][y], state.weather.t[x][y]);
-		fprintf(fs, "\n");
-	}
-	unsigned int msgs=0;
-	for(unsigned int i=0;i<MAXMSGS;i++)
-		if(state.msg[i]) msgs++;
-	fprintf(fs, "Messages:%u\n", msgs);
-	for(unsigned int i=0;i<MAXMSGS;i++)
-		if(state.msg[i])
-		{
-			fputs(state.msg[i], fs);
-			fputs(".\n", fs);
-		}
-	hist_save(state.hist, fs);
-	fclose(fs);
-	return(0);
 }
 
 SDL_Surface *render_weather(w_state weather)
