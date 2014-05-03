@@ -18,7 +18,6 @@
 #include "routing.h"
 #include "rand.h"
 #include "weather.h"
-#include "widgets.h"
 #include "geom.h"
 
 atg_box *run_raid_box;

@@ -4,7 +4,7 @@
 
 	licensed under GPLv3+ - see top of harris.c for details
 	
-	ui: header for the user interface
+	ui: user interface framework
 */
 
 #include "types.h"

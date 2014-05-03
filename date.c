@@ -12,7 +12,7 @@
 
 #include "ui.h"
 #include "bits.h"
-#include "widgets.h"
+#include "render.h"
 
 date readdate(const char *t, date nulldate)
 {

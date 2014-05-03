@@ -5,8 +5,8 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 
 LIBS := -latg -lm
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o main_menu.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o
-INCLUDES := $(OBJS:.o=.h) types.h ui.h globals.h version.h
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o main_menu.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o
+INCLUDES := $(OBJS:.o=.h) types.h globals.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
@@ -32,7 +32,7 @@ events.h: dat/events mkevents.py
 events.c: dat/events mkevents.py
 	./mkevents.py c >events.c
 
-widgets.o: widgets.c widgets.h bits.h types.h
+widgets.o: widgets.c widgets.h bits.h types.h render.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 save/%.sav: save/%.sav.in gensave.py
@@ -40,13 +40,17 @@ save/%.sav: save/%.sav.in gensave.py
 
 weather.o: rand.h
 
-date.o: ui.h bits.h widgets.h
+date.o: ui.h bits.h render.h
 
 routing.o: rand.h globals.h events.h date.h geom.h
 
 history.o: bits.h date.h types.h
 
 saving.o: bits.h date.h globals.h events.h history.h rand.h weather.h version.h
+
+render.o: bits.h globals.h events.h date.h
+
+ui.o: types.h globals.h events.h date.h
 
 main_menu.o: ui.h globals.h events.h saving.h
 
@@ -56,13 +60,11 @@ save_game.o: ui.h globals.h events.h saving.h
 
 control.o: ui.h globals.h events.h widgets.h date.h bits.h render.h
 
-run_raid.o: ui.h globals.h events.h date.h history.h render.h rand.h routing.h weather.h widgets.h geom.h
+run_raid.o: ui.h globals.h events.h date.h history.h render.h rand.h routing.h weather.h geom.h
 
-raid_results.o: ui.h globals.h bits.h date.h history.h weather.h run_raid.h
+raid_results.o: ui.h globals.h events.h bits.h date.h history.h weather.h run_raid.h
 
-post_raid.o: ui.h globals.h bits.h date.h history.h rand.h
-
-render.o: bits.h globals.h date.h widgets.h
+post_raid.o: ui.h globals.h events.h bits.h date.h history.h rand.h
 
 %.o: %.c %.h types.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
