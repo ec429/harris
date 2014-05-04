@@ -202,7 +202,7 @@ int intel_targets_create(void)
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		IT_targs[i]->w=148;
+		IT_targs[i]->w=160;
 		IT_targs[i]->h=11;
 		IT_targs[i]->clickable=true;
 		if(atg_pack_element(lb, IT_targs[i]))
@@ -280,7 +280,7 @@ int intel_targets_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	IT_stat_box->w=396;
+	IT_stat_box->w=384;
 	IT_stat_box->h=256;
 	if(atg_pack_element(dmb, IT_stat_box))
 	{
@@ -311,7 +311,7 @@ int intel_targets_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	text_guard->w=652;
+	text_guard->w=640;
 	if(atg_pack_element(rb, text_guard))
 	{
 		perror("atg_pack_element");
@@ -341,7 +341,7 @@ int intel_targets_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	IT_text_box->w=648;
+	IT_text_box->w=636;
 	if(atg_pack_element(tgb, IT_text_box))
 	{
 		perror("atg_pack_element");
@@ -512,7 +512,7 @@ void update_intel_targets(const game *state)
 		atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
 		if(!shim)
 			fprintf(stderr, "atg_create_element_box failed\n");
-		shim->w=396;
+		shim->w=384;
 		shim->h=256-14*NUM_STATS;
 		if(atg_pack_element(nsb, shim))
 		{
@@ -606,7 +606,7 @@ void update_intel_targets(const game *state)
 				atg_element *text=atg_create_element_label(t_stat_rows[i].t_fn(IT_i), 12, (atg_colour){0, 0, 31, ATG_ALPHA_OPAQUE});
 				if(text)
 				{
-					text->w=296;
+					text->w=284;
 					if(atg_pack_element(rb, text))
 					{
 						perror("atg_pack_element");
