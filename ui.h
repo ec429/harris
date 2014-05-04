@@ -29,8 +29,8 @@ typedef enum
 	SCRN_RRESULTS,
 	SCRN_POSTRAID,
 	SCRN_INTELBMB,
-	SCRN_INTELTRG,
 	SCRN_INTELFTR,
+	SCRN_INTELTRG,
 	NUM_SCREENS,
 }
 screen_id;
@@ -52,8 +52,8 @@ int run_raid_create(void);
 int raid_results_create(void);
 int post_raid_create(void);
 int intel_bombers_create(void);
-int intel_targets_create(void);
 int intel_fighters_create(void);
+int intel_targets_create(void);
 
 screen_id main_menu_screen(atg_canvas *, game *);
 screen_id load_game_screen(atg_canvas *, game *);
@@ -63,8 +63,8 @@ screen_id run_raid_screen(atg_canvas *, game *);
 screen_id raid_results_screen(atg_canvas *, game *);
 screen_id post_raid_screen(atg_canvas *, game *);
 screen_id intel_bombers_screen(atg_canvas *, game *);
-screen_id intel_targets_screen(atg_canvas *, game *);
 screen_id intel_fighters_screen(atg_canvas *, game *);
+screen_id intel_targets_screen(atg_canvas *, game *);
 
 void main_menu_free(void);
 void load_game_free(void);
@@ -74,8 +74,8 @@ void run_raid_free(void);
 void raid_results_free(void);
 void post_raid_free(void);
 void intel_bombers_free(void);
-void intel_targets_free(void);
 void intel_fighters_free(void);
+void intel_targets_free(void);
 
 extern screen_id intel_caller;
 

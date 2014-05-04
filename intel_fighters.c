@@ -15,7 +15,7 @@
 #include "date.h"
 
 atg_box *intel_fighters_box;
-atg_element *IF_full, *IF_bombers_tab, *IF_targets_tab, *IF_fighters_tab, *IF_cont;
+atg_element *IF_full, *IF_bombers_tab, *IF_fighters_tab, *IF_targets_tab, *IF_cont;
 atg_element **IF_types, **IF_namebox, *IF_side_image, *IF_text_box, *IF_stat_box;
 unsigned int IF_i;
 SDL_Surface *IF_blank;
@@ -113,22 +113,22 @@ int intel_fighters_create(void)
 		perror("atg_pack_element");
 		return(1);
 	}
-	if(!(IF_targets_tab=atg_create_element_button("Targets", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
-	{
-		fprintf(stderr, "atg_create_element_button failed\n");
-		return(1);
-	}
-	if(atg_pack_element(tb, IF_targets_tab))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
 	if(!(IF_fighters_tab=atg_create_element_button("Fighters", (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE}, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE})))
 	{
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
 	if(atg_pack_element(tb, IF_fighters_tab))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	if(!(IF_targets_tab=atg_create_element_button("Targets", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_pack_element(tb, IF_targets_tab))
 	{
 		perror("atg_pack_element");
 		return(1);
@@ -452,15 +452,15 @@ screen_id intel_fighters_screen(atg_canvas *canvas, game *state)
 						mainsizey=canvas->surface->h;
 						return(SCRN_INTELBMB);
 					}
+					else if(trigger.e==IF_fighters_tab)
+					{
+						// do nothing
+					}
 					else if(trigger.e==IF_targets_tab)
 					{
 						mainsizex=canvas->surface->w;
 						mainsizey=canvas->surface->h;
 						return(SCRN_INTELTRG);
-					}
-					else if(trigger.e==IF_fighters_tab)
-					{
-						// do nothing
 					}
 					else if(trigger.e==IF_cont)
 					{

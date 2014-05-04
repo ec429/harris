@@ -15,7 +15,7 @@
 #include "date.h"
 
 atg_box *intel_bombers_box;
-atg_element *IB_full, *IB_bombers_tab, *IB_targets_tab, *IB_fighters_tab, *IB_cont;
+atg_element *IB_full, *IB_bombers_tab, *IB_fighters_tab, *IB_targets_tab, *IB_cont;
 atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box;
 unsigned int IB_i;
 SDL_Surface *IB_blank;
@@ -108,22 +108,22 @@ int intel_bombers_create(void)
 		perror("atg_pack_element");
 		return(1);
 	}
-	if(!(IB_targets_tab=atg_create_element_button("Targets", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
-	{
-		fprintf(stderr, "atg_create_element_button failed\n");
-		return(1);
-	}
-	if(atg_pack_element(tb, IB_targets_tab))
-	{
-		perror("atg_pack_element");
-		return(1);
-	}
 	if(!(IB_fighters_tab=atg_create_element_button("Fighters", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
 	{
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
 	if(atg_pack_element(tb, IB_fighters_tab))
+	{
+		perror("atg_pack_element");
+		return(1);
+	}
+	if(!(IB_targets_tab=atg_create_element_button("Targets", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_pack_element(tb, IB_targets_tab))
 	{
 		perror("atg_pack_element");
 		return(1);
@@ -445,17 +445,17 @@ screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 					{
 						// do nothing
 					}
-					else if(trigger.e==IB_targets_tab)
-					{
-						mainsizex=canvas->surface->w;
-						mainsizey=canvas->surface->h;
-						return(SCRN_INTELTRG);
-					}
 					else if(trigger.e==IB_fighters_tab)
 					{
 						mainsizex=canvas->surface->w;
 						mainsizey=canvas->surface->h;
 						return(SCRN_INTELFTR);
+					}
+					else if(trigger.e==IB_targets_tab)
+					{
+						mainsizex=canvas->surface->w;
+						mainsizey=canvas->surface->h;
+						return(SCRN_INTELTRG);
 					}
 					else if(trigger.e==IB_cont)
 					{
