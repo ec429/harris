@@ -343,26 +343,6 @@ int load_targets(void)
 				else if(strstr(class, "INDUSTRY"))
 				{
 					this.class=TCLASS_INDUSTRY;
-					const char *at=strchr(class, '@');
-					if(at)
-					{
-						at++;
-						for(unsigned int i=0;i<ntargs;i++)
-						{
-							if(targs[i].class!=TCLASS_CITY) continue;
-							if(strcmp(at, targs[i].name)==0)
-							{
-								this.city=i;
-								break;
-							}
-						}
-						if(this.city<0)
-						{
-							fprintf(stderr, "Unrecognised `targets' @City reference `%s'\n", at);
-							fprintf(stderr, "  (note: City must precede target referring to it)\n");
-							return(1);
-						}
-					}
 				}
 				else
 				{
@@ -389,6 +369,26 @@ int load_targets(void)
 					this.iclass=ICLASS_RADAR;
 				this.berlin=strstr(class, ",BERLIN");
 				this.flammable=strstr(class, ",FLAMMABLE");
+				const char *at=strchr(class, '@');
+				if(at)
+				{
+					at++;
+					for(unsigned int i=0;i<ntargs;i++)
+					{
+						if(targs[i].class!=TCLASS_CITY) continue;
+						if(strcmp(at, targs[i].name)==0)
+						{
+							this.city=i;
+							break;
+						}
+					}
+					if(this.city<0)
+					{
+						fprintf(stderr, "Unrecognised `targets' @City reference `%s'\n", at);
+						fprintf(stderr, "  (note: City must precede target referring to it)\n");
+						return(1);
+					}
+				}
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
@@ -402,19 +402,14 @@ int load_targets(void)
 			switch(targs[t].class)
 			{
 				case TCLASS_LEAFLET:
-					if(!t)
+					if(targs[t].city<0)
 					{
-						fprintf(stderr, "Error: First target is a TCLASS_LEAFLET\n");
-						return(1);
-					}
-					if(targs[t-1].class!=TCLASS_CITY)
-					{
-						fprintf(stderr, "Error: TCLASS_LEAFLET not preceded by its CITY\n");
+						fprintf(stderr, "Error: TCLASS_LEAFLET not linked to its CITY\n");
 						fprintf(stderr, "\t(targs[%u].name == \"%s\")\n", t, targs[t].name);
 						return(1);
 					}
-					(targs[t].picture=targs[t-1].picture)->refcount++;
-					targs[t].psiz=targs[t-1].psiz;
+					(targs[t].picture=targs[targs[t].city].picture)->refcount++;
+					targs[t].psiz=targs[targs[t].city].psiz;
 				break;
 				case TCLASS_CITY:;
 					char cfn[48];
