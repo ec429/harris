@@ -206,7 +206,9 @@ screen_id load_game_screen(atg_canvas *canvas, game *state)
 							char *file=malloc(strlen(f->curdir)+strlen(f->value)+1);
 							sprintf(file, "%s%s", f->curdir, f->value);
 							fprintf(stderr, "Loading game state from '%s'...\n", file);
-							if(!loadgame(file, state, lorw))
+							int rc=loadgame(file, state, lorw);
+							free(file);
+							if(!rc)
 							{
 								fprintf(stderr, "Game loaded\n");
 								mainsizex=canvas->surface->w;

@@ -346,6 +346,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	screen_id current=SCRN_MAINMENU;
 	
+	atg_free_box_box(canvas->box);
+	
 	while(current < NUM_SCREENS)
 	{
 		canvas->box=*screens[current].box;

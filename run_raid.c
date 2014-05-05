@@ -71,19 +71,13 @@ int run_raid_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-	if(!map)
-	{
-		fprintf(stderr, "map: SDL_ConvertSurface: %s\n", SDL_GetError());
-		return(1);
-	}
-	RB_map=atg_create_element_image(map);
+	RB_map=atg_create_element_image(terrain);
 	if(!RB_map)
 	{
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
-	RB_map->h=map->h+2;
+	RB_map->h=terrain->h+2;
 	if(atg_ebox_pack(RB_hbox, RB_map))
 	{
 		perror("atg_pack_element");
@@ -147,16 +141,16 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	{
 		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
 		SDL_FreeSurface(RB_map->elem.image->data);
+		SDL_Surface *with_flak_and_target, *with_weather;
 		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-		SDL_Surface *with_flak=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		with_flak_and_target=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 		SDL_FreeSurface(flak_overlay);
 		flak_overlay=render_flak(state->now);
-		SDL_BlitSurface(flak_overlay, NULL, with_flak, NULL);
-		SDL_Surface *with_target=SDL_ConvertSurface(with_flak, with_flak->format, with_flak->flags);
+		SDL_BlitSurface(flak_overlay, NULL, with_flak_and_target, NULL);
 		SDL_FreeSurface(target_overlay);
 		target_overlay=render_targets(state->now);
-		SDL_BlitSurface(target_overlay, NULL, with_target, NULL);
-		SDL_Surface *with_weather=SDL_ConvertSurface(with_target, with_target->format, with_target->flags);
+		SDL_BlitSurface(target_overlay, NULL, with_flak_and_target, NULL);
+		with_weather=SDL_ConvertSurface(with_flak_and_target, with_flak_and_target->format, with_flak_and_target->flags);
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state->weather);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
@@ -368,7 +362,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		}
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state->weather);
-		SDL_BlitSurface(with_target, NULL, with_weather, NULL);
+		SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGBA(RB_atime_image->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b, GAME_BG_COLOUR.a));
 		while(inair)
@@ -381,7 +375,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				w_iter(&state->weather, lorw);
 				SDL_FreeSurface(weather_overlay);
 				weather_overlay=render_weather(state->weather);
-				SDL_BlitSurface(with_target, NULL, with_weather, NULL);
+				SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 				it++;
 			}
@@ -1268,6 +1262,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
 			atg_flip(canvas);
 		}
+		SDL_FreeSurface(with_flak_and_target);
+		SDL_FreeSurface(with_weather);
+		SDL_FreeSurface(ac_overlay);
+		SDL_FreeSurface(with_ac);
 		// incorporate the results, and clear the raids ready for next cycle
 		if(kills[0]||kills[1])
 			fprintf(stderr, "Kills: flak %u, fighters %u\n", kills[0], kills[1]);

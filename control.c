@@ -101,7 +101,10 @@ int control_create(void)
 	{
 		atg_label *l=GB_date->elem.label;
 		if(l)
+		{
+			free(l->text);
 			l->text=GB_datestring;
+		}
 		else
 		{
 			fprintf(stderr, "GB_date->elem.label==NULL\n");
@@ -467,6 +470,7 @@ int control_create(void)
 			GB_navbtn[i][n]->clickable=true;
 			if(!types[i].nav[n])
 				SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 63, 63, 63, SDL_ALPHA_OPAQUE));
+			SDL_FreeSurface(pic);
 			if(atg_ebox_pack(GB_navrow[i], GB_navbtn[i][n]))
 			{
 				perror("atg_ebox_pack");
@@ -727,12 +731,6 @@ int control_create(void)
 		perror("atg_pack_element");
 		return(1);
 	}
-	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-	if(!map)
-	{
-		fprintf(stderr, "map: SDL_ConvertSurface: %s\n", SDL_GetError());
-		return(1);
-	}
 	atg_element *GB_middle=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 	if(!GB_middle)
 	{
@@ -750,13 +748,13 @@ int control_create(void)
 		fprintf(stderr, "GB_middle->elem.box==NULL\n");
 		return(1);
 	}
-	GB_map=atg_create_element_image(map);
+	GB_map=atg_create_element_image(terrain);
 	if(!GB_map)
 	{
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
-	GB_map->h=map->h+2;
+	GB_map->h=terrain->h+2;
 	if(atg_pack_element(GB_mb, GB_map))
 	{
 		perror("atg_pack_element");
@@ -1285,8 +1283,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state->weather);
 	SDL_BlitSurface(weather_overlay, NULL, GB_map->elem.image->data, NULL);
+	SDL_FreeSurface(xhair_overlay);
 	xhair_overlay=render_xhairs(state);
 	SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
+	SDL_FreeSurface(seltarg_overlay);
 	int seltarg=-1;
 	seltarg_overlay=render_seltarg(seltarg);
 	SDL_BlitSurface(seltarg_overlay, NULL, GB_map->elem.image->data, NULL);
@@ -1352,6 +1352,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			SDL_FreeSurface(xhair_overlay);
 			xhair_overlay=render_xhairs(state);
 			SDL_BlitSurface(xhair_overlay, NULL, GB_map->elem.image->data, NULL);
+			SDL_FreeSurface(seltarg_overlay);
 			seltarg_overlay=render_seltarg(seltarg);
 			SDL_BlitSurface(seltarg_overlay, NULL, GB_map->elem.image->data, NULL);
 			atg_flip(canvas);

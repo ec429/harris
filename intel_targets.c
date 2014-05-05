@@ -287,19 +287,13 @@ int intel_targets_create(void)
 		perror("atg_pack_element");
 		return(1);
 	}
-	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-	if(!map)
-	{
-		fprintf(stderr, "map: SDL_ConvertSurface: %s\n", SDL_GetError());
-		return(1);
-	}
-	IT_map=atg_create_element_image(map);
+	IT_map=atg_create_element_image(terrain);
 	if(!IT_map)
 	{
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
-	IT_map->h=map->h+2;
+	IT_map->h=terrain->h+2;
 	if(atg_pack_element(dmb, IT_map))
 	{
 		perror("atg_pack_element");
@@ -468,6 +462,7 @@ void update_intel_targets(const game *state)
 		SDL_FreeSurface(target_overlay);
 		target_overlay=render_targets(state->now);
 		SDL_BlitSurface(target_overlay, NULL, mi->data, NULL);
+		SDL_FreeSurface(seltarg_overlay);
 		seltarg_overlay=render_seltarg(IT_i);
 		SDL_BlitSurface(seltarg_overlay, NULL, mi->data, NULL);
 	}

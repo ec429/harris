@@ -705,6 +705,7 @@ int load_texts(void)
 			fprintf(stderr, "Leftover item in dat/texts\n%s\n", item);
 			return(1);
 		}
+		free(txfile);
 	}
 	return(0);
 }
@@ -748,6 +749,7 @@ int load_intel(void)
 			fprintf(stderr, "Leftover item in dat/intel\n%s\n", item);
 			return(1);
 		}
+		free(intfile);
 	}
 	
 	// Intel hookup: Targets
