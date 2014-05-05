@@ -345,6 +345,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
 		unsigned int inair=totalraids, t=0;
 		unsigned int kills[2]={0, 0};
+		cidam=0;
+		bridge=0;
 		// Tame Boar raid tracking
 		bool tameboar=!datebefore(state->now, event[EVENT_TAMEBOAR]);
 		unsigned int boxes[16][16]; // 10x10 boxes starting at (89,40)
