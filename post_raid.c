@@ -430,7 +430,7 @@ void produce(int targ, game *state, double amount)
 				return;
 		break;
 		case ICLASS_MIXED:
-#define ADD(class, qty)	state->gprod[class]+=qty; state->dprod[class]+=qty;
+#define ADD(class, qty)	do { state->gprod[class]+=qty; state->dprod[class]+=qty; } while(0)
 			ADD(ICLASS_OIL, amount/7.0);
 			ADD(ICLASS_RAIL, amount/21.0);
 			ADD(ICLASS_ARM, amount/7.0);
