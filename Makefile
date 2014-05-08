@@ -1,8 +1,13 @@
 # Makefile for harris
-PREFIX := /usr/local
+
+# Installation directories
+BINIDIR := /usr/local/games
+DATIDIR := /usr/share/games/harris
+# User directories (relative to $HOME)
+USAVDIR := .local/share/harris
 
 CC := gcc
-CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
+CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDIR=\"$(USAVDIR)\"
 
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
@@ -16,8 +21,24 @@ SDLFLAGS := `sdl-config --cflags`
 
 all: harris $(SAVES)
 
+install: all
+	install -d $(BINIDIR) $(DATIDIR)/art/bombers $(DATIDIR)/art/bombloads $(DATIDIR)/art/fighters $(DATIDIR)/art/filters $(DATIDIR)/art/large/bombers $(DATIDIR)/art/large/fighters $(DATIDIR)/art/navaids $(DATIDIR)/dat/cities $(DATIDIR)/save $(DATIDIR)/map
+	install harris $(BINIDIR)/
+	install art/exit.png art/fullscreen.png art/intel.png art/location.png art/resize.png art/yellowhair.png $(DATIDIR)/art/
+	install art/bombers/*.png $(DATIDIR)/art/bombers/
+	install art/bombloads/*.png $(DATIDIR)/art/bombloads/
+	install art/fighters/*.png $(DATIDIR)/art/fighters/
+	install art/filters/*.png $(DATIDIR)/art/filters/
+	install art/large/bombers/*.png $(DATIDIR)/art/large/bombers/
+	install art/large/fighters/*.png $(DATIDIR)/art/large/fighters/
+	install art/navaids/*.png $(DATIDIR)/art/navaids/
+	install dat/bombers dat/events dat/fighters dat/flak dat/ftrbases dat/intel dat/targets dat/texts $(DATIDIR)/dat/
+	install dat/cities/*.pbm $(DATIDIR)/dat/cities/
+	install map/overlay_terrain.png map/overlay_coast.png map/overlay_water.png $(DATIDIR)/map/
+	install $(SAVES) $(DATIDIR)/save/
+
 clean:
-	-rm harris $(OBJS) $(SAVES)
+	-rm harris harris.o $(OBJS) $(SAVES)
 
 realclean: clean
 	-rm events.h

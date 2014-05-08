@@ -18,7 +18,11 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <math.h>
+#include <errno.h>
 #include "ui.h"
 #include "events.h"
 #include "load_data.h"
@@ -105,9 +109,38 @@ bool fullscreen=false;
 
 game state;
 
-int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
+int main(int argc, char *argv[])
 {
+	bool localdat=false, localsav=false;
 	int rc;
+	
+	for(int arg=1;arg<argc;arg++)
+	{
+		if(strcmp(argv[arg], "--localdat")==0)
+		{
+			localdat=true;
+		}
+		else if(strcmp(argv[arg], "--localsav")==0)
+		{
+			localsav=true;
+		}
+		else if(strcmp(argv[arg], "--local")==0)
+		{
+			localdat=localsav=true;
+		}
+		else
+		{
+			fprintf(stderr, "Unrecognised argument '%s'\n", argv[arg]);
+			return(2);
+		}
+	}
+	
+	char cwd_buf[1024], *cwd;
+	if(!(cwd=getcwd(cwd_buf, 1024)))
+	{
+		perror("getcwd");
+		return(1);
+	}
 	
 	atg_canvas *canvas=atg_create_canvas_with_opts(1, 1, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
 	if(!canvas)
@@ -123,6 +156,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	// Load data files
 	fprintf(stderr, "Loading data files...\n");
+	
+	if(chdir(localdat?cwd:DATIDIR))
+	{
+		perror("Failed to enter data dir: chdir");
+		return(1);
+	}
 	
 	if((rc=load_bombers()))
 	{
@@ -319,6 +358,54 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	fprintf(stderr, "Game state allocated\n");
 	
+	if(localsav)
+	{
+		if(chdir(cwd))
+		{
+			perror("Failed to enter save dir");
+			return(1);
+		}
+	}
+	else
+	{
+		if(chdir(getenv("HOME")))
+		{
+			perror("Bad $HOME: chdir");
+			return(1);
+		}
+		struct stat st_buf;
+		if(stat(USAVDIR, &st_buf)&&errno==ENOENT)
+		{
+			fprintf(stderr, "save dir '"USAVDIR"' not found, creating it\n");
+			char *s=strdup(USAVDIR);
+			for(char *p=s;;p++)
+			{
+				char c=*p;
+				if(c=='/' || !c)
+				{
+					*p=0;
+					if(stat(s, &st_buf))
+					{
+						if(mkdir(s, 0755))
+						{
+							fprintf(stderr, "Failed to create '%s': mkdir: %s\n", s, strerror(errno));
+							free(s);
+							return(1);
+						}
+					}
+				}
+				*p=c;
+				if(!c) break;
+			}
+			free(s);
+		}
+		if(chdir(USAVDIR))
+		{
+			perror("Failed to enter save dir: chdir");
+			return(1);
+		}
+	}
+	
 	fprintf(stderr, "Instantiating GUI elements...\n");
 	#define MAKE_SCRN(t)	(struct screen){.name=#t, .create=t##_create, .func=t##_screen, .free=t##_free, .box=&t##_box}
 	screens[SCRN_MAINMENU]=MAKE_SCRN(main_menu);
@@ -343,6 +430,12 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 		}
 	}
 	fprintf(stderr, "Instantiated %d screens\n", NUM_SCREENS);
+	
+	if(chdir(localdat?cwd:DATIDIR)) // may need to load from $DATIDIR/save/
+	{
+		perror("Failed to enter data dir: chdir");
+		return(1);
+	}
 	
 	screen_id current=SCRN_MAINMENU;
 	
