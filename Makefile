@@ -1,8 +1,10 @@
 # Makefile for harris
 
 # Installation directories
-BINIDIR := /usr/local/games
-DATIDIR := /usr/share/games/harris
+DESTDIR ?=
+PREFIX ?= $(DESTDIR)/usr/local
+BINIDIR := $(PREFIX)/games
+DATIDIR := $(PREFIX)/share/games/harris
 # User directories (relative to $HOME)
 USAVDIR := .local/share/harris
 
