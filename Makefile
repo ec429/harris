@@ -2,9 +2,9 @@
 
 # Installation directories
 DESTDIR ?=
-PREFIX ?= $(DESTDIR)/usr/local
-BINIDIR := $(PREFIX)/games
-DATIDIR := $(PREFIX)/share/games/harris
+PREFIX ?= /usr/local
+BINIDIR := $(DESTDIR)$(PREFIX)/games
+DATIDIR := $(DESTDIR)$(PREFIX)/share/games/harris
 # User directories (relative to $HOME)
 USAVDIR := .local/share/harris
 
