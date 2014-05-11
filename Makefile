@@ -39,6 +39,10 @@ install: all
 	install map/overlay_terrain.png map/overlay_coast.png map/overlay_water.png $(DATIDIR)/map/
 	install $(SAVES) $(DATIDIR)/save/
 
+uninstall:
+	rm $(BINIDIR)/harris
+	rm -r $(DATIDIR)
+
 clean:
 	-rm harris harris.o $(OBJS) $(SAVES)
 
