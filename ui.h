@@ -41,7 +41,7 @@ struct screen
 	int (*create)(void);
 	screen_id (*func)(atg_canvas *, game *);
 	void (*free)(void);
-	atg_box **box;
+	atg_element **box;
 };
 
 int main_menu_create(void);

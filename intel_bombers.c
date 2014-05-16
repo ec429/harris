@@ -14,7 +14,7 @@
 #include "bits.h"
 #include "date.h"
 
-atg_box *intel_bombers_box;
+atg_element *intel_bombers_box;
 atg_element *IB_full, *IB_bombers_tab, *IB_fighters_tab, *IB_targets_tab, *IB_cont;
 atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box;
 unsigned int IB_i;
@@ -65,9 +65,9 @@ b_stat_rows[NUM_STATS]=
 
 int intel_bombers_create(void)
 {
-	if(!(intel_bombers_box=atg_create_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR)))
+	if(!(intel_bombers_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR)))
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	atg_element *title=atg_create_element_label("HARRIS: Intel & Information", 12, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
@@ -76,9 +76,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(atg_pack_element(intel_bombers_box, title))
+	if(atg_ebox_pack(intel_bombers_box, title))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *tab_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
@@ -87,15 +87,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	if(atg_pack_element(intel_bombers_box, tab_box))
+	if(atg_ebox_pack(intel_bombers_box, tab_box))
 	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_box *tb=tab_box->elem.box;
-	if(!tb)
-	{
-		fprintf(stderr, "tab_box->elem.box==NULL\n");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	if(!(IB_bombers_tab=atg_create_element_button("Bombers", (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE}, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE})))
@@ -103,9 +97,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_pack_element(tb, IB_bombers_tab))
+	if(atg_ebox_pack(tab_box, IB_bombers_tab))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	if(!(IB_fighters_tab=atg_create_element_button("Fighters", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
@@ -113,9 +107,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_pack_element(tb, IB_fighters_tab))
+	if(atg_ebox_pack(tab_box, IB_fighters_tab))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	if(!(IB_targets_tab=atg_create_element_button("Targets", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE})))
@@ -123,9 +117,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_pack_element(tb, IB_targets_tab))
+	if(atg_ebox_pack(tab_box, IB_targets_tab))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	if(!(IB_cont=atg_create_element_button("Continue", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE})))
@@ -133,9 +127,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_pack_element(tb, IB_cont))
+	if(atg_ebox_pack(tab_box, IB_cont))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	IB_full=atg_create_element_image(fullbtn);
@@ -145,9 +139,9 @@ int intel_bombers_create(void)
 		return(1);
 	}
 	IB_full->clickable=true;
-	if(atg_pack_element(tb, IB_full))
+	if(atg_ebox_pack(tab_box, IB_full))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *main_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
@@ -158,15 +152,9 @@ int intel_bombers_create(void)
 	}
 	main_box->w=default_w;
 	main_box->h=default_h-18-14;
-	if(atg_pack_element(intel_bombers_box, main_box))
+	if(atg_ebox_pack(intel_bombers_box, main_box))
 	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_box *mb=main_box->elem.box;
-	if(!mb)
-	{
-		fprintf(stderr, "main_box->elem.box==NULL\n");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *left_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
@@ -175,15 +163,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	if(atg_pack_element(mb, left_box))
+	if(atg_ebox_pack(main_box, left_box))
 	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_box *lb=left_box->elem.box;
-	if(!lb)
-	{
-		fprintf(stderr, "left_box->elem.box==NULL\n");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *btlbl=atg_create_element_label("Bomber Types", 12, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
@@ -192,9 +174,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(atg_pack_element(lb, btlbl))
+	if(atg_ebox_pack(left_box, btlbl))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	if(!(IB_types=calloc(ntypes, sizeof(atg_element *))))
@@ -216,15 +198,9 @@ int intel_bombers_create(void)
 		}
 		IB_types[i]->w=160;
 		IB_types[i]->clickable=true;
-		if(atg_pack_element(lb, IB_types[i]))
+		if(atg_ebox_pack(left_box, IB_types[i]))
 		{
-			perror("atg_pack_element");
-			return(1);
-		}
-		atg_box *bb=IB_types[i]->elem.box;
-		if(!bb)
-		{
-			fprintf(stderr, "IB_types[%u]->elem.box==NULL\n", i);
+			perror("atg_ebox_pack");
 			return(1);
 		}
 		SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[i].picture->format->BitsPerPixel, types[i].picture->format->Rmask, types[i].picture->format->Gmask, types[i].picture->format->Bmask, types[i].picture->format->Amask);
@@ -245,9 +221,9 @@ int intel_bombers_create(void)
 		bpic->w=38;
 		bpic->h=42;
 		bpic->cache=true;
-		if(atg_pack_element(bb, bpic))
+		if(atg_ebox_pack(IB_types[i], bpic))
 		{
-			perror("atg_pack_element");
+			perror("atg_ebox_pack");
 			return(1);
 		}
 		IB_namebox[i]=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
@@ -258,15 +234,9 @@ int intel_bombers_create(void)
 		}
 		IB_namebox[i]->w=122;
 		IB_namebox[i]->h=42;
-		if(atg_pack_element(bb, IB_namebox[i]))
+		if(atg_ebox_pack(IB_types[i], IB_namebox[i]))
 		{
-			perror("atg_pack_element");
-			return(1);
-		}
-		atg_box *nb=IB_namebox[i]->elem.box;
-		if(!nb)
-		{
-			fprintf(stderr, "IB_namebox[%u]->elem.box==NULL\n", i);
+			perror("atg_ebox_pack");
 			return(1);
 		}
 		if(types[i].manu&&types[i].name)
@@ -277,9 +247,9 @@ int intel_bombers_create(void)
 				fprintf(stderr, "atg_create_element_label failed\n");
 				return(1);
 			}
-			if(atg_pack_element(nb, manu))
+			if(atg_ebox_pack(IB_namebox[i], manu))
 			{
-				perror("atg_pack_element");
+				perror("atg_ebox_pack");
 				return(1);
 			}
 			atg_element *name=atg_create_element_label(types[i].name, 14, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
@@ -288,9 +258,9 @@ int intel_bombers_create(void)
 				fprintf(stderr, "atg_create_element_label failed\n");
 				return(1);
 			}
-			if(atg_pack_element(nb, name))
+			if(atg_ebox_pack(IB_namebox[i], name))
 			{
-				perror("atg_pack_element");
+				perror("atg_ebox_pack");
 				return(1);
 			}
 		}
@@ -306,15 +276,9 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	if(atg_pack_element(mb, right_box))
+	if(atg_ebox_pack(main_box, right_box))
 	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_box *rb=right_box->elem.box;
-	if(!rb)
-	{
-		fprintf(stderr, "right_box->elem.box==NULL\n");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	if(!(IB_blank=SDL_CreateRGBSurface(SDL_HWSURFACE, 414, 150, 24, 0xff0000, 0xff00, 0xff, 0)))
@@ -331,9 +295,9 @@ int intel_bombers_create(void)
 	}
 	IB_side_image->w=414;
 	IB_side_image->h=150;
-	if(atg_pack_element(rb, IB_side_image))
+	if(atg_ebox_pack(right_box, IB_side_image))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	if(!(IB_stat_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE})))
@@ -342,9 +306,9 @@ int intel_bombers_create(void)
 		return(1);
 	}
 	IB_stat_box->w=414;
-	if(atg_pack_element(rb, IB_stat_box))
+	if(atg_ebox_pack(right_box, IB_stat_box))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *text_guard=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
@@ -354,15 +318,9 @@ int intel_bombers_create(void)
 		return(1);
 	}
 	text_guard->w=414;
-	if(atg_pack_element(rb, text_guard))
+	if(atg_ebox_pack(right_box, text_guard))
 	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_box *tgb=text_guard->elem.box;
-	if(!tgb)
-	{
-		fprintf(stderr, "text_guard->elem.box==NULL\n");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *text_shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
@@ -373,9 +331,9 @@ int intel_bombers_create(void)
 	}
 	text_shim->w=2;
 	text_shim->h=8;
-	if(atg_pack_element(tgb, text_shim))
+	if(atg_ebox_pack(text_guard, text_shim))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	if(!(IB_text_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE})))
@@ -384,9 +342,9 @@ int intel_bombers_create(void)
 		return(1);
 	}
 	IB_text_box->w=410;
-	if(atg_pack_element(tgb, IB_text_box))
+	if(atg_ebox_pack(text_guard, IB_text_box))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	return(0);
@@ -480,7 +438,7 @@ screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 
 void intel_bombers_free(void)
 {
-	atg_free_box_box(intel_bombers_box);
+	atg_free_element(intel_bombers_box);
 }
 
 void update_intel_bombers(const game *state)
@@ -488,7 +446,7 @@ void update_intel_bombers(const game *state)
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		IB_types[i]->hidden=datebefore(state->now, types[i].entry);
-		atg_box *nb=IB_namebox[i]->elem.box;
+		atg_box *nb=IB_namebox[i]->elemdata;
 		if(nb)
 		{
 			if(i==IB_i)
@@ -499,7 +457,7 @@ void update_intel_bombers(const game *state)
 				nb->bgcolour=(atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE};
 		}
 	}
-	atg_image *si=IB_side_image->elem.image;
+	atg_image *si=IB_side_image->elemdata;
 	if(si)
 	{
 		if(types[IB_i].side_image)
@@ -510,8 +468,8 @@ void update_intel_bombers(const game *state)
 	atg_box *ntb=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
 	if(ntb)
 	{
-		atg_free_box_box(IB_text_box->elem.box);
-		IB_text_box->elem.box=ntb;
+		atg_free_box_box(IB_text_box->elemdata);
+		IB_text_box->elemdata=ntb;
 		const char *bodytext=types[IB_i].text;
 		size_t x=0;
 		while(bodytext && bodytext[x])
@@ -528,7 +486,7 @@ void update_intel_bombers(const game *state)
 			}
 			if(atg_pack_element(ntb, r))
 			{
-				perror("atg_pack_element");
+				perror("atg_ebox_pack");
 				atg_free_element(r);
 				break;
 			}
@@ -539,8 +497,8 @@ void update_intel_bombers(const game *state)
 	atg_box *nsb=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
 	if(nsb)
 	{
-		atg_free_box_box(IB_stat_box->elem.box);
-		IB_stat_box->elem.box=nsb;
+		atg_free_box_box(IB_stat_box->elemdata);
+		IB_stat_box->elemdata=nsb;
 		for(unsigned int i=0;i<NUM_STATS;i++)
 		{
 			atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
@@ -551,14 +509,8 @@ void update_intel_bombers(const game *state)
 			}
 			if(atg_pack_element(nsb, row))
 			{
-				perror("atg_pack_element");
+				perror("atg_ebox_pack");
 				atg_free_element(row);
-				break;
-			}
-			atg_box *rb=row->elem.box;
-			if(!rb)
-			{
-				fprintf(stderr, "row->elem.box==NULL\n");
 				break;
 			}
 			int val=*(unsigned int *)((char *)&types[IB_i]+b_stat_rows[i].v_off);
@@ -569,9 +521,9 @@ void update_intel_bombers(const game *state)
 			if(s_name)
 			{
 				s_name->w=100+(b_stat_rows[i].unit_first?0:8);
-				if(atg_pack_element(rb, s_name))
+				if(atg_ebox_pack(row, s_name))
 				{
-					perror("atg_pack_element");
+					perror("atg_ebox_pack");
 					atg_free_element(s_name);
 					break;
 				}
@@ -582,9 +534,9 @@ void update_intel_bombers(const game *state)
 				if(s_unit)
 				{
 					s_unit->w=8;
-					if(atg_pack_element(rb, s_unit))
+					if(atg_ebox_pack(row, s_unit))
 					{
-						perror("atg_pack_element");
+						perror("atg_ebox_pack");
 						atg_free_element(s_unit);
 						break;
 					}
@@ -595,9 +547,9 @@ void update_intel_bombers(const game *state)
 			if(s_value)
 			{
 				s_value->w=40+(b_stat_rows[i].unit_first?32:0);
-				if(atg_pack_element(rb, s_value))
+				if(atg_ebox_pack(row, s_value))
 				{
-					perror("atg_pack_element");
+					perror("atg_ebox_pack");
 					atg_free_element(s_value);
 					break;
 				}
@@ -608,9 +560,9 @@ void update_intel_bombers(const game *state)
 				if(s_unit)
 				{
 					s_unit->w=32;
-					if(atg_pack_element(rb, s_unit))
+					if(atg_ebox_pack(row, s_unit))
 					{
-						perror("atg_pack_element");
+						perror("atg_ebox_pack");
 						atg_free_element(s_unit);
 						break;
 					}
@@ -639,9 +591,9 @@ void update_intel_bombers(const game *state)
 			}
 			else
 			{
-				if(atg_pack_element(rb, s_bar))
+				if(atg_ebox_pack(row, s_bar))
 				{
-					perror("atg_pack_element");
+					perror("atg_ebox_pack");
 					atg_free_element(s_bar);
 					break;
 				}

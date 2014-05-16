@@ -9,4 +9,4 @@
 
 #include <atg.h>
 
-extern atg_box *intel_fighters_box;
+extern atg_element *intel_fighters_box;

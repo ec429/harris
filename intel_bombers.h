@@ -9,5 +9,5 @@
 
 #include <atg.h>
 
-extern atg_box *intel_bombers_box;
+extern atg_element *intel_bombers_box;
 extern unsigned int IB_i;

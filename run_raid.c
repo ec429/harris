@@ -20,7 +20,7 @@
 #include "weather.h"
 #include "geom.h"
 
-atg_box *run_raid_box;
+atg_element *run_raid_box;
 char *RB_time_label;
 atg_element *RB_map;
 SDL_Surface *RB_atime_image;
@@ -32,10 +32,10 @@ double bridge, cidam;
 
 int run_raid_create(void)
 {
-	run_raid_box=atg_create_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	run_raid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!run_raid_box)
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	atg_element *RB_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
@@ -44,9 +44,9 @@ int run_raid_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	if(atg_pack_element(run_raid_box, RB_hbox))
+	if(atg_ebox_pack(run_raid_box, RB_hbox))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *RB_time=atg_create_element_label("--:--", 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
@@ -55,12 +55,12 @@ int run_raid_create(void)
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(!RB_time->elem.label)
+	if(!RB_time->elemdata)
 	{
-		fprintf(stderr, "RB_time->elem.label==NULL\n");
+		fprintf(stderr, "RB_time->elemdata==NULL\n");
 		return(1);
 	}
-	if(!(RB_time_label=RB_time->elem.label->text))
+	if(!(RB_time_label=((atg_label *)RB_time->elemdata)->text))
 	{
 		fprintf(stderr, "RB_time_label==NULL\n");
 		return(1);
@@ -80,7 +80,7 @@ int run_raid_create(void)
 	RB_map->h=terrain->h+2;
 	if(atg_ebox_pack(RB_hbox, RB_map))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	RB_atime_image=SDL_CreateRGBSurface(SDL_HWSURFACE, 600, 240, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
@@ -95,9 +95,9 @@ int run_raid_create(void)
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
-	if(atg_pack_element(run_raid_box, RB_atime))
+	if(atg_ebox_pack(run_raid_box, RB_atime))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	return(0);
@@ -140,9 +140,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	if(totalraids)
 	{
 		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
-		SDL_FreeSurface(RB_map->elem.image->data);
+		atg_image *map_img=RB_map->elemdata;
+		SDL_FreeSurface(map_img->data);
 		SDL_Surface *with_flak_and_target, *with_weather;
-		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		map_img->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 		with_flak_and_target=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 		SDL_FreeSurface(flak_overlay);
 		flak_overlay=render_flak(state->now);
@@ -154,7 +155,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state->weather);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
-		SDL_BlitSurface(with_weather, NULL, RB_map->elem.image->data, NULL);
+		SDL_BlitSurface(with_weather, NULL, map_img->data, NULL);
 		bool stream=!datebefore(state->now, event[EVENT_GEE]),
 		     moonshine=!datebefore(state->now, event[EVENT_MOONSHINE]),
 		     window=!datebefore(state->now, event[EVENT_WINDOW]),
@@ -342,7 +343,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_Surface *with_ac=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
 		SDL_Surface *ac_overlay=render_ac(state);
 		SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
-		SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
+		SDL_BlitSurface(with_ac, NULL, map_img->data, NULL);
 		unsigned int inair=totalraids, t=0;
 		unsigned int kills[2]={0, 0};
 		cidam=0;
@@ -1261,7 +1262,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			ac_overlay=render_ac(state);
 			SDL_BlitSurface(with_weather, NULL, with_ac, NULL);
 			SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
-			SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
+			SDL_BlitSurface(with_ac, NULL, map_img->data, NULL);
 			atg_flip(canvas);
 		}
 		SDL_FreeSurface(with_flak_and_target);
@@ -1465,5 +1466,5 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 
 void run_raid_free(void)
 {
-	atg_free_box_box(run_raid_box);
+	atg_free_element(run_raid_box);
 }

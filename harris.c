@@ -346,16 +346,16 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	
 	screen_id current=SCRN_MAINMENU;
 	
-	atg_free_box_box(canvas->box);
+	atg_free_element(canvas->content);
 	
 	while(current < NUM_SCREENS)
 	{
-		canvas->box=*screens[current].box;
+		canvas->content=*screens[current].box;
 		current=screens[current].func(canvas, &state);
 	}
 
 	fprintf(stderr, "Exiting\n");
-	canvas->box=NULL;
+	canvas->content=NULL;
 	atg_free_canvas(canvas);
 	for(unsigned int i=0;i<NUM_SCREENS;i++)
 		screens[i].free();

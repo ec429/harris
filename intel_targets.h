@@ -9,5 +9,5 @@
 
 #include <atg.h>
 
-extern atg_box *intel_targets_box;
+extern atg_element *intel_targets_box;
 extern unsigned int IT_i;

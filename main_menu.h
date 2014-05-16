@@ -9,5 +9,5 @@
 
 #include <atg.h>
 
-extern atg_box *main_menu_box;
+extern atg_element *main_menu_box;
 extern atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_LoadGame;

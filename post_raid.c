@@ -19,7 +19,7 @@
 
 void produce(int targ, game *state, double amount);
 
-atg_box *post_raid_box;
+atg_element *post_raid_box;
 
 int post_raid_create(void)
 {
