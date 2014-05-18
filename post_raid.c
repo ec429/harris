@@ -395,8 +395,6 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
 		}
 	}
-	mainsizex=canvas->surface->w;
-	mainsizey=canvas->surface->h;
 	return(SCRN_CONTROL);
 }
 

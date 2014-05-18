@@ -344,14 +344,21 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char *argv[])
 	}
 	fprintf(stderr, "Instantiated %d screens\n", NUM_SCREENS);
 	
-	screen_id current=SCRN_MAINMENU;
+	screen_id current=SCRN_MAINMENU, old;
 	
 	atg_free_element(canvas->content);
 	
 	while(current < NUM_SCREENS)
 	{
 		canvas->content=*screens[current].box;
+		if((old=current)!=SCRN_MAINMENU)
+			atg_resize_canvas(canvas, mainsizex, mainsizey);
 		current=screens[current].func(canvas, &state);
+		if(old!=SCRN_MAINMENU)
+		{
+			mainsizex=canvas->surface->w;
+			mainsizey=canvas->surface->h;
+		}
 	}
 
 	fprintf(stderr, "Exiting\n");

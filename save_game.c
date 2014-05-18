@@ -144,7 +144,6 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 		fprintf(stderr, "Error: SA_file->elemdata==NULL\n");
 		return(SCRN_CONTROL);
 	}
-	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	while(1)
 	{
 		SA_file->w=mainsizex;
@@ -253,8 +252,6 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 							if(!savegame(file, *state))
 							{
 								fprintf(stderr, "Game saved\n");
-								mainsizex=canvas->surface->w;
-								mainsizey=canvas->surface->h;
 								return(SCRN_CONTROL);
 							}
 							else

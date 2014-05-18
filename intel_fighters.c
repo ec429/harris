@@ -358,7 +358,6 @@ int intel_fighters_create(void)
 screen_id intel_fighters_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
-	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	while(1)
 	{
 		update_intel_fighters(state);
@@ -372,8 +371,6 @@ screen_id intel_fighters_screen(atg_canvas *canvas, game *state)
 					switch(s.type)
 					{
 						case SDL_QUIT:
-							mainsizex=canvas->surface->w;
-							mainsizey=canvas->surface->h;
 							return(intel_caller);
 					}
 				break;
@@ -406,8 +403,6 @@ screen_id intel_fighters_screen(atg_canvas *canvas, game *state)
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e==IF_bombers_tab)
 					{
-						mainsizex=canvas->surface->w;
-						mainsizey=canvas->surface->h;
 						return(SCRN_INTELBMB);
 					}
 					else if(trigger.e==IF_fighters_tab)
@@ -416,14 +411,10 @@ screen_id intel_fighters_screen(atg_canvas *canvas, game *state)
 					}
 					else if(trigger.e==IF_targets_tab)
 					{
-						mainsizex=canvas->surface->w;
-						mainsizey=canvas->surface->h;
 						return(SCRN_INTELTRG);
 					}
 					else if(trigger.e==IF_cont)
 					{
-						mainsizex=canvas->surface->w;
-						mainsizey=canvas->surface->h;
 						return(intel_caller);
 					}
 					else if(!trigger.e)

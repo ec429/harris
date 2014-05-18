@@ -147,7 +147,6 @@ screen_id load_game_screen(atg_canvas *canvas, game *state)
 	}
 	free(lbf->value);
 	lbf->value=NULL;
-	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	while(1)
 	{
 		LB_file->w=mainsizex;
@@ -206,8 +205,6 @@ screen_id load_game_screen(atg_canvas *canvas, game *state)
 							if(!rc)
 							{
 								fprintf(stderr, "Game loaded\n");
-								mainsizex=canvas->surface->w;
-								mainsizey=canvas->surface->h;
 								return(SCRN_CONTROL);
 							}
 							else

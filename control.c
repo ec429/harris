@@ -953,7 +953,6 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
 	
-	atg_resize_canvas(canvas, mainsizex, mainsizey);
 	snprintf(GB_datestring, 11, "%02u-%02u-%04u\n", state->now.day, state->now.month, state->now.year);
 	snprintf(GB_budget_label, 32, "Budget: £%u/day", state->cshr);
 	snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state->confid+0.5));
@@ -1172,8 +1171,6 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								free(state->raids[i].bombers);
 								state->raids[i].bombers=NULL;
 							}
-							mainsizex=canvas->surface->w;
-							mainsizey=canvas->surface->h;
 							return(SCRN_MAINMENU);
 						break;
 						case SDL_VIDEORESIZE:
@@ -1375,8 +1372,6 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						}
 						else if(trigger.e==GB_save)
 						{
-							mainsizex=canvas->surface->w;
-							mainsizey=canvas->surface->h;
 							return(SCRN_SAVEGAME);
 						}
 						for(unsigned int i=0;i<MAXMSGS;i++)
