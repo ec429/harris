@@ -29,13 +29,15 @@ atg_element *GB_map, *GB_filters;
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btnum, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
-atg_element ***GB_rbrow, ***GB_rbpic, ***GB_raidnum, *(**GB_raidload)[2], *GB_raid;
-atg_box **GB_raidbox, *GB_raidbox_empty;
+atg_element **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
+char **GB_raidnum;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 SDL_Surface *GB_moonimg;
 int filter_nav[NNAVAIDS], filter_pff=0;
 
 bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS]);
+int update_raidbox(const game *state, int seltarg);
+int update_raidnums(const game *state, int seltarg);
 
 int control_create(void)
 {
@@ -664,7 +666,7 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	GB_raid=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	atg_element *GB_raid=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 	if(!GB_raid)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -675,197 +677,135 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	GB_raidbox_empty=GB_raid->elemdata;
-	if(!(GB_raidbox=calloc(ntargs, sizeof(atg_box *))))
+	if(!(GB_rbrow=calloc(ntypes, sizeof(atg_element *))))
 	{
 		perror("calloc");
 		return(1);
 	}
-	if(!(GB_rbrow=malloc(ntargs*sizeof(atg_element **))))
+	if(!(GB_rbpic=calloc(ntypes, sizeof(atg_element *))))
 	{
-		perror("malloc");
+		perror("calloc");
 		return(1);
 	}
-	if(!(GB_rbpic=malloc(ntargs*sizeof(atg_element **))))
+	if(!(GB_raidnum=calloc(ntypes, sizeof(char *))))
 	{
-		perror("malloc");
+		perror("calloc");
 		return(1);
 	}
-	if(!(GB_raidnum=malloc(ntargs*sizeof(atg_element **))))
+	if(!(GB_raidload=calloc(ntypes, sizeof(atg_element *[2]))))
 	{
-		perror("malloc");
+		perror("calloc");
 		return(1);
 	}
-	if(!(GB_raidload=malloc(ntargs*sizeof(atg_element *(*)[2]))))
+	if(!(GB_raidloadbox=calloc(ntypes, sizeof(atg_element *[2]))))
 	{
-		perror("malloc");
+		perror("calloc");
 		return(1);
 	}
-	for(unsigned int i=0;i<ntargs;i++)
+	for(unsigned int i=0;i<ntypes;i++)
 	{
-		if(!(GB_rbrow[i]=calloc(ntypes, sizeof(atg_element *))))
+		if(!(GB_rbrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
 		{
-			perror("calloc");
+			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		if(!(GB_rbpic[i]=calloc(ntypes, sizeof(atg_element *))))
+		if(atg_ebox_pack(GB_raid, GB_rbrow[i]))
 		{
-			perror("calloc");
+			perror("atg_ebox_pack");
+			atg_free_element(GB_rbrow[i]);
 			return(1);
 		}
-		if(!(GB_raidnum[i]=calloc(ntypes, sizeof(atg_element *))))
+		GB_rbrow[i]->w=256;
+		SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[i].picture->format->BitsPerPixel, types[i].picture->format->Rmask, types[i].picture->format->Gmask, types[i].picture->format->Bmask, types[i].picture->format->Amask);
+		if(!pic)
 		{
-			perror("calloc");
+			fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
 			return(1);
 		}
-		if(!(GB_raidload[i]=calloc(ntypes, sizeof(atg_element *[2]))))
+		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
+		SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
+		atg_element *picture=atg_create_element_image(pic);
+		SDL_FreeSurface(pic);
+		if(!picture)
 		{
-			perror("calloc");
+			fprintf(stderr, "atg_create_element_image failed\n");
 			return(1);
 		}
-		GB_raidbox[i]=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
-		if(!GB_raidbox[i])
+		picture->w=38;
+		picture->cache=true;
+		(GB_rbpic[i]=picture)->clickable=true;
+		if(atg_ebox_pack(GB_rbrow[i], picture))
 		{
-			fprintf(stderr, "atg_create_box failed\n");
+			perror("atg_ebox_pack");
+			atg_free_element(picture);
 			return(1);
 		}
-		for(unsigned int j=0;j<ntypes;j++)
+		atg_element *vbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+		if(!vbox)
 		{
-			if(!(GB_rbrow[i][j]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
-			{
-				fprintf(stderr, "atg_create_element_box failed\n");
-				return(1);
-			}
-			if(atg_pack_element(GB_raidbox[i], GB_rbrow[i][j]))
-			{
-				perror("atg_ebox_pack");
-				return(1);
-			}
-			GB_rbrow[i][j]->w=256;
-			SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[j].picture->format->BitsPerPixel, types[j].picture->format->Rmask, types[j].picture->format->Gmask, types[j].picture->format->Bmask, types[j].picture->format->Amask);
-			if(!pic)
-			{
-				fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
-				return(1);
-			}
-			SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
-			SDL_BlitSurface(types[j].picture, NULL, pic, &(SDL_Rect){(36-types[j].picture->w)>>1, (40-types[j].picture->h)>>1, 0, 0});
-			atg_element *picture=atg_create_element_image(pic);
-			SDL_FreeSurface(pic);
-			if(!picture)
-			{
-				fprintf(stderr, "atg_create_element_image failed\n");
-				return(1);
-			}
-			picture->w=38;
-			picture->cache=true;
-			(GB_rbpic[i][j]=picture)->clickable=true;
-			if(atg_ebox_pack(GB_rbrow[i][j], picture))
-			{
-				perror("atg_ebox_pack");
-				return(1);
-			}
-			atg_element *vbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
-			if(!vbox)
-			{
-				fprintf(stderr, "atg_create_element_box failed\n");
-				return(1);
-			}
-			vbox->w=186;
-			if(atg_ebox_pack(GB_rbrow[i][j], vbox))
-			{
-				perror("atg_ebox_pack");
-				return(1);
-			}
-			if(types[j].manu&&types[j].name)
-			{
-				size_t len=strlen(types[j].manu)+strlen(types[j].name)+2;
-				char *fullname=malloc(len);
-				if(fullname)
-				{
-					snprintf(fullname, len, "%s %s", types[j].manu, types[j].name);
-					atg_element *name=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
-					if(!name)
-					{
-						fprintf(stderr, "atg_create_element_label failed\n");
-						return(1);
-					}
-					name->cache=true;
-					name->w=184;
-					if(atg_ebox_pack(vbox, name))
-					{
-						perror("atg_ebox_pack");
-						return(1);
-					}
-				}
-				else
-				{
-					perror("malloc");
-					return(1);
-				}
-				free(fullname);
-			}
-			else
-			{
-				fprintf(stderr, "Missing manu or name in type %u\n", j);
-				return(1);
-			}
-			if(!(GB_raidnum[i][j]=atg_create_element_label("assigned", 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE})))
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		vbox->w=186;
+		if(atg_ebox_pack(GB_rbrow[i], vbox))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(vbox);
+			return(1);
+		}
+		if(types[i].manu&&types[i].name)
+		{
+			char fullname[96];
+			snprintf(fullname, 96, "%s %s", types[i].manu, types[i].name);
+			atg_element *name=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+			if(!name)
 			{
 				fprintf(stderr, "atg_create_element_label failed\n");
 				return(1);
 			}
-			if(atg_ebox_pack(vbox, GB_raidnum[i][j]))
+			name->cache=true;
+			name->w=184;
+			if(atg_ebox_pack(vbox, name))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(name);
+				return(1);
+			}
+		}
+		else
+		{
+			fprintf(stderr, "Missing manu or name in type %u\n", i);
+		}
+		if(!(GB_raidnum[i]=malloc(32)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		atg_element *raidnum=atg_create_element_label_nocopy(GB_raidnum[i], 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE});
+		if(!raidnum)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(vbox, raidnum))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		for(int j=1;j>=0;j--)
+		{
+			if(!(GB_raidloadbox[i][j]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
+			GB_raidloadbox[i][j]->w=16;
+			if(atg_ebox_pack(GB_rbrow[i], GB_raidloadbox[i][j]))
 			{
 				perror("atg_ebox_pack");
 				return(1);
 			}
-			if(targs[i].class==TCLASS_CITY)
-			{
-				atg_element *pffloadbox = atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE}),
-							*mainloadbox = atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
-				if(!pffloadbox||!mainloadbox)
-				{
-					fprintf(stderr, "atg_create_element_box failed\n");
-					return(1);
-				}
-				pffloadbox->w=mainloadbox->w=16;
-				if(atg_ebox_pack(GB_rbrow[i][j], pffloadbox))
-				{
-					perror("atg_ebox_pack");
-					return(1);
-				}
-				if(atg_ebox_pack(GB_rbrow[i][j], mainloadbox))
-				{
-					perror("atg_ebox_pack");
-					return(1);
-				}
-				if(!(GB_raidload[i][j][1]=create_load_selector(&types[j], &state.raids[i].pffloads[j])))
-				{
-					fprintf(stderr, "create_load_selector failed\n");
-					return(1);
-				}
-				if(atg_ebox_pack(pffloadbox, GB_raidload[i][j][1]))
-				{
-					perror("atg_ebox_pack");
-					return(1);
-				}
-				if(!(GB_raidload[i][j][0]=create_load_selector(&types[j], &state.raids[i].loads[j])))
-				{
-					fprintf(stderr, "create_load_selector failed\n");
-					return(1);
-				}
-				if(atg_ebox_pack(mainloadbox, GB_raidload[i][j][0]))
-				{
-					perror("atg_ebox_pack");
-					return(1);
-				}
-			}
-			else
-			{
-				GB_raidload[i][j][0]=NULL;
-				GB_raidload[i][j][1]=NULL;
-			}
+			GB_raidload[i][j]=NULL;
 		}
 	}
 	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
@@ -1120,23 +1060,6 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			}
 		if(GB_ttflk[i])
 			GB_ttflk[i]->w=floor(state->flk[i]);
-		bool pff=!datebefore(state->now, event[EVENT_PFF]);
-		for(unsigned int j=0;j<ntypes;j++)
-		{
-			if(GB_rbrow[i][j])
-				GB_rbrow[i][j]->hidden=GB_btrow[j]?GB_btrow[j]->hidden:true;
-			if(GB_raidload[i][j][0])
-				GB_raidload[i][j][0]->hidden=pff&&types[j].noarm;
-			if(GB_raidload[i][j][1])
-				GB_raidload[i][j][1]->hidden=!pff||!types[j].pff;
-			if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elemdata&&((atg_label *)GB_raidnum[i][j]->elemdata)->text)
-			{
-				unsigned int count=0;
-				for(unsigned int k=0;k<state->raids[i].nbombers;k++)
-					if(state->bombers[state->raids[i].bombers[k]].type==j) count++;
-				snprintf(((atg_label *)GB_raidnum[i][j]->elemdata)->text, 9, "%u", count);
-			}
-		}
 		for(unsigned int j=0;j<state->raids[i].nbombers;j++)
 			state->bombers[state->raids[i].bombers[j]].landed=false;
 	}
@@ -1159,8 +1082,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	int seltarg=-1;
 	seltarg_overlay=render_seltarg(seltarg);
 	SDL_BlitSurface(seltarg_overlay, NULL, map_img->data, NULL);
-	snprintf(GB_raid_label, 48, "Select a Target");
-	GB_raid->elemdata=GB_raidbox_empty;
+	update_raidbox(state, seltarg);
 	bool rfsh=true;
 	while(1)
 	{
@@ -1175,9 +1097,12 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						raid[j]=0;
 					for(unsigned int j=0;j<state->raids[i].nbombers;j++)
 						raid[state->bombers[state->raids[i].bombers[j]].type]++;
-					for(unsigned int j=0;j<ntypes;j++)
-						if(GB_rbrow[i][j])
-							GB_rbrow[i][j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!raid[j];
+					if((int)i==seltarg)
+					{
+						for(unsigned int j=0;j<ntypes;j++)
+							if(GB_rbrow[j])
+								GB_rbrow[j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!raid[j];
+					}
 					atg_box *b=GB_ttrow[i]->elemdata;
 					b->bgcolour=(state->raids[i].nbombers?(atg_colour){127, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 					if((int)i==seltarg)
@@ -1193,7 +1118,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					}
 				}
 			}
-			GB_raid->elemdata=(seltarg<0)?GB_raidbox_empty:GB_raidbox[seltarg];
+			update_raidnums(state, seltarg);
 			for(unsigned int i=0;i<ntypes;i++)
 			{
 				if(!GB_btrow[i]->hidden&&GB_btpic[i])
@@ -1286,11 +1211,9 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										update_navbtn(*state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
 								}
 							}
-							if(c.e==GB_btpic[i])
+							if(seltarg>=0)
 							{
-								if(seltarg<0)
-									fprintf(stderr, "btrow %d\n", i);
-								else
+								if(c.e==GB_btpic[i])
 								{
 									double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.6;
 									if(types[i].range<dist)
@@ -1337,47 +1260,16 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											(state->raids[seltarg].bombers=new)[n]=j;
 											if(!amount) break;
 										}
-										if(GB_raidnum[seltarg][i]&&GB_raidnum[seltarg][i]->elemdata&&((atg_label *)GB_raidnum[seltarg][i]->elemdata)->text)
+										if(GB_raidnum[i])
 										{
 											unsigned int count=0;
 											for(unsigned int j=0;j<state->raids[seltarg].nbombers;j++)
 												if(state->bombers[state->raids[seltarg].bombers[j]].type==i) count++;
-											snprintf(((atg_label *)GB_raidnum[seltarg][i]->elemdata)->text, 9, "%u", count);
+											snprintf(GB_raidnum[i], 32, "%u", count);
 										}
 									}
 								}
-							}
-							if((c.e==GB_btint[i])&&types[i].text)
-							{
-								IB_i=i;
-								intel_caller=SCRN_CONTROL;
-								return(SCRN_INTELBMB);
-							}
-						}
-						if(c.e==GB_ttl)
-						{
-							seltarg=-1;
-							snprintf(GB_raid_label, 48, "Select a Target");
-							GB_raid->elemdata=GB_raidbox_empty;
-						}
-						for(unsigned int i=0;i<ntargs;i++)
-						{
-							if(!datewithin(state->now, targs[i].entry, targs[i].exit)) continue;
-							if(c.e==GB_ttint[i])
-							{
-								IT_i=i;
-								intel_caller=SCRN_CONTROL;
-								return(SCRN_INTELTRG);
-							}
-							if(c.e==GB_ttrow[i])
-							{
-								seltarg=i;
-								snprintf(GB_raid_label, 48, "Raid on %s", targs[i].name);
-								GB_raid->elemdata=GB_raidbox[i];
-							}
-							for(unsigned int j=0;j<ntypes;j++)
-							{
-								if(c.e==GB_rbpic[i][j])
+								if(c.e==GB_rbpic[i])
 								{
 									unsigned int amount;
 									switch(b)
@@ -1400,27 +1292,53 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										default:
 											amount=10;
 									}
-									for(unsigned int l=0;l<state->raids[i].nbombers;l++)
+									for(unsigned int l=0;l<state->raids[seltarg].nbombers;l++)
 									{
-										unsigned int k=state->raids[i].bombers[l];
-										if(state->bombers[k].type!=j) continue;
+										unsigned int k=state->raids[seltarg].bombers[l];
+										if(state->bombers[k].type!=i) continue;
 										if(!filter_apply(state->bombers[k], filter_pff, filter_nav)) continue;
 										state->bombers[k].landed=true;
 										amount--;
-										state->raids[i].nbombers--;
-										for(unsigned int k=l;k<state->raids[i].nbombers;k++)
-											state->raids[i].bombers[k]=state->raids[i].bombers[k+1];
+										state->raids[seltarg].nbombers--;
+										for(unsigned int k=l;k<state->raids[seltarg].nbombers;k++)
+											state->raids[seltarg].bombers[k]=state->raids[seltarg].bombers[k+1];
 										if(!amount) break;
 										l--;
 									}
-									if(GB_raidnum[i][j]&&GB_raidnum[i][j]->elemdata&&((atg_label *)GB_raidnum[i][j]->elemdata)->text)
+									if(GB_raidnum[i])
 									{
 										unsigned int count=0;
-										for(unsigned int l=0;l<state->raids[i].nbombers;l++)
-											if(state->bombers[state->raids[i].bombers[l]].type==j) count++;
-										snprintf(((atg_label *)GB_raidnum[i][j]->elemdata)->text, 9, "%u", count);
+										for(unsigned int l=0;l<state->raids[seltarg].nbombers;l++)
+											if(state->bombers[state->raids[seltarg].bombers[l]].type==i) count++;
+										snprintf(GB_raidnum[i], 32, "%u", count);
 									}
 								}
+							}
+							if((c.e==GB_btint[i])&&types[i].text)
+							{
+								IB_i=i;
+								intel_caller=SCRN_CONTROL;
+								return(SCRN_INTELBMB);
+							}
+						}
+						if(c.e==GB_ttl)
+						{
+							seltarg=-1;
+							update_raidbox(state, seltarg);
+						}
+						for(unsigned int i=0;i<ntargs;i++)
+						{
+							if(!datewithin(state->now, targs[i].entry, targs[i].exit)) continue;
+							if(c.e==GB_ttint[i])
+							{
+								IT_i=i;
+								intel_caller=SCRN_CONTROL;
+								return(SCRN_INTELTRG);
+							}
+							if(c.e==GB_ttrow[i])
+							{
+								seltarg=i;
+								update_raidbox(state, seltarg);
 							}
 						}
 						if(c.e==GB_resize)
@@ -1512,4 +1430,66 @@ bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS])
 		if(filter_nav[n]<0&&b.nav[n]) return(false);
 	}
 	return(true);
+}
+
+int update_raidbox(const game *state, int seltarg)
+{
+	if(GB_raid_label)
+	{
+		if(seltarg>=0)
+			snprintf(GB_raid_label, 48, "Raid on %s", targs[seltarg].name);
+		else
+			snprintf(GB_raid_label, 48, "Select a Target");
+	}
+	bool pff=!datebefore(state->now, event[EVENT_PFF]);
+	for(unsigned int i=0;i<ntypes;i++)
+	{
+		for(unsigned int j=0;j<2;j++)
+		{
+			atg_ebox_empty(GB_raidloadbox[i][j]);
+			GB_raidload[i][j]=NULL;
+		}
+		if(seltarg>=0 && targs[seltarg].class==TCLASS_CITY)
+		{
+			if(!(GB_raidload[i][0]=create_load_selector(&types[i], &state->raids[seltarg].loads[i])))
+			{
+				fprintf(stderr, "create_load_selector failed\n");
+				return(1);
+			}
+			if(atg_ebox_pack(GB_raidloadbox[i][0], GB_raidload[i][0]))
+			{
+				perror("atg_ebox_pack");
+				return(1);
+			}
+			GB_raidload[i][0]->hidden=pff&&types[i].noarm;
+			if(!(GB_raidload[i][1]=create_load_selector(&types[i], &state->raids[seltarg].pffloads[i])))
+			{
+				fprintf(stderr, "create_load_selector failed\n");
+				return(1);
+			}
+			if(atg_ebox_pack(GB_raidloadbox[i][1], GB_raidload[i][1]))
+			{
+				perror("atg_ebox_pack");
+				return(1);
+			}
+			GB_raidload[i][1]->hidden=!pff||!types[i].pff;
+		}
+	}
+	return(update_raidnums(state, seltarg));
+}
+
+int update_raidnums(const game *state, int seltarg)
+{
+	for(unsigned int i=0;i<ntypes;i++)
+	{
+		unsigned int count=0;
+		if(seltarg>=0)
+			for(unsigned int k=0;k<state->raids[seltarg].nbombers;k++)
+				if(state->bombers[state->raids[seltarg].bombers[k]].type==i) count++;
+		if(GB_raidnum[i])
+			snprintf(GB_raidnum[i], 32, "%u", count);
+		if(GB_rbrow[i])
+			GB_rbrow[i]->hidden=!count||(GB_btrow[i]?GB_btrow[i]->hidden:true);
+	}
+	return(0);
 }
