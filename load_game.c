@@ -14,8 +14,10 @@
 #include "globals.h"
 #include "saving.h"
 
+#define NAMEBUFLEN	256
+
 atg_element *load_game_box;
-char **LB_btext;
+char *LB_btext;
 atg_element *LB_file, *LB_text, *LB_full, *LB_exit, *LB_load;
 
 int load_game_create(void)
@@ -40,7 +42,6 @@ int load_game_create(void)
 		return(1);
 	}
 	atg_element *LB_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
-	LB_btext=NULL;
 	if(!LB_hbox)
 	{
 		fprintf(stderr, "atg_create_box failed\n");
@@ -65,10 +66,10 @@ int load_game_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		LB_text=atg_create_element_button(NULL, (atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
+		LB_text=atg_create_element_button_empty((atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
 		if(!LB_text)
 		{
-			fprintf(stderr, "atg_create_element_button failed\n");
+			fprintf(stderr, "atg_create_element_button_empty failed\n");
 			return(1);
 		}
 		LB_text->h=24;
@@ -78,33 +79,23 @@ int load_game_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		atg_button *tb=LB_text->elemdata;
-		if(!tb)
+		if(!(LB_btext=malloc(NAMEBUFLEN)))
 		{
-			fprintf(stderr, "LB_text->elemdata==NULL\n");
+			perror("malloc");
 			return(1);
 		}
-		atg_box *t=tb->content;
-		if(!t)
+		atg_element *label=atg_create_element_label_nocopy(LB_btext, 12, (atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE});
+		if(!label)
 		{
-			fprintf(stderr, "tb->content==NULL\n");
+			fprintf(stderr, "atg_create_element_label_nocopy failed\n");
 			return(1);
 		}
-		if(t->nelems&&t->elems&&!strcmp(t->elems[0]->type, "__builtin_label"))
+		if(atg_ebox_pack(LB_text, label))
 		{
-			atg_label *l=t->elems[0]->elemdata;
-			if(!l)
-			{
-				fprintf(stderr, "t->elems[0]->elemdata==NULL\n");
-				return(1);
-			}
-			LB_btext=&l->text;
-		}
-		else
-		{
-			fprintf(stderr, "LB_text has wrong content\n");
+			perror("atg_ebox_pack");
 			return(1);
 		}
+		LB_btext[0]=0;
 		LB_full=atg_create_element_image(fullbtn);
 		if(!LB_full)
 		{
@@ -138,7 +129,6 @@ screen_id load_game_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
 	
-	*LB_btext=NULL;
 	atg_filepicker *lbf=LB_file->elemdata;
 	if(!lbf)
 	{
@@ -215,8 +205,7 @@ screen_id load_game_screen(atg_canvas *canvas, game *state)
 					}
 					else if(trigger.e==LB_text)
 					{
-						if(LB_btext&&*LB_btext)
-							**LB_btext=0;
+						LB_btext[0]=0;
 					}
 					else if(!trigger.e)
 					{
@@ -229,7 +218,10 @@ screen_id load_game_screen(atg_canvas *canvas, game *state)
 					atg_ev_value value=e.event.value;
 					if(value.e==LB_file)
 					{
-						if(LB_btext) *LB_btext=lbf->value;
+						if(lbf->value)
+							snprintf(LB_btext, NAMEBUFLEN, "%s", lbf->value);
+						else
+							LB_btext[0]=0;
 					}
 				break;
 				default:
@@ -242,6 +234,5 @@ screen_id load_game_screen(atg_canvas *canvas, game *state)
 
 void load_game_free(void)
 {
-	if(LB_btext) *LB_btext=NULL;
 	atg_free_element(load_game_box);
 }

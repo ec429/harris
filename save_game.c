@@ -14,8 +14,10 @@
 #include "globals.h"
 #include "saving.h"
 
+#define NAMEBUFLEN	256
+
 atg_element *save_game_box;
-char **SA_btext;
+char *SA_btext;
 atg_element *SA_file, *SA_text, *SA_full, *SA_exit, *SA_save;
 
 int save_game_create(void)
@@ -40,7 +42,6 @@ int save_game_create(void)
 		return(1);
 	}
 	atg_element *SA_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
-	SA_btext=NULL;
 	if(!SA_hbox)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -65,10 +66,10 @@ int save_game_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		SA_text=atg_create_element_button(NULL, (atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
+		SA_text=atg_create_element_button_empty((atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
 		if(!SA_text)
 		{
-			fprintf(stderr, "atg_create_element_button failed\n");
+			fprintf(stderr, "atg_create_element_button_empty failed\n");
 			return(1);
 		}
 		SA_text->h=24;
@@ -78,33 +79,23 @@ int save_game_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		atg_button *tb=SA_text->elemdata;
-		if(!tb)
+		if(!(SA_btext=malloc(NAMEBUFLEN)))
 		{
-			fprintf(stderr, "SA_text->elemdata==NULL\n");
+			perror("malloc");
 			return(1);
 		}
-		atg_box *t=tb->content;
-		if(!t)
+		atg_element *label=atg_create_element_label_nocopy(SA_btext, 12, (atg_colour){239, 255, 239, ATG_ALPHA_OPAQUE});
+		if(!label)
 		{
-			fprintf(stderr, "tb->content==NULL\n");
+			fprintf(stderr, "atg_create_element_label_nocopy failed\n");
 			return(1);
 		}
-		if(t->nelems&&t->elems&&!strcmp(t->elems[0]->type, "__builtin_label"))
+		if(atg_ebox_pack(SA_text, label))
 		{
-			atg_label *l=t->elems[0]->elemdata;
-			if(!l)
-			{
-				fprintf(stderr, "t->elems[0]->elemdata==NULL\n");
-				return(1);
-			}
-			SA_btext=&l->text;
-		}
-		else
-		{
-			fprintf(stderr, "SA_text has wrong content\n");
+			perror("atg_ebox_pack");
 			return(1);
 		}
+		SA_btext[0]=0;
 		SA_full=atg_create_element_image(fullbtn);
 		if(!SA_full)
 		{
@@ -168,11 +159,11 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 							switch(s.key.keysym.sym)
 							{
 								case SDLK_BACKSPACE:
-									if(SA_btext&&*SA_btext)
+									if(SA_btext)
 									{
-										size_t l=strlen(*SA_btext);
+										size_t l=strlen(SA_btext);
 										if(l)
-											(*SA_btext)[l-1]=0;
+											SA_btext[l-1]=0;
 									}
 								break;
 								case SDLK_RETURN:
@@ -192,7 +183,12 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 													(f->value=n)[l]=what;
 													n[l+1]=0;
 													if(SA_btext)
-														*SA_btext=f->value;
+													{
+														if(f->value)
+															snprintf(SA_btext, NAMEBUFLEN, "%s", f->value);
+														else
+															SA_btext[0]=0;
+													}
 												}
 												else
 													perror("realloc");
@@ -205,7 +201,12 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 													f->value[0]=what;
 													f->value[1]=0;
 													if(SA_btext)
-														*SA_btext=f->value;
+													{
+														if(f->value)
+															snprintf(SA_btext, NAMEBUFLEN, "%s", f->value);
+														else
+															SA_btext[0]=0;
+													}
 												}
 												else
 													perror("malloc");
@@ -262,8 +263,10 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 					}
 					else if(trigger.e==SA_text)
 					{
-						if(SA_btext&&*SA_btext)
-							**SA_btext=0;
+						free(f->value);
+						f->value=NULL;
+						if(SA_btext)
+							SA_btext[0]=0;
 					}
 					else if(!trigger.e)
 					{
@@ -276,7 +279,13 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 					atg_ev_value value=e.event.value;
 					if(value.e==SA_file)
 					{
-						if(SA_btext) *SA_btext=f->value;
+						if(SA_btext)
+						{
+							if(f->value)
+								snprintf(SA_btext, NAMEBUFLEN, "%s", f->value);
+							else
+								SA_btext[0]=0;
+						}
 					}
 				break;
 				default:
@@ -289,6 +298,5 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 
 void save_game_free(void)
 {
-	if(SA_btext) *SA_btext=NULL;
 	atg_free_element(save_game_box);
 }
