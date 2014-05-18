@@ -80,6 +80,8 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return;
 	}
+	msgbox->w=mainsizex;
+	msgbox->h=mainsizey;
 	atg_element *title=atg_create_element_label(titletext, 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 	if(!title)
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -120,7 +122,7 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 						perror("atg_ebox_pack");
 					else
 					{
-						atg_element *cont = atg_create_element_button("Continue", (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE}, (atg_colour){239, 239, 224, ATG_ALPHA_OPAQUE});
+						atg_element *cont=atg_create_element_button("Continue", (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE}, (atg_colour){239, 239, 224, ATG_ALPHA_OPAQUE});
 						if(!cont)
 							fprintf(stderr, "atg_create_element_button failed\n");
 						else
@@ -130,6 +132,7 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 							else
 							{
 								canvas->content=msgbox;
+								atg_resize_canvas(canvas, mainsizex, mainsizey);
 								atg_flip(canvas);
 								atg_event e;
 								while(1)
@@ -147,6 +150,8 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 										SDL_Delay(50);
 									atg_flip(canvas);
 								}
+								mainsizex=canvas->surface->w;
+								mainsizey=canvas->surface->h;
 								canvas->content=oldbox;
 							}
 						}
