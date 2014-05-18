@@ -27,11 +27,11 @@ atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map, *GB_filters;
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btnum, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
-atg_element *GB_go, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel;
+atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
-atg_element ***GB_rbrow, ***GB_rbpic, ***GB_raidnum, *(**GB_raidload)[2], *GB_raid_label, *GB_raid;
+atg_element ***GB_rbrow, ***GB_rbpic, ***GB_raidnum, *(**GB_raidload)[2], *GB_raid;
 atg_box **GB_raidbox, *GB_raidbox_empty;
-char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label;
+char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 SDL_Surface *GB_moonimg;
 int filter_nav[NNAVAIDS], filter_pff=0;
 
@@ -73,7 +73,7 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *GB_date=atg_create_element_label("", 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+	atg_element *GB_date=atg_create_element_label_nocopy(GB_datestring, 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
 	if(!GB_date)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -85,27 +85,13 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	else
-	{
-		atg_label *l=GB_date->elemdata;
-		if(l)
-		{
-			free(l->text);
-			l->text=GB_datestring;
-		}
-		else
-		{
-			fprintf(stderr, "GB_date->elemdata==NULL\n");
-			return(1);
-		}
-	}
 	GB_moonimg=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 14, 14, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!GB_moonimg)
 	{
 		fprintf(stderr, "moonimg: SDL_CreateRGBSurface: %s\n", SDL_GetError());
 		return(1);
 	}
-	atg_element *GB_moonpic=atg_create_element_image(NULL);
+	atg_element *GB_moonpic=atg_create_element_image(GB_moonimg);
 	if(!GB_moonpic)
 	{
 		fprintf(stderr, "atg_create_element_image failed\n");
@@ -116,16 +102,6 @@ int control_create(void)
 	{
 		perror("atg_ebox_pack");
 		return(1);
-	}
-	else
-	{
-		atg_image *i=GB_moonpic->elemdata;
-		if(!i)
-		{
-			fprintf(stderr, "GB_moonpic->elemdata==NULL\n");
-			return(1);
-		}
-		i->data=GB_moonimg;
 	}
 	GB_resize=atg_create_element_image(resizebtn);
 	if(!GB_resize)
@@ -237,7 +213,7 @@ int control_create(void)
 		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
 		SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
 		GB_btpic[i]=atg_create_element_image(pic);
-		SDL_FreeSurface(pic);
+		SDL_FreeSurface(pic); // Drop the extra reference
 		if(!GB_btpic[i])
 		{
 			fprintf(stderr, "atg_create_element_image failed\n");
@@ -434,7 +410,7 @@ int control_create(void)
 			GB_navbtn[i][n]->clickable=true;
 			if(!types[i].nav[n])
 				SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 63, 63, 63, SDL_ALPHA_OPAQUE));
-			SDL_FreeSurface(pic);
+			SDL_FreeSurface(pic); // Drop the extra reference
 			if(atg_ebox_pack(GB_navrow[i], GB_navbtn[i][n]))
 			{
 				perror("atg_ebox_pack");
@@ -508,27 +484,17 @@ int control_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *GB_budget=atg_create_element_label(NULL, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
+	atg_element *GB_budget=atg_create_element_label_nocopy(GB_budget_label, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
 	if(!GB_budget)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	else
+	GB_budget->w=159;
+	if(atg_ebox_pack(GB_bt, GB_budget))
 	{
-		atg_label *l=GB_budget->elemdata;
-		if(!l)
-		{
-			fprintf(stderr, "GB_budget->elemdata==NULL\n");
-			return(1);
-		}
-		*(l->text=GB_budget_label)=0;
-		GB_budget->w=159;
-		if(atg_ebox_pack(GB_bt, GB_budget))
-		{
-			perror("atg_ebox_pack");
-			return(1);
-		}
+		perror("atg_ebox_pack");
+		return(1);
 	}
 	GB_confid_label=malloc(32);
 	if(!GB_confid_label)
@@ -536,27 +502,17 @@ int control_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *GB_confid=atg_create_element_label(NULL, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
+	atg_element *GB_confid=atg_create_element_label_nocopy(GB_confid_label, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
 	if(!GB_confid)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	else
+	GB_confid->w=159;
+	if(atg_ebox_pack(GB_bt, GB_confid))
 	{
-		atg_label *l=GB_confid->elemdata;
-		if(!l)
-		{
-			fprintf(stderr, "GB_confid->elemdata==NULL\n");
-			return(1);
-		}
-		*(l->text=GB_confid_label)=0;
-		GB_confid->w=159;
-		if(atg_ebox_pack(GB_bt, GB_confid))
-		{
-			perror("atg_ebox_pack");
-			return(1);
-		}
+		perror("atg_ebox_pack");
+		return(1);
 	}
 	GB_morale_label=malloc(32);
 	if(!GB_morale_label)
@@ -564,27 +520,17 @@ int control_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *GB_morale=atg_create_element_label(NULL, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
+	atg_element *GB_morale=atg_create_element_label_nocopy(GB_morale_label, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
 	if(!GB_morale)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	else
+	GB_morale->w=159;
+	if(atg_ebox_pack(GB_bt, GB_morale))
 	{
-		atg_label *l=GB_morale->elemdata;
-		if(!l)
-		{
-			fprintf(stderr, "GB_morale->elem.label==NULL\n");
-			return(1);
-		}
-		*(l->text=GB_morale_label)=0;
-		GB_morale->w=159;
-		if(atg_ebox_pack(GB_bt, GB_morale))
-		{
-			perror("atg_ebox_pack");
-			return(1);
-		}
+		perror("atg_ebox_pack");
+		return(1);
 	}
 	atg_element *GB_msglbl=atg_create_element_label("Messages:", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 	if(!GB_msglbl)
@@ -597,20 +543,15 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	for(unsigned int i=0;i<MAXMSGS;i++)
+	if(!(GB_msgbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR)))
 	{
-		if(!(GB_msgrow[i]=atg_create_element_button(NULL, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE})))
-		{
-			fprintf(stderr, "atg_create_element_button failed\n");
-			return(1);
-		}
-		GB_msgrow[i]->hidden=true;
-		GB_msgrow[i]->w=GB_btrow[0]->w;
-		if(atg_ebox_pack(GB_bt, GB_msgrow[i]))
-		{
-			perror("atg_ebox_pack");
-			return(1);
-		}
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_bt, GB_msgbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
 	}
 	GB_filters=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!GB_filters)
@@ -706,13 +647,19 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	GB_raid_label=atg_create_element_label("Select a Target", 12, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
-	if(!GB_raid_label)
+	if(!(GB_raid_label=malloc(48)))
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(GB_raid_label, 48, "Select a Target");
+	atg_element *raid_label=atg_create_element_label_nocopy(GB_raid_label, 12, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+	if(!raid_label)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(atg_ebox_pack(GB_middle, GB_raid_label))
+	if(atg_ebox_pack(GB_middle, raid_label))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1125,21 +1072,26 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	}
 	if(GB_go&&GB_go->elemdata&&((atg_button *)GB_go->elemdata)->content)
 		((atg_button *)GB_go->elemdata)->content->bgcolour=(atg_colour){31, 63, 31, ATG_ALPHA_OPAQUE};
-	for(unsigned int i=0;i<MAXMSGS;i++)
+	if(GB_msgbox)
 	{
-		if(!GB_msgrow[i]) continue;
-		GB_msgrow[i]->hidden=!state->msg[i];
-		if(state->msg[i])
-			if(GB_msgrow[i]->elemdata&&((atg_button *)GB_msgrow[i]->elemdata)->content)
+		atg_ebox_empty(GB_msgbox);
+		for(unsigned int i=0;i<MAXMSGS;i++)
+		{
+			if(state->msg[i])
 			{
-				atg_box *c=((atg_button *)GB_msgrow[i]->elemdata)->content;
-				if(c->nelems&&c->elems[0]&&!strcmp(c->elems[0]->type, "__builtin_label")&&c->elems[0]->elemdata)
-				{
-					atg_label *l=c->elems[0]->elemdata;
-					free(l->text);
-					l->text=strndup(state->msg[i], min(strcspn(state->msg[i], "\n"), 33));
-				}
+				char msgbuf[48];
+				size_t j;
+				for(j=0;state->msg[i][j]&&(state->msg[i][j]!='\n')&&j<47;j++)
+					msgbuf[j]=state->msg[i][j];
+				msgbuf[j]=0;
+				if(!(GB_msgrow[i]=atg_create_element_button(msgbuf, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE})))
+					continue; // nothing we can do about it
+				GB_msgrow[i]->w=GB_btrow[0]->w;
+				if(atg_ebox_pack(GB_msgbox, GB_msgrow[i])==0)
+					continue; // we're good
 			}
+			GB_msgrow[i]=NULL;
+		}
 	}
 	for(unsigned int i=0;i<ntargs;i++)
 	{
@@ -1207,8 +1159,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	int seltarg=-1;
 	seltarg_overlay=render_seltarg(seltarg);
 	SDL_BlitSurface(seltarg_overlay, NULL, map_img->data, NULL);
-	free(((atg_label *)GB_raid_label->elemdata)->text);
-	((atg_label *)GB_raid_label->elemdata)->text=strdup("Select a Target");
+	snprintf(GB_raid_label, 48, "Select a Target");
 	GB_raid->elemdata=GB_raidbox_empty;
 	bool rfsh=true;
 	while(1)
@@ -1406,9 +1357,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						if(c.e==GB_ttl)
 						{
 							seltarg=-1;
-							atg_label *lbl=GB_raid_label->elemdata;
-							free(lbl->text);
-							lbl->text=strdup("Select a Target");
+							snprintf(GB_raid_label, 48, "Select a Target");
 							GB_raid->elemdata=GB_raidbox_empty;
 						}
 						for(unsigned int i=0;i<ntargs;i++)
@@ -1423,11 +1372,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							if(c.e==GB_ttrow[i])
 							{
 								seltarg=i;
-								atg_label *lbl=GB_raid_label->elemdata;
-								free(lbl->text);
-								size_t ll=9+strlen(targs[i].name);
-								lbl->text=malloc(ll);
-								snprintf(lbl->text, ll, "Raid on %s", targs[i].name);
+								snprintf(GB_raid_label, 48, "Raid on %s", targs[i].name);
 								GB_raid->elemdata=GB_raidbox[i];
 							}
 							for(unsigned int j=0;j<ntypes;j++)
@@ -1553,6 +1498,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 
 void control_free(void)
 {
+	SDL_FreeSurface(GB_moonimg);
 	atg_free_element(control_box);
 }
 
