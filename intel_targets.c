@@ -415,142 +415,132 @@ void update_intel_targets(const game *state)
 		seltarg_overlay=render_seltarg(IT_i);
 		SDL_BlitSurface(seltarg_overlay, NULL, mi->data, NULL);
 	}
-	atg_box *ntb=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
-	if(ntb)
+	atg_ebox_empty(IT_text_box);
+	intel *i=targs[IT_i].p_intel;
+	if(i)
 	{
-		atg_free_box_box(IT_text_box->elemdata);
-		IT_text_box->elemdata=ntb;
-		intel *i=targs[IT_i].p_intel;
-		if(i)
+		const char *bodytext=i->text;
+		size_t x=0;
+		while(bodytext && bodytext[x])
 		{
-			const char *bodytext=i->text;
-			size_t x=0;
-			while(bodytext && bodytext[x])
+			size_t l=strcspn(bodytext+x, "\n");
+			if(!l) break;
+			char *t=strndup(bodytext+x, l);
+			atg_element *r=atg_create_element_label(t, 10, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+			free(t);
+			if(!r)
 			{
-				size_t l=strcspn(bodytext+x, "\n");
-				if(!l) break;
-				char *t=strndup(bodytext+x, l);
-				atg_element *r=atg_create_element_label(t, 10, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-				free(t);
-				if(!r)
-				{
-					fprintf(stderr, "atg_create_element_label failed\n");
-					break;
-				}
-				if(atg_pack_element(ntb, r))
-				{
-					perror("atg_ebox_pack");
-					atg_free_element(r);
-					break;
-				}
-				x+=l;
-				if(bodytext[x]=='\n') x++;
-			}
-		}
-	}
-	atg_box *nsb=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
-	if(nsb)
-	{
-		atg_free_box_box(IT_stat_box->elemdata);
-		IT_stat_box->elemdata=nsb;
-		atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
-		if(!shim)
-			fprintf(stderr, "atg_create_element_box failed\n");
-		shim->w=384;
-		shim->h=256-14*NUM_STATS;
-		if(atg_pack_element(nsb, shim))
-		{
-			perror("atg_ebox_pack");
-			atg_free_element(shim);
-		}
-		for(unsigned int i=0;i<NUM_STATS;i++)
-		{
-			atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
-			if(!row)
-			{
-				fprintf(stderr, "atg_create_element_box failed\n");
+				fprintf(stderr, "atg_create_element_label failed\n");
 				break;
 			}
-			if(atg_pack_element(nsb, row))
+			if(atg_ebox_pack(IT_text_box, r))
 			{
 				perror("atg_ebox_pack");
-				atg_free_element(row);
+				atg_free_element(r);
 				break;
 			}
-			atg_element *s_name=atg_create_element_label(t_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-			if(s_name)
+			x+=l;
+			if(bodytext[x]=='\n') x++;
+		}
+	}
+	atg_ebox_empty(IT_stat_box);
+	atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!shim)
+		fprintf(stderr, "atg_create_element_box failed\n");
+	shim->w=384;
+	shim->h=256-14*NUM_STATS;
+	if(atg_ebox_pack(IT_stat_box, shim))
+	{
+		perror("atg_ebox_pack");
+		atg_free_element(shim);
+	}
+	for(unsigned int i=0;i<NUM_STATS;i++)
+	{
+		atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+		if(!row)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			break;
+		}
+		if(atg_ebox_pack(IT_stat_box, row))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(row);
+			break;
+		}
+		atg_element *s_name=atg_create_element_label(t_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+		if(s_name)
+		{
+			s_name->w=100;
+			if(atg_ebox_pack(row, s_name))
 			{
-				s_name->w=100;
-				if(atg_ebox_pack(row, s_name))
+				perror("atg_ebox_pack");
+				atg_free_element(s_name);
+				break;
+			}
+		}
+		if(t_stat_rows[i].v_fn)
+		{
+			int val=t_stat_rows[i].v_fn(IT_i, state);
+			if(val<0)
+			{
+				atg_element *na=atg_create_element_label("n/a", 12, (atg_colour){95, 95, 95, ATG_ALPHA_OPAQUE});
+				if(na)
 				{
-					perror("atg_ebox_pack");
-					atg_free_element(s_name);
-					break;
+					na->w=100;
+					if(atg_ebox_pack(row, na))
+					{
+						perror("atg_ebox_pack");
+						atg_free_element(na);
+						break;
+					}
 				}
 			}
-			if(t_stat_rows[i].v_fn)
+			else
 			{
-				int val=t_stat_rows[i].v_fn(IT_i, state);
-				if(val<0)
+				SDL_Surface *bar=SDL_CreateRGBSurface(SDL_HWSURFACE, 102, 14, 24, 0xff0000, 0xff00, 0xff, 0);
+				if(!bar)
 				{
-					atg_element *na=atg_create_element_label("n/a", 12, (atg_colour){95, 95, 95, ATG_ALPHA_OPAQUE});
-					if(na)
-					{
-						na->w=100;
-						if(atg_ebox_pack(row, na))
-						{
-							perror("atg_ebox_pack");
-							atg_free_element(na);
-							break;
-						}
-					}
+					fprintf(stderr, "bar: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+					break;
+				}
+				SDL_FillRect(bar, &(SDL_Rect){0, 0, bar->w, bar->h}, SDL_MapRGB(bar->format, 191, 191, 191));
+				SDL_FillRect(bar, &(SDL_Rect){1, 1, bar->w-2, bar->h-2}, SDL_MapRGB(bar->format, 0, 0, 23));
+				int bar_x=(val-t_stat_rows[i].bar_min)*100.0/(t_stat_rows[i].bar_max-t_stat_rows[i].bar_min);
+				clamp(bar_x, 0, 100);
+				int dx=bar_x;
+				if(t_stat_rows[i].bar_rev)
+					dx=100-dx;
+				unsigned int r=255-(dx*2.55), g=dx*2.55;
+				SDL_FillRect(bar, &(SDL_Rect){1, 1, bar_x, bar->h-2}, SDL_MapRGB(bar->format, r, g, 0));
+				atg_element *s_bar=atg_create_element_image(bar);
+				SDL_FreeSurface(bar);
+				if(!s_bar)
+				{
+					break;
 				}
 				else
 				{
-					SDL_Surface *bar=SDL_CreateRGBSurface(SDL_HWSURFACE, 102, 14, 24, 0xff0000, 0xff00, 0xff, 0);
-					if(!bar)
+					if(atg_ebox_pack(row, s_bar))
 					{
-						fprintf(stderr, "bar: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+						perror("atg_ebox_pack");
+						atg_free_element(s_bar);
 						break;
-					}
-					SDL_FillRect(bar, &(SDL_Rect){0, 0, bar->w, bar->h}, SDL_MapRGB(bar->format, 191, 191, 191));
-					SDL_FillRect(bar, &(SDL_Rect){1, 1, bar->w-2, bar->h-2}, SDL_MapRGB(bar->format, 0, 0, 23));
-					int bar_x=(val-t_stat_rows[i].bar_min)*100.0/(t_stat_rows[i].bar_max-t_stat_rows[i].bar_min);
-					clamp(bar_x, 0, 100);
-					int dx=bar_x;
-					if(t_stat_rows[i].bar_rev)
-						dx=100-dx;
-					unsigned int r=255-(dx*2.55), g=dx*2.55;
-					SDL_FillRect(bar, &(SDL_Rect){1, 1, bar_x, bar->h-2}, SDL_MapRGB(bar->format, r, g, 0));
-					atg_element *s_bar=atg_create_element_image(bar);
-					SDL_FreeSurface(bar);
-					if(!s_bar)
-					{
-						break;
-					}
-					else
-					{
-						if(atg_ebox_pack(row, s_bar))
-						{
-							perror("atg_ebox_pack");
-							atg_free_element(s_bar);
-							break;
-						}
 					}
 				}
 			}
-			else if(t_stat_rows[i].t_fn)
+		}
+		else if(t_stat_rows[i].t_fn)
+		{
+			atg_element *text=atg_create_element_label(t_stat_rows[i].t_fn(IT_i), 12, (atg_colour){0, 0, 31, ATG_ALPHA_OPAQUE});
+			if(text)
 			{
-				atg_element *text=atg_create_element_label(t_stat_rows[i].t_fn(IT_i), 12, (atg_colour){0, 0, 31, ATG_ALPHA_OPAQUE});
-				if(text)
+				text->w=284;
+				if(atg_ebox_pack(row, text))
 				{
-					text->w=284;
-					if(atg_ebox_pack(row, text))
-					{
-						perror("atg_ebox_pack");
-						atg_free_element(text);
-						break;
-					}
+					perror("atg_ebox_pack");
+					atg_free_element(text);
+					break;
 				}
 			}
 		}
