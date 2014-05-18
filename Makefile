@@ -1,8 +1,15 @@
 # Makefile for harris
-PREFIX := /usr/local
+
+# Installation directories
+DESTDIR ?=
+PREFIX ?= /usr/local
+BINIDIR := $(DESTDIR)$(PREFIX)/games
+DATIDIR := $(DESTDIR)$(PREFIX)/share/games/harris
+# User directories (relative to $HOME)
+USAVDIR := .local/share/harris
 
 CC := gcc
-CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
+CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDIR=\"$(USAVDIR)\"
 
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
@@ -16,8 +23,17 @@ SDLFLAGS := `sdl-config --cflags`
 
 all: harris $(SAVES)
 
+install: all
+	install -d $(BINIDIR) $(DATIDIR)
+	install harris $(BINIDIR)/
+	./install.py -d $(DATIDIR)
+
+uninstall:
+	rm $(BINIDIR)/harris
+	rm -r $(DATIDIR)
+
 clean:
-	-rm harris $(OBJS) $(SAVES)
+	-rm harris harris.o $(OBJS) $(SAVES)
 
 realclean: clean
 	-rm events.h
