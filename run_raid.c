@@ -49,20 +49,16 @@ int run_raid_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *RB_time=atg_create_element_label("--:--", 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+	if(!(RB_time_label=malloc(6)))
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(RB_time_label, 6, "--:--");
+	atg_element *RB_time=atg_create_element_label_nocopy(RB_time_label, 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
 	if(!RB_time)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
-		return(1);
-	}
-	if(!RB_time->elemdata)
-	{
-		fprintf(stderr, "RB_time->elemdata==NULL\n");
-		return(1);
-	}
-	if(!(RB_time_label=((atg_label *)RB_time->elemdata)->text))
-	{
-		fprintf(stderr, "RB_time_label==NULL\n");
 		return(1);
 	}
 	RB_time->w=239;
@@ -1466,5 +1462,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 
 void run_raid_free(void)
 {
+	SDL_FreeSurface(RB_atime_image);
 	atg_free_element(run_raid_box);
 }
