@@ -165,15 +165,29 @@ void filter_switch_match_click_callback(struct atg_event_list *list, atg_element
 SDL_Surface *load_selector_render_callback(const struct atg_element *e);
 void load_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
 
+struct load_selector_userdata
+{
+	bombertype *type;
+	unsigned int *load;
+};
+
 atg_element *create_load_selector(bombertype *type, unsigned int *load)
 {
 	atg_element *rv=atg_create_element_image(NULL);
 	if(!rv) return(NULL);
 	rv->type="load_selector";
-	rv->elemdata=type;
 	rv->match_click_callback=load_selector_match_click_callback;
 	rv->render_callback=load_selector_render_callback;
-	rv->userdata=load;
+	struct load_selector_userdata *userdata=malloc(sizeof(struct load_selector_userdata));
+	if(!userdata)
+	{
+		perror("malloc");
+		atg_free_element(rv);
+		return(NULL);
+	}
+	userdata->type=type;
+	userdata->load=load;
+	rv->userdata=userdata;
 	return(rv);
 }
 
@@ -181,20 +195,20 @@ SDL_Surface *load_selector_render_callback(const struct atg_element *e)
 {
 	if(!e) return(NULL);
 	if(!e->userdata) return(NULL);
-	unsigned int *u=e->userdata;
-	if(*u>=NBOMBLOADS) return(NULL);
-	SDL_Surface *rv=bombloads[*u].pic;
+	struct load_selector_userdata *u=e->userdata;
+	if(*u->load>=NBOMBLOADS) return(NULL);
+	SDL_Surface *rv=bombloads[*u->load].pic;
 	if(rv) rv->refcount++;
 	return(rv);
 }
 
 void load_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, __attribute__((unused)) unsigned int xoff, __attribute__((unused)) unsigned int yoff)
 {
-	unsigned int *u=element->userdata;
+	struct load_selector_userdata *u=element->userdata;
 	if(!u) return;
-	bombertype *t=element->elemdata;
+	bombertype *t=u->type;
 	if(!t) return;
-	unsigned int old=*u;
+	unsigned int old=*u->load;
 	int limit=0;
 	switch(button.button)
 	{
@@ -203,20 +217,20 @@ void load_selector_match_click_callback(struct atg_event_list *list, atg_element
 			do
 			{
 				if(limit++>NBOMBLOADS) return;
-				*u=(*u+1)%NBOMBLOADS;
+				*u->load=(*u->load+1)%NBOMBLOADS;
 			}
-			while(!t->load[*u]);
+			while(!t->load[*u->load]);
 		break;
 		case ATG_MB_RIGHT:
 		case ATG_MB_SCROLLDN:
 			do
 			{
 				if(limit++>NBOMBLOADS) return;
-				*u=(*u+NBOMBLOADS-1)%NBOMBLOADS;
+				*u->load=(*u->load+NBOMBLOADS-1)%NBOMBLOADS;
 			}
-			while(!t->load[*u]);
+			while(!t->load[*u->load]);
 		break;
 	}
-	if(*u!=old)
-		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*u}});
+	if(*u->load!=old)
+		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*u->load}});
 }
