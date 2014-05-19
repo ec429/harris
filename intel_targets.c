@@ -192,6 +192,20 @@ int intel_targets_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		unsigned int class=targs[i].class;
+		if(class==TCLASS_INDUSTRY)
+			class+=targs[i].iclass;
+		atg_element *type=atg_create_element_image(ttype_icons[class]);
+		if(!type)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(IT_targs[i], type))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 		atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 		if(!shim)
 		{

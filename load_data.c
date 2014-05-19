@@ -17,6 +17,7 @@
 #include "date.h"
 #include "events.h"
 #include "render.h"
+#include "ui.h"
 #include "widgets.h"
 
 int load_bombers(void)
@@ -864,6 +865,86 @@ int load_images(void)
 			fprintf(stderr, "Bombload icon %s: IMG_Load: %s\n", bombloads[l].fn, IMG_GetError());
 			return(1);
 		}
+	}
+	if(!(ttype_icons[TCLASS_CITY]=IMG_Load("art/tclass/city.png")))
+	{
+		fprintf(stderr, "TClass City icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_SHIPPING]=IMG_Load("art/tclass/shipping.png")))
+	{
+		fprintf(stderr, "TClass Shipping icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_MINING]=IMG_Load("art/tclass/mining.png")))
+	{
+		fprintf(stderr, "TClass Mining icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_LEAFLET]=IMG_Load("art/tclass/leaflet.png")))
+	{
+		fprintf(stderr, "TClass Leaflet icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_AIRFIELD]=IMG_Load("art/tclass/airfield.png")))
+	{
+		fprintf(stderr, "TClass Airfield icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_BRIDGE]=IMG_Load("art/tclass/bridge.png")))
+	{
+		fprintf(stderr, "TClass Bridge icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_ROAD]=IMG_Load("art/tclass/road.png")))
+	{
+		fprintf(stderr, "TClass Road icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_BB]=IMG_Load("art/tclass/bb.png")))
+	{
+		fprintf(stderr, "IClass Ball-Bearings icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_OIL]=IMG_Load("art/tclass/oil.png")))
+	{
+		fprintf(stderr, "IClass Oil icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_RAIL]=IMG_Load("art/tclass/rail.png")))
+	{
+		fprintf(stderr, "IClass Rail icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_UBOOT]=IMG_Load("art/tclass/uboot.png")))
+	{
+		fprintf(stderr, "IClass U-boats icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_ARM]=IMG_Load("art/tclass/arm.png")))
+	{
+		fprintf(stderr, "IClass Armament icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_STEEL]=IMG_Load("art/tclass/steel.png")))
+	{
+		fprintf(stderr, "IClass Steel icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_AC]=IMG_Load("art/tclass/aircraft.png")))
+	{
+		fprintf(stderr, "IClass Aircraft icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_RADAR]=IMG_Load("art/tclass/radar.png")))
+	{
+		fprintf(stderr, "IClass Radar icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED]=IMG_Load("art/tclass/mixed.png")))
+	{
+		fprintf(stderr, "IClass Mixed icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
 	}
 	
 	grey_overlay=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);

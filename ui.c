@@ -13,6 +13,7 @@
 #include "date.h"
 
 screen_id intel_caller=SCRN_MAINMENU;
+SDL_Surface *ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED+1];
 
 void update_navbtn(game state, atg_element *(*GB_navbtn)[NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay)
 {

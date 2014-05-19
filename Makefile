@@ -70,7 +70,7 @@ render.o: bits.h globals.h events.h date.h
 
 ui.o: types.h globals.h events.h date.h
 
-load_data.o: globals.h events.h bits.h date.h render.h widgets.h
+load_data.o: globals.h events.h bits.h date.h render.h ui.h widgets.h
 
 main_menu.o: ui.h globals.h events.h saving.h
 
