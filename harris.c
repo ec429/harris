@@ -92,6 +92,7 @@ SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
 SDL_Surface *yellowhair=NULL;
 SDL_Surface *intelbtn=NULL;
+SDL_Surface *nointelbtn=NULL;
 SDL_Surface *navpic[NNAVAIDS];
 SDL_Surface *pffpic=NULL;
 SDL_Surface *resizebtn=NULL;

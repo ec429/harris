@@ -250,31 +250,16 @@ int control_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		atg_element *item;
-		if(targs[i].p_intel)
+		GB_btint[i]=atg_create_element_image(types[i].text?intelbtn:nointelbtn);
+		if(!GB_btint[i])
 		{
-			GB_btint[i]=atg_create_element_image(intelbtn);
-			if(!GB_btint[i])
-			{
-				fprintf(stderr, "atg_create_element_image failed\n");
-				return(1);
-			}
-			GB_btint[i]->clickable=true;
-			item=GB_btint[i];
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
 		}
-		else
-		{
-			GB_btint[i]=NULL;
-			item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
-			if(!item)
-			{
-				fprintf(stderr, "atg_create_element_box failed\n");
-				return(1);
-			}
-		}
-		item->w=10;
-		item->h=12;
-		if(atg_ebox_pack(nibox, item))
+		GB_btint[i]->clickable=true;
+		GB_btint[i]->w=10;
+		GB_btint[i]->h=12;
+		if(atg_ebox_pack(nibox, GB_btint[i]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -867,36 +852,21 @@ int control_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		atg_element *item;
-		if(targs[i].p_intel)
+		GB_ttint[i]=atg_create_element_image(targs[i].p_intel?intelbtn:nointelbtn);
+		if(!GB_ttint[i])
 		{
-			GB_ttint[i]=atg_create_element_image(intelbtn);
-			if(!GB_ttint[i])
-			{
-				fprintf(stderr, "atg_create_element_image failed\n");
-				return(1);
-			}
-			GB_ttint[i]->clickable=true;
-			item=GB_ttint[i];
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
 		}
-		else
-		{
-			GB_ttint[i]=NULL;
-			item=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
-			if(!item)
-			{
-				fprintf(stderr, "atg_create_element_box failed\n");
-				return(1);
-			}
-		}
-		item->w=8;
-		item->h=12;
-		if(atg_ebox_pack(GB_ttrow[i], item))
+		GB_ttint[i]->clickable=true;
+		GB_ttint[i]->w=8;
+		GB_ttint[i]->h=12;
+		if(atg_ebox_pack(GB_ttrow[i], GB_ttint[i]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		item=atg_create_element_label(targs[i].name, 10, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+		atg_element *item=atg_create_element_label(targs[i].name, 10, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
 		if(!item)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
@@ -1311,7 +1281,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									}
 								}
 							}
-							if((c.e==GB_btint[i])&&types[i].text)
+							if(c.e==GB_btint[i])
 							{
 								IB_i=i;
 								intel_caller=SCRN_CONTROL;

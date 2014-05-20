@@ -829,6 +829,11 @@ int load_images(void)
 		fprintf(stderr, "Intel icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(nointelbtn=IMG_Load("art/no-intel.png")))
+	{
+		fprintf(stderr, "Greyed-out Intel icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	if(!(resizebtn=IMG_Load("art/resize.png")))
 	{
 		fprintf(stderr, "Resize button: IMG_Load: %s\n", IMG_GetError());

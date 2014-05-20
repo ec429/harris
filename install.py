@@ -103,6 +103,7 @@ manifest = {
 				'fullscreen.png',
 				'intel.png',
 				'location.png',
+				'no-intel.png',
 				'resize.png',
 				'yellowhair.png',
 				]

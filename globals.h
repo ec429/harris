@@ -37,7 +37,7 @@ extern target *targs;
 extern unsigned int nflaks;
 extern flaksite *flaks;
 
-extern SDL_Surface *terrain, *location, *yellowhair, *intelbtn, *navpic[NNAVAIDS], *pffpic, *resizebtn, *fullbtn, *exitbtn;
+extern SDL_Surface *terrain, *location, *yellowhair, *nointelbtn, *intelbtn, *navpic[NNAVAIDS], *pffpic, *resizebtn, *fullbtn, *exitbtn;
 
 extern SDL_Surface *grey_overlay, *yellow_overlay;
 extern SDL_Surface *weather_overlay, *target_overlay, *flak_overlay, *xhair_overlay, *seltarg_overlay;
