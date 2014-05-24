@@ -69,7 +69,7 @@ manifest = {
 							#'bf109g-side.png',
 							#'fw190a-side.png',
 							'do17z-side.png',
-							#'bf110-side.png',
+							'bf110-side.png',
 							'ju88c-side.png',
 							#'do217j-side.png',
 							#'me262-side.png',
