@@ -58,7 +58,7 @@ manifest = {
 							'wellington-side.png',
 							'manchester-side.png',
 							'stirling-side.png',
-							#'halifax i-side.png',
+							'halifax i-side.png',
 							#'lancaster i-side.png',
 							#'mosquito-side.png',
 							#'halifax iii-side.png',
