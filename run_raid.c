@@ -255,18 +255,32 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						switch(state->bombers[k].pff?state->raids[i].pffloads[type]:state->raids[i].loads[type])
 						{
 							case BL_PLUMDUFF:
-								transfer(4000, cap, state->bombers[k].b_hc);
-								while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+								if(cap>=4000) // cookie + gp+in mix
 								{
-									if(inext)
-										transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
-									else
-										transfer(min(bulk, 500), cap, state->bombers[k].b_gp);
-									inext=!inext;
+									transfer(4000, cap, state->bombers[k].b_hc);
+									while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+									{
+										if(inext)
+											transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
+										else
+											transfer(min(bulk, 500), cap, state->bombers[k].b_gp);
+										inext=!inext;
+									}
+								}
+								else // can't take a cookie, so just gp+in mix (but more gp than BL_USUAL)
+								{
+									while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+									{
+										if(inext)
+											transfer(min(bulk/1.5, 300), cap, state->bombers[k].b_in);
+										else
+											transfer(min(bulk, 1000), cap, state->bombers[k].b_gp);
+										inext=!inext;
+									}
 								}
 							break;
 							case BL_USUAL:
-								if(types[type].load[BL_PLUMDUFF]&&types[type].cap>=10000) // cookie + incendiaries
+								if(types[type].load[BL_PLUMDUFF]&&types[type].cap>=10000&&cap>4000) // cookie + incendiaries
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
 									bulk=types[type].cap-loadbulk(state->bombers[k]);
