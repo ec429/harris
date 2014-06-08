@@ -66,7 +66,7 @@ manifest = {
 						]},
 					'fighters': {'.':[
 							'bf109e-side.png',
-							#'bf109g-side.png',
+							'bf109g-side.png',
 							'fw190a-side.png',
 							'do17z-side.png',
 							'bf110-side.png',
