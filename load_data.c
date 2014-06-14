@@ -85,19 +85,35 @@ int load_bombers(void)
 				this.broughton=strstr(nav, "BROUGHTON");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
-				char pn[12+nlen+4];
+				char pn[256];
 				strcpy(pn, "art/bombers/");
-				for(size_t p=0;p<nlen;p++) pn[12+p]=tolower(this.name[p]);
-				strcat(pn, ".png");
+				for(size_t p=0;p<nlen;p++)
+				{
+					if(12+p>=255)
+					{
+						pn[12+p]=0;
+						break;
+					}
+					pn[12+p]=tolower(this.name[p]);
+				}
+				strncat(pn, ".png", 256);
 				if(!(this.picture=IMG_Load(pn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
 					return(1);
 				}
-				char sn[18+nlen+9];
+				char sn[256];
 				strcpy(sn, "art/large/bombers/");
-				for(size_t p=0;p<nlen;p++) sn[18+p]=tolower(this.name[p]);
-				strcat(sn, "-side.png");
+				for(size_t p=0;p<nlen;p++)
+				{
+					if(18+p>=255)
+					{
+						pn[18+p]=0;
+						break;
+					}
+					sn[18+p]=tolower(this.name[p]);
+				}
+				strncat(sn, "-side.png", 256);
 				if(!(this.side_image=IMG_Load(sn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
