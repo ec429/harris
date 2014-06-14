@@ -117,7 +117,7 @@ int load_bombers(void)
 				if(!(this.side_image=IMG_Load(sn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
-					//return(1); // XXX ignoring for now
+					return(1);
 				}
 				this.prio=2;
 				this.pribuf=0;
