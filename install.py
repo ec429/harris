@@ -62,7 +62,7 @@ manifest = {
 							'lancaster i-side.png',
 							'mosquito-side.png',
 							'halifax iii-side.png',
-							#'lancaster x-side.png',
+							'lancaster x-side.png',
 						]},
 					'fighters': {'.':[
 							'bf109e-side.png',
