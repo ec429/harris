@@ -202,19 +202,35 @@ int load_fighters(void)
 					return(1);
 				}
 				this.text=this.newtext=NULL;
-				char pn[13+nlen+4];
+				char pn[256];
 				strcpy(pn, "art/fighters/");
-				for(size_t p=0;p<nlen;p++) pn[13+p]=tolower(this.name[p]);
-				strcat(pn, ".png");
+				for(size_t p=0;p<nlen;p++)
+				{
+					if(13+p>=255)
+					{
+						pn[13+p]=0;
+						break;
+					}
+					pn[13+p]=tolower(this.name[p]);
+				}
+				strncat(pn, ".png", 256);
 				if(!(this.picture=IMG_Load(pn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
 					return(1);
 				}
-				char sn[19+nlen+9];
+				char sn[256];
 				strcpy(sn, "art/large/fighters/");
-				for(size_t p=0;p<nlen;p++) sn[19+p]=tolower(this.name[p]);
-				strcat(sn, "-side.png");
+				for(size_t p=0;p<nlen;p++)
+				{
+					if(19+p>=255)
+					{
+						pn[19+p]=0;
+						break;
+					}
+					sn[19+p]=tolower(this.name[p]);
+				}
+				strncat(sn, "-side.png", 256);
 				if(!(this.side_image=IMG_Load(sn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
