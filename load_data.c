@@ -234,7 +234,7 @@ int load_fighters(void)
 				if(!(this.side_image=IMG_Load(sn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
-					//return(1); // XXX ignoring for now
+					return(1);
 				}
 				ftypes=realloc(ftypes, (nftypes+1)*sizeof(fightertype));
 				ftypes[nftypes]=this;
