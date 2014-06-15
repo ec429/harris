@@ -72,7 +72,7 @@ manifest = {
 							'bf110-side.png',
 							'ju88c-side.png',
 							'do217j-side.png',
-							#'me262-side.png',
+							'me262-side.png',
 						]},
 				},
 			'navaids': {'.':[
