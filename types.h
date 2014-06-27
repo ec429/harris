@@ -9,6 +9,7 @@
 */
 
 #include <atg.h>
+#include "dclass.h"
 
 #define NNAVAIDS	4
 #define MAXMSGS		8
@@ -257,6 +258,7 @@ raid;
 typedef struct
 {
 	date now;
+	unsigned int difficulty[1+DIFFICULTY_CLASSES]; // [0] is ignored
 	unsigned int cash, cshr;
 	double confid, morale;
 	unsigned int nbombers;

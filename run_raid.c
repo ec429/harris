@@ -104,7 +104,9 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	state->roe.idtar=datebefore(state->now, event[EVENT_CIV]);
 	double moonphase=pom(state->now);
 	double moonillum=foldpom(moonphase);
-	double flakscale=state->gprod[ICLASS_ARM]/250000.0;
+	double flakscale=state->gprod[ICLASS_ARM]/(GET_DC(state,FLAK)*10000.0);
+	unsigned int rcity=GET_DC(state,RCITY),
+	             rother=GET_DC(state,ROTHER);
 	unsigned int fightersleft;
 	totalraids=0;
 	fightersleft=state->nfighters;
@@ -573,7 +575,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 										hi_append(&state->hist, state->now, maketime(t), state->bombers[k].id, false, type, ta, he+state->bombers[k].b_in+state->bombers[k].b_ti);
 										state->flam[ta]=min(state->flam[ta]+state->bombers[k].b_hc/5000.0, 100); // HC (cookies) increase target flammability
-										double maybe_dmg=(he*1.2+state->bombers[k].b_in*(targs[ta].flammable?2.4:1.5)*state->flam[ta]/40.0)/(targs[ta].psiz*20000.0);
+										double maybe_dmg=(he*1.2+state->bombers[k].b_in*(targs[ta].flammable?2.4:1.5)*state->flam[ta]/40.0)/(targs[ta].psiz*rcity*1000.0);
 										double dmg=min(state->dmg[ta], maybe_dmg);
 										cidam+=dmg*(targs[ta].berlin?2.0:1.0);
 										state->dmg[ta]-=dmg;
@@ -1329,7 +1331,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								{
 									unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-									double dmg=min(he/12000.0, state->dmg[l]);
+									double dmg=min(he/(rother*600.0), state->dmg[l]);
 									cidam+=dmg*(targs[l].berlin?2.0:1.0);
 									state->dmg[l]-=dmg;
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
@@ -1351,7 +1353,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									{
 										unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 										hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-										double dmg=min(he/2000.0, state->dmg[l]);
+										double dmg=min(he/(rother*100.0), state->dmg[l]);
 										cidam+=dmg*(targs[l].berlin?2.0:1.0);
 										state->dmg[l]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
@@ -1373,7 +1375,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									{
 										unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 										hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-										if(brandp(log2(he/25.0)/200.0))
+										if(brandp(log2(he/(rother*1.25))/200.0))
 										{
 											cidam+=state->dmg[l];
 											bridge+=state->dmg[l];
@@ -1394,7 +1396,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, state->bombers[k].b_le);
-									double dmg=min(state->bombers[k].b_le/(targs[l].psiz*12000.0), state->dmg[l]);
+									double dmg=min(state->bombers[k].b_le/(targs[l].psiz*rother*600.0), state->dmg[l]);
 									state->dmg[l]-=dmg;
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
 									nij[l][type]++;
@@ -1413,7 +1415,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 									nij[l][type]++;
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-									if(brandp(log2(he/500.0)/8.0))
+									if(brandp(log2(he/(rother*25.0))/8.0))
 									{
 										tij[l][type]++;
 										tsh_append(&state->hist, state->now, maketime(state->bombers[k].bt), l);
@@ -1431,7 +1433,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							{
 								unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 								hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-								double dmg=min(he/400000.0, state->dmg[l]);
+								double dmg=min(he/(rother*20000.0), state->dmg[l]);
 								state->dmg[l]-=dmg;
 								tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
 								nij[l][type]++;

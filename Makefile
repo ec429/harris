@@ -14,7 +14,7 @@ CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g -DDATIDIR=\"$(DATIDIR)\
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
 SCREEN_OBJS := main_menu.o setup_game.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS)
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o $(SCREEN_OBJS)
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o $(SCREEN_OBJS)
 INCLUDES := $(OBJS:.o=.h) types.h globals.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
@@ -50,7 +50,7 @@ events.h: dat/events mkevents.py
 events.c: dat/events mkevents.py
 	./mkevents.py c >events.c
 
-widgets.o: widgets.c widgets.h bits.h types.h render.h
+widgets.o: widgets.c widgets.h bits.h render.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 save/%.sav: save/%.sav.in gensave.py
@@ -62,13 +62,13 @@ date.o: ui.h bits.h render.h
 
 routing.o: rand.h globals.h events.h date.h geom.h
 
-history.o: bits.h date.h types.h
+history.o: bits.h date.h
 
 saving.o: bits.h date.h globals.h events.h history.h rand.h version.h
 
 render.o: bits.h globals.h events.h date.h
 
-ui.o: types.h globals.h events.h date.h
+ui.o: globals.h events.h date.h
 
 load_data.o: globals.h events.h bits.h date.h render.h ui.h widgets.h
 
@@ -94,6 +94,6 @@ intel_fighters.o: ui.h globals.h events.h bits.h date.h
 
 intel_targets.o: ui.h globals.h events.h bits.h date.h render.h
 
-%.o: %.c %.h types.h
+%.o: %.c %.h types.h dclass.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
