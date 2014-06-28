@@ -25,7 +25,7 @@ int load_game_create(void)
 	load_game_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
 	if(!load_game_box)
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	LB_file=atg_create_element_filepicker("Load Game", NULL, (atg_colour){239, 239, 255, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
@@ -44,7 +44,7 @@ int load_game_create(void)
 	atg_element *LB_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){39, 39, 55, ATG_ALPHA_OPAQUE});
 	if(!LB_hbox)
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	else if(atg_ebox_pack(load_game_box, LB_hbox))

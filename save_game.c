@@ -25,7 +25,7 @@ int save_game_create(void)
 	save_game_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
 	if(!save_game_box)
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	SA_file=atg_create_element_filepicker("Save Game", NULL, (atg_colour){239, 239, 255, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE});
