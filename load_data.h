@@ -16,3 +16,4 @@ int load_events(void); // -> event
 int load_texts(void); // -> evtext, types.text, types.newtext, ftypes.text, ftypes.newtext
 int load_intel(void); // -> targs.p_intel
 int load_images(void); // many outputs
+int load_starts(void); // -> starts

@@ -121,6 +121,7 @@ int load_bombers(void)
 				}
 				this.prio=2;
 				this.pribuf=0;
+				this.pcbuf=0;
 				this.text=this.newtext=NULL;
 				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
 				types[ntypes]=this;
@@ -1000,5 +1001,76 @@ int load_images(void)
 	}
 	SDL_FillRect(yellow_overlay, &(SDL_Rect){.x=0, .y=0, .w=yellow_overlay->w, .h=yellow_overlay->h}, SDL_MapRGBA(yellow_overlay->format, 255, 255, 0, 63));
 	
+	return(0);
+}
+
+int load_starts(void)
+{
+	FILE *stfp=fopen("dat/starts", "r");
+	if(!stfp)
+	{
+		fprintf(stderr, "Failed to open data file `starts'!\n");
+		return(1);
+	}
+	else
+	{
+		char *line;
+		unsigned int n, state=0;
+		string description=null_string();
+		while((line=fgetl(stfp)))
+		{
+			if(*line!='#')
+			{
+				if(strncmp(line, "==", 2)==0)
+				{
+					if(state==4)
+					{
+						starts[n].description=description.buf;
+						description=null_string();
+					}
+					else if(state)
+					{
+						fprintf(stderr, "Malformed `starts' line `%s'\n", line);
+						fprintf(stderr, "  Unexpected ==start, state=%u\n", state);
+						return(1);
+					}
+					n=nstarts;
+					if(!(starts=realloc(starts, ++nstarts*sizeof(startpoint))))
+						return(1);
+					starts[n].filename=strdup(line+2);
+					starts[n].title=NULL;
+					starts[n].description=NULL;
+					state=1;
+				}
+				switch(state)
+				{
+					case 1:
+						state=2;
+					break;
+					case 2:
+						starts[n].title=strdup(line);
+						state=3;
+					break;
+					case 3:
+						state=4;
+						description=init_string();
+						if(!*line) continue;
+						/* fallthrough */
+					case 4:
+						append_str(&description, line);
+						append_char(&description, '\n');
+					break;
+				}
+			}
+			free(line);
+		}
+		if(state==4)
+		{
+			starts[n].description=description.buf;
+			description=null_string();
+		}
+		fclose(stfp);
+	}
+	fprintf(stderr, "Loaded %u startpoints\n", nstarts);
 	return(0);
 }

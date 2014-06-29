@@ -279,6 +279,14 @@ typedef struct
 }
 game;
 
+typedef struct
+{
+	char *filename;
+	char *title;
+	char *description;
+}
+startpoint;
+
 struct oboe
 {
 	signed int lat, lon;

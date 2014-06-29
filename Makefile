@@ -13,7 +13,7 @@ CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g -DDATIDIR=\"$(DATIDIR)\
 
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
-SCREEN_OBJS := main_menu.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS)
+SCREEN_OBJS := main_menu.o setup_game.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS)
 OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o $(SCREEN_OBJS)
 INCLUDES := $(OBJS:.o=.h) types.h globals.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
@@ -73,6 +73,8 @@ ui.o: types.h globals.h events.h date.h
 load_data.o: globals.h events.h bits.h date.h render.h ui.h widgets.h
 
 main_menu.o: ui.h globals.h events.h saving.h
+
+setup_game.o: ui.h globals.h events.h saving.h
 
 load_game.o: ui.h globals.h events.h saving.h
 

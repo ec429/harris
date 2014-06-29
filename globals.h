@@ -36,6 +36,8 @@ extern unsigned int ntargs;
 extern target *targs;
 extern unsigned int nflaks;
 extern flaksite *flaks;
+extern unsigned int nstarts;
+extern startpoint *starts;
 
 extern SDL_Surface *terrain, *location, *yellowhair, *nointelbtn, *intelbtn, *navpic[NNAVAIDS], *pffpic, *resizebtn, *fullbtn, *exitbtn;
 
@@ -47,3 +49,6 @@ extern unsigned char tnav[128][128];
 
 extern unsigned int mainsizex, mainsizey;
 extern bool fullscreen;
+
+extern bool localdat, localsav;
+extern char *cwd;

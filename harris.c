@@ -28,6 +28,7 @@
 #include "load_data.h"
 
 #include "main_menu.h"
+#include "setup_game.h"
 #include "load_game.h"
 #include "save_game.h"
 #include "control.h"
@@ -87,6 +88,8 @@ unsigned int ntargs=0;
 target *targs=NULL;
 unsigned int nflaks=0;
 flaksite *flaks=NULL;
+unsigned int nstarts=0;
+startpoint *starts=NULL;
 
 SDL_Surface *terrain=NULL;
 SDL_Surface *location=NULL;
@@ -108,11 +111,13 @@ unsigned char tnav[128][128]; // Recognisability of terrain.  High for rivers, e
 unsigned int mainsizex=default_w, mainsizey=default_h;
 bool fullscreen=false;
 
+bool localdat=false, localsav=false;
+char *cwd;
+
 game state;
 
 int main(int argc, char *argv[])
 {
-	bool localdat=false, localsav=false;
 	int rc;
 	
 	for(int arg=1;arg<argc;arg++)
@@ -136,7 +141,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	
-	char cwd_buf[1024], *cwd;
+	char cwd_buf[1024];
 	if(!(cwd=getcwd(cwd_buf, 1024)))
 	{
 		perror("getcwd");
@@ -209,6 +214,11 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Failed to load images, rc=%d\n", rc);
 		return(rc);
 	}
+	if((rc=load_starts()))
+	{
+		fprintf(stderr, "Failed to load startpoints, rc=%d\n", rc);
+		return(rc);
+	}
 	
 	fprintf(stderr, "Data files loaded\n");
 	
@@ -218,24 +228,24 @@ int main(int argc, char *argv[])
 	state.bombers=NULL;
 	state.fighters=NULL;
 	state.ntargs=ntargs;
-	if(!(state.dmg=malloc(ntargs*sizeof(*state.dmg))))
+	if(!(state.dmg=calloc(ntargs, sizeof(*state.dmg))))
 	{
-		perror("malloc");
+		perror("calloc");
 		return(1);
 	}
-	if(!(state.flk=malloc(ntargs*sizeof(*state.flk))))
+	if(!(state.flk=calloc(ntargs, sizeof(*state.flk))))
 	{
-		perror("malloc");
+		perror("calloc");
 		return(1);
 	}
-	if(!(state.heat=malloc(ntargs*sizeof(*state.heat))))
+	if(!(state.heat=calloc(ntargs, sizeof(*state.heat))))
 	{
-		perror("malloc");
+		perror("calloc");
 		return(1);
 	}
-	if(!(state.flam=malloc(ntargs*sizeof(*state.flam))))
+	if(!(state.flam=calloc(ntargs, sizeof(*state.flam))))
 	{
-		perror("malloc");
+		perror("calloc");
 		return(1);
 	}
 	if(!(state.raids=malloc(ntargs*sizeof(*state.raids))))
@@ -252,12 +262,12 @@ int main(int argc, char *argv[])
 	{
 		state.raids[i].nbombers=0;
 		state.raids[i].bombers=NULL;
-		if(!(state.raids[i].loads=malloc(ntypes*sizeof(bombload))))
+		if(!(state.raids[i].loads=calloc(ntypes, sizeof(bombload))))
 		{
 			perror("malloc");
 			return(1);
 		}
-		if(!(state.raids[i].pffloads=malloc(ntypes*sizeof(bombload))))
+		if(!(state.raids[i].pffloads=calloc(ntypes, sizeof(bombload))))
 		{
 			perror("malloc");
 			return(1);
@@ -410,6 +420,7 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "Instantiating GUI elements...\n");
 	#define MAKE_SCRN(t)	(struct screen){.name=#t, .create=t##_create, .func=t##_screen, .free=t##_free, .box=&t##_box}
 	screens[SCRN_MAINMENU]=MAKE_SCRN(main_menu);
+	screens[SCRN_SETPGAME]=MAKE_SCRN(setup_game);
 	screens[SCRN_LOADGAME]=MAKE_SCRN(load_game);
 	screens[SCRN_SAVEGAME]=MAKE_SCRN(save_game);
 	screens[SCRN_CONTROL] =MAKE_SCRN(control);

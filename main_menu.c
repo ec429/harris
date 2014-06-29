@@ -15,7 +15,7 @@
 #include "saving.h"
 
 atg_element *main_menu_box;
-atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_LoadGame;
+atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_NewGame, *MM_LoadGame;
 
 int main_menu_create(void)
 {
@@ -69,7 +69,7 @@ int main_menu_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *MM_NewGame=atg_create_element_button("Set Up New Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
+	MM_NewGame=atg_create_element_button("Set Up New Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
 	if(!MM_NewGame)
 	{
 		fprintf(stderr, "atg_create_element_button failed\n");
@@ -153,6 +153,10 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 						{
 							fprintf(stderr, "Failed to load Quick Start save file\n");
 						}
+					}
+					else if(trigger.e==MM_NewGame)
+					{
+						return(SCRN_SETPGAME);
 					}
 					else if(trigger.e==MM_LoadGame)
 					{
