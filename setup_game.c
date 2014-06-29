@@ -14,11 +14,16 @@
 #include "ui.h"
 #include "globals.h"
 #include "saving.h"
+#include "intel_bombers.h"
+#include "intel_fighters.h"
 
 atg_element *setup_game_box;
 atg_element *SG_full, *SG_exit, *SG_start;
-atg_element **SG_stitles, *SG_text_box;
+atg_element **SG_stitles, *SG_text_box, *SG_acbox;
+atg_element **SG_btrow, **SG_btint, **SG_ftrow, **SG_ftint;
+char **SG_btnum, **SG_ftnum;
 char *SG_datestring;
+int selstart=-1;
 
 #define SG_BG_COLOUR	(atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE}
 
@@ -146,6 +151,353 @@ int setup_game_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	SG_acbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, SG_BG_COLOUR);
+	if(!SG_acbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(setup_game_box, SG_acbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *bomberbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, SG_BG_COLOUR);
+	if(!bomberbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	bomberbox->w=360;
+	if(atg_ebox_pack(SG_acbox, bomberbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *bblabel=atg_create_element_label("RAF Front Line Bombers", 16, (atg_colour){159, 239, 159, ATG_ALPHA_OPAQUE});
+	if(!bblabel)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(bomberbox, bblabel))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(SG_btrow=malloc(ntypes*sizeof(atg_element *))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(SG_btint=malloc(ntypes*sizeof(atg_element *))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(SG_btnum=malloc(ntypes*sizeof(char *))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	for(unsigned int i=0;i<ntypes;i++)
+	{
+		if(!(SG_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, SG_BG_COLOUR)))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(bomberbox, SG_btrow[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[i].picture->format->BitsPerPixel, types[i].picture->format->Rmask, types[i].picture->format->Gmask, types[i].picture->format->Bmask, types[i].picture->format->Amask);
+		if(!pic)
+		{
+			fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+			return(1);
+		}
+		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
+		SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
+		atg_element *btpic=atg_create_element_image(pic);
+		SDL_FreeSurface(pic); // Drop the extra reference
+		if(!btpic)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		btpic->w=38;
+		btpic->h=42;
+		btpic->cache=true;
+		if(atg_ebox_pack(SG_btrow[i], btpic))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *rightbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+		if(!rightbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		rightbox->h=42;
+		if(atg_ebox_pack(SG_btrow[i], rightbox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *nibox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+		if(!nibox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(rightbox, nibox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(SG_btint[i]=atg_create_element_image(types[i].text?intelbtn:nointelbtn)))
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		SG_btint[i]->clickable=true;
+		SG_btint[i]->w=10;
+		SG_btint[i]->h=12;
+		if(atg_ebox_pack(nibox, SG_btint[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(types[i].manu&&types[i].name))
+		{
+			fprintf(stderr, "Missing manu or name in type %u\n", i);
+			return(1);
+		}
+		atg_element *manu=atg_create_element_label(types[i].manu, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+		if(!manu)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		manu->w=191;
+		manu->cache=true;
+		if(atg_ebox_pack(nibox, manu))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *countbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+		if(!countbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(rightbox, countbox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *name=atg_create_element_label(types[i].name, 14, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+		if(!name)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		name->w=144;
+		if(atg_ebox_pack(countbox, name))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(SG_btnum[i]=malloc(8)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		snprintf(SG_btnum[i], 8, "number");
+		atg_element *btnum=atg_create_element_label_nocopy(SG_btnum[i], 16, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+		if(!btnum)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(countbox, btnum))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	atg_element *fighterbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, SG_BG_COLOUR);
+	if(!fighterbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	fighterbox->w=360;
+	if(atg_ebox_pack(SG_acbox, fighterbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *fblabel=atg_create_element_label("Luftwaffe Front Line Fighters", 16, (atg_colour){239, 159, 159, ATG_ALPHA_OPAQUE});
+	if(!fblabel)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(fighterbox, fblabel))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(SG_ftrow=malloc(nftypes*sizeof(atg_element *))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(SG_ftint=malloc(nftypes*sizeof(atg_element *))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	if(!(SG_ftnum=malloc(ntypes*sizeof(char *))))
+	{
+		perror("malloc");
+		return(1);
+	}
+	for(unsigned int i=0;i<nftypes;i++)
+	{
+		if(!(SG_ftrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, SG_BG_COLOUR)))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(fighterbox, SG_ftrow[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, ftypes[i].picture->format->BitsPerPixel, ftypes[i].picture->format->Rmask, ftypes[i].picture->format->Gmask, ftypes[i].picture->format->Bmask, ftypes[i].picture->format->Amask);
+		if(!pic)
+		{
+			fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+			return(1);
+		}
+		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
+		SDL_BlitSurface(ftypes[i].picture, NULL, pic, &(SDL_Rect){(36-ftypes[i].picture->w)>>1, (40-ftypes[i].picture->h)>>1, 0, 0});
+		atg_element *ftpic=atg_create_element_image(pic);
+		SDL_FreeSurface(pic); // Drop the extra reference
+		if(!ftpic)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		ftpic->w=38;
+		ftpic->h=42;
+		ftpic->cache=true;
+		if(atg_ebox_pack(SG_ftrow[i], ftpic))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *rightbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+		if(!rightbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		rightbox->h=42;
+		if(atg_ebox_pack(SG_ftrow[i], rightbox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *nibox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+		if(!nibox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(rightbox, nibox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(SG_ftint[i]=atg_create_element_image(ftypes[i].text?intelbtn:nointelbtn)))
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		SG_ftint[i]->clickable=true;
+		SG_ftint[i]->w=10;
+		SG_ftint[i]->h=12;
+		if(atg_ebox_pack(nibox, SG_ftint[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(ftypes[i].manu&&ftypes[i].name))
+		{
+			fprintf(stderr, "Missing manu or name in ftype %u\n", i);
+			return(1);
+		}
+		atg_element *manu=atg_create_element_label(ftypes[i].manu, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+		if(!manu)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		manu->w=191;
+		manu->cache=true;
+		if(atg_ebox_pack(nibox, manu))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *countbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+		if(!countbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(rightbox, countbox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *name=atg_create_element_label(ftypes[i].name, 14, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+		if(!name)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		name->w=144;
+		if(atg_ebox_pack(countbox, name))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(SG_ftnum[i]=malloc(8)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		snprintf(SG_ftnum[i], 8, "number");
+		atg_element *ftnum=atg_create_element_label_nocopy(SG_ftnum[i], 16, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+		if(!ftnum)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(countbox, ftnum))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
 	atg_element *text_guard=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
 	if(!text_guard)
 	{
@@ -198,8 +550,7 @@ int setup_game_create(void)
 screen_id setup_game_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
-	int selstart=-1, i;
-	(void)state;
+	int i;
 	if(chdir(localdat?cwd:DATIDIR))
 	{
 		perror("Failed to enter data dir: chdir");
@@ -208,6 +559,7 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 	
 	while(1)
 	{
+		SG_acbox->hidden=(selstart<0);
 		for(i=0;i<(int)nstarts;i++)
 		{
 			atg_box *tb=SG_stitles[i]->elemdata;
@@ -245,6 +597,26 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 				}
 				x+=l;
 				if(bodytext[x]=='\n') x++;
+			}
+			for(unsigned int i=0;i<ntypes;i++)
+			{
+				unsigned int count=0;
+				for(unsigned int j=0;j<state->nbombers;j++)
+					if(state->bombers[j].type==i) count++;
+				if(SG_btnum[i])
+					snprintf(SG_btnum[i], 8, "%u", count);
+				if(SG_btrow[i])
+					SG_btrow[i]->hidden=!count;
+			}
+			for(unsigned int i=0;i<nftypes;i++)
+			{
+				unsigned int count=0;
+				for(unsigned int j=0;j<state->nfighters;j++)
+					if(state->fighters[j].type==i) count++;
+				if(SG_ftnum[i])
+					snprintf(SG_ftnum[i], 8, "%u", count);
+				if(SG_ftrow[i])
+					SG_ftrow[i]->hidden=!count;
 			}
 		}
 		else
@@ -292,7 +664,30 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 						return(SCRN_MAINMENU);
 					else if(c.e)
 					{
-						fprintf(stderr, "Clicked on unknown clickable!\n");
+						unsigned int j;
+						for(j=0;j<ntypes;j++)
+							if(c.e==SG_btint[j]) break;
+						if(j<ntypes)
+						{
+							IB_i=j;
+							intel_caller=SCRN_SETPGAME;
+							return(SCRN_INTELBMB);
+						}
+						else
+						{
+							for(j=0;j<nftypes;j++)
+								if(c.e==SG_ftint[j]) break;
+							if(j<nftypes)
+							{
+								IF_i=j;
+								intel_caller=SCRN_SETPGAME;
+								return(SCRN_INTELFTR);
+							}
+							else
+							{
+								fprintf(stderr, "Clicked on unknown clickable!\n");
+							}
+						}
 					}
 				break;
 				case ATG_EV_TRIGGER:;
