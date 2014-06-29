@@ -15,7 +15,6 @@
 #include "globals.h"
 #include "history.h"
 #include "rand.h"
-#include "weather.h"
 #include "version.h"
 
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]) // true iff v1 newer than v2
@@ -28,7 +27,7 @@ bool version_newer(const unsigned char v1[3], const unsigned char v2[3]) // true
 	return(false);
 }
 
-int loadgame(const char *fn, game *state, bool lorw[128][128])
+int loadgame(const char *fn, game *state)
 {
 	FILE *fs = fopen(fn, "r");
 	if(!fs)
@@ -40,6 +39,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 	unsigned char s_version[3]={0,0,0};
 	unsigned char version[3]={VER_MAJ,VER_MIN,VER_REV};
 	bool warned_pff=false, warned_acid=false;
+	state->weather.seed=0;
 	while(!feof(fs))
 	{
 		char *line=fgetl(fs);
@@ -469,6 +469,7 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 		}
 		else if(strcmp(tag, "Weather state")==0)
 		{
+			state->weather.seed=0;
 			f=sscanf(dat, "%la,%la\n", &state->weather.push, &state->weather.slant);
 			if(f!=2)
 			{
@@ -520,8 +521,13 @@ int loadgame(const char *fn, game *state, bool lorw[128][128])
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 				e|=1;
 			}
-			srand(seed);
-			w_init(&state->weather, 256, lorw);
+			else if(!seed)
+			{
+				fprintf(stderr, "32 Invalid seed %u to tag \"%s\"\n", seed, tag);
+				e|=32;
+			}
+			else
+				state->weather.seed=seed;
 		}
 		else if(strcmp(tag, "Messages")==0)
 		{

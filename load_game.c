@@ -190,7 +190,7 @@ screen_id load_game_screen(atg_canvas *canvas, game *state)
 							char *file=malloc(strlen(lbf->curdir)+strlen(lbf->value)+1);
 							sprintf(file, "%s%s", lbf->curdir, lbf->value);
 							fprintf(stderr, "Loading game state from '%s'...\n", file);
-							int rc=loadgame(file, state, lorw);
+							int rc=loadgame(file, state);
 							free(file);
 							if(!rc)
 							{

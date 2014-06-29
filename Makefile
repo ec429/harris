@@ -64,7 +64,7 @@ routing.o: rand.h globals.h events.h date.h geom.h
 
 history.o: bits.h date.h types.h
 
-saving.o: bits.h date.h globals.h events.h history.h rand.h weather.h version.h
+saving.o: bits.h date.h globals.h events.h history.h rand.h version.h
 
 render.o: bits.h globals.h events.h date.h
 
@@ -80,7 +80,7 @@ load_game.o: ui.h globals.h events.h saving.h
 
 save_game.o: ui.h globals.h events.h saving.h
 
-control.o: ui.h globals.h events.h widgets.h date.h bits.h render.h intel_bombers.h intel_targets.h
+control.o: ui.h globals.h events.h widgets.h date.h bits.h render.h weather.h intel_bombers.h intel_targets.h
 
 run_raid.o: ui.h globals.h events.h date.h history.h render.h rand.h routing.h weather.h geom.h
 

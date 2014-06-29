@@ -9,5 +9,5 @@
 
 #include "types.h"
 
-int loadgame(const char *fn, game *state, bool lorw[128][128]);
+int loadgame(const char *fn, game *state);
 int savegame(const char *fn, game state);

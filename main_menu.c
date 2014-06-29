@@ -144,7 +144,7 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 					else if(trigger.e==MM_QuickStart)
 					{
 						fprintf(stderr, "Loading game state from Quick Start file...\n");
-						if(!loadgame("save/qstart.sav", state, lorw))
+						if(!loadgame("save/qstart.sav", state))
 						{
 							fprintf(stderr, "Quick Start Game loaded\n");
 							return(SCRN_CONTROL);

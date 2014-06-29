@@ -59,6 +59,7 @@ intel;
 
 typedef struct
 {
+	unsigned int seed; // if nonzero, we need to randgen
 	double push, slant;
 	double p[256][128];
 	double t[256][128];

@@ -18,6 +18,7 @@
 #include "date.h"
 #include "bits.h"
 #include "render.h"
+#include "weather.h"
 #include "intel_bombers.h"
 #include "intel_targets.h"
 
@@ -922,6 +923,13 @@ int control_create(void)
 screen_id control_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
+	
+	if(state->weather.seed)
+	{
+		srand(state->weather.seed);
+		w_init(&state->weather, 256, lorw);
+		state->weather.seed=0;
+	}
 	
 	snprintf(GB_datestring, 11, "%02u-%02u-%04u", state->now.day, state->now.month, state->now.year);
 	snprintf(GB_budget_label, 32, "Budget: £%u/day", state->cshr);

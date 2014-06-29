@@ -277,7 +277,7 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 					{
 						selstart=i;
 						fprintf(stderr, "Loading game state from '%s'...\n", starts[i].filename);
-						if(loadgame(starts[i].filename, state, lorw))
+						if(loadgame(starts[i].filename, state))
 						{
 							fprintf(stderr, "Failed to load from start file\n");
 							selstart=-1;
