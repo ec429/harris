@@ -923,7 +923,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
 	
-	snprintf(GB_datestring, 11, "%02u-%02u-%04u\n", state->now.day, state->now.month, state->now.year);
+	snprintf(GB_datestring, 11, "%02u-%02u-%04u", state->now.day, state->now.month, state->now.year);
 	snprintf(GB_budget_label, 32, "Budget: £%u/day", state->cshr);
 	snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state->confid+0.5));
 	snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state->morale+0.5));
