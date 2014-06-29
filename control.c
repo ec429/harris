@@ -27,11 +27,11 @@ extern game state;
 atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map, *GB_filters;
-atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btnum, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
+atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
-char **GB_raidnum;
+char **GB_btnum, **GB_raidnum;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 SDL_Surface *GB_moonimg;
 int filter_nav[NNAVAIDS], filter_pff=0;
@@ -164,7 +164,7 @@ int control_create(void)
 		perror("calloc");
 		return(1);
 	}
-	if(!(GB_btnum=calloc(ntypes, sizeof(atg_element *))))
+	if(!(GB_btnum=calloc(ntypes, sizeof(char *))))
 	{
 		perror("calloc");
 		return(1);
@@ -298,12 +298,18 @@ int control_create(void)
 			fprintf(stderr, "Missing manu or name in type %u\n", i);
 			return(1);
 		}
-		if(!(GB_btnum[i]=atg_create_element_label("svble/total", 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE})))
+		if(!(GB_btnum[i]=malloc(12)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		atg_element *btnum=atg_create_element_label_nocopy(GB_btnum[i], 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE});
+		if(!btnum)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
-		if(atg_ebox_pack(vbox, GB_btnum[i]))
+		if(atg_ebox_pack(vbox, btnum))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -962,7 +968,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			GB_btnew[i]->hidden=!datebefore(state->now, types[i].novelty);
 		if(GB_btp[i])
 			GB_btp[i]->hidden=(types[i].pribuf<8)||(state->cash<types[i].cost)||(types[i].pcbuf>=types[i].cost);
-		if(GB_btnum[i]&&GB_btnum[i]->elemdata&&((atg_label *)GB_btnum[i]->elemdata)->text)
+		if(GB_btnum[i])
 		{
 			unsigned int svble=0,total=0;
 			types[i].count=0;
@@ -977,7 +983,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						if(state->bombers[j].nav[n]) types[i].navcount[n]++;
 				}
-			snprintf(((atg_label *)GB_btnum[i]->elemdata)->text, 12, "%u/%u", svble, total);
+			snprintf(GB_btnum[i], 12, "%u/%u", svble, total);
 		}
 		GB_navrow[i]->hidden=!shownav;
 		for(unsigned int n=0;n<NNAVAIDS;n++)
