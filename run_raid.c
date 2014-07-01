@@ -107,6 +107,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	double flakscale=state->gprod[ICLASS_ARM]/(GET_DC(state,FLAK)*10000.0);
 	unsigned int rcity=GET_DC(state,RCITY),
 	             rother=GET_DC(state,ROTHER);
+	double d_fsr=GET_DC(state,FSR)/10.0;
 	unsigned int fightersleft;
 	totalraids=0;
 	fightersleft=state->nfighters;
@@ -725,7 +726,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						unsigned int x=state->fighters[j].lon/2, y=state->fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
 						bool heavy=types[state->bombers[k].type].heavy;
-						double seerange=airad?(heavy?1.9:1.2):((heavy?5.0:2.1)*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+						double seerange=(airad?(heavy?1.9:1.2):((heavy?5.0:2.1)*(moonillum+.3)/(double)(8+max(4-wea, 0))))*d_fsr;
 						if(xyr(state->bombers[k].lon-state->fighters[j].lon, state->bombers[k].lat-state->fighters[j].lat, seerange))
 						{
 							double findp=airad?0.7:0.8/(double)(8+max(4-wea, 0));
