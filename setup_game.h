@@ -10,3 +10,4 @@
 #include <atg.h>
 
 extern atg_element *setup_game_box;
+extern int selstart;

@@ -23,7 +23,7 @@ atg_element **SG_stitles, *SG_text_box, *SG_acbox;
 atg_element **SG_btrow, **SG_btint, **SG_ftrow, **SG_ftint;
 char **SG_btnum, **SG_ftnum;
 char *SG_datestring;
-int selstart=-1;
+int selstart;
 
 #define SG_BG_COLOUR	(atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE}
 

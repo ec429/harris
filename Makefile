@@ -72,7 +72,7 @@ ui.o: types.h globals.h events.h date.h
 
 load_data.o: globals.h events.h bits.h date.h render.h ui.h widgets.h
 
-main_menu.o: ui.h globals.h events.h saving.h
+main_menu.o: ui.h globals.h events.h saving.h setup_game.h
 
 setup_game.o: ui.h globals.h events.h saving.h intel_bombers.h intel_fighters.h
 

@@ -13,6 +13,7 @@
 #include "ui.h"
 #include "globals.h"
 #include "saving.h"
+#include "setup_game.h"
 
 atg_element *main_menu_box;
 atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_NewGame, *MM_LoadGame;
@@ -156,6 +157,7 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 					}
 					else if(trigger.e==MM_NewGame)
 					{
+						selstart=-1;
 						return(SCRN_SETPGAME);
 					}
 					else if(trigger.e==MM_LoadGame)
