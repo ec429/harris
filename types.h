@@ -258,7 +258,7 @@ raid;
 typedef struct
 {
 	date now;
-	unsigned int difficulty[1+DIFFICULTY_CLASSES]; // [0] is ignored
+	unsigned int difficulty[DIFFICULTY_CLASSES]; // [0] is ignored
 	unsigned int cash, cshr;
 	double confid, morale;
 	unsigned int nbombers;

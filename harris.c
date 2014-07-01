@@ -29,6 +29,7 @@
 
 #include "main_menu.h"
 #include "setup_game.h"
+#include "setup_difficulty.h"
 #include "load_game.h"
 #include "save_game.h"
 #include "control.h"
@@ -421,6 +422,7 @@ int main(int argc, char *argv[])
 	#define MAKE_SCRN(t)	(struct screen){.name=#t, .create=t##_create, .func=t##_screen, .free=t##_free, .box=&t##_box}
 	screens[SCRN_MAINMENU]=MAKE_SCRN(main_menu);
 	screens[SCRN_SETPGAME]=MAKE_SCRN(setup_game);
+	screens[SCRN_SETPDIFF]=MAKE_SCRN(setup_difficulty);
 	screens[SCRN_LOADGAME]=MAKE_SCRN(load_game);
 	screens[SCRN_SAVEGAME]=MAKE_SCRN(save_game);
 	screens[SCRN_CONTROL] =MAKE_SCRN(control);

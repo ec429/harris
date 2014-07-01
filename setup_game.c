@@ -18,7 +18,7 @@
 #include "intel_fighters.h"
 
 atg_element *setup_game_box;
-atg_element *SG_full, *SG_exit, *SG_start;
+atg_element *SG_full, *SG_exit, *SG_cont;
 atg_element **SG_stitles, *SG_text_box, *SG_acbox;
 atg_element **SG_btrow, **SG_btint, **SG_ftrow, **SG_ftint;
 char **SG_btnum, **SG_ftnum;
@@ -534,12 +534,12 @@ int setup_game_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	if(!(SG_start=atg_create_element_button("Start Game!", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE})))
+	if(!(SG_cont=atg_create_element_button("Continue", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE})))
 	{
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_ebox_pack(setup_game_box, SG_start))
+	if(atg_ebox_pack(setup_game_box, SG_cont))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -692,9 +692,9 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 				break;
 				case ATG_EV_TRIGGER:;
 					atg_ev_trigger trigger=e.event.trigger;
-					if(trigger.e==SG_start)
+					if(trigger.e==SG_cont)
 					{
-						return(SCRN_CONTROL);
+						return(SCRN_SETPDIFF);
 					}
 					else if(!trigger.e)
 					{

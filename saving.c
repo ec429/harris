@@ -40,7 +40,7 @@ int loadgame(const char *fn, game *state)
 	unsigned char version[3]={VER_MAJ,VER_MIN,VER_REV};
 	bool warned_pff=false, warned_acid=false;
 	state->weather.seed=0;
-	for(unsigned int i=0;i<=DIFFICULTY_CLASSES;i++) // default everything to medium
+	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++) // default everything to medium
 		state->difficulty[i]=1;
 	while(!feof(fs))
 	{
@@ -87,7 +87,7 @@ int loadgame(const char *fn, game *state)
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 				e|=1;
 			}
-			else if(class>DIFFICULTY_CLASSES)
+			else if(class>=DIFFICULTY_CLASSES)
 			{
 				fprintf(stderr, "32 Invalid value %u for class in tag \"%s\"\n", class, tag);
 				e|=32;
@@ -99,7 +99,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(!class)
 			{
-				for(unsigned int i=0;i<=DIFFICULTY_CLASSES;i++)
+				for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++)
 					state->difficulty[i]=level;
 			}
 			else
@@ -661,7 +661,7 @@ int savegame(const char *fn, game state)
 	char p_id[9];
 	fprintf(fs, "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV);
 	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
-	for(unsigned int i=0;i<=DIFFICULTY_CLASSES;i++)
+	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++)
 		fprintf(fs, "Difficulty:%u,%u\n", i, state.difficulty[i]);
 	fprintf(fs, "Confid:%la\n", state.confid);
 	fprintf(fs, "Morale:%la\n", state.morale);
