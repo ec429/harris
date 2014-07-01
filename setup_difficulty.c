@@ -109,23 +109,20 @@ int setup_difficulty_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *head_level=atg_create_element_label("Difficulty setting", 12, (atg_colour){247, 247, 247, ATG_ALPHA_OPAQUE});
+	if(!head_level)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	head_level->w=48*3;
+	if(atg_ebox_pack(SD_headrow, head_level))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	char *level_names[3]={"Easy", "Medium", "Hard"};
 	atg_colour level_colours[3]={{127, 247, 127, ATG_ALPHA_OPAQUE}, {223, 223, 127, ATG_ALPHA_OPAQUE}, {247, 127, 127, ATG_ALPHA_OPAQUE}};
-	for(unsigned int i=0;i<3;i++)
-	{
-		atg_element *head_level=atg_create_element_label(level_names[i], 12, level_colours[i]);
-		if(!head_level)
-		{
-			fprintf(stderr, "atg_create_element_label failed\n");
-			return(1);
-		}
-		head_level->w=48;
-		if(atg_ebox_pack(SD_headrow, head_level))
-		{
-			perror("atg_ebox_pack");
-			return(1);
-		}
-	}
 	for(unsigned int d=0;d<DIFFICULTY_CLASSES;d++)
 	{
 		atg_element *SD_row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, SD_BG_COLOUR);
