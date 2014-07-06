@@ -37,10 +37,10 @@ Mittelland Canal:     12: 8: 7: 98:174:17-01-1941:30-11-1941:SHIPPING
 #  near Münster
 Dortmund-Ems Canal:   10: 6:12:112:150:12-02-1941:14-02-1942:SHIPPING
 #  Battle of the Barges
-Ostende Barges:       14:32:18:127: 86:04-07-1940:31-10-1940:SHIPPING
-Calais Barges:        13:40:18:132: 73:04-07-1940:31-10-1940:SHIPPING
-Dunkerque Barges:     15:36:18:130: 79:04-07-1940:31-10-1940:SHIPPING
-Boulogne Barges:      14:30:18:136: 70:04-07-1940:31-10-1940:SHIPPING
+Ostende Barges:       14:32:24:127: 86:04-07-1940:31-10-1940:SHIPPING
+Calais Barges:        13:40:28:132: 73:04-07-1940:31-10-1940:SHIPPING
+Dunkerque Barges:     15:36:25:130: 79:04-07-1940:31-10-1940:SHIPPING
+Boulogne Barges:      14:30:27:136: 70:04-07-1940:31-10-1940:SHIPPING
 
 # Cities
 # TODO: end-dates from dates of liberation in 44/45
