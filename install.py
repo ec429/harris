@@ -101,6 +101,7 @@ manifest = {
 				]},
 			'.':['exit.png',
 				'fullscreen.png',
+				'icon.bmp',
 				'intel.png',
 				'location.png',
 				'no-intel.png',

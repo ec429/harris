@@ -149,17 +149,7 @@ int main(int argc, char *argv[])
 		return(1);
 	}
 	
-	atg_canvas *canvas=atg_create_canvas_with_opts(1, 1, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
-	if(!canvas)
-	{
-		fprintf(stderr, "atg_create_canvas failed\n");
-		return(1);
-	}
-	SDL_WM_SetCaption("Harris", "Harris");
-	SDL_EnableUNICODE(1);
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-	
-	srand(0);
+	SDL_Init(SDL_INIT_VIDEO);
 	
 	// Load data files
 	fprintf(stderr, "Loading data files...\n");
@@ -169,7 +159,12 @@ int main(int argc, char *argv[])
 		perror("Failed to enter data dir: chdir");
 		return(1);
 	}
-	
+
+	// Set icon - must come before SDL_image usage and SDL_SetVideoMode
+	SDL_Surface *icon=SDL_LoadBMP("art/icon.bmp");
+	if(icon)
+		SDL_WM_SetIcon(icon, NULL);
+
 	if((rc=load_bombers()))
 	{
 		fprintf(stderr, "Failed to load bombers, rc=%d\n", rc);
@@ -367,7 +362,8 @@ int main(int argc, char *argv[])
 		perror("calloc");
 		return(1);
 	}
-	
+
+	srand(0);
 	fprintf(stderr, "Game state allocated\n");
 	
 	if(localsav)
@@ -419,6 +415,16 @@ int main(int argc, char *argv[])
 	}
 	
 	fprintf(stderr, "Instantiating GUI elements...\n");
+		atg_canvas *canvas=atg_create_canvas_with_opts(1, 1, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
+	if(!canvas)
+	{
+		fprintf(stderr, "atg_create_canvas failed\n");
+		return(1);
+	}
+	SDL_WM_SetCaption("Harris", "Harris");
+	SDL_EnableUNICODE(1);
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
 	#define MAKE_SCRN(t)	(struct screen){.name=#t, .create=t##_create, .func=t##_screen, .free=t##_free, .box=&t##_box}
 	screens[SCRN_MAINMENU]=MAKE_SCRN(main_menu);
 	screens[SCRN_SETPGAME]=MAKE_SCRN(setup_game);
