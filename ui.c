@@ -11,6 +11,9 @@
 
 #include "globals.h"
 #include "date.h"
+#ifdef WINDOWS
+#include "bits.h" /* for strndup */
+#endif
 
 screen_id intel_caller=SCRN_MAINMENU;
 SDL_Surface *ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED+1];

@@ -112,8 +112,10 @@ unsigned char tnav[128][128]; // Recognisability of terrain.  High for rivers, e
 unsigned int mainsizex=default_w, mainsizey=default_h;
 bool fullscreen=false;
 
+#ifndef WINDOWS
 bool localdat=false, localsav=false;
 char *cwd;
+#endif
 
 game state;
 
@@ -123,6 +125,7 @@ int main(int argc, char *argv[])
 	
 	for(int arg=1;arg<argc;arg++)
 	{
+#ifndef WINDOWS
 		if(strcmp(argv[arg], "--localdat")==0)
 		{
 			localdat=true;
@@ -136,29 +139,34 @@ int main(int argc, char *argv[])
 			localdat=localsav=true;
 		}
 		else
+#endif
 		{
 			fprintf(stderr, "Unrecognised argument '%s'\n", argv[arg]);
 			return(2);
 		}
 	}
 	
+#ifndef WINDOWS
 	char cwd_buf[1024];
 	if(!(cwd=getcwd(cwd_buf, 1024)))
 	{
 		perror("getcwd");
 		return(1);
 	}
+#endif
 	
 	SDL_Init(SDL_INIT_VIDEO);
 	
 	// Load data files
 	fprintf(stderr, "Loading data files...\n");
 	
+#ifndef WINDOWS
 	if(chdir(localdat?cwd:DATIDIR))
 	{
 		perror("Failed to enter data dir: chdir");
 		return(1);
 	}
+#endif
 
 	// Set icon - must come before SDL_image usage and SDL_SetVideoMode
 	SDL_Surface *icon=SDL_LoadBMP("art/icon.bmp");
@@ -366,6 +374,7 @@ int main(int argc, char *argv[])
 	srand(0);
 	fprintf(stderr, "Game state allocated\n");
 	
+#ifndef WINDOWS
 	if(localsav)
 	{
 		if(chdir(cwd))
@@ -413,6 +422,7 @@ int main(int argc, char *argv[])
 			return(1);
 		}
 	}
+#endif
 	
 	fprintf(stderr, "Instantiating GUI elements...\n");
 		atg_canvas *canvas=atg_create_canvas_with_opts(1, 1, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
@@ -451,11 +461,13 @@ int main(int argc, char *argv[])
 	}
 	fprintf(stderr, "Instantiated %d screens\n", NUM_SCREENS);
 	
+#ifndef WINDOWS
 	if(chdir(localdat?cwd:DATIDIR)) // may need to load from $DATIDIR/save/
 	{
 		perror("Failed to enter data dir: chdir");
 		return(1);
 	}
+#endif
 	
 	screen_id current=SCRN_MAINMENU, old;
 	

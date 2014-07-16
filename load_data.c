@@ -20,6 +20,13 @@
 #include "ui.h"
 #include "widgets.h"
 
+#ifdef WINDOWS /* I hate having to put in these ugly warts */
+#define ssize_t	int
+#define zn	"%n"
+#else
+#define zn	"%zn"
+#endif
+
 int load_bombers(void)
 {
 	FILE *typefp=fopen("dat/bombers", "r");
@@ -43,7 +50,7 @@ int load_bombers(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.alt, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=13)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.cost, &this.speed, &this.alt, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=13)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -166,7 +173,7 @@ int load_fighters(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%hhu:%zn", this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &this.radpri, &db))!=7)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%hhu:"zn, this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &this.radpri, &db))!=7)
 				{
 					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -270,7 +277,7 @@ int load_ftrbases(void)
 				// LAT:LONG:ENTRY:EXIT
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%u:%u:%zn", &this.lat, &this.lon, &db))!=2)
+				if((e=sscanf(next, "%u:%u:"zn, &this.lat, &this.lon, &db))!=2)
 				{
 					fprintf(stderr, "Malformed `ftrbases' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -321,7 +328,7 @@ int load_targets(void)
 				this.p_intel=NULL;
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%u:%u:%u:%u:%u:%zn", this.name, &this.prod, &this.flak, &this.esiz, &this.lat, &this.lon, &db))!=6)
+				if((e=sscanf(next, "%[^:]:%u:%u:%u:%u:%u:"zn, this.name, &this.prod, &this.flak, &this.esiz, &this.lat, &this.lon, &db))!=6)
 				{
 					fprintf(stderr, "Malformed `targets' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -580,7 +587,7 @@ int load_flaksites(void)
 				// STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%u:%u:%u:%zn", &this.strength, &this.lat, &this.lon, &db))!=3)
+				if((e=sscanf(next, "%u:%u:%u:"zn, &this.strength, &this.lat, &this.lon, &db))!=3)
 				{
 					fprintf(stderr, "Malformed `flak' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);

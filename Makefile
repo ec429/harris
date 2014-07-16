@@ -51,7 +51,6 @@ events.c: dat/events mkevents.py
 	./mkevents.py c >events.c
 
 widgets.o: widgets.c widgets.h bits.h render.h
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 save/%.sav: save/%.sav.in gensave.py
 	./gensave.py --salt $< <$< >$@
@@ -103,3 +102,9 @@ static: all
 	mkdir static
 	cp -r art dat lib map save stats *.o static/
 	make -C static -f lib/Makefile -B harris
+
+windows: all
+	mkdir windows
+	cp -r art dat map save stats *.c *.h *.o *.py windows/
+	cp lib-w/* windows/
+	make -C windows -f Makefile.w32 -B

@@ -16,6 +16,9 @@
 #include "saving.h"
 #include "intel_bombers.h"
 #include "intel_fighters.h"
+#ifdef WINDOWS
+#include "bits.h" /* for strndup */
+#endif
 
 atg_element *setup_game_box;
 atg_element *SG_full, *SG_exit, *SG_cont;
@@ -551,11 +554,13 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
 	int i;
+	#ifndef WINDOWS
 	if(chdir(localdat?cwd:DATIDIR))
 	{
 		perror("Failed to enter data dir: chdir");
 		return(1);
 	}
+	#endif
 	
 	while(1)
 	{

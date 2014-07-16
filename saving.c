@@ -17,6 +17,16 @@
 #include "rand.h"
 #include "version.h"
 
+#ifdef WINDOWS /* Because of this little bugger, savegames from Windows won't work on Linux/Unix and vice-versa */
+#define FLOAT	"%llx"
+#define CAST_FLOAT_PTR	(unsigned long long *)
+#define CAST_FLOAT	(unsigned long long)
+#else
+#define FLOAT	"%la"
+#define CAST_FLOAT_PTR
+#define CAST_FLOAT
+#endif
+
 bool version_newer(const unsigned char v1[3], const unsigned char v2[3]) // true iff v1 newer than v2
 {
 	for(unsigned int i=0;i<3;i++)
@@ -109,7 +119,7 @@ int loadgame(const char *fn, game *state)
 		}
 		else if(strcmp(tag, "Confid")==0)
 		{
-			f=sscanf(dat, "%la\n", &state->confid);
+			f=sscanf(dat, FLOAT"\n", CAST_FLOAT_PTR &state->confid);
 			if(f!=1)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -118,7 +128,7 @@ int loadgame(const char *fn, game *state)
 		}
 		else if(strcmp(tag, "Morale")==0)
 		{
-			f=sscanf(dat, "%la\n", &state->morale);
+			f=sscanf(dat, FLOAT"\n", CAST_FLOAT_PTR &state->morale);
 			if(f!=1)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -324,7 +334,7 @@ int loadgame(const char *fn, game *state)
 						continue;
 					}
 					unsigned int j;
-					f=sscanf(line, "IClass %u:%la\n", &j, &state->gprod[i]);
+					f=sscanf(line, "IClass %u:"FLOAT"\n", &j, CAST_FLOAT_PTR &state->gprod[i]);
 					if(f!=2)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
@@ -422,7 +432,7 @@ int loadgame(const char *fn, game *state)
 		else if(strcmp(tag, "Targets init")==0)
 		{
 			double dmg,flk,heat,flam;
-			f=sscanf(dat, "%la,%la,%la,%la\n", &dmg, &flk, &heat, &flam);
+			f=sscanf(dat, FLOAT","FLOAT","FLOAT","FLOAT"\n", CAST_FLOAT_PTR &dmg, CAST_FLOAT_PTR &flk, CAST_FLOAT_PTR &heat, CAST_FLOAT_PTR &flam);
 			if(f!=4)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -470,7 +480,7 @@ int loadgame(const char *fn, game *state)
 					}
 					unsigned int j;
 					double dmg, flk, heat, flam;
-					f=sscanf(line, "Targ %u:%la,%la,%la,%la\n", &j, &dmg, &flk, &heat, &flam);
+					f=sscanf(line, "Targ %u:"FLOAT","FLOAT","FLOAT","FLOAT"\n", &j, CAST_FLOAT_PTR &dmg, CAST_FLOAT_PTR &flk, CAST_FLOAT_PTR &heat, CAST_FLOAT_PTR &flam);
 					if(f!=5)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", j, tag);
@@ -501,7 +511,7 @@ int loadgame(const char *fn, game *state)
 		else if(strcmp(tag, "Weather state")==0)
 		{
 			state->weather.seed=0;
-			f=sscanf(dat, "%la,%la\n", &state->weather.push, &state->weather.slant);
+			f=sscanf(dat, FLOAT","FLOAT"\n", CAST_FLOAT_PTR &state->weather.push, CAST_FLOAT_PTR &state->weather.slant);
 			if(f!=2)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -522,7 +532,7 @@ int loadgame(const char *fn, game *state)
 					for(unsigned int y=0;y<128;y++)
 					{
 						int bytes;
-						if(sscanf(line+p, "%la,%la,%n", &state->weather.p[x][y], &state->weather.t[x][y], &bytes)!=2)
+						if(sscanf(line+p, FLOAT","FLOAT",%n", CAST_FLOAT_PTR &state->weather.p[x][y], CAST_FLOAT_PTR &state->weather.t[x][y], &bytes)!=2)
 						{
 							fprintf(stderr, "1 Too few arguments to part (%u,%u) of tag \"%s\"\n", x, y, tag);
 							e|=1;
@@ -620,8 +630,13 @@ int loadgame(const char *fn, game *state)
 		}
 		else if(strcmp(tag, "History")==0)
 		{
+			#ifdef WINDOWS
+			unsigned long nents;
+			f=sscanf(dat, "%lu\n", &nents);
+			#else
 			size_t nents;
 			f=sscanf(dat, "%zu\n", &nents);
+			#endif
 			if(f!=1)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -663,8 +678,8 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
 	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++)
 		fprintf(fs, "Difficulty:%u,%u\n", i, state.difficulty[i]);
-	fprintf(fs, "Confid:%la\n", state.confid);
-	fprintf(fs, "Morale:%la\n", state.morale);
+	fprintf(fs, "Confid:"FLOAT"\n", CAST_FLOAT state.confid);
+	fprintf(fs, "Morale:"FLOAT"\n", CAST_FLOAT state.morale);
 	fprintf(fs, "Budget:%u+%u\n", state.cash, state.cshr);
 	fprintf(fs, "Types:%u\n", ntypes);
 	for(unsigned int i=0;i<ntypes;i++)
@@ -683,7 +698,7 @@ int savegame(const char *fn, game state)
 	}
 	fprintf(fs, "GProd:%u\n", ICLASS_MIXED);
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
-		fprintf(fs, "IClass %u:%la\n", i, state.gprod[i]);
+		fprintf(fs, "IClass %u:"FLOAT"\n", i, CAST_FLOAT state.gprod[i]);
 	fprintf(fs, "FTypes:%u\n", nftypes);
 	fprintf(fs, "FBases:%u\n", nfbases);
 	fprintf(fs, "Fighters:%u\n", state.nfighters);
@@ -697,12 +712,12 @@ int savegame(const char *fn, game state)
 	}
 	fprintf(fs, "Targets:%hhu\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
-		fprintf(fs, "Targ %hhu:%la,%la,%la,%la\n", i, state.dmg[i], targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0, state.heat[i], state.flam[i]);
-	fprintf(fs, "Weather state:%la,%la\n", state.weather.push, state.weather.slant);
+		fprintf(fs, "Targ %hhu:"FLOAT","FLOAT","FLOAT","FLOAT"\n", i, CAST_FLOAT state.dmg[i], CAST_FLOAT (targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0), CAST_FLOAT state.heat[i], CAST_FLOAT state.flam[i]);
+	fprintf(fs, "Weather state:"FLOAT","FLOAT"\n", CAST_FLOAT state.weather.push, CAST_FLOAT state.weather.slant);
 	for(unsigned int x=0;x<256;x++)
 	{
 		for(unsigned int y=0;y<128;y++)
-			fprintf(fs, "%la,%la,", state.weather.p[x][y], state.weather.t[x][y]);
+			fprintf(fs, FLOAT","FLOAT",", CAST_FLOAT state.weather.p[x][y], CAST_FLOAT state.weather.t[x][y]);
 		fprintf(fs, "\n");
 	}
 	unsigned int msgs=0;
