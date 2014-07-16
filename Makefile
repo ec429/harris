@@ -99,3 +99,7 @@ intel_targets.o: ui.h globals.h events.h bits.h date.h render.h
 %.o: %.c %.h types.h dclass.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
+static: all
+	mkdir static
+	cp -r art dat lib map save stats *.o static/
+	make -C static -f lib/Makefile -B harris
