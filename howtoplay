@@ -161,7 +161,7 @@ Note that changes to most of these files will break save-compatibility if the nu
 
 Tutorial
 ~~~~~~~~
-After starting Harris, choose "Quick Start Game" from the main menu.  This will start the game on 3rd September 1939 (the outbreak of war).  The other main menu options are Set Up Game (to start a game at a different point [Not yet implemented]), Load Game (to load from a saved game), and Exit.
+After starting Harris, choose "Quick Start Game" from the main menu.  This will start the game on 3rd September 1939 (the outbreak of war).  The other main menu options are Set Up Game (to start a game at a different point), Load Game (to load from a saved game), and Exit.
 Now you are presented with the main 'control center'.  On the left: the date and moon-phase, your bombers, and some misc. info.  In the middle, the map.  On the right, the list of targets.
 We'll start with a raid on shipping in the Heligoland Bight.  In the target list, click that name (it should be second from the top).  It should then be highlighted yellow, and a red cross-hair will appear on the map at its location.
 But merely selecting a target doesn't mount a raid; we need to assign some bombers to it.  We'll send some Hampdens.  From the bomber list, left-click on the picture of the Handley Page Hampden (it should be third from the top).  This assigns 10 Hampdens to raid the selected target.  You can also add one at a time (right-click instead), or all the remaining unassigned aircraft of this type (middle-click or ctrl+left-click).  If you have a scroll wheel, you can also assign by hovering over the picture and scrolling up (for 10) or down (for 1).
