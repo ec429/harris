@@ -88,6 +88,21 @@ int loadgame(const char *fn, game *state)
 		{
 			state->now=readdate(dat, (date){3, 9, 1939});
 		}
+		else if(strcmp(tag, "DClasses")==0)
+		{
+			unsigned int dcl;
+			f=sscanf(dat, "%u\n", &dcl);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			if(dcl!=DIFFICULTY_CLASSES)
+			{
+				fprintf(stderr, "2 Value mismatch: different DClasses value\n");
+				e|=2;
+			}
+		}
 		else if(strcmp(tag, "Difficulty")==0)
 		{
 			unsigned int class, level;
@@ -676,6 +691,7 @@ int savegame(const char *fn, game state)
 	char p_id[9];
 	fprintf(fs, "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV);
 	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
+	fprintf(fs, "DClasses:%u\n", DIFFICULTY_CLASSES);
 	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++)
 		fprintf(fs, "Difficulty:%u,%u\n", i, state.difficulty[i]);
 	fprintf(fs, "Confid:"FLOAT"\n", CAST_FLOAT state.confid);

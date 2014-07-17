@@ -106,6 +106,9 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	double moonillum=foldpom(moonphase);
 	double flakscale=state->gprod[ICLASS_ARM]/(GET_DC(state,FLAK)*10000.0);
 	unsigned int rcity=GET_DC(state,RCITY),
+	             rindus=GET_DC(state,RINDUS),
+	             rship=GET_DC(state,RSHIP),
+	             rleaf=GET_DC(state,RLEAF),
 	             rother=GET_DC(state,ROTHER);
 	double d_fsr=GET_DC(state,FSR)/10.0;
 	unsigned int fightersleft;
@@ -1332,7 +1335,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								{
 									unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-									double dmg=min(he/(rother*600.0), state->dmg[l]);
+									double dmg=min(he/(rindus*600.0), state->dmg[l]);
 									cidam+=dmg*(targs[l].berlin?2.0:1.0);
 									state->dmg[l]-=dmg;
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
@@ -1397,7 +1400,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, state->bombers[k].b_le);
-									double dmg=min(state->bombers[k].b_le/(targs[l].psiz*rother*600.0), state->dmg[l]);
+									double dmg=min(state->bombers[k].b_le/(targs[l].psiz*rleaf*600.0), state->dmg[l]);
 									state->dmg[l]-=dmg;
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
 									nij[l][type]++;
@@ -1416,7 +1419,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 									nij[l][type]++;
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-									if(brandp(min(log2(he/(rother*25.0))/8.0, 0.05)))
+									if(brandp(min(log2(he/(rship*100.0))/8.0, 0.05)))
 									{
 										tij[l][type]++;
 										tsh_append(&state->hist, state->now, maketime(state->bombers[k].bt), l);
