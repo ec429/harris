@@ -1,0 +1,6 @@
+==Installing Harris from Linux tarball==
+
+Assuming you've already unpacked the tarball (and how else would you have got this file?), all you need to do is run "sudo make install", then run "harris" to start the game.
+Alternatively (if you don't have root), you can just run "./harris --localdat" to run straight out of the download.
+
+However you run the game, a small grey window with a menu should pop up.  For further help, see the Tutorial in the file 'howtoplay'.
