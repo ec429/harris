@@ -1419,7 +1419,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 									nij[l][type]++;
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-									if(brandp(min(log2(he/(rship*100.0))/8.0, 0.05)))
+									if(brandp(max(log2(he/(rship*100.0))/8.0, 0.05)))
 									{
 										tij[l][type]++;
 										tsh_append(&state->hist, state->now, maketime(state->bombers[k].bt), l);
