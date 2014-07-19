@@ -164,6 +164,8 @@ int main(int argc, char *argv[])
 	if(chdir(localdat?cwd:DATIDIR))
 	{
 		perror("Failed to enter data dir: chdir");
+		if(!localdat)
+			fprintf(stderr, "(Maybe try with --localdat, or make install)\n");
 		return(1);
 	}
 #endif
