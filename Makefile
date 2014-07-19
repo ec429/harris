@@ -100,12 +100,12 @@ intel_targets.o: ui.h globals.h events.h bits.h date.h render.h
 
 static: all
 	mkdir static
-	cp -r art dat lib map save stats *.o *.py readme howtoplay strategy COPYING static/
-	mv static/lib/Makefile static/lib/install static/
+	cp -r art dat lib map save stats *.o *.py README HOWTOPLAY STRATEGY COPYING static/
+	mv static/lib/Makefile static/lib/INSTALL static/
 	make -C static -f Makefile -B harris
 
 windows: all
 	mkdir windows
-	cp -r art dat map save stats *.c *.h *.o *.py readme howtoplay strategy COPYING windows/
+	cp -r art dat map save stats *.c *.h *.o *.py README HOWTOPLAY STRATEGY COPYING windows/
 	cp lib-w/* windows/
 	make -C windows -f Makefile.w32 -B
