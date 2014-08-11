@@ -166,7 +166,7 @@ SDL_Surface *render_ac(const game *state)
 	return(rv);
 }
 
-SDL_Surface *render_xhairs(const game *state, int seltarg)
+SDL_Surface *render_xhairs(const game *state)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
@@ -180,6 +180,18 @@ SDL_Surface *render_xhairs(const game *state, int seltarg)
 		{
 			SDL_gfxBlitRGBA(yellowhair, NULL, rv, &(SDL_Rect){.x=targs[i].lon-3, .y=targs[i].lat-3});
 		}
+	return(rv);
+}
+
+SDL_Surface *render_seltarg(int seltarg)
+{
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
+	{
+		fprintf(stderr, "render_seltarg: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
+	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	if(seltarg>=0)
 	{
 		SDL_gfxBlitRGBA(location, NULL, rv, &(SDL_Rect){.x=targs[seltarg].lon-3, .y=targs[seltarg].lat-3});

@@ -17,7 +17,15 @@
 #include "date.h"
 #include "events.h"
 #include "render.h"
+#include "ui.h"
 #include "widgets.h"
+
+#ifdef WINDOWS /* I hate having to put in these ugly warts */
+#define ssize_t	int
+#define zn	"%n"
+#else
+#define zn	"%zn"
+#endif
 
 int load_bombers(void)
 {
@@ -42,7 +50,7 @@ int load_bombers(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%zn", this.manu, this.name, &this.cost, &this.speed, &this.alt, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=13)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.cost, &this.speed, &this.alt, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=13)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -84,17 +92,43 @@ int load_bombers(void)
 				this.broughton=strstr(nav, "BROUGHTON");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
-				char pn[12+nlen+4];
+				char pn[256];
 				strcpy(pn, "art/bombers/");
-				for(size_t p=0;p<nlen;p++) pn[12+p]=tolower(this.name[p]);
-				strcat(pn, ".png");
+				for(size_t p=0;p<nlen;p++)
+				{
+					if(12+p>=255)
+					{
+						pn[12+p]=0;
+						break;
+					}
+					pn[12+p]=tolower(this.name[p]);
+				}
+				strncat(pn, ".png", 256);
 				if(!(this.picture=IMG_Load(pn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
 					return(1);
 				}
+				char sn[256];
+				strcpy(sn, "art/large/bombers/");
+				for(size_t p=0;p<nlen;p++)
+				{
+					if(18+p>=255)
+					{
+						pn[18+p]=0;
+						break;
+					}
+					sn[18+p]=tolower(this.name[p]);
+				}
+				strncat(sn, "-side.png", 256);
+				if(!(this.side_image=IMG_Load(sn)))
+				{
+					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
+					return(1);
+				}
 				this.prio=2;
 				this.pribuf=0;
+				this.pcbuf=0;
 				this.text=this.newtext=NULL;
 				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
 				types[ntypes]=this;
@@ -139,7 +173,7 @@ int load_fighters(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%hhu:%hhu:%hhu:%zn", this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &this.radpri, &db))!=7)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%hhu:"zn, this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &this.radpri, &db))!=7)
 				{
 					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -176,6 +210,40 @@ int load_fighters(void)
 					return(1);
 				}
 				this.text=this.newtext=NULL;
+				char pn[256];
+				strcpy(pn, "art/fighters/");
+				for(size_t p=0;p<nlen;p++)
+				{
+					if(13+p>=255)
+					{
+						pn[13+p]=0;
+						break;
+					}
+					pn[13+p]=tolower(this.name[p]);
+				}
+				strncat(pn, ".png", 256);
+				if(!(this.picture=IMG_Load(pn)))
+				{
+					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
+					return(1);
+				}
+				char sn[256];
+				strcpy(sn, "art/large/fighters/");
+				for(size_t p=0;p<nlen;p++)
+				{
+					if(19+p>=255)
+					{
+						pn[19+p]=0;
+						break;
+					}
+					sn[19+p]=tolower(this.name[p]);
+				}
+				strncat(sn, "-side.png", 256);
+				if(!(this.side_image=IMG_Load(sn)))
+				{
+					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
+					return(1);
+				}
 				ftypes=realloc(ftypes, (nftypes+1)*sizeof(fightertype));
 				ftypes[nftypes]=this;
 				nftypes++;
@@ -209,7 +277,7 @@ int load_ftrbases(void)
 				// LAT:LONG:ENTRY:EXIT
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%u:%u:%zn", &this.lat, &this.lon, &db))!=2)
+				if((e=sscanf(next, "%u:%u:"zn, &this.lat, &this.lon, &db))!=2)
 				{
 					fprintf(stderr, "Malformed `ftrbases' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -260,7 +328,7 @@ int load_targets(void)
 				this.p_intel=NULL;
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%u:%u:%u:%u:%u:%zn", this.name, &this.prod, &this.flak, &this.esiz, &this.lat, &this.lon, &db))!=6)
+				if((e=sscanf(next, "%[^:]:%u:%u:%u:%u:%u:"zn, this.name, &this.prod, &this.flak, &this.esiz, &this.lat, &this.lon, &db))!=6)
 				{
 					fprintf(stderr, "Malformed `targets' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -316,26 +384,6 @@ int load_targets(void)
 				else if(strstr(class, "INDUSTRY"))
 				{
 					this.class=TCLASS_INDUSTRY;
-					const char *at=strchr(class, '@');
-					if(at)
-					{
-						at++;
-						for(unsigned int i=0;i<ntargs;i++)
-						{
-							if(targs[i].class!=TCLASS_CITY) continue;
-							if(strcmp(at, targs[i].name)==0)
-							{
-								this.city=i;
-								break;
-							}
-						}
-						if(this.city<0)
-						{
-							fprintf(stderr, "Unrecognised `targets' @City reference `%s'\n", at);
-							fprintf(stderr, "  (note: City must precede target referring to it)\n");
-							return(1);
-						}
-					}
 				}
 				else
 				{
@@ -362,6 +410,26 @@ int load_targets(void)
 					this.iclass=ICLASS_RADAR;
 				this.berlin=strstr(class, ",BERLIN");
 				this.flammable=strstr(class, ",FLAMMABLE");
+				const char *at=strchr(class, '@');
+				if(at)
+				{
+					at++;
+					for(unsigned int i=0;i<ntargs;i++)
+					{
+						if(targs[i].class!=TCLASS_CITY) continue;
+						if(strcmp(at, targs[i].name)==0)
+						{
+							this.city=i;
+							break;
+						}
+					}
+					if(this.city<0)
+					{
+						fprintf(stderr, "Unrecognised `targets' @City reference `%s'\n", at);
+						fprintf(stderr, "  (note: City must precede target referring to it)\n");
+						return(1);
+					}
+				}
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
@@ -375,19 +443,14 @@ int load_targets(void)
 			switch(targs[t].class)
 			{
 				case TCLASS_LEAFLET:
-					if(!t)
+					if(targs[t].city<0)
 					{
-						fprintf(stderr, "Error: First target is a TCLASS_LEAFLET\n");
-						return(1);
-					}
-					if(targs[t-1].class!=TCLASS_CITY)
-					{
-						fprintf(stderr, "Error: TCLASS_LEAFLET not preceded by its CITY\n");
+						fprintf(stderr, "Error: TCLASS_LEAFLET not linked to its CITY\n");
 						fprintf(stderr, "\t(targs[%u].name == \"%s\")\n", t, targs[t].name);
 						return(1);
 					}
-					(targs[t].picture=targs[t-1].picture)->refcount++;
-					targs[t].psiz=targs[t-1].psiz;
+					(targs[t].picture=targs[targs[t].city].picture)->refcount++;
+					targs[t].psiz=targs[targs[t].city].psiz;
 				break;
 				case TCLASS_CITY:;
 					char cfn[48];
@@ -524,7 +587,7 @@ int load_flaksites(void)
 				// STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%u:%u:%u:%zn", &this.strength, &this.lat, &this.lon, &db))!=3)
+				if((e=sscanf(next, "%u:%u:%u:"zn, &this.strength, &this.lat, &this.lon, &db))!=3)
 				{
 					fprintf(stderr, "Malformed `flak' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -683,6 +746,7 @@ int load_texts(void)
 			fprintf(stderr, "Leftover item in dat/texts\n%s\n", item);
 			return(1);
 		}
+		free(txfile);
 	}
 	return(0);
 }
@@ -726,6 +790,7 @@ int load_intel(void)
 			fprintf(stderr, "Leftover item in dat/intel\n%s\n", item);
 			return(1);
 		}
+		free(intfile);
 	}
 	
 	// Intel hookup: Targets
@@ -804,6 +869,11 @@ int load_images(void)
 		fprintf(stderr, "Intel icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(nointelbtn=IMG_Load("art/no-intel.png")))
+	{
+		fprintf(stderr, "Greyed-out Intel icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	if(!(resizebtn=IMG_Load("art/resize.png")))
 	{
 		fprintf(stderr, "Resize button: IMG_Load: %s\n", IMG_GetError());
@@ -841,6 +911,86 @@ int load_images(void)
 			return(1);
 		}
 	}
+	if(!(ttype_icons[TCLASS_CITY]=IMG_Load("art/tclass/city.png")))
+	{
+		fprintf(stderr, "TClass City icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_SHIPPING]=IMG_Load("art/tclass/shipping.png")))
+	{
+		fprintf(stderr, "TClass Shipping icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_MINING]=IMG_Load("art/tclass/mining.png")))
+	{
+		fprintf(stderr, "TClass Mining icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_LEAFLET]=IMG_Load("art/tclass/leaflet.png")))
+	{
+		fprintf(stderr, "TClass Leaflet icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_AIRFIELD]=IMG_Load("art/tclass/airfield.png")))
+	{
+		fprintf(stderr, "TClass Airfield icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_BRIDGE]=IMG_Load("art/tclass/bridge.png")))
+	{
+		fprintf(stderr, "TClass Bridge icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_ROAD]=IMG_Load("art/tclass/road.png")))
+	{
+		fprintf(stderr, "TClass Road icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_BB]=IMG_Load("art/tclass/bb.png")))
+	{
+		fprintf(stderr, "IClass Ball-Bearings icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_OIL]=IMG_Load("art/tclass/oil.png")))
+	{
+		fprintf(stderr, "IClass Oil icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_RAIL]=IMG_Load("art/tclass/rail.png")))
+	{
+		fprintf(stderr, "IClass Rail icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_UBOOT]=IMG_Load("art/tclass/uboot.png")))
+	{
+		fprintf(stderr, "IClass U-boats icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_ARM]=IMG_Load("art/tclass/arm.png")))
+	{
+		fprintf(stderr, "IClass Armament icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_STEEL]=IMG_Load("art/tclass/steel.png")))
+	{
+		fprintf(stderr, "IClass Steel icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_AC]=IMG_Load("art/tclass/aircraft.png")))
+	{
+		fprintf(stderr, "IClass Aircraft icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_RADAR]=IMG_Load("art/tclass/radar.png")))
+	{
+		fprintf(stderr, "IClass Radar icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED]=IMG_Load("art/tclass/mixed.png")))
+	{
+		fprintf(stderr, "IClass Mixed icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	
 	grey_overlay=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!grey_overlay)
@@ -858,5 +1008,76 @@ int load_images(void)
 	}
 	SDL_FillRect(yellow_overlay, &(SDL_Rect){.x=0, .y=0, .w=yellow_overlay->w, .h=yellow_overlay->h}, SDL_MapRGBA(yellow_overlay->format, 255, 255, 0, 63));
 	
+	return(0);
+}
+
+int load_starts(void)
+{
+	FILE *stfp=fopen("dat/starts", "r");
+	if(!stfp)
+	{
+		fprintf(stderr, "Failed to open data file `starts'!\n");
+		return(1);
+	}
+	else
+	{
+		char *line;
+		unsigned int n, state=0;
+		string description=null_string();
+		while((line=fgetl(stfp)))
+		{
+			if(*line!='#')
+			{
+				if(strncmp(line, "==", 2)==0)
+				{
+					if(state==4)
+					{
+						starts[n].description=description.buf;
+						description=null_string();
+					}
+					else if(state)
+					{
+						fprintf(stderr, "Malformed `starts' line `%s'\n", line);
+						fprintf(stderr, "  Unexpected ==start, state=%u\n", state);
+						return(1);
+					}
+					n=nstarts;
+					if(!(starts=realloc(starts, ++nstarts*sizeof(startpoint))))
+						return(1);
+					starts[n].filename=strdup(line+2);
+					starts[n].title=NULL;
+					starts[n].description=NULL;
+					state=1;
+				}
+				switch(state)
+				{
+					case 1:
+						state=2;
+					break;
+					case 2:
+						starts[n].title=strdup(line);
+						state=3;
+					break;
+					case 3:
+						state=4;
+						description=init_string();
+						if(!*line) continue;
+						/* fallthrough */
+					case 4:
+						append_str(&description, line);
+						append_char(&description, '\n');
+					break;
+				}
+			}
+			free(line);
+		}
+		if(state==4)
+		{
+			starts[n].description=description.buf;
+			description=null_string();
+		}
+		fclose(stfp);
+	}
+	fprintf(stderr, "Loaded %u startpoints\n", nstarts);
 	return(0);
 }

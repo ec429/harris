@@ -9,6 +9,4 @@
 
 #include <atg.h>
 
-extern atg_box *save_game_box;
-extern char **SA_btext;
-extern atg_element *SA_file, *SA_text, *SA_full, *SA_exit, *SA_save;
+extern atg_element *save_game_box;

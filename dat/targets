@@ -37,25 +37,20 @@ Mittelland Canal:     12: 8: 7: 98:174:17-01-1941:30-11-1941:SHIPPING
 #  near Münster
 Dortmund-Ems Canal:   10: 6:12:112:150:12-02-1941:14-02-1942:SHIPPING
 #  Battle of the Barges
-Ostende Barges:       14:32:18:127: 86:04-07-1940:31-10-1940:SHIPPING
-Calais Barges:        13:40:18:132: 73:04-07-1940:31-10-1940:SHIPPING
-Dunkerque Barges:     15:36:18:130: 79:04-07-1940:31-10-1940:SHIPPING
-Boulogne Barges:      14:30:18:136: 70:04-07-1940:31-10-1940:SHIPPING
+Ostende Barges:       14:32:24:127: 86:04-07-1940:31-10-1940:SHIPPING
+Calais Barges:        13:40:28:132: 73:04-07-1940:31-10-1940:SHIPPING
+Dunkerque Barges:     15:36:25:130: 79:04-07-1940:31-10-1940:SHIPPING
+Boulogne Barges:      14:30:27:136: 70:04-07-1940:31-10-1940:SHIPPING
 
-# Cities & Nickelling (leaflet) targets.  Note that these must be paired up so that the images work
+# Cities
 # TODO: end-dates from dates of liberation in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Berlin:              100:20:50: 97:233:14-02-1942:          :CITY,BERLIN
-Berlin Leaflets:       8:10:50: 97:233:          :14-02-1942:LEAFLET,BERLIN
 Hamburg:              65:14:35: 73:185:14-02-1942:          :CITY,FLAMMABLE
-Hamburg Leaflets:      5: 8:35: 73:185:          :14-02-1942:LEAFLET
 Frankfurt:            40:13:30:151:168:14-02-1942:          :CITY
-Frankfurt Leaflets:    4: 7:30:151:168:          :14-02-1942:LEAFLET
 Munich:               45:16:40:194:208:14-02-1942:          :CITY
 Cologne:              35:12:25:133:144:14-02-1942:          :CITY
-Cologne Leaflets:      3: 6:25:133:144:          :14-02-1942:LEAFLET
 Essen:                30:11:20:122:145:14-02-1942:          :CITY,ARM
-Essen Leaflets:        2: 5:20:122:145:          :14-02-1942:LEAFLET
 Dusseldorf:           20: 9:18:127:142:14-02-1942:          :CITY,STEEL
 Dortmund:             25:12:20:121:151:14-02-1942:          :CITY,ARM
 Bochum:               20: 8:16:122:148:14-02-1942:          :CITY,ARM
@@ -65,13 +60,10 @@ Bonn:                 11: 8: 6:138:147:14-02-1942:          :CITY
 Wuppertal:            15: 8:14:126:147:14-02-1942:          :CITY
 Hamm:                 12: 6:12:118:154:14-02-1942:          :CITY,RAIL
 Bremen:               25:10:24: 85:169:14-02-1942:          :CITY,UBOOT
-Bremen Leaflets:       3: 3:24: 85:169:          :14-02-1942:LEAFLET
 Kiel:                 18:13:21: 54:190:14-02-1942:          :CITY,UBOOT
 Nuremberg:            20:11:30:166:202:14-02-1942:          :CITY
-Nuremberg Leaflets:    6: 6:30:166:202:          :14-02-1942:LEAFLET
-Leipzig:              30:15:22:124:219:14-02-1942:          :CITY,BB
+Leipzig:              28:15:22:124:219:14-02-1942:          :CITY,AC
 Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY
-Stuttgart Leaflets:    3: 4:20:180:175:          :14-02-1942:LEAFLET
 Hanover:              22:10:27: 98:182:14-02-1942:          :CITY
 Dresden:              16: 9:32:130:238:14-02-1942:          :CITY,RAIL,FLAMMABLE
 Magdeburg:            15: 8:25:105:208:14-02-1942:          :CITY
@@ -86,6 +78,16 @@ Peenemünde:           18:11: 7: 59:238:18-06-1943:          :CITY,ARM
 # Italy
 Turin:                 9: 3:24:254:154:15-10-1942:08-09-1943:CITY
 Milan:                10: 2:18:246:174:15-10-1942:08-09-1943:CITY
+
+# Nickelling
+Berlin Leaflets:       8:10:50: 97:233:          :14-02-1942:LEAFLET,BERLIN,@Berlin
+Hamburg Leaflets:      5: 8:35: 73:185:          :14-02-1942:LEAFLET,@Hamburg
+Frankfurt Leaflets:    4: 7:30:151:168:          :14-02-1942:LEAFLET,@Frankfurt
+Cologne Leaflets:      3: 6:25:133:144:          :14-02-1942:LEAFLET,@Cologne
+Essen Leaflets:        2: 5:20:122:145:          :14-02-1942:LEAFLET,@Essen
+Bremen Leaflets:       3: 3:24: 85:169:          :14-02-1942:LEAFLET,@Bremen
+Nuremberg Leaflets:    6: 6:30:166:202:          :14-02-1942:LEAFLET,@Nuremberg
+Stuttgart Leaflets:    3: 4:20:180:175:          :14-02-1942:LEAFLET,@Stuttgart
 
 # France and the Low Countries (invasion time)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS

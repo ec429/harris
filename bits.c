@@ -177,3 +177,14 @@ int gacid(const char from[8], acid *buf)
 	}
 	return(0);
 }
+
+#ifdef WINDOWS /* doesn't have strndup, we need to implement one */
+char *strndup(const char *s, size_t size)
+{
+	char *rv=(char *)malloc(size+1);
+	if(rv==NULL) return(NULL);
+	strncpy(rv, s, size);
+	rv[size]=0;
+	return(rv);
+}
+#endif

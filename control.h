@@ -11,4 +11,4 @@
 
 #include "types.h"
 
-extern atg_box *control_box;
+extern atg_element *control_box;

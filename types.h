@@ -9,6 +9,7 @@
 */
 
 #include <atg.h>
+#include "dclass.h"
 
 #define NNAVAIDS	4
 #define MAXMSGS		8
@@ -59,6 +60,7 @@ intel;
 
 typedef struct
 {
+	unsigned int seed; // if nonzero, we need to randgen
 	double push, slant;
 	double p[256][128];
 	double t[256][128];
@@ -108,7 +110,7 @@ typedef struct
 	bool load[NBOMBLOADS];
 	bool noarm, pff, heavy, inc, broughton;
 	unsigned int blat, blon;
-	SDL_Surface *picture;
+	SDL_Surface *picture, *side_image;
 	char *text, *newtext;
 	
 	unsigned int count;
@@ -131,12 +133,13 @@ typedef struct
 	char *name;
 	unsigned int cost;
 	unsigned int speed;
-	unsigned char arm;
-	unsigned char mnv;
+	unsigned int arm;
+	unsigned int mnv;
 	unsigned char radpri;
 	date entry;
 	date exit;
 	bool night;
+	SDL_Surface *picture, *side_image;
 	char *text, *newtext;
 }
 fightertype;
@@ -149,7 +152,7 @@ typedef struct
 }
 ftrbase;
 
-enum t_class {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,};
+enum t_class {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,}; // INDUSTRY must be last!
 enum i_class {ICLASS_BB, ICLASS_OIL, ICLASS_RAIL, ICLASS_UBOOT, ICLASS_ARM, ICLASS_STEEL, ICLASS_AC, ICLASS_RADAR, ICLASS_MIXED,};
 
 typedef struct
@@ -255,6 +258,7 @@ raid;
 typedef struct
 {
 	date now;
+	unsigned int difficulty[DIFFICULTY_CLASSES]; // [0] is ignored
 	unsigned int cash, cshr;
 	double confid, morale;
 	unsigned int nbombers;
@@ -277,6 +281,14 @@ typedef struct
 	history hist;
 }
 game;
+
+typedef struct
+{
+	char *filename;
+	char *title;
+	char *description;
+}
+startpoint;
 
 struct oboe
 {

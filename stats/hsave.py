@@ -29,6 +29,8 @@ class Save(object):
 	def parse(cls, f, read_init=True, check_integrity=False):
 		self = cls()
 		self.read_init = read_init
+		self.dclasses = None
+		self.difficulty = {}
 		stage = None
 		nosplit = False
 		for line in f:
@@ -116,6 +118,13 @@ class Save(object):
 	def handle(self, tag, rest):
 		if tag == 'HARR':
 			self.ver = map(int, rest.split('.'))
+			return None, False
+		if tag == 'DClasses':
+			self.dclasses = int(rest)
+			return None, False
+		if tag == 'Difficulty':
+			dclass, level = map(int, rest.split(','))
+			self.difficulty[dclass] = level
 			return None, False
 		if tag == 'DATE':
 			self.date = hhist.date.parse(rest)

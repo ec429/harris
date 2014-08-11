@@ -5,6 +5,10 @@ Format is textual (human-readable)
 Format, sort of printfy
 "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV // Magic ID, Harris version.
 "DATE:%02d-%02d-%04d\n", day, month, year
+optional
+	"DClasses:%u\n", DIFFICULTY_CLASSES // should be present if any Difficulty: other than 0 are
+possibly-multiple-times
+	"Difficulty:%u,%u\n", class, level // class 0 sets all classes, later can override.  level is 0, 1 or 2
 "Confid:%la\n", confid
 "Morale:%la\n", morale
 "Budget:%u+%u\n", cash, cshr

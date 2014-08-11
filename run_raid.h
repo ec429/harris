@@ -11,7 +11,7 @@
 #include <atg.h>
 #include "types.h"
 
-extern atg_box *run_raid_box;
+extern atg_element *run_raid_box;
 extern unsigned int totalraids;
 extern int **dij, **nij, **tij, **lij;
 extern unsigned int *heat;

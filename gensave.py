@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, zlib
+import sys, zlib, struct
 
 def multiply(line):
 	if len(line) > 1:
@@ -20,6 +20,8 @@ def genids(line, i):
 	else:
 		return line
 
+windows = '--windows' in sys.argv
+
 salt = ''
 if '--salt' in sys.argv:
 	sarg = sys.argv.index('--salt')
@@ -29,8 +31,26 @@ if '--salt' in sys.argv:
 		sys.stderr.write('--salt requires argument!\n')
 		sys.exit(1)
 
+def float_to_hex(value):
+	f = float(value)
+	bytes = struct.pack('>d', f)
+	i, = struct.unpack('>q', bytes)
+	return '%016x'%i
+
 for line in sys.stdin.readlines():
 	lines = multiply(line)
 	for i,line in enumerate(lines):
 		line = genids(line, i)
+		if windows and ':' in line:
+			to_conv = {'Confid':(0,),
+				       'Morale':(0,),
+				       'IClass':(1,),
+				       'Targets init':(0,1,2,3),
+				       'Targ':(1,2,3,4),}
+			tag, values = line.rstrip('\n').split(':', 1)
+			values = values.split(',')
+			if tag in to_conv:
+				for pos in to_conv[tag]:
+					values[pos] = float_to_hex(values[pos])
+				line = ':'.join((tag, ','.join(values))) + '\n'
 		sys.stdout.write(line)

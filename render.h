@@ -14,7 +14,8 @@ SDL_Surface *render_weather(w_state weather);
 SDL_Surface *render_targets(date now);
 SDL_Surface *render_flak(date now);
 SDL_Surface *render_ac(const game *state);
-SDL_Surface *render_xhairs(const game *state, int seltarg);
+SDL_Surface *render_xhairs(const game *state);
+SDL_Surface *render_seltarg(int seltarg);
 
 /* Functions for drawing on an SDL_Surface */
 int pset(SDL_Surface *s, unsigned int x, unsigned int y, atg_colour c);

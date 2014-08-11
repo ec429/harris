@@ -11,12 +11,19 @@
 
 #include "globals.h"
 #include "date.h"
+#ifdef WINDOWS
+#include "bits.h" /* for strndup */
+#endif
+
+screen_id intel_caller=SCRN_MAINMENU;
+SDL_Surface *ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED+1];
 
 void update_navbtn(game state, atg_element *(*GB_navbtn)[NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay)
 {
-	if(GB_navbtn[i][n]&&GB_navbtn[i][n]->elem.image)
+	if(GB_navbtn[i][n]&&GB_navbtn[i][n]->elemdata)
 	{
-		SDL_Surface *pic=GB_navbtn[i][n]->elem.image->data;
+		atg_image *img=GB_navbtn[i][n]->elemdata;
+		SDL_Surface *pic=img->data;
 		if(pic)
 		{
 			if(!types[i].nav[n])
@@ -70,20 +77,22 @@ int msgadd(atg_canvas *canvas, game *state, date when, const char *ref, const ch
 
 void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext)
 {
-	atg_box *oldbox=canvas->box;
-	atg_box *msgbox=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
+	atg_element *oldbox=canvas->content;
+	atg_element *msgbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){255, 255, 239, ATG_ALPHA_OPAQUE});
 	if(!msgbox)
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return;
 	}
+	msgbox->w=mainsizex;
+	msgbox->h=mainsizey;
 	atg_element *title=atg_create_element_label(titletext, 16, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 	if(!title)
 		fprintf(stderr, "atg_create_element_label failed\n");
 	else
 	{
-		if(atg_pack_element(msgbox, title))
-			perror("atg_pack_element");
+		if(atg_ebox_pack(msgbox, title))
+			perror("atg_ebox_pack");
 		else
 		{
 			size_t x=0;
@@ -98,9 +107,9 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 					fprintf(stderr, "atg_create_element_label failed\n");
 					break;
 				}
-				if(atg_pack_element(msgbox, r))
+				if(atg_ebox_pack(msgbox, r))
 				{
-					perror("atg_pack_element");
+					perror("atg_ebox_pack");
 					break;
 				}
 				x+=l;
@@ -113,20 +122,21 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 					fprintf(stderr, "atg_create_element_label failed\n");
 				else
 				{
-					if(atg_pack_element(msgbox, sign))
-						perror("atg_pack_element");
+					if(atg_ebox_pack(msgbox, sign))
+						perror("atg_ebox_pack");
 					else
 					{
-						atg_element *cont = atg_create_element_button("Continue", (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE}, (atg_colour){239, 239, 224, ATG_ALPHA_OPAQUE});
+						atg_element *cont=atg_create_element_button("Continue", (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE}, (atg_colour){239, 239, 224, ATG_ALPHA_OPAQUE});
 						if(!cont)
 							fprintf(stderr, "atg_create_element_button failed\n");
 						else
 						{
-							if(atg_pack_element(msgbox, cont))
-								perror("atg_pack_element");
+							if(atg_ebox_pack(msgbox, cont))
+								perror("atg_ebox_pack");
 							else
 							{
-								canvas->box=msgbox;
+								canvas->content=msgbox;
+								atg_resize_canvas(canvas, mainsizex, mainsizey);
 								atg_flip(canvas);
 								atg_event e;
 								while(1)
@@ -144,7 +154,9 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 										SDL_Delay(50);
 									atg_flip(canvas);
 								}
-								canvas->box=oldbox;
+								mainsizex=canvas->surface->w;
+								mainsizey=canvas->surface->h;
+								canvas->content=oldbox;
 							}
 						}
 					}
@@ -152,5 +164,5 @@ void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext
 			}
 		}
 	}
-	atg_free_box_box(msgbox);
+	atg_free_element(msgbox);
 }

@@ -19,7 +19,7 @@
 
 void produce(int targ, game *state, double amount);
 
-atg_box *post_raid_box;
+atg_element *post_raid_box;
 
 int post_raid_create(void)
 {
@@ -204,6 +204,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		}
 	}
 	// German production
+	unsigned int rcity=GET_DC(state,RCITY),
+	             rother=GET_DC(state,ROTHER);
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
 		state->dprod[i]=0;
 	for(unsigned int i=0;i<ntargs;i++)
@@ -225,7 +227,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				state->flk[i]+=dflk;
 				if(dflk)
 					tfk_append(&state->hist, state->now, (time){11, 45}, i, dflk, state->flk[i]);
-				double ddmg=min(state->dmg[i]*.005, 100-state->dmg[i]);
+				double ddmg=min(state->dmg[i]*.1/(double)rcity, 100-state->dmg[i]);
 				state->dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state->hist, state->now, (time){11, 45}, i, ddmg, state->dmg[i]);
@@ -234,7 +236,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			break;
 			case TCLASS_LEAFLET:
 			{
-				double ddmg=min(state->dmg[i]*.01, 100-state->dmg[i]);
+				double ddmg=min(state->dmg[i]*.2/(double)rother, 100-state->dmg[i]);
 				state->dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state->hist, state->now, (time){11, 45}, i, ddmg, state->dmg[i]);
@@ -253,7 +255,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			case TCLASS_INDUSTRY:
 				if(state->dmg[i])
 				{
-					double ddmg=min(state->dmg[i]*.05, 100-state->dmg[i]), cscale=targs[i].city<0?1.0:state->dmg[targs[i].city]/100.0;
+					double ddmg=min(state->dmg[i]/(double)rother, 100-state->dmg[i]), cscale=targs[i].city<0?1.0:state->dmg[targs[i].city]/100.0;
 					if(cscale==0)
 						ddmg=100-state->dmg[i];
 					state->dmg[i]+=ddmg;
@@ -395,8 +397,6 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
 		}
 	}
-	mainsizex=canvas->surface->w;
-	mainsizey=canvas->surface->h;
 	return(SCRN_CONTROL);
 }
 
@@ -430,7 +430,7 @@ void produce(int targ, game *state, double amount)
 				return;
 		break;
 		case ICLASS_MIXED:
-#define ADD(class, qty)	state->gprod[class]+=qty; state->dprod[class]+=qty;
+#define ADD(class, qty)	do { state->gprod[class]+=qty; state->dprod[class]+=qty; } while(0)
 			ADD(ICLASS_OIL, amount/7.0);
 			ADD(ICLASS_RAIL, amount/21.0);
 			ADD(ICLASS_ARM, amount/7.0);

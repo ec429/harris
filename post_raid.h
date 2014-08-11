@@ -11,4 +11,4 @@
 #include <atg.h>
 #include "types.h"
 
-extern atg_box *post_raid_box;
+extern atg_element *post_raid_box;

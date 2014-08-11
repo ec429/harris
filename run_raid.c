@@ -20,7 +20,7 @@
 #include "weather.h"
 #include "geom.h"
 
-atg_box *run_raid_box;
+atg_element *run_raid_box;
 char *RB_time_label;
 atg_element *RB_map;
 SDL_Surface *RB_atime_image;
@@ -32,10 +32,10 @@ double bridge, cidam;
 
 int run_raid_create(void)
 {
-	run_raid_box=atg_create_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	run_raid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!run_raid_box)
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	atg_element *RB_hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
@@ -44,25 +44,21 @@ int run_raid_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	if(atg_pack_element(run_raid_box, RB_hbox))
+	if(atg_ebox_pack(run_raid_box, RB_hbox))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *RB_time=atg_create_element_label("--:--", 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+	if(!(RB_time_label=malloc(6)))
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(RB_time_label, 6, "--:--");
+	atg_element *RB_time=atg_create_element_label_nocopy(RB_time_label, 12, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
 	if(!RB_time)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
-		return(1);
-	}
-	if(!RB_time->elem.label)
-	{
-		fprintf(stderr, "RB_time->elem.label==NULL\n");
-		return(1);
-	}
-	if(!(RB_time_label=RB_time->elem.label->text))
-	{
-		fprintf(stderr, "RB_time_label==NULL\n");
 		return(1);
 	}
 	RB_time->w=239;
@@ -71,22 +67,16 @@ int run_raid_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	SDL_Surface *map=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-	if(!map)
-	{
-		fprintf(stderr, "map: SDL_ConvertSurface: %s\n", SDL_GetError());
-		return(1);
-	}
-	RB_map=atg_create_element_image(map);
+	RB_map=atg_create_element_image(terrain);
 	if(!RB_map)
 	{
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
-	RB_map->h=map->h+2;
+	RB_map->h=terrain->h+2;
 	if(atg_ebox_pack(RB_hbox, RB_map))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	RB_atime_image=SDL_CreateRGBSurface(SDL_HWSURFACE, 600, 240, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
@@ -101,9 +91,9 @@ int run_raid_create(void)
 		fprintf(stderr, "atg_create_element_image failed\n");
 		return(1);
 	}
-	if(atg_pack_element(run_raid_box, RB_atime))
+	if(atg_ebox_pack(run_raid_box, RB_atime))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	return(0);
@@ -114,7 +104,13 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	state->roe.idtar=datebefore(state->now, event[EVENT_CIV]);
 	double moonphase=pom(state->now);
 	double moonillum=foldpom(moonphase);
-	double flakscale=state->gprod[ICLASS_ARM]/250000.0;
+	double flakscale=state->gprod[ICLASS_ARM]/(GET_DC(state,FLAK)*10000.0);
+	unsigned int rcity=GET_DC(state,RCITY),
+	             rindus=GET_DC(state,RINDUS),
+	             rship=GET_DC(state,RSHIP),
+	             rleaf=GET_DC(state,RLEAF),
+	             rother=GET_DC(state,ROTHER);
+	double d_fsr=GET_DC(state,FSR)/10.0;
 	unsigned int fightersleft;
 	totalraids=0;
 	fightersleft=state->nfighters;
@@ -146,21 +142,22 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	if(totalraids)
 	{
 		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
-		SDL_FreeSurface(RB_map->elem.image->data);
-		RB_map->elem.image->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-		SDL_Surface *with_flak=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		atg_image *map_img=RB_map->elemdata;
+		SDL_FreeSurface(map_img->data);
+		SDL_Surface *with_flak_and_target, *with_weather;
+		map_img->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		with_flak_and_target=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 		SDL_FreeSurface(flak_overlay);
 		flak_overlay=render_flak(state->now);
-		SDL_BlitSurface(flak_overlay, NULL, with_flak, NULL);
-		SDL_Surface *with_target=SDL_ConvertSurface(with_flak, with_flak->format, with_flak->flags);
+		SDL_BlitSurface(flak_overlay, NULL, with_flak_and_target, NULL);
 		SDL_FreeSurface(target_overlay);
 		target_overlay=render_targets(state->now);
-		SDL_BlitSurface(target_overlay, NULL, with_target, NULL);
-		SDL_Surface *with_weather=SDL_ConvertSurface(with_target, with_target->format, with_target->flags);
+		SDL_BlitSurface(target_overlay, NULL, with_flak_and_target, NULL);
+		with_weather=SDL_ConvertSurface(with_flak_and_target, with_flak_and_target->format, with_flak_and_target->flags);
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state->weather);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
-		SDL_BlitSurface(with_weather, NULL, RB_map->elem.image->data, NULL);
+		SDL_BlitSurface(with_weather, NULL, map_img->data, NULL);
 		bool stream=!datebefore(state->now, event[EVENT_GEE]),
 		     moonshine=!datebefore(state->now, event[EVENT_MOONSHINE]),
 		     window=!datebefore(state->now, event[EVENT_WINDOW]),
@@ -264,18 +261,32 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						switch(state->bombers[k].pff?state->raids[i].pffloads[type]:state->raids[i].loads[type])
 						{
 							case BL_PLUMDUFF:
-								transfer(4000, cap, state->bombers[k].b_hc);
-								while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+								if(cap>=4000) // cookie + gp+in mix
 								{
-									if(inext)
-										transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
-									else
-										transfer(min(bulk, 500), cap, state->bombers[k].b_gp);
-									inext=!inext;
+									transfer(4000, cap, state->bombers[k].b_hc);
+									while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+									{
+										if(inext)
+											transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
+										else
+											transfer(min(bulk, 500), cap, state->bombers[k].b_gp);
+										inext=!inext;
+									}
+								}
+								else // can't take a cookie, so just gp+in mix (but more gp than BL_USUAL)
+								{
+									while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+									{
+										if(inext)
+											transfer(min(bulk/1.5, 300), cap, state->bombers[k].b_in);
+										else
+											transfer(min(bulk, 1000), cap, state->bombers[k].b_gp);
+										inext=!inext;
+									}
 								}
 							break;
 							case BL_USUAL:
-								if(types[type].load[BL_PLUMDUFF]&&types[type].cap>=10000) // cookie + incendiaries
+								if(types[type].load[BL_PLUMDUFF]&&types[type].cap>=10000&&cap>4000) // cookie + incendiaries
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
 									bulk=types[type].cap-loadbulk(state->bombers[k]);
@@ -348,9 +359,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_Surface *with_ac=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
 		SDL_Surface *ac_overlay=render_ac(state);
 		SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
-		SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
+		SDL_BlitSurface(with_ac, NULL, map_img->data, NULL);
 		unsigned int inair=totalraids, t=0;
 		unsigned int kills[2]={0, 0};
+		cidam=0;
+		bridge=0;
 		// Tame Boar raid tracking
 		bool tameboar=!datebefore(state->now, event[EVENT_TAMEBOAR]);
 		unsigned int boxes[16][16]; // 10x10 boxes starting at (89,40)
@@ -368,7 +381,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		}
 		SDL_FreeSurface(weather_overlay);
 		weather_overlay=render_weather(state->weather);
-		SDL_BlitSurface(with_target, NULL, with_weather, NULL);
+		SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGBA(RB_atime_image->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b, GAME_BG_COLOUR.a));
 		while(inair)
@@ -381,7 +394,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				w_iter(&state->weather, lorw);
 				SDL_FreeSurface(weather_overlay);
 				weather_overlay=render_weather(state->weather);
-				SDL_BlitSurface(with_target, NULL, with_weather, NULL);
+				SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 				it++;
 			}
@@ -566,7 +579,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 										hi_append(&state->hist, state->now, maketime(t), state->bombers[k].id, false, type, ta, he+state->bombers[k].b_in+state->bombers[k].b_ti);
 										state->flam[ta]=min(state->flam[ta]+state->bombers[k].b_hc/5000.0, 100); // HC (cookies) increase target flammability
-										double maybe_dmg=(he*1.2+state->bombers[k].b_in*(targs[ta].flammable?2.4:1.5)*state->flam[ta]/40.0)/(targs[ta].psiz*20000.0);
+										double maybe_dmg=(he*1.2+state->bombers[k].b_in*(targs[ta].flammable?2.4:1.5)*state->flam[ta]/40.0)/(targs[ta].psiz*rcity*1000.0);
 										double dmg=min(state->dmg[ta], maybe_dmg);
 										cidam+=dmg*(targs[ta].berlin?2.0:1.0);
 										state->dmg[ta]-=dmg;
@@ -716,7 +729,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						unsigned int x=state->fighters[j].lon/2, y=state->fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
 						bool heavy=types[state->bombers[k].type].heavy;
-						double seerange=airad?(heavy?1.9:1.2):((heavy?5.0:2.1)*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+						double seerange=(airad?(heavy?1.9:1.2):((heavy?5.0:2.1)*(moonillum+.3)/(double)(8+max(4-wea, 0))))*d_fsr;
 						if(xyr(state->bombers[k].lon-state->fighters[j].lon, state->bombers[k].lat-state->fighters[j].lat, seerange))
 						{
 							double findp=airad?0.7:0.8/(double)(8+max(4-wea, 0));
@@ -1265,9 +1278,13 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			ac_overlay=render_ac(state);
 			SDL_BlitSurface(with_weather, NULL, with_ac, NULL);
 			SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
-			SDL_BlitSurface(with_ac, NULL, RB_map->elem.image->data, NULL);
+			SDL_BlitSurface(with_ac, NULL, map_img->data, NULL);
 			atg_flip(canvas);
 		}
+		SDL_FreeSurface(with_flak_and_target);
+		SDL_FreeSurface(with_weather);
+		SDL_FreeSurface(ac_overlay);
+		SDL_FreeSurface(with_ac);
 		// incorporate the results, and clear the raids ready for next cycle
 		if(kills[0]||kills[1])
 			fprintf(stderr, "Kills: flak %u, fighters %u\n", kills[0], kills[1]);
@@ -1318,7 +1335,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								{
 									unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-									double dmg=min(he/12000.0, state->dmg[l]);
+									double dmg=min(he/(rindus*600.0), state->dmg[l]);
 									cidam+=dmg*(targs[l].berlin?2.0:1.0);
 									state->dmg[l]-=dmg;
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
@@ -1340,7 +1357,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									{
 										unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 										hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-										double dmg=min(he/2000.0, state->dmg[l]);
+										double dmg=min(he/(rother*100.0), state->dmg[l]);
 										cidam+=dmg*(targs[l].berlin?2.0:1.0);
 										state->dmg[l]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
@@ -1362,7 +1379,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									{
 										unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 										hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-										if(brandp(log2(he/25.0)/200.0))
+										if(brandp(log2(he/(rother*1.25))/200.0))
 										{
 											cidam+=state->dmg[l];
 											bridge+=state->dmg[l];
@@ -1383,7 +1400,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(pget(targs[l].picture, dx+hx, dy+hy).a==ATG_ALPHA_OPAQUE)
 								{
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, state->bombers[k].b_le);
-									double dmg=min(state->bombers[k].b_le/(targs[l].psiz*12000.0), state->dmg[l]);
+									double dmg=min(state->bombers[k].b_le/(targs[l].psiz*rleaf*600.0), state->dmg[l]);
 									state->dmg[l]-=dmg;
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
 									nij[l][type]++;
@@ -1402,7 +1419,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 									nij[l][type]++;
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-									if(brandp(log2(he/500.0)/8.0))
+									if(brandp(max(log2(he/(rship*100.0))/8.0, 0.05)))
 									{
 										tij[l][type]++;
 										tsh_append(&state->hist, state->now, maketime(state->bombers[k].bt), l);
@@ -1420,7 +1437,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							{
 								unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 								hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-								double dmg=min(he/400000.0, state->dmg[l]);
+								double dmg=min(he/(rother*20000.0), state->dmg[l]);
 								state->dmg[l]-=dmg;
 								tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
 								nij[l][type]++;
@@ -1465,5 +1482,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 
 void run_raid_free(void)
 {
-	atg_free_box_box(run_raid_box);
+	SDL_FreeSurface(RB_atime_image);
+	atg_free_element(run_raid_box);
 }

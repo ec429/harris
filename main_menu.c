@@ -13,15 +13,16 @@
 #include "ui.h"
 #include "globals.h"
 #include "saving.h"
+#include "setup_game.h"
 
-atg_box *main_menu_box;
-atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_LoadGame;
+atg_element *main_menu_box;
+atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_NewGame, *MM_LoadGame;
 
 int main_menu_create(void)
 {
-	if(!(main_menu_box=atg_create_box(ATG_BOX_PACK_VERTICAL, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE})))
+	if(!(main_menu_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE})))
 	{
-		fprintf(stderr, "atg_create_box failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	atg_element *MM_topbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
@@ -30,15 +31,9 @@ int main_menu_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	if(atg_pack_element(main_menu_box, MM_topbox))
+	if(atg_ebox_pack(main_menu_box, MM_topbox))
 	{
-		perror("atg_pack_element");
-		return(1);
-	}
-	atg_box *tb=MM_topbox->elem.box;
-	if(!tb)
-	{
-		fprintf(stderr, "MM_topbox->elem.box==NULL\n");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	atg_element *MM_title=atg_create_element_label("HARRIS: Main Menu", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
@@ -47,9 +42,9 @@ int main_menu_create(void)
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(atg_pack_element(tb, MM_title))
+	if(atg_ebox_pack(MM_topbox, MM_title))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	MM_full=atg_create_element_image(fullbtn);
@@ -59,9 +54,9 @@ int main_menu_create(void)
 		return(1);
 	}
 	MM_full->clickable=true;
-	if(atg_pack_element(tb, MM_full))
+	if(atg_ebox_pack(MM_topbox, MM_full))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	MM_QuickStart=atg_create_element_button("Quick Start Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
@@ -70,20 +65,20 @@ int main_menu_create(void)
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_pack_element(main_menu_box, MM_QuickStart))
+	if(atg_ebox_pack(main_menu_box, MM_QuickStart))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *MM_NewGame=atg_create_element_button("Set Up New Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
+	MM_NewGame=atg_create_element_button("Set Up New Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
 	if(!MM_NewGame)
 	{
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_pack_element(main_menu_box, MM_NewGame))
+	if(atg_ebox_pack(main_menu_box, MM_NewGame))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	MM_LoadGame=atg_create_element_button("Load Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
@@ -92,9 +87,9 @@ int main_menu_create(void)
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_pack_element(main_menu_box, MM_LoadGame))
+	if(atg_ebox_pack(main_menu_box, MM_LoadGame))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	MM_Exit=atg_create_element_button("Exit", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
@@ -103,9 +98,9 @@ int main_menu_create(void)
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_pack_element(main_menu_box, MM_Exit))
+	if(atg_ebox_pack(main_menu_box, MM_Exit))
 	{
-		perror("atg_pack_element");
+		perror("atg_ebox_pack");
 		return(1);
 	}
 	MM_QuickStart->w=MM_NewGame->w=MM_LoadGame->w=MM_Exit->w=136;
@@ -150,7 +145,7 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 					else if(trigger.e==MM_QuickStart)
 					{
 						fprintf(stderr, "Loading game state from Quick Start file...\n");
-						if(!loadgame("save/qstart.sav", state, lorw))
+						if(!loadgame("save/qstart.sav", state))
 						{
 							fprintf(stderr, "Quick Start Game loaded\n");
 							return(SCRN_CONTROL);
@@ -159,6 +154,11 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 						{
 							fprintf(stderr, "Failed to load Quick Start save file\n");
 						}
+					}
+					else if(trigger.e==MM_NewGame)
+					{
+						selstart=-1;
+						return(SCRN_SETPGAME);
 					}
 					else if(trigger.e==MM_LoadGame)
 					{
@@ -181,5 +181,5 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 
 void main_menu_free(void)
 {
-	atg_free_box_box(main_menu_box);
+	atg_free_element(main_menu_box);
 }

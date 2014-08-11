@@ -36,14 +36,19 @@ extern unsigned int ntargs;
 extern target *targs;
 extern unsigned int nflaks;
 extern flaksite *flaks;
+extern unsigned int nstarts;
+extern startpoint *starts;
 
-extern SDL_Surface *terrain, *location, *yellowhair, *intelbtn, *navpic[NNAVAIDS], *pffpic, *resizebtn, *fullbtn, *exitbtn;
+extern SDL_Surface *terrain, *location, *yellowhair, *nointelbtn, *intelbtn, *navpic[NNAVAIDS], *pffpic, *resizebtn, *fullbtn, *exitbtn;
 
 extern SDL_Surface *grey_overlay, *yellow_overlay;
-extern SDL_Surface *weather_overlay, *target_overlay, *flak_overlay, *xhair_overlay;
+extern SDL_Surface *weather_overlay, *target_overlay, *flak_overlay, *xhair_overlay, *seltarg_overlay;
 
 extern bool lorw[128][128];
 extern unsigned char tnav[128][128];
 
 extern unsigned int mainsizex, mainsizey;
 extern bool fullscreen;
+
+extern bool localdat, localsav;
+extern char *cwd;

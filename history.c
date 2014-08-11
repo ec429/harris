@@ -40,7 +40,11 @@ int hist_append(history *hist, const char line[HIST_LINE])
 int hist_save(history hist, FILE *out)
 {
 	if(!out) return(1);
+	#ifdef WINDOWS
+	fprintf(out, "History:%lu\n", (unsigned long)hist.nents);
+	#else
 	fprintf(out, "History:%zu\n", hist.nents);
+	#endif
 	for(size_t i=0;i<hist.nents;i++)
 	{
 		char *line=hist.ents[i];

@@ -9,6 +9,4 @@
 
 #include <atg.h>
 
-extern atg_box *load_game_box;
-extern char **LB_btext;
-extern atg_element *LB_file, *LB_text, *LB_full, *LB_exit, *LB_load;
+extern atg_element *load_game_box;
