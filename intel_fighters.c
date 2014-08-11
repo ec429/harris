@@ -389,7 +389,7 @@ screen_id intel_fighters_screen(atg_canvas *canvas, game *state)
 							if(c.e==IF_types[i])
 								break;
 						}
-						if(i<ntypes)
+						if(i<nftypes)
 						{
 							IF_i=i;
 						}
