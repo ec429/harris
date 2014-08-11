@@ -12,3 +12,5 @@
 #include "types.h"
 
 extern atg_element *control_box;
+
+void game_preinit(game *state); // post-load and -setup, but pre-SCRN_CONTROL entry

@@ -436,7 +436,7 @@ void update_intel_bombers(const game *state)
 {
 	for(unsigned int i=0;i<ntypes;i++)
 	{
-		IB_types[i]->hidden=datebefore(state->now, types[i].entry);
+		IB_types[i]->hidden=datebefore(state->now, types[i].entry)||!state->btypes[i];
 		atg_box *nb=IB_namebox[i]->elemdata;
 		if(nb)
 		{

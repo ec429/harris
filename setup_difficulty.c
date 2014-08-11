@@ -13,6 +13,7 @@
 #include "setup_difficulty.h"
 #include "ui.h"
 #include "globals.h"
+#include "control.h"
 
 atg_element *setup_difficulty_box;
 atg_element *SD_full, *SD_exit, *SD_back, *SD_start;
@@ -282,6 +283,7 @@ screen_id setup_difficulty_screen(atg_canvas *canvas, game *state)
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e==SD_start)
 					{
+						game_preinit(state);
 						return(SCRN_CONTROL);
 					}
 					else if(trigger.e==SD_back)

@@ -68,6 +68,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	// Update bomber prodn caps
 	for(unsigned int i=0;i<ntypes;i++)
 	{
+		if(!state->btypes[i]) continue;
 		if(!diffdate(tomorrow, types[i].entry)) // when a type is new, get 15 of them free
 		{
 			for(unsigned int a=0;a<15;a++)
@@ -97,6 +98,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		unsigned int m=0;
 		for(unsigned int i=1;i<ntypes;i++)
 		{
+			if(!state->btypes[i]) continue;
 			if(!datewithin(state->now, types[i].entry, types[i].exit)) continue;
 			if(types[i].pribuf>types[m].pribuf) m=i;
 		}
@@ -105,6 +107,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			bool any=false;
 			for(unsigned int i=0;i<ntypes;i++)
 			{
+				if(!state->btypes[i]) continue;
 				if(!datewithin(state->now, types[i].entry, types[i].exit)) continue;
 				unsigned int prio=(unsigned int [4]){0, 1, 3, 6}[types[i].prio];
 				if(datebefore(state->now, types[i].novelty)) prio=max(prio, 1);
@@ -114,6 +117,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			if(!any) break;
 			continue;
 		}
+		if(!state->btypes[m]) // is possible, if m==0
+			break;
 		unsigned int cost=types[m].cost;
 		if(types[m].broughton&&!datebefore(state->now, event[EVENT_BROUGHTON]))
 			cost=(cost*2)/3;
@@ -378,11 +383,14 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		gp_append(&state->hist, state->now, (time){11, 55}, i, state->gprod[i], state->dprod[i]);
 	state->now=tomorrow;
 	for(unsigned int i=0;i<ntypes;i++)
+	{
+		if(!state->btypes[i]) continue;
 		if(!diffdate(state->now, types[i].entry))
 		{
 			if(msgadd(canvas, state, state->now, types[i].name, types[i].newtext))
 				fprintf(stderr, "failed to msgadd newtype: %s\n", types[i].name);
 		}
+	}
 	for(unsigned int i=0;i<nftypes;i++)
 		if(!diffdate(state->now, ftypes[i].entry))
 		{

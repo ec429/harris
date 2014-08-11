@@ -90,6 +90,7 @@ int load_bombers(void)
 				this.heavy=strstr(nav, "HEAVY");
 				this.inc=strstr(nav, "INC");
 				this.broughton=strstr(nav, "BROUGHTON");
+				this.extra=strstr(nav, "EXTRA");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
 				char pn[256];
@@ -104,7 +105,7 @@ int load_bombers(void)
 					pn[12+p]=tolower(this.name[p]);
 				}
 				strncat(pn, ".png", 256);
-				if(!(this.picture=IMG_Load(pn)))
+				if(!(this.picture=IMG_Load(pn))&&!this.extra)
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
 					return(1);
@@ -121,7 +122,7 @@ int load_bombers(void)
 					sn[18+p]=tolower(this.name[p]);
 				}
 				strncat(sn, "-side.png", 256);
-				if(!(this.side_image=IMG_Load(sn)))
+				if(!(this.side_image=IMG_Load(sn))&&!this.extra)
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
 					return(1);

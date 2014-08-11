@@ -259,6 +259,11 @@ int main(int argc, char *argv[])
 		perror("malloc");
 		return(1);
 	}
+	if(!(state.btypes=malloc(ntypes*sizeof(*state.btypes))))
+	{
+		perror("malloc");
+		return(1);
+	}
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		state.nap[n]=0;

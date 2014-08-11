@@ -108,7 +108,7 @@ typedef struct
 	date exit;
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
-	bool noarm, pff, heavy, inc, broughton;
+	bool noarm, pff, heavy, inc, broughton, extra;
 	unsigned int blat, blon;
 	SDL_Surface *picture, *side_image;
 	char *text, *newtext;
@@ -263,6 +263,7 @@ typedef struct
 	double confid, morale;
 	unsigned int nbombers;
 	ac_bomber *bombers;
+	bool *btypes;
 	int nap[NNAVAIDS];
 	unsigned int napb[NNAVAIDS];
 	w_state weather;

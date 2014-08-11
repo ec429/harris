@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "saving.h"
 #include "setup_game.h"
+#include "control.h"
 
 atg_element *main_menu_box;
 atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_NewGame, *MM_LoadGame;
@@ -148,6 +149,10 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 						if(!loadgame("save/qstart.sav", state))
 						{
 							fprintf(stderr, "Quick Start Game loaded\n");
+							// Disable the xbombers
+							for(unsigned int i=0;i<ntypes;i++)
+								state->btypes[i]=!types[i].extra;
+							game_preinit(state);
 							return(SCRN_CONTROL);
 						}
 						else

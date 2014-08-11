@@ -186,23 +186,32 @@ int loadgame(const char *fn, game *state)
 						break;
 					}
 					unsigned int j, prio, pribuf, pc, pcbuf;
-					f=sscanf(line, "Prio %u:%u,%u,%u,%u\n", &j, &prio, &pribuf, &pc, &pcbuf);
-					if(f!=5)
+					f=sscanf(line, "NoType %u\n", &j);
+					if(f==1)
 					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-						e|=1;
-						break;
+						state->btypes[j]=false;
 					}
-					if(j!=i)
+					else
 					{
-						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
-						e|=4;
-						break;
+						f=sscanf(line, "Prio %u:%u,%u,%u,%u\n", &j, &prio, &pribuf, &pc, &pcbuf);
+						if(f!=5)
+						{
+							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+							e|=1;
+							break;
+						}
+						if(j!=i)
+						{
+							fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+							e|=4;
+							break;
+						}
+						types[j].prio=prio;
+						types[j].pribuf=pribuf;
+						types[j].pc=pc;
+						types[j].pcbuf=pcbuf;
+						state->btypes[j]=true;
 					}
-					types[j].prio=prio;
-					types[j].pribuf=pribuf;
-					types[j].pc=pc;
-					types[j].pcbuf=pcbuf;
 				}
 			}
 		}
@@ -699,7 +708,10 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Budget:%u+%u\n", state.cash, state.cshr);
 	fprintf(fs, "Types:%u\n", ntypes);
 	for(unsigned int i=0;i<ntypes;i++)
-		fprintf(fs, "Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf);
+		if(state.btypes[i])
+			fprintf(fs, "Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf);
+		else
+			fprintf(fs, "NoType %u\n", i);
 	fprintf(fs, "Navaids:%u\n", NNAVAIDS);
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		fprintf(fs, "NPrio %u:%d,%u\n", n, state.nap[n], state.napb[n]);

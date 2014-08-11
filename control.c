@@ -961,7 +961,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
-			GB_btrow[i]->hidden=!datewithin(state->now, types[i].entry, types[i].exit);
+			GB_btrow[i]->hidden=!datewithin(state->now, types[i].entry, types[i].exit)||!state->btypes[i];
 		if(GB_btpc[i])
 			GB_btpc[i]->h=18-min(types[i].pcbuf/10000, 18);
 		if(GB_btnew[i])
@@ -1471,4 +1471,25 @@ int update_raidnums(const game *state, int seltarg)
 			GB_rbrow[i]->hidden=!count||(GB_btrow[i]?GB_btrow[i]->hidden:true);
 	}
 	return(0);
+}
+
+void game_preinit(game *state)
+{
+	// delete any bombers of deselected types
+	unsigned int stripped=0;
+	for(unsigned int i=0;i<state->nbombers;i++)
+	{
+		unsigned int type=state->bombers[i].type;
+		if(!state->btypes[type])
+		{
+			state->nbombers--;
+			for(unsigned int j=i;j<state->nbombers;j++)
+				state->bombers[j]=state->bombers[j+1];
+			i--;
+			stripped++;
+			continue;
+		}
+	}
+	if(stripped)
+		fprintf(stderr, "preinit: stripped %u bombers (deselected types)\n", stripped);
 }
