@@ -44,6 +44,8 @@ extern SDL_Surface *terrain, *location, *yellowhair, *nointelbtn, *intelbtn, *na
 extern SDL_Surface *grey_overlay, *yellow_overlay;
 extern SDL_Surface *weather_overlay, *target_overlay, *flak_overlay, *xhair_overlay, *seltarg_overlay;
 
+extern SDL_Surface *tick, *cross;
+
 extern bool lorw[128][128];
 extern unsigned char tnav[128][128];
 

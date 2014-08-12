@@ -30,6 +30,7 @@
 #include "main_menu.h"
 #include "setup_game.h"
 #include "setup_difficulty.h"
+#include "setup_types.h"
 #include "load_game.h"
 #include "save_game.h"
 #include "control.h"
@@ -102,6 +103,7 @@ SDL_Surface *pffpic=NULL;
 SDL_Surface *resizebtn=NULL;
 SDL_Surface *fullbtn=NULL;
 SDL_Surface *exitbtn=NULL;
+SDL_Surface *tick=NULL, *cross=NULL;
 
 SDL_Surface *grey_overlay=NULL, *yellow_overlay=NULL;
 SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
@@ -315,8 +317,7 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-	}
-	state.roe.idtar=true;
+	}	state.roe.idtar=true;
 	for(unsigned int i=0;i<MAXMSGS;i++)
 		state.msg[i]=NULL;
 	
@@ -446,6 +447,7 @@ int main(int argc, char *argv[])
 	screens[SCRN_MAINMENU]=MAKE_SCRN(main_menu);
 	screens[SCRN_SETPGAME]=MAKE_SCRN(setup_game);
 	screens[SCRN_SETPDIFF]=MAKE_SCRN(setup_difficulty);
+	screens[SCRN_SETPTYPS]=MAKE_SCRN(setup_types);
 	screens[SCRN_LOADGAME]=MAKE_SCRN(load_game);
 	screens[SCRN_SAVEGAME]=MAKE_SCRN(save_game);
 	screens[SCRN_CONTROL] =MAKE_SCRN(control);

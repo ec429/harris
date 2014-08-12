@@ -24,6 +24,7 @@ typedef enum
 	SCRN_MAINMENU,
 	SCRN_SETPGAME,
 	SCRN_SETPDIFF,
+	SCRN_SETPTYPS,
 	SCRN_LOADGAME,
 	SCRN_SAVEGAME,
 	SCRN_CONTROL,
@@ -49,6 +50,7 @@ struct screen
 int main_menu_create(void);
 int setup_game_create(void);
 int setup_difficulty_create(void);
+int setup_types_create(void);
 int load_game_create(void);
 int save_game_create(void);
 int control_create(void);
@@ -62,6 +64,7 @@ int intel_targets_create(void);
 screen_id main_menu_screen(atg_canvas *, game *);
 screen_id setup_game_screen(atg_canvas *, game *);
 screen_id setup_difficulty_screen(atg_canvas *, game *);
+screen_id setup_types_screen(atg_canvas *, game *);
 screen_id load_game_screen(atg_canvas *, game *);
 screen_id save_game_screen(atg_canvas *, game *);
 screen_id control_screen(atg_canvas *, game *);
@@ -75,6 +78,7 @@ screen_id intel_targets_screen(atg_canvas *, game *);
 void main_menu_free(void);
 void setup_game_free(void);
 void setup_difficulty_free(void);
+void setup_types_free(void);
 void load_game_free(void);
 void save_game_free(void);
 void control_free(void);

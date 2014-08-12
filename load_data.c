@@ -890,6 +890,16 @@ int load_images(void)
 		fprintf(stderr, "Exit button: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(tick=IMG_Load("art/tick.png")))
+	{
+		fprintf(stderr, "Tick icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(cross=IMG_Load("art/cross.png")))
+	{
+		fprintf(stderr, "Cross icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(!(navpic[n]=IMG_Load(navpicfn[n])))

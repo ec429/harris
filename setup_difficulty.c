@@ -13,10 +13,9 @@
 #include "setup_difficulty.h"
 #include "ui.h"
 #include "globals.h"
-#include "control.h"
 
 atg_element *setup_difficulty_box;
-atg_element *SD_full, *SD_exit, *SD_back, *SD_start;
+atg_element *SD_full, *SD_exit, *SD_back, *SD_cont;
 atg_element *SD_diff[DIFFICULTY_CLASSES][3];
 
 #define SD_BG_COLOUR	(atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE}
@@ -197,12 +196,12 @@ int setup_difficulty_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	if(!(SD_start=atg_create_element_button("Start Game!", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE})))
+	if(!(SD_cont=atg_create_element_button("Continue", (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE})))
 	{
 		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	if(atg_ebox_pack(SD_nav, SD_start))
+	if(atg_ebox_pack(SD_nav, SD_cont))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -281,10 +280,9 @@ screen_id setup_difficulty_screen(atg_canvas *canvas, game *state)
 				break;
 				case ATG_EV_TRIGGER:;
 					atg_ev_trigger trigger=e.event.trigger;
-					if(trigger.e==SD_start)
+					if(trigger.e==SD_cont)
 					{
-						game_preinit(state);
-						return(SCRN_CONTROL);
+						return(SCRN_SETPTYPS);
 					}
 					else if(trigger.e==SD_back)
 					{

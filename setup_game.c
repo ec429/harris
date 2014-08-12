@@ -699,6 +699,8 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e==SG_cont)
 					{
+						for(unsigned int i=0;i<ntypes;i++)
+							state->btypes[i]=!types[i].extra;
 						return(SCRN_SETPDIFF);
 					}
 					else if(!trigger.e)
