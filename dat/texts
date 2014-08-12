@@ -392,6 +392,24 @@ A new type of bomber has been developed and is now going into production.  The A
  heavy bomber, capable of carrying 50% more bombs than a Whitley.  There have been a few teething problems with
  the Vulture engines, though.
 
+==Southampton==
+
+The Supermarine Type 317 Southampton is a heavy bomber with four
+ Bristol Hercules radials.  Its 16,000lb payload is impressive, and
+ its speed and altitude are also good, but its short range and poor
+ defence are limiting.  It's also rather expensive to build.
+ 
+Historical notes: The Type 317 project was cancelled after a
+ Luftwaffe raid on Supermarine's works at Woolston on 26-09-1940
+ destroyed the prototypes and many of the drawings.
+ The type was never given a service name.
+ Its specification, B.12/36, was filled by the Short Stirling.
+
+==NEW_Southampton==
+
+A new type of bomber has been developed and is now going into production.  The Supermarine Type 317 is a large
+ four-engined bomber with a 16,000lb payload.
+
 ==Stirling==
 
 The Short S.29 Stirling is the first four-engined heavy bomber
@@ -405,6 +423,23 @@ it's a welcome addition to the heavy striking force.
 
 The first of the new four-engined heavy bombers is now going into production.  The Short Stirling, a very large
  aircraft, carries a huge 14,000lb of bombs.
+
+==Elswick==
+
+The Armstrong-Whitworth Elswick is a development of the Whitley
+ using Armstrong-Siddeley Deerhound radial engines.  It's cheap to
+ produce and carries 7,500lb of bombs.  However, it's vulnerable to
+ attack, slow, and not very accurate.  Still, its long range helps.
+ 
+Historical notes: The Elswick is almost completely fictional, being
+ inspired by the use of a Whitley II as a test-bed for the Deerhound
+ engine.  The Deerhound itself was cancelled in April 1941.
+
+==NEW_Elswick==
+
+A new medium bomber has been developed and is now going into production.  The Armstrong-Whitworth Elswick is a
+ cheap-and-cheerful alternative to heavy bombers, with a long range and a 7,500lb load but otherwise rather poor
+ performance.  It's also weak defensively and lacks accuracy.
 
 ==Halifax I==
 
@@ -468,9 +503,16 @@ A new type of bomber has been developed and is now going into production.  The H
 
 ==Windsor==
 
-The Vickers Type 447 Windsor is a high-altitude heavy with a pressurised cockpit.  It carries 15,000lb of bombs at
- a high speed and can climb to 27,000ft.  Its geodetic structure, more complex than that of its predecessor the
- Wellington, is difficult to produce in quantity, but its high performance should keep losses low.
+The Vickers Type 447 Windsor is a high-altitude heavy with a
+ pressurised cockpit.  It carries 15,000lb of bombs at a high speed
+ and can climb to 27,000ft.
+Its geodetic structure, more complex than that of its predecessor
+ the Wellington, is difficult to produce in quantity, but its high
+ performance should keep losses low.
+ 
+Historical notes: The Air Ministry lost interest in the Windsor
+ project after improvements to the Lancaster enabled the latter to
+ fulfil the high-altitude rôle envisaged for the Windsor.
 
 ==NEW_Windsor==
 
@@ -479,8 +521,15 @@ A new type of bomber has been developed and is now going into production.  The V
 
 ==Selkirk==
 
-The Short Selkirk, developed from the Stirling, is even larger than its stablemate; its wingspan measures 135ft!
- It can carry 18,000lb of bombs, although its speed is low and its range limited.  It's also somewhat vulnerable.
+The Short Selkirk, developed from the Stirling, is even larger than
+ its stablemate; its wingspan measures 135ft!  It can carry 18,000lb
+ of bombs, although its speed is low and its range limited.  It's
+ also somewhat vulnerable to flak and fighters.
+ 
+Historical notes: the Air Ministry wrote Specification B.8/41 around
+ Shorts' proposed "Super Stirling", but C-in-C Arthur Harris
+ discouraged the project on the grounds that production would be
+ slow.  The Air Ministry terminated the B.8/41 project in May 1942.
 
 ==NEW_Selkirk==
 
