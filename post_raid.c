@@ -264,7 +264,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					if(cscale==0)
 						ddmg=100-state->dmg[i];
 					state->dmg[i]+=ddmg;
-					tdm_append(&state->hist, state->now, (time){11, 45}, i, ddmg, state->dmg[i]);
+					if(ddmg)
+						tdm_append(&state->hist, state->now, (time){11, 45}, i, ddmg, state->dmg[i]);
 					produce(i, state, state->dmg[i]*targs[i].prod*cscale/2.0);
 					if(cscale==0)
 						goto unflak;
