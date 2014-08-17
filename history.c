@@ -37,6 +37,17 @@ int hist_append(history *hist, const char line[HIST_LINE])
 	return(0);
 }
 
+int hist_clear(history *hist)
+{
+	if(!hist) return(1);
+	for(size_t i=0;i<hist->nents;i++)
+		free(hist->ents[i]);
+	free(hist->ents);
+	hist->ents=NULL;
+	hist->nents=0;
+	return(0);
+}
+
 int hist_save(history hist, FILE *out)
 {
 	if(!out) return(1);
@@ -75,9 +86,11 @@ int hist_save(history hist, FILE *out)
 
 int hist_load(FILE *in, size_t nents, history *hist)
 {
+	char line[HIST_LINE];
 	if(!in) return(1);
 	if(!hist) return(1);
-	char line[HIST_LINE];
+	int rc=hist_clear(hist);
+	if(rc) return rc;
 	for(size_t i=0;i<nents;i++)
 	{
 		if(!fgets(line, HIST_LINE, in))
