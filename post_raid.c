@@ -262,13 +262,11 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				{
 					double ddmg=min(state->dmg[i]/(double)rother, 100-state->dmg[i]), cscale=targs[i].city<0?1.0:state->dmg[targs[i].city]/100.0;
 					if(cscale==0)
-						ddmg=100-state->dmg[i];
+						goto unflak;
 					state->dmg[i]+=ddmg;
 					if(ddmg)
 						tdm_append(&state->hist, state->now, (time){11, 45}, i, ddmg, state->dmg[i]);
 					produce(i, state, state->dmg[i]*targs[i].prod*cscale/2.0);
-					if(cscale==0)
-						goto unflak;
 				}
 				else
 				{
