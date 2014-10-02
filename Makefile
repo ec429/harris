@@ -105,9 +105,11 @@ static: all
 	cp -r art dat lib map save stats *.o *.py README HOWTOPLAY STRATEGY COPYING static/
 	mv static/lib/Makefile static/lib/INSTALL static/
 	make -C static -f Makefile -B harris
+	rm static/*.o
 
 windows: all
 	mkdir windows
 	cp -r art dat map save stats *.c *.h *.o *.py README HOWTOPLAY STRATEGY COPYING windows/
 	cp lib-w/* windows/
 	make -C windows -f Makefile.w32 -B
+	rm windows/*.o
