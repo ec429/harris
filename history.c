@@ -40,11 +40,10 @@ int hist_append(history *hist, const char line[HIST_LINE])
 int hist_clear(history *hist)
 {
 	if(!hist) return(1);
-	for(size_t i=0;i<hist->nents;i++)
-		free(hist->ents[i]);
 	free(hist->ents);
 	hist->ents=NULL;
 	hist->nents=0;
+	hist->nalloc=0;
 	return(0);
 }
 
