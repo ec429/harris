@@ -142,22 +142,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	if(totalraids)
 	{
 		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
-		atg_image *map_img=RB_map->elemdata;
-		SDL_FreeSurface(map_img->data);
-		SDL_Surface *with_flak_and_target, *with_weather;
-		map_img->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-		with_flak_and_target=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-		SDL_FreeSurface(flak_overlay);
-		flak_overlay=render_flak(state->now);
-		SDL_BlitSurface(flak_overlay, NULL, with_flak_and_target, NULL);
-		SDL_FreeSurface(target_overlay);
-		target_overlay=render_targets(state->now);
-		SDL_BlitSurface(target_overlay, NULL, with_flak_and_target, NULL);
-		with_weather=SDL_ConvertSurface(with_flak_and_target, with_flak_and_target->format, with_flak_and_target->flags);
-		SDL_FreeSurface(weather_overlay);
-		weather_overlay=render_weather(state->weather);
-		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
-		SDL_BlitSurface(with_weather, NULL, map_img->data, NULL);
 		bool stream=!datebefore(state->now, event[EVENT_GEE]),
 		     moonshine=!datebefore(state->now, event[EVENT_MOONSHINE]),
 		     window=!datebefore(state->now, event[EVENT_WINDOW]),
@@ -356,6 +340,24 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			}
 		}
 		oboe.k=-1;
+		atg_image *map_img=RB_map->elemdata;
+		SDL_FreeSurface(map_img->data);
+		SDL_Surface *with_flak_and_target, *with_weather; /* with_weather also has route */
+		map_img->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		with_flak_and_target=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
+		SDL_FreeSurface(flak_overlay);
+		flak_overlay=render_flak(state->now);
+		SDL_BlitSurface(flak_overlay, NULL, with_flak_and_target, NULL);
+		SDL_FreeSurface(target_overlay);
+		target_overlay=render_targets(state->now);
+		SDL_BlitSurface(target_overlay, NULL, with_flak_and_target, NULL);
+		with_weather=SDL_ConvertSurface(with_flak_and_target, with_flak_and_target->format, with_flak_and_target->flags);
+		SDL_FreeSurface(weather_overlay);
+		weather_overlay=render_weather(state->weather);
+		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
+		SDL_FreeSurface(route_overlay);
+		route_overlay=render_routes(state);
+		SDL_BlitSurface(route_overlay, NULL, with_weather, NULL);
 		SDL_Surface *with_ac=SDL_ConvertSurface(with_weather, with_weather->format, with_weather->flags);
 		SDL_Surface *ac_overlay=render_ac(state);
 		SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
@@ -396,6 +398,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				weather_overlay=render_weather(state->weather);
 				SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
+				SDL_BlitSurface(route_overlay, NULL, with_weather, NULL);
 				it++;
 			}
 			if(stream&&(t>=450)&&(t<571))

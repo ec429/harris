@@ -106,7 +106,7 @@ SDL_Surface *exitbtn=NULL;
 SDL_Surface *tick=NULL, *cross=NULL;
 
 SDL_Surface *grey_overlay=NULL, *yellow_overlay=NULL;
-SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
+SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *route_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
 
 bool lorw[128][128]; // TRUE for water
 unsigned char tnav[128][128]; // Recognisability of terrain.  High for rivers, even higher for coastline

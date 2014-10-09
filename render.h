@@ -11,6 +11,7 @@
 #include "types.h"
 
 SDL_Surface *render_weather(w_state weather);
+SDL_Surface *render_routes(const game *state);
 SDL_Surface *render_targets(date now);
 SDL_Surface *render_flak(date now);
 SDL_Surface *render_ac(const game *state);
