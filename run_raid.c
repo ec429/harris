@@ -213,7 +213,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6/(double)state->bombers[k].speed;
 				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)state->bombers[k].speed+12;
 				if(!stream) eta+=36;
-				if(eta>state->bombers[k].fuelt)				{
+				if(eta>state->bombers[k].fuelt)
+				{
 					unsigned int fu=eta-state->bombers[k].fuelt;
 					state->bombers[k].fuelt+=fu;
 					cap*=120.0/(120.0+fu);

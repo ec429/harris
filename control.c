@@ -32,7 +32,7 @@ atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint,
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
-char **GB_btnum, **GB_raidnum;
+char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 SDL_Surface *GB_moonimg;
 int filter_nav[NNAVAIDS], filter_pff=0;
@@ -696,6 +696,11 @@ int control_create(void)
 		perror("calloc");
 		return(1);
 	}
+	if(!(GB_estcap=calloc(ntypes, sizeof(char *))))
+	{
+		perror("calloc");
+		return(1);
+	}
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!(GB_rbrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
@@ -800,6 +805,22 @@ int control_create(void)
 				return(1);
 			}
 			GB_raidload[i][j]=NULL;
+		}
+		if(!(GB_estcap[i]=malloc(24)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		atg_element *estcap=atg_create_element_label_nocopy(GB_estcap[i], 9, (atg_colour){127, 127, 159, ATG_ALPHA_OPAQUE});
+		if(!estcap)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(vbox, estcap))
+		{
+			perror("atg_ebox_pack");
+			return(1);
 		}
 	}
 	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
@@ -1375,7 +1396,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									mins=stage;
 								}
 							}
-							routegrab=mins;
+							if((routegrab=mins)==4) // don't let them move the A.P.
+								routegrab=-1;
 						}
 						if(c.e==GB_exit)
 							goto do_quit;
@@ -1502,6 +1524,7 @@ int update_raidbox(const game *state, int seltarg)
 
 int update_raidnums(const game *state, int seltarg)
 {
+	bool stream=!datebefore(state->now, event[EVENT_GEE]);
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		unsigned int count=0;
@@ -1512,6 +1535,34 @@ int update_raidnums(const game *state, int seltarg)
 			snprintf(GB_raidnum[i], 32, "%u", count);
 		if(GB_rbrow[i])
 			GB_rbrow[i]->hidden=!count||(GB_btrow[i]?GB_btrow[i]->hidden:true);
+		if(count&&GB_estcap[i])
+		{
+			unsigned int cap=types[i].cap;
+			double dist;
+			if(stream)
+			{
+				dist=hypot((signed)types[i].blat-(signed)targs[seltarg].route[0][0], (signed)types[i].blon-(signed)targs[seltarg].route[0][1]);
+				for(unsigned int l=0;l<4;l++)
+				{
+					double d=hypot((signed)targs[seltarg].route[l+1][0]-(signed)targs[seltarg].route[l][0], (signed)targs[seltarg].route[l+1][1]-(signed)targs[seltarg].route[l][1]);
+					dist+=d;
+				}
+			}
+			else
+			{
+				dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.07;
+			}
+			unsigned int fuelt=types[i].range*0.6/(types[i].speed/450.0);
+			unsigned int estt=dist*1.1/(types[i].speed/450.0)+12;
+			if(!stream) estt+=36;
+			if(estt>fuelt)
+			{
+				unsigned int fu=estt-fuelt;
+				cap*=120.0/(120.0+fu);
+			}
+			cap=(cap/10)*10;
+			snprintf(GB_estcap[i], 24, "%12ulb est. max", cap);
+		}
 	}
 	return(0);
 }
