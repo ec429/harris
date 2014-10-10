@@ -1537,31 +1537,38 @@ int update_raidnums(const game *state, int seltarg)
 			GB_rbrow[i]->hidden=!count||(GB_btrow[i]?GB_btrow[i]->hidden:true);
 		if(count&&GB_estcap[i])
 		{
-			unsigned int cap=types[i].cap;
-			double dist;
-			if(stream)
+			if(targs[seltarg].class==TCLASS_LEAFLET)
 			{
-				dist=hypot((signed)types[i].blat-(signed)targs[seltarg].route[0][0], (signed)types[i].blon-(signed)targs[seltarg].route[0][1]);
-				for(unsigned int l=0;l<4;l++)
-				{
-					double d=hypot((signed)targs[seltarg].route[l+1][0]-(signed)targs[seltarg].route[l][0], (signed)targs[seltarg].route[l+1][1]-(signed)targs[seltarg].route[l][1]);
-					dist+=d;
-				}
+				GB_estcap[i][0]=0;
 			}
 			else
 			{
-				dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.07;
+				unsigned int cap=types[i].cap;
+				double dist;
+				if(stream)
+				{
+					dist=hypot((signed)types[i].blat-(signed)targs[seltarg].route[0][0], (signed)types[i].blon-(signed)targs[seltarg].route[0][1]);
+					for(unsigned int l=0;l<4;l++)
+					{
+						double d=hypot((signed)targs[seltarg].route[l+1][0]-(signed)targs[seltarg].route[l][0], (signed)targs[seltarg].route[l+1][1]-(signed)targs[seltarg].route[l][1]);
+						dist+=d;
+					}
+				}
+				else
+				{
+					dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.07;
+				}
+				unsigned int fuelt=types[i].range*0.6/(types[i].speed/450.0);
+				unsigned int estt=dist*1.1/(types[i].speed/450.0)+12;
+				if(!stream) estt+=36;
+				if(estt>fuelt)
+				{
+					unsigned int fu=estt-fuelt;
+					cap*=120.0/(120.0+fu);
+				}
+				cap=(cap/10)*10;
+				snprintf(GB_estcap[i], 24, "%12ulb est. max", cap);
 			}
-			unsigned int fuelt=types[i].range*0.6/(types[i].speed/450.0);
-			unsigned int estt=dist*1.1/(types[i].speed/450.0)+12;
-			if(!stream) estt+=36;
-			if(estt>fuelt)
-			{
-				unsigned int fu=estt-fuelt;
-				cap*=120.0/(120.0+fu);
-			}
-			cap=(cap/10)*10;
-			snprintf(GB_estcap[i], 24, "%12ulb est. max", cap);
 		}
 	}
 	return(0);
