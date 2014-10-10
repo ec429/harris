@@ -37,7 +37,7 @@ SDL_Surface *render_weather(w_state weather)
 	return(rv);
 }
 
-void render_one_route(SDL_Surface *s, const game *state, unsigned int i)
+void render_one_route(SDL_Surface *s, const game *state, unsigned int i, bool markers)
 {
 	if(!state->raids[i].nbombers) return;
 	int latl=0, lonl=0;
@@ -59,6 +59,12 @@ void render_one_route(SDL_Surface *s, const game *state, unsigned int i)
 				if(have[k])
 					line(s, types[k].blon, types[k].blat, lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=96});
 		}
+		if(markers)
+		{
+			for(int dx=-1;dx<2;dx++)
+				for(int dy=-1;dy<2;dy++)
+					pset(s, lon+dx, lat+dy, (atg_colour){.r=0, .g=0, .b=0, .a=224});
+		}
 		latl=lat;
 		lonl=lon;
 	}
@@ -78,7 +84,7 @@ SDL_Surface *render_routes(const game *state)
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	for(unsigned int i=0;i<ntargs;i++)
-		render_one_route(rv, state, i);
+		render_one_route(rv, state, i, false);
 	return(rv);
 }
 
@@ -93,7 +99,7 @@ SDL_Surface *render_current_route(const game *state, int seltarg)
 		return(NULL);
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
-	render_one_route(rv, state, seltarg);
+	render_one_route(rv, state, seltarg, true);
 	return(rv);
 }
 

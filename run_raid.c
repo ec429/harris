@@ -117,11 +117,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		totalraids+=state->raids[i].nbombers;
-		for(unsigned int j=0;j<state->raids[i].nbombers;j++)
-		{
-			unsigned int k=state->raids[i].bombers[j];
-			ra_append(&state->hist, state->now, (time){20, 00}, state->bombers[k].id, false, state->bombers[k].type, i);
-		}
 		targs[i].threat=0;
 		targs[i].nfighters=0;
 		targs[i].fires=0;
@@ -141,12 +136,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	}
 	if(totalraids)
 	{
-		if(RB_time_label) snprintf(RB_time_label, 6, "21:00");
+		if(RB_time_label) snprintf(RB_time_label, 6, "18:00");
 		bool stream=!datebefore(state->now, event[EVENT_GEE]),
 		     moonshine=!datebefore(state->now, event[EVENT_MOONSHINE]),
 		     window=!datebefore(state->now, event[EVENT_WINDOW]),
 		     wairad= datewithin(state->now, event[EVENT_WINDOW], event[EVENT_L_SN]);
-		unsigned int it=0, startt=768;
+		unsigned int it=0, startt=9999;
 		unsigned int plan[60], act[60][2];
 		bool skym[120];
 		double fire[120];
@@ -198,8 +193,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				{
 					// aim for Zero Hour 01:00 plus up to 10 minutes
 					// PFF should arrive at Zero minus 6, and be finished by Zero minus 2
-					// Zero Hour is t=480, and a minute is two t-steps
-					int tt=state->bombers[k].pff?(468+irandu(8)):(480+irandu(20));
+					// Zero Hour is t=840, and a minute is two t-steps
+					int tt=state->bombers[k].pff?(828+irandu(8)):(840+irandu(20));
 					int st=tt-(outward/state->bombers[k].speed)-3;
 					if(state->bombers[k].pff) st-=3;
 					if(st<0)
@@ -208,17 +203,17 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						st=0;
 					}
 					state->bombers[k].startt=st;
-					if((tt>=450)&&(tt<570)&&(targs[i].class==TCLASS_CITY))
-						plan[(tt-450)/2]++;
+					if((tt>=810)&&(tt<960)&&(targs[i].class==TCLASS_CITY))
+						plan[(tt-810)/2]++;
 				}
 				else
-					state->bombers[k].startt=irandu(90);
+					state->bombers[k].startt=360+irandu(90);
 				startt=min(startt, state->bombers[k].startt);
+				ra_append(&state->hist, state->now, (time){(18+(startt/120))%24, (startt/2)%60}, state->bombers[k].id, false, state->bombers[k].type, i);
 				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6/(double)state->bombers[k].speed;
 				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)state->bombers[k].speed+12;
 				if(!stream) eta+=36;
-				if(eta>state->bombers[k].fuelt)
-				{
+				if(eta>state->bombers[k].fuelt)				{
 					unsigned int fu=eta-state->bombers[k].fuelt;
 					state->bombers[k].fuelt+=fu;
 					cap*=120.0/(120.0+fu);
@@ -385,8 +380,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		while(inair)
 		{
 			t++;
-			if(RB_time_label) snprintf(RB_time_label, 6, "%02u:%02u", (21+(t/120))%24, (t/2)%60);
-			time now = {(21+(t/120))%24, (t/2)%60};
+			time now = {(18+(t/120))%24, (t/2)%60};
+			if(RB_time_label) snprintf(RB_time_label, 6, "%02u:%02u", now.hour, now.minute);
 			if((!(t&1))&&(it<512))
 			{
 				w_iter(&state->weather, lorw);
@@ -397,7 +392,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				SDL_BlitSurface(route_overlay, NULL, with_weather, NULL);
 				it++;
 			}
-			if(stream&&(t>=450)&&(t<571))
+			if(stream&&(t>=810)&&(t<961))
 			{
 				SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGB(RB_atime_image->format, 15, 15, 15));
 				SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=239, .w=600, .h=1}, SDL_MapRGB(RB_atime_image->format, 255, 255, 255));
@@ -407,11 +402,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					if(state->raids[i].nbombers&&(targs[i].class==TCLASS_CITY))
 					{
 						nrt++;
-						fire[t-450]+=targs[i].fires;
+						fire[t-810]+=targs[i].fires;
 					}
 				}
 				if(nrt)
-					fire[t-450]/=nrt;
+					fire[t-810]/=nrt;
 				for(unsigned int dt=0;dt<60;dt++)
 				{
 					unsigned int x=dt*10, ph=min(plan[dt]*1200/totalraids, 240);
@@ -426,7 +421,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x+1, .y=240-h[0], .w=8, .h=h[0]}, SDL_MapRGB(RB_atime_image->format, 0, 0, 255));
 					SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x+1, .y=240-h[0]-h[1], .w=8, .h=h[1]}, SDL_MapRGB(RB_atime_image->format, 255, 0, 0));
 				}
-				for(unsigned int dt=0;dt<min(119, t-451);dt++)
+				for(unsigned int dt=0;dt<min(119, t-811);dt++)
 				{
 					unsigned int x=dt*5+2, y[2]={max(240-fire[dt]/6, 0), max(240-fire[dt+1]/6, 0)};
 					line(RB_atime_image, x, y[0], x+5, y[1], (atg_colour){127, 127, 0, ATG_ALPHA_OPAQUE});
@@ -530,7 +525,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								state->bombers[k].navlon=0;
 							}
 						}
-						else if(t>1200)
+						else if(t>1560) // 07:00 the next day
 						{
 							state->bombers[k].navlon=state->bombers[k].navlat=0;
 							state->bombers[k].lon=min(state->bombers[k].lon, 127);
@@ -542,7 +537,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						bool damaged=(state->bombers[k].damage>=8);
 						bool roeok=state->bombers[k].idtar||(!state->roe.idtar&&brandp(0.2))||brandp(0.005);
 						bool leaf=state->bombers[k].b_le;
-						bool pffstop=stream&&(t<(state->bombers[k].pff?464:480));
+						bool pffstop=stream&&(t<(state->bombers[k].pff?824:840));
 						double cr=1.2;
 						if(oboe.k==(int)k) cr=0.3;
 						unsigned int dm=0; // target crew believes is nearest
@@ -583,13 +578,13 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										cidam+=dmg*(targs[ta].berlin?2.0:1.0);
 										state->dmg[ta]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(t), ta, dmg, state->dmg[ta]);
-										int dt=(t-450)/2;
+										int dt=(t-810)/2;
 										if((dt>=0)&&(dt<60))
 											act[dt][state->bombers[k].pff?0:1]++;
 										if(state->bombers[k].pff&&state->bombers[k].fix)
 										{
 											targs[ta].skym=t;
-											int dt=t-450;
+											int dt=t-810;
 											if((dt>0)&&(dt<120))
 												skym[dt]=true;
 										}

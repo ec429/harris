@@ -637,6 +637,7 @@ int control_create(void)
 		return(1);
 	}
 	GB_map->h=terrain->h+2;
+	GB_map->clickable=true;
 	if(atg_ebox_pack(GB_middle, GB_map))
 	{
 		perror("atg_ebox_pack");
@@ -1064,6 +1065,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	SDL_BlitSurface(xhair_overlay, NULL, map_img->data, NULL);
 	SDL_FreeSurface(seltarg_overlay);
 	int seltarg=-1;
+	int routegrab=-1;
 	seltarg_overlay=render_seltarg(seltarg);
 	SDL_BlitSurface(seltarg_overlay, NULL, map_img->data, NULL);
 	update_raidbox(state, seltarg);
@@ -1160,6 +1162,22 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								state->raids[i].routed=false;
 							}
 							return(SCRN_MAINMENU);
+						break;
+						case SDL_MOUSEBUTTONUP:
+							routegrab=-1;
+						break;
+						case SDL_MOUSEMOTION:
+							if(routegrab>=0)
+							{
+								SDL_MouseMotionEvent me=s.motion;
+								int newx=targs[seltarg].route[routegrab][1]+me.xrel;
+								clamp(newx, 0, 256);
+								targs[seltarg].route[routegrab][1]=newx;
+								int newy=targs[seltarg].route[routegrab][0]+me.yrel;
+								clamp(newy, 0, 256);
+								targs[seltarg].route[routegrab][0]=newy;
+								rfsh=true;
+							}
 						break;
 						case SDL_VIDEORESIZE:
 							rfsh=true;
@@ -1342,6 +1360,22 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							fullscreen=!fullscreen;
 							atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
 							rfsh=true;
+						}
+						if(c.e==GB_map&&seltarg>=0&&state->raids[seltarg].routed)
+						{
+							double mind=26;
+							int mins=-1;
+							for(unsigned int stage=0;stage<8;stage++)
+							{
+								int dx=c.pos.x-targs[seltarg].route[stage][1],
+								    dy=c.pos.y-targs[seltarg].route[stage][0];
+								if(dx*dx+dy*dy<mind)
+								{
+									mind=dx*dx+dy*dy;
+									mins=stage;
+								}
+							}
+							routegrab=mins;
 						}
 						if(c.e==GB_exit)
 							goto do_quit;
