@@ -96,9 +96,16 @@ void drawmoon(SDL_Surface *s, double phase)
 	}
 }
 
-time maketime(int t)
+inline time maketime(int t)
 {
-	return((time){(21+(t/120))%24, (t/2)%60});
+	return((time){(12+(t/120))%24, (t/2)%60});
+}
+
+inline unsigned int rrtime(time t)
+{
+	int h=t.hour-12;
+	if(h<0) h+=24;
+	return(h*120+t.minute*2);
 }
 
 const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
