@@ -317,6 +317,7 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
+		state.raids[i].routed=false;
 	}	state.roe.idtar=true;
 	for(unsigned int i=0;i<MAXMSGS;i++)
 		state.msg[i]=NULL;

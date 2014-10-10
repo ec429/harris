@@ -37,6 +37,36 @@ SDL_Surface *render_weather(w_state weather)
 	return(rv);
 }
 
+void render_one_route(SDL_Surface *s, const game *state, unsigned int i)
+{
+	if(!state->raids[i].nbombers) return;
+	int latl=0, lonl=0;
+	bool have[ntypes];
+	memset(have, 0, sizeof(have));
+	for(unsigned int j=0;j<state->raids[i].nbombers;j++)
+		have[state->bombers[state->raids[i].bombers[j]].type]=true;
+	for(unsigned int stage=0;stage<8;stage++)
+	{
+		int lat=targs[i].route[stage][0], lon=targs[i].route[stage][1];
+		if(!lat&&!lon) continue;
+		if(latl||lonl)
+		{
+			line(s, lonl, latl, lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=192});
+		}
+		else
+		{
+			for(unsigned int k=0;k<ntypes;k++)
+				if(have[k])
+					line(s, types[k].blon, types[k].blat, lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=96});
+		}
+		latl=lat;
+		lonl=lon;
+	}
+	for(unsigned int k=0;k<ntypes;k++)
+		if(have[k])
+			line(s, lonl, latl, types[k].blon, types[k].blat, (atg_colour){.r=0, .g=0, .b=255, .a=96});
+}
+
 SDL_Surface *render_routes(const game *state)
 {
 	if(datebefore(state->now, event[EVENT_GEE])) return(NULL);
@@ -48,34 +78,22 @@ SDL_Surface *render_routes(const game *state)
 	}
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	for(unsigned int i=0;i<ntargs;i++)
+		render_one_route(rv, state, i);
+	return(rv);
+}
+
+SDL_Surface *render_current_route(const game *state, int seltarg)
+{
+	if(seltarg<0) return(NULL);
+	if(datebefore(state->now, event[EVENT_GEE])) return(NULL);
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
 	{
-		if(!state->raids[i].nbombers) continue;
-		int latl=0, lonl=0;
-		bool have[ntypes];
-		memset(have, 0, sizeof(have));
-		for(unsigned int j=0;j<state->raids[i].nbombers;j++)
-			have[state->bombers[state->raids[i].bombers[j]].type]=true;
-		for(unsigned int stage=0;stage<8;stage++)
-		{
-			int lat=targs[i].route[stage][0], lon=targs[i].route[stage][1];
-			if(!lat&&!lon) continue;
-			if(latl||lonl)
-			{
-				line(rv, lonl, latl, lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=192});
-			}
-			else
-			{
-				for(unsigned int k=0;k<ntypes;k++)
-					if(have[k])
-						line(rv, types[k].blon, types[k].blat, lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=96});
-			}
-			latl=lat;
-			lonl=lon;
-		}
-		for(unsigned int k=0;k<ntypes;k++)
-			if(have[k])
-				line(rv, lonl, latl, types[k].blon, types[k].blat, (atg_colour){.r=0, .g=0, .b=255, .a=96});
+		fprintf(stderr, "render_targets: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
 	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	render_one_route(rv, state, seltarg);
 	return(rv);
 }
 

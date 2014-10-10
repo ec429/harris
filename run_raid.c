@@ -160,10 +160,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			unsigned int halfhalf=0; // count for halfandhalf bombloads
-			if(state->raids[i].nbombers && stream)
-			{
-				genroute((unsigned int [2]){0, 0}, i, targs[i].route, state, 10000);
-			}
 			for(unsigned int j=0;j<state->raids[i].nbombers;j++)
 			{
 				unsigned int k=state->raids[i].bombers[j], type=state->bombers[k].type;
@@ -1457,6 +1453,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			state->raids[i].nbombers=0;
 			free(state->raids[i].bombers);
 			state->raids[i].bombers=NULL;
+			state->raids[i].routed=false;
 		}
 		for(unsigned int i=0;i<state->nbombers;i++)
 		{

@@ -18,6 +18,7 @@
 #include "date.h"
 #include "bits.h"
 #include "render.h"
+#include "routing.h"
 #include "weather.h"
 #include "intel_bombers.h"
 #include "intel_targets.h"
@@ -1132,6 +1133,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			SDL_FreeSurface(seltarg_overlay);
 			seltarg_overlay=render_seltarg(seltarg);
 			SDL_BlitSurface(seltarg_overlay, NULL, map_img->data, NULL);
+			route_overlay=render_current_route(state, seltarg);
+			SDL_BlitSurface(route_overlay, NULL, map_img->data, NULL);
 			atg_flip(canvas);
 			rfsh=false;
 		}
@@ -1154,6 +1157,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								state->raids[i].nbombers=0;
 								free(state->raids[i].bombers);
 								state->raids[i].bombers=NULL;
+								state->raids[i].routed=false;
 							}
 							return(SCRN_MAINMENU);
 						break;
@@ -1247,6 +1251,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											for(unsigned int j=0;j<state->raids[seltarg].nbombers;j++)
 												if(state->bombers[state->raids[seltarg].bombers[j]].type==i) count++;
 											snprintf(GB_raidnum[i], 32, "%u", count);
+										}
+										if(state->raids[seltarg].nbombers&&!datebefore(state->now, event[EVENT_GEE])&&!state->raids[seltarg].routed)
+										{
+											genroute((unsigned int [2]){0, 0}, seltarg, targs[seltarg].route, state, 10000);
+											state->raids[seltarg].routed=true;
 										}
 									}
 								}
