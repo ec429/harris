@@ -367,7 +367,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		while(t<startt)
 		{
 			t++;
-			if((!(t&1))&&(it<512))
+			if((!(t&3))&&(it<720))
 			{
 				w_iter(&state->weather, lorw);
 				it++;
@@ -383,7 +383,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			t++;
 			time now = {(18+(t/120))%24, (t/2)%60};
 			if(RB_time_label) snprintf(RB_time_label, 6, "%02u:%02u", now.hour, now.minute);
-			if((!(t&1))&&(it<512))
+			if((!(t&3))&&(it<720))
 			{
 				w_iter(&state->weather, lorw);
 				SDL_FreeSurface(weather_overlay);
@@ -1470,7 +1470,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			}
 		}
 		// finish the weather
-		for(; it<512;it++)
+		for(; it<720;it++)
 			w_iter(&state->weather, lorw);
 	}
 	return(SCRN_RRESULTS);
