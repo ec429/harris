@@ -71,7 +71,7 @@ When a navaid becomes available, sets will begin to be installed in your bombers
 
 Gee
 ---
-Gee gives your bombers a rough 'fix' of their position at ranges up to about 360mi.  It is available from March 1942.  The introduction of GEE also triggers 'bomber stream' tactics: instead of choosing their own routes and times on target, every aircraft is fitted into a large-scale plan.  All aircraft raiding a given target will follow the same route, and they will be timed to bomb from Zero Hour (01:00) until "Zero plus ten" (01:10).
+Gee gives your bombers a rough 'fix' of their position at ranges up to about 360mi.  It is available from March 1942.  The introduction of GEE also triggers 'bomber stream' tactics: instead of choosing their own routes and times on target, every aircraft is fitted into a large-scale plan.  All aircraft raiding a given target will follow the same route, and they will be timed to bomb from Zero Hour (01:00) until "Zero plus ten" (01:10).  You can change the route by clicking and dragging the turning-points on the map, and you can change the Zero Hour with the spinner in the raid-box.
 Later (September 1942) the Germans will jam GEE, reducing the range to 200mi.  Late in December 1942, GEE sets will be plentiful enough that one is installed in every new bomber off the production line.
 
 Oboe
