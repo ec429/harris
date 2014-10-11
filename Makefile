@@ -50,7 +50,7 @@ events.h: dat/events mkevents.py
 events.c: dat/events mkevents.py
 	./mkevents.py c >events.c
 
-widgets.o: widgets.c widgets.h bits.h render.h
+widgets.o: widgets.c widgets.h bits.h date.h render.h
 
 save/%.sav: save/%.sav.in gensave.py
 	./gensave.py --salt $< <$< >$@

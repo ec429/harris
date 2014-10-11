@@ -31,7 +31,7 @@ atg_element *GB_map, *GB_filters;
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
-atg_element **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
+atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 SDL_Surface *GB_moonimg;
@@ -823,6 +823,49 @@ int control_create(void)
 			return(1);
 		}
 	}
+	if(!(GB_zhbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_middle, GB_zhbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=108;
+	if(atg_ebox_pack(GB_zhbox, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *zhlbl=atg_create_element_label("Zero Hour: ", 15, (atg_colour){127, 127, 127, ATG_ALPHA_OPAQUE});
+	if(!zhlbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_zhbox, zhlbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(GB_zh=create_time_spinner(0, RRT(18,0), RRT(6,0), 12, RRT(1,0), "%02u:%02u", (atg_colour){224, 224, 239, ATG_ALPHA_OPAQUE}, (atg_colour){39, 39, 47, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "create_time_spinner failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_zhbox, GB_zh))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 	if(!GB_tt)
 	{
@@ -1430,8 +1473,18 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							}
 					}
 				break;
-				case ATG_EV_VALUE:
-					// ignore
+				case ATG_EV_VALUE:;
+					atg_ev_value value=e.event.value;
+					if(value.e)
+					{
+						if(value.e==GB_zh)
+						{
+							if(seltarg<0)
+								fprintf(stderr, "Ignored zerohour change (to %d) with bad seltarg %d\n", value.value, seltarg);
+							else
+								state->raids[seltarg].zerohour=value.value;
+						}
+					}
 				break;
 				default:
 					fprintf(stderr, "e.type %d\n", e.type);
@@ -1484,6 +1537,16 @@ int update_raidbox(const game *state, int seltarg)
 			snprintf(GB_raid_label, 48, "Raid on %s", targs[seltarg].name);
 		else
 			snprintf(GB_raid_label, 48, "Select a Target");
+	}
+	if(GB_zhbox)
+	{
+		bool stream=!datebefore(state->now, event[EVENT_GEE]);
+		if(!(GB_zhbox->hidden=(seltarg<0)||!stream))
+			if(GB_zh)
+			{
+				atg_spinner *s=GB_zh->elemdata;
+				s->value=state->raids[seltarg].zerohour;
+			}
 	}
 	bool pff=!datebefore(state->now, event[EVENT_PFF]);
 	for(unsigned int i=0;i<ntypes;i++)

@@ -9,6 +9,7 @@
 #include "widgets.h"
 #include <atg_internals.h>
 #include "bits.h"
+#include "date.h"
 #include "render.h"
 
 const char *prio_labels[4]={"NONE","LOW","MED","HIGH"};
@@ -233,4 +234,34 @@ void load_selector_match_click_callback(struct atg_event_list *list, atg_element
 	}
 	if(*u->load!=old)
 		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*u->load}});
+}
+
+SDL_Surface *time_spinner_render_callback(const atg_element *e)
+{
+	if(!e) return(NULL);
+	atg_spinner *s=e->elemdata;
+	if(!s) return(NULL);
+	time t=maketime(s->value);
+	snprintf(s->val, 6, s->fmt, t.hour, t.minute); // it is assumed that 6 <= VALUE_LEN (from atg:w_spinner.c)
+	SDL_Surface *content=atg_render_box(&(atg_element){.w=e->w, .h=e->h, .elemdata=s->content, .clickable=false, .userdata=NULL});
+	if(!content) return(NULL);
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE, content->w, content->h, content->format->BitsPerPixel, content->format->Rmask, content->format->Gmask, content->format->Bmask, content->format->Amask);
+	if(!rv)
+	{
+		SDL_FreeSurface(content);
+		return(NULL);
+	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, SDL_MapRGBA(rv->format, s->content->bgcolour.r, s->content->bgcolour.g, s->content->bgcolour.b, s->content->bgcolour.a));
+	SDL_BlitSurface(content, NULL, rv, &(SDL_Rect){.x=0, .y=0});
+	SDL_FreeSurface(content);
+	return(rv);
+}
+
+atg_element *create_time_spinner(Uint8 flags, int minval, int maxval, int step, int initvalue, const char *fmt, atg_colour fgcolour, atg_colour bgcolour)
+{
+	atg_element *rv=atg_create_element_spinner(flags, minval, maxval, step, initvalue, fmt, fgcolour, bgcolour);
+	if(!rv) return(NULL);
+	rv->type="time_spinner";
+	rv->render_callback=time_spinner_render_callback;
+	return(rv);
 }
