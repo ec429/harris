@@ -20,10 +20,6 @@
 #include "weather.h"
 #include "geom.h"
 
-#define PLANSTART	RRT(0,45)
-#define ZEROHOUR	RRT(1,0)
-#define PLANEND		RRT(1,45)
-
 atg_element *run_raid_box;
 char *RB_time_label;
 atg_element *RB_map;
@@ -33,6 +29,20 @@ int **dij, **nij, **tij, **lij;
 unsigned int *heat;
 bool *canscore;
 double bridge, cidam;
+
+int clear_raids(game *state)
+{
+	if(!state) return(1);
+	for(unsigned int i=0;i<ntargs;i++)
+	{
+		state->raids[i].nbombers=0;
+		free(state->raids[i].bombers);
+		state->raids[i].bombers=NULL;
+		state->raids[i].zerohour=RRT(1,0);
+		state->raids[i].routed=false;
+	}
+	return(0);
+}
 
 int run_raid_create(void)
 {
@@ -146,16 +156,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		     window=!datebefore(state->now, event[EVENT_WINDOW]),
 		     wairad= datewithin(state->now, event[EVENT_WINDOW], event[EVENT_L_SN]);
 		unsigned int it=0, startt=9999;
-		unsigned int plan[60], act[60][2];
-		bool skym[120];
-		double fire[120];
-		for(unsigned int dt=0;dt<60;dt++)
-			plan[dt]=act[dt][0]=act[dt][1]=0;
-		for(unsigned int dt=0;dt<120;dt++)
-		{
-			fire[dt]=0;
-			skym[dt]=false;
-		}
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			unsigned int halfhalf=0; // count for halfandhalf bombloads
@@ -198,7 +198,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					// aim for Zero Hour 01:00 plus up to 10 minutes
 					// PFF should arrive at Zero minus 6, and be finished by Zero minus 2
 					// Zero Hour is t=840, and a minute is two t-steps
-					int tt=state->bombers[k].pff?(ZEROHOUR-12+irandu(8)):(ZEROHOUR+irandu(20));
+					int tt=state->bombers[k].pff?(state->raids[i].zerohour-12+irandu(8)):(state->raids[i].zerohour+irandu(20));
 					int st=tt-(outward/state->bombers[k].speed)-3;
 					if(state->bombers[k].pff) st-=3;
 					if(st<0)
@@ -207,11 +207,9 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						st=0;
 					}
 					state->bombers[k].startt=st;
-					if((tt>=(int)PLANSTART)&&(tt<(int)PLANEND)&&(targs[i].class==TCLASS_CITY))
-						plan[(tt-PLANSTART)/2]++;
 				}
 				else
-					state->bombers[k].startt=RRT(21,0)+irandu(90);
+					state->bombers[k].startt=(state->raids[i].zerohour-480)+irandu(90); // 2100 to 2145
 				startt=min(startt, state->bombers[k].startt);
 				ra_append(&state->hist, state->now, maketime(startt), state->bombers[k].id, false, state->bombers[k].type, i);
 				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6/(double)state->bombers[k].speed;
@@ -397,43 +395,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				SDL_BlitSurface(route_overlay, NULL, with_weather, NULL);
 				it++;
 			}
-			if(stream&&(t>=PLANSTART)&&(t<=PLANEND))
-			{
-				SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGB(RB_atime_image->format, 15, 15, 15));
-				SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=239, .w=600, .h=1}, SDL_MapRGB(RB_atime_image->format, 255, 255, 255));
-				unsigned int nrt=0;
-				for(unsigned int i=0;i<ntargs;i++)
-				{
-					if(state->raids[i].nbombers&&(targs[i].class==TCLASS_CITY))
-					{
-						nrt++;
-						fire[t-PLANSTART]+=targs[i].fires;
-					}
-				}
-				if(nrt)
-					fire[t-PLANSTART]/=nrt;
-				for(unsigned int dt=0;dt<60;dt++)
-				{
-					unsigned int x=dt*10, ph=min(plan[dt]*1200/totalraids, 240);
-					bool pff=(dt<15);
-					SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x, .y=240-ph, .w=10, .h=ph}, SDL_MapRGB(RB_atime_image->format, pff?0:127, 0, pff?127:0));
-					if(ph>2)
-						SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x+1, .y=241-ph, .w=8, .h=ph-2}, SDL_MapRGB(RB_atime_image->format, 15, 15, 15));
-					unsigned int h[2];
-					for(unsigned int i=0;i<2;i++)
-						h[i]=min(act[dt][i]*1200/totalraids, 240);
-					h[1]=min(h[1], 240-h[0]);
-					SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x+1, .y=240-h[0], .w=8, .h=h[0]}, SDL_MapRGB(RB_atime_image->format, 0, 0, 255));
-					SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=x+1, .y=240-h[0]-h[1], .w=8, .h=h[1]}, SDL_MapRGB(RB_atime_image->format, 255, 0, 0));
-				}
-				for(unsigned int dt=0;dt<min(119, t-PLANSTART-1);dt++)
-				{
-					unsigned int x=dt*5+2, y[2]={max(240-fire[dt]/6, 0), max(240-fire[dt+1]/6, 0)};
-					line(RB_atime_image, x, y[0], x+5, y[1], (atg_colour){127, 127, 0, ATG_ALPHA_OPAQUE});
-					if(skym[dt])
-						line(RB_atime_image, x, 235, x, 239, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
-				}
-			}
 			if(tameboar)
 			{
 				memset(boxes, 0, sizeof(boxes));
@@ -542,7 +503,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						bool damaged=(state->bombers[k].damage>=8);
 						bool roeok=state->bombers[k].idtar||(!state->roe.idtar&&brandp(0.2))||brandp(0.005);
 						bool leaf=state->bombers[k].b_le;
-						bool pffstop=stream&&(t<ZEROHOUR-(state->bombers[k].pff?16:0)); // PFF start bombing at Zero minus 8; Main Force at Zero Hour
+						bool pffstop=stream&&(t<state->raids[i].zerohour-(state->bombers[k].pff?16:0)); // PFF start bombing at Zero minus 8; Main Force at Zero Hour
 						double cr=1.2;
 						if(oboe.k==(int)k) cr=0.3;
 						unsigned int dm=0; // target crew believes is nearest
@@ -583,15 +544,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										cidam+=dmg*(targs[ta].berlin?2.0:1.0);
 										state->dmg[ta]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(t), ta, dmg, state->dmg[ta]);
-										int dt=t-PLANSTART;
-										if((dt>=0)&&(dt<120))
-											act[dt/2][state->bombers[k].pff?0:1]++;
-										if(state->bombers[k].pff&&state->bombers[k].fix)
-										{
-											targs[ta].skym=t;
-											if((dt>0)&&(dt<120))
-												skym[dt]=true;
-										}
 										targs[ta].fires+=state->bombers[k].b_in*(state->flam[ta]/40.0)/1500+state->bombers[k].b_ti/30;
 										break;
 									}
@@ -1449,11 +1401,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					}
 				}
 			}
-			state->raids[i].nbombers=0;
-			free(state->raids[i].bombers);
-			state->raids[i].bombers=NULL;
-			state->raids[i].routed=false;
 		}
+		clear_raids(state);
 		for(unsigned int i=0;i<state->nbombers;i++)
 		{
 			unsigned int type=state->bombers[i].type;

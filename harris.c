@@ -273,7 +273,6 @@ int main(int argc, char *argv[])
 	}
 	for(unsigned int i=0;i<ntargs;i++)
 	{
-		state.raids[i].nbombers=0;
 		state.raids[i].bombers=NULL;
 		if(!(state.raids[i].loads=calloc(ntypes, sizeof(bombload))))
 		{
@@ -317,8 +316,9 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		state.raids[i].routed=false;
-	}	state.roe.idtar=true;
+	}
+	clear_raids(&state);
+	state.roe.idtar=true;
 	for(unsigned int i=0;i<MAXMSGS;i++)
 		state.msg[i]=NULL;
 	

@@ -17,3 +17,5 @@ extern int **dij, **nij, **tij, **lij;
 extern unsigned int *heat;
 extern bool *canscore;
 extern double bridge, cidam;
+
+int clear_raids(game *state);
