@@ -450,7 +450,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					unsigned int stage=state->bombers[k].routestage;
 					while((stage<8)&&!(state->bombers[k].route[stage][0]||state->bombers[k].route[stage][1]))
 						stage=++state->bombers[k].routestage;
-					bool home=state->bombers[k].failed||(stage>=8);
+					bool home=(state->bombers[k].failed&&!state->bombers[k].bombed)||(stage>=8);
 					if((stage==4)&&state->bombers[k].nav[NAV_OBOE]&&xyr(state->bombers[k].lon-oboe.lon, state->bombers[k].lat-oboe.lat, 50+types[type].alt*.3)) // OBOE
 					{
 						if(oboe.k==-1)
