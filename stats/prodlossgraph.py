@@ -26,6 +26,7 @@ if __name__ == '__main__':
 	for bi,b in enumerate(hdata.Bombers.data):
 		bprod = [data[key][bi][0] for key in sorted(data) if hdata.inservice(key, b)]
 		bloss = [data[key][bi][1] for key in sorted(data) if hdata.inservice(key, b)]
+		if not any(bprod+bloss): continue
 		bdate = [key.ordinal() for key in sorted(data) if hdata.inservice(key, b)]
 		gp = plt.plot_date(bdate, bprod, fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
 		gl = plt.plot_date(bdate, bloss, fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=None, zorder=0)

@@ -26,6 +26,9 @@ if __name__ == '__main__':
 		if showtotal: gt = plt.plot_date(dates, [e['total']/1e3 for e in data], fmt='ko-', tz=None, xdate=True, ydate=False, label='total', zorder=-2)
 	gc = plt.plot_date(dates, [e['cash']/1e3 for e in data], fmt='g+-', tz=None, xdate=True, ydate=False, label='cash', zorder=2)
 	for bi,b in enumerate(hdata.Bombers.data):
-		gb = plt.plot_date([datum['date'].ordinal() for datum in data if hdata.inservice(datum['date'], b)], [e['bvalues'][bi]/1e3 for e in data if hdata.inservice(e['date'], b)], fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
+		bvalue = [datum['bvalues'][bi]/1e3 for datum in data if hdata.inservice(datum['date'], b)]
+		if not any(bvalue): continue
+		bdate = [datum['date'].ordinal() for datum in data if hdata.inservice(datum['date'], b)]
+		gb = plt.plot_date(bdate, bvalue, fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
 	if legend: plt.legend(ncol=2, loc='upper left')
 	plt.show()

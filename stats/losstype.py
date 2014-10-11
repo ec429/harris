@@ -83,6 +83,7 @@ if __name__ == '__main__':
 			tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ", "%5.2f"%q if q is not None else "  -  ")
 		tbl_row("NAME", "Sorties", "Losses", "Loss%", "Strat%")
 		for i,l in enumerate(losstype):
+			if save.prio[i] is None and not l[1]: continue
 			name = extra_data.Bombers[hdata.Bombers[i]['name']]['short']
 			tbl_nrow(name, l[1], l[0], l[2], l[3])
 		tbl_nrow("****", overall[1], overall[0], overall[2], overall[3])
@@ -94,6 +95,7 @@ if __name__ == '__main__':
 			tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ")
 		tbl_row("NAME", "Sorties", "Losses", "Loss%")
 		for i,l in enumerate(losstype):
+			if save.prio[i] is None and not l[1]: continue
 			name = extra_data.Bombers[hdata.Bombers[i]['name']]['short']
 			tbl_nrow(name, l[1], l[0], l[2])
 		tbl_nrow("****", overall[1], overall[0], overall[2])

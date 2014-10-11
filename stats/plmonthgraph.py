@@ -38,8 +38,12 @@ if __name__ == '__main__':
 	for bi,b in enumerate(hdata.Bombers):
 		def ins(m):
 			return hdata.inservice(m, b) or hdata.inservice(m.nextmonth(), b)
-		gp = plt.plot_date([d.ordinal() for d in dates if ins(d)], [monthly[d][bi][0] for d in dates if ins(d)], fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
-		gl = plt.plot_date([d.ordinal() for d in dates if ins(d)], [monthly[d][bi][1] for d in dates if ins(d)], fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=None, zorder=0)
+		bprod = [monthly[d][bi][0] for d in dates if ins(d)]
+		bloss = [monthly[d][bi][1] for d in dates if ins(d)]
+		if not any(bprod+bloss): continue
+		bdate = [d.ordinal() for d in dates if ins(d)]
+		gp = plt.plot_date(bdate, bprod, fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
+		gl = plt.plot_date(bdate, bloss, fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	gt = plt.plot_date([d.ordinal() for d in dates], [total[d][0] for d in dates], fmt='k+-', tz=None, xdate=True, ydate=False, label='total', zorder=-2)
 	gb = plt.plot_date([d.ordinal() for d in dates], [total[d][1] for d in dates], fmt='k+-', tz=None, xdate=True, ydate=False, label=None, zorder=-2)
 	ax.grid(b=True, axis='y')

@@ -55,6 +55,7 @@ if __name__ == '__main__':
 	values = dict(data)
 	gt = plt.plot_date([d.ordinal() for d in dates], [values[d][None] for d in dates], fmt='.-', color='g', tz=None, xdate=True, ydate=False, label='Overall', zorder=1)
 	for bi,b in enumerate(hdata.Bombers):
+		if not full[bi][0]: continue
 		gb = plt.plot_date([d.ordinal() for d in dates if hdata.inservice(d, b)], [values[d][bi] for d in dates if hdata.inservice(d, b)], fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
 	ax.grid(b=True, axis='y')
 	if opts.legend: plt.legend(ncol=2, loc='upper left')

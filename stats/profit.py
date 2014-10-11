@@ -90,7 +90,8 @@ def extract_profit(save, before=None, after=None):
 	return {i: {'full':full[i], 'fullr':full[i][1]/full[i][0] if full[i][0] else 0,
 				'dead':dead[i], 'deadr':dead[i][1]/dead[i][0] if dead[i][0] else 0,
 				'opti':full[i][1]/dead[i][0] if dead[i][0] else 0}
-			for i in results}
+			for i in results
+			if save.prio[i] is not None or full[i][0]}
 
 def parse_args(argv):
 	x = optparse.OptionParser()
