@@ -152,8 +152,8 @@ if __name__ == "__main__":
             if notype:
                 typ = int(notype[0])
                 for i in range(cbe['type'][typ-1]+1 if typ else 0, cbe['type'][typ]):
-                    print 'NoType %d'%i
-                print 'NoType %d'%cbe['type'][typ]
+                    print 'NoType %d:'%i
+                print 'NoType %d:'%cbe['type'][typ]
                 continue
             nbombers = poptag('Bombers', line)
             if nbombers:

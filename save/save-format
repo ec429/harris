@@ -17,7 +17,7 @@ for(i=0;i<ntypes;i++)
 	if(state.btypes[i])
 		"Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
 	else
-		"NoType %u\n", i
+		"NoType %u:\n", i
 "Navaids:%u\n", NNAVAIDS // should be constant
 for(i=0;i<NNAVAIDS;i++)
 	"Nprio %u:%d,%u\n", i, state.nap[i], state.napb[i]

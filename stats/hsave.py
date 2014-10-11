@@ -198,6 +198,13 @@ class Save(object):
 			self.prio[typ] = int(prio)
 			self._type += 1
 			return self._type == self.ntypes
+		elif tag.startswith('NoType '):
+			typ = int(tag[7:])
+			if typ != self._type:
+				raise SubtagOutOfOrder('Types', self._type, tag, rest)
+			self.prio[typ] = None
+			self._type += 1
+			return self._type == self.ntypes
 		raise UnrecognisedSubtag('Types', tag, rest)
 	def Navaids(self, tag, rest):
 		if tag.startswith('NPrio '):

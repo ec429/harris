@@ -186,7 +186,7 @@ int loadgame(const char *fn, game *state)
 						break;
 					}
 					unsigned int j, prio, pribuf, pc, pcbuf;
-					f=sscanf(line, "NoType %u\n", &j);
+					f=sscanf(line, "NoType %u:\n", &j);
 					if(f==1)
 					{
 						state->btypes[j]=false;
@@ -711,7 +711,7 @@ int savegame(const char *fn, game state)
 		if(state.btypes[i])
 			fprintf(fs, "Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf);
 		else
-			fprintf(fs, "NoType %u\n", i);
+			fprintf(fs, "NoType %u:\n", i);
 	fprintf(fs, "Navaids:%u\n", NNAVAIDS);
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		fprintf(fs, "NPrio %u:%d,%u\n", n, state.nap[n], state.napb[n]);
