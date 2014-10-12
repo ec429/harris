@@ -44,6 +44,73 @@ int clear_raids(game *state)
 	return(0);
 }
 
+/* The string returned by this function should not be free()d,
+ * and may be overwritten by subsequent calls */
+const char *describe_location(int x, int y)
+{
+	static char cbuf[80];
+	int mi=-1, md=50;
+	for(unsigned int i=0;i<ntargs;i++)
+	{
+		if(targs[i].class!=TCLASS_CITY) continue;
+		int d=(targs[i].lon-x)*(targs[i].lon-x)+(targs[i].lat-y)*(targs[i].lat-y);
+		if(d<md)
+		{
+			mi=i;
+			md=d;
+		}
+	}
+	if(mi<0)
+	{
+		snprintf(cbuf, 80, "at (%u,%u)", y, x);
+	}
+	else if(md==0)
+	{
+		snprintf(cbuf, 80, "at %s", targs[mi].name);
+	}
+	else
+	{
+		int dx=targs[mi].lon-x,
+			dy=targs[mi].lat-y,
+			th=floor(atan2(dy, dx)*4/M_PI+4.5),
+			d=sqrt(md)*3;
+		const char *dir=(const char *[8]){"W", "NW", "N", "NE", "E", "SE", "S", "SW"}[th%8];
+		snprintf(cbuf, 80, "%umi %s of %s", d, dir, targs[mi].name);
+	}
+	return(cbuf);
+}
+
+void describe_crb(const game *state, unsigned int k)
+{
+	ac_bomber b=state->bombers[k];
+	int x=b.lon, y=b.lat;
+	fprintf(stderr, "%s %s crashed %s", types[b.type].manu, types[b.type].name, describe_location(x, y));
+	switch(b.ld.ds)
+	{
+		case DS_NONE: /* should never happen */
+			fprintf(stderr, " with no prior damage\n");
+		break;
+		case DS_MECH:
+			fprintf(stderr, " killer: mechanical failure\n");
+		break;
+		case DS_FLAK:;
+			flaksite fs=flaks[b.ld.idx];
+			fprintf(stderr, " killer: flak %s\n", describe_location(fs.lon, fs.lat));
+		break;
+		case DS_TFLK:;
+			target t=targs[b.ld.idx];
+			fprintf(stderr, " killer: flak at %s\n", t.name);
+		break;
+		case DS_FIGHTER:;
+			ac_fighter f=state->fighters[b.ld.idx];
+			fprintf(stderr, " killer: %s %s\n", ftypes[f.type].manu, ftypes[f.type].name);
+		break;
+		default:
+			fprintf(stderr, " killer: a bug (ds=%d, idx=%u)\n", b.ld.ds, b.ld.idx);
+		break;
+	}
+}
+
 int run_raid_create(void)
 {
 	run_raid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
@@ -186,6 +253,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				state->bombers[k].crashed=false;
 				state->bombers[k].landed=false;
 				state->bombers[k].idtar=false;
+				state->bombers[k].ld.ds=DS_NONE;
 				state->bombers[k].lat+=rand()*3.0/RAND_MAX-1;
 				state->bombers[k].lon+=rand()*3.0/RAND_MAX-1;
 				state->bombers[k].navlat=0;
@@ -357,7 +425,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
 		SDL_BlitSurface(with_ac, NULL, map_img->data, NULL);
 		unsigned int inair=totalraids, t=0;
-		unsigned int kills[2]={0, 0};
 		cidam=0;
 		bridge=0;
 		// Tame Boar raid tracking
@@ -418,31 +485,21 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					{
 						cr_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type);
 						state->bombers[k].crashed=true;
-						if(state->bombers[k].damage)
-						{
-							if(state->bombers[k].ldf)
-								kills[1]++;
-							else
-								kills[0]++;
-						}
+						describe_crb(state, k);
 						inair--;
 						continue;
 					}
 					if(brandp(types[type].fail/(50.0*min(240.0, 48.0+t-state->bombers[k].startt))+state->bombers[k].damage/2400.0))
 					{
+						if(state->bombers[k].ld.ds==DS_NONE)
+							state->bombers[k].ld.ds=DS_MECH;
 						fa_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, 1);
 						state->bombers[k].failed=true;
 						if(brandp((1.0+state->bombers[k].damage/50.0)/(240.0-types[type].fail*5.0)))
 						{
 							cr_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type);
 							state->bombers[k].crashed=true;
-							if(state->bombers[k].damage)
-							{
-								if(state->bombers[k].ldf)
-									kills[1]++;
-								else
-									kills[0]++;
-							}
+							describe_crb(state, k);
 							inair--;
 							continue;
 						}
@@ -615,7 +672,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(ddmg)
 								{
 									dmtf_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, ddmg, state->bombers[k].damage, i);
-									state->bombers[k].ldf=false;
+									state->bombers[k].ld=(dmgsrc){.ds=DS_TFLK, .idx=i};
 								}
 							}
 						}
@@ -650,7 +707,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(ddmg)
 								{
 									dmfk_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, ddmg, state->bombers[k].damage, i);
-									state->bombers[k].ldf=false;
+									state->bombers[k].ld=(dmgsrc){.ds=DS_FLAK, .idx=i};
 								}
 							}
 						}
@@ -935,7 +992,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(dmg)
 								{
 									dmac_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, dmg, state->bombers[k].damage, state->fighters[j].id);
-									state->bombers[k].ldf=true;
+									state->bombers[k].ld=(dmgsrc){.ds=DS_FIGHTER, .idx=j};
 								}
 							}
 							if(brandp(0.35))
@@ -1237,8 +1294,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_FreeSurface(ac_overlay);
 		SDL_FreeSurface(with_ac);
 		// incorporate the results, and clear the raids ready for next cycle
-		if(kills[0]||kills[1])
-			fprintf(stderr, "Kills: flak %u, fighters %u\n", kills[0], kills[1]);
 		for(unsigned int i=0;i<ntargs;i++)
 		{
 			heat[i]=0;

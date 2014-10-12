@@ -1014,7 +1014,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	{
 		state->bombers[j].landed=true;
 		state->bombers[j].damage=0;
-		state->bombers[j].ldf=false;
+		state->bombers[j].ld.ds=DS_NONE;
 	}
 	bool shownav=false;
 	filter_pff=0;

@@ -195,6 +195,13 @@ flaksite;
 
 typedef struct
 {
+	enum {DS_NONE, DS_FIGHTER, DS_FLAK, DS_TFLK, DS_MECH} ds;
+	unsigned int idx; // index of fighter, flak or target if applicable
+}
+dmgsrc;
+
+typedef struct
+{
 	acid id;
 	unsigned int type;
 	unsigned int targ;
@@ -214,7 +221,7 @@ typedef struct
 	bool landed; // for forces, read as !assigned
 	double speed;
 	double damage; // increases the probability of mech.fail and of consequent crashes
-	bool ldf; // last damage by a fighter?
+	dmgsrc ld; // last damage source
 	bool idtar; // identified target?  (for use if RoE require it)
 	bool fix; // have a navaid fix?  (controls whether to drop skymarker)
 	unsigned int startt; // take-off time
