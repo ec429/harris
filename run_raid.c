@@ -470,12 +470,15 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					else if(oboe.k==(int)k)
 						oboe.k=-1;
 					int destx=home?types[type].blon:state->bombers[k].route[stage][1],
-						desty=home?types[type].blat:state->bombers[k].route[stage][0];
+						desty=home?types[type].blat:state->bombers[k].route[stage][0],
+						prevx=stage?state->bombers[k].route[stage-1][1]:types[type].blon,
+						prevy=stage?state->bombers[k].route[stage-1][0]:types[type].blat;
 					double thinklon=state->bombers[k].lon+state->bombers[k].navlon,
 						thinklat=state->bombers[k].lat+state->bombers[k].navlat;
 					clamp(thinklon, 0, 256);
 					clamp(thinklat, 0, 256);
 					double cx=destx-thinklon, cy=desty-thinklat;
+					int px=destx-prevx, py=desty-prevy;
 					double d=hypot(cx, cy);
 					if(home)
 					{
@@ -554,14 +557,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						else if(fuel)
 							stage=++state->bombers[k].routestage;
 					}
-					else if(stage<4)
+					else
 					{
-						if(cx<0.2)
+						double s=(cx*px)+(cy*py); // dot product
+						if(s<0)
 							stage=++state->bombers[k].routestage;
 					}
-					else
-						if(cx>-0.4)
-							stage=++state->bombers[k].routestage;
 					state->bombers[k].idtar=false;
 					double dx=cx*state->bombers[k].speed/d,
 						dy=cy*state->bombers[k].speed/d;
