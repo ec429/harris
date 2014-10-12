@@ -220,7 +220,7 @@ class Save(object):
 		if tag.startswith('Type '):
 			typ = int(tag[5:])
 			fail, nav, pff, acid = rest.split(',', 3)
-			self.bombers.append({'type':int(typ), 'fail':bool(fail), 'nav':int(nav), 'pff':bool(pff), 'id':int(acid, 16)})
+			self.bombers.append({'type':int(typ), 'fail':bool(int(fail)), 'nav':int(nav), 'pff':bool(int(pff)), 'id':int(acid, 16)})
 			return len(self.bombers) == self.nbombers
 		raise UnrecognisedSubtag('Bombers', tag, rest)
 	def Fighters(self, tag, rest):
