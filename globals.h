@@ -32,6 +32,8 @@ extern unsigned int nftypes;
 extern fightertype *ftypes;
 extern unsigned int nfbases;
 extern ftrbase *fbases;
+extern unsigned int nlocs;
+extern locxn *locs;
 extern unsigned int ntargs;
 extern target *targs;
 extern unsigned int nflaks;

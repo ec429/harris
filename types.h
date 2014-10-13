@@ -152,6 +152,14 @@ typedef struct
 }
 ftrbase;
 
+typedef struct
+{
+	//NAME:LAT:LONG:RADIUS
+	char *name;
+	unsigned int lat, lon, radius;
+}
+locxn;
+
 enum t_class {TCLASS_CITY,TCLASS_SHIPPING,TCLASS_MINING,TCLASS_LEAFLET,TCLASS_AIRFIELD,TCLASS_BRIDGE,TCLASS_ROAD,TCLASS_INDUSTRY,}; // INDUSTRY must be last!
 enum i_class {ICLASS_BB, ICLASS_OIL, ICLASS_RAIL, ICLASS_UBOOT, ICLASS_ARM, ICLASS_STEEL, ICLASS_AC, ICLASS_RADAR, ICLASS_MIXED,};
 

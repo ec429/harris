@@ -9,6 +9,7 @@
 
 #include "load_data.h"
 
+#include <math.h>
 #include <atg.h>
 #include <SDL_image.h>
 
@@ -306,6 +307,45 @@ int load_ftrbases(void)
 	return(0);
 }
 
+int load_locations(void)
+{
+	FILE *locfp=fopen("dat/locations", "r");
+	if(!locfp)
+	{
+		fprintf(stderr, "Failed to open data file `locations'!\n");
+		return(1);
+	}
+	else
+	{
+		char *locfile=slurp(locfp);
+		fclose(locfp);
+		char *next=locfile?strtok(locfile, "\n"):NULL;
+		while(next)
+		{
+			if(*next!='#')
+			{
+				locxn this;
+				// NAME:LAT:LONG:RADIUS
+				this.name=(char *)malloc(strcspn(next, ":")+1);
+				int e;
+				if((e=sscanf(next, "%[^:]:%u:%u:%u", this.name, &this.lat, &this.lon, &this.radius))!=4)
+				{
+					fprintf(stderr, "Malformed `locations' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
+				}
+				locs=(locxn *)realloc(locs, (nlocs+1)*sizeof(locxn));
+				locs[nlocs]=this;
+				nlocs++;
+			}
+			next=strtok(NULL, "\n");
+		}
+		free(locfile);
+		fprintf(stderr, "Loaded %u locations\n", nlocs);
+	}
+	return(0);
+}
+
 int load_targets(void)
 {
 	FILE *targfp=fopen("dat/targets", "r");
@@ -434,6 +474,12 @@ int load_targets(void)
 				targs=(target *)realloc(targs, (ntargs+1)*sizeof(target));
 				targs[ntargs]=this;
 				ntargs++;
+				if(this.class==TCLASS_CITY)
+				{
+					locs=(locxn *)realloc(locs, (nlocs+1)*sizeof(locxn));
+					locs[nlocs]=(locxn){.name=strdup(this.name), .lat=this.lat, .lon=this.lon, .radius=8+sqrt(this.esiz)+sqrt(this.prod)};
+					nlocs++;
+				}
 			}
 			next=strtok(NULL, "\n");
 		}

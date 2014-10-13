@@ -30,19 +30,43 @@ index = 0
 
 names = {}
 
+locs = '-l' in sys.argv
+
 for t in hdata.Targets:
 	if 'CITY' not in t['flags']: continue
-	index += 1
-	names[index] = t['name']
-	cfn = "dat/cities/%s.pbm" % t['name']
-	with open(cfn, "r") as cf:
-		w, h, cp = readpbm(cf)
-		for x in xrange(w):
-			for y in xrange(h):
-				if cp[y][x]:
-					if citymap[y+t['lat']-h/2][x+t['long']-w/2]:
-						sys.stderr.write("Warning: %s overwrote %s at %d,%d\n"%(t['name'], names[citymap[y+t['lat']-h/2][x+t['long']-w/2]], x, y))
-					citymap[y+t['lat']-h/2][x+t['long']-w/2] = index
+	if locs:
+		radius=8+math.sqrt(t['esiz'])+math.sqrt(t['prod'])
+		rs=radius*radius
+		radius=int(math.ceil(radius))
+		for dx in xrange(2*radius+1):
+			for dy in xrange(2*radius+1):
+				if (dx-radius)*(dx-radius)+(dy-radius)*(dy-radius)>=rs: continue
+				y=t['lat']+dy-radius
+				x=t['long']+dx-radius
+				if 0 <= x < 256 and 0 <= y < 256:
+					citymap[y][x] = -1
+	else:
+		index += 1
+		names[index] = t['name']
+		cfn = "dat/cities/%s.pbm" % t['name']
+		with open(cfn, "r") as cf:
+			w, h, cp = readpbm(cf)
+			for x in xrange(w):
+				for y in xrange(h):
+					if cp[y][x]:
+						if citymap[y+t['lat']-h/2][x+t['long']-w/2]:
+							sys.stderr.write("Warning: %s overwrote %s at %d,%d\n"%(t['name'], names[citymap[y+t['lat']-h/2][x+t['long']-w/2]], x, y))
+						citymap[y+t['lat']-h/2][x+t['long']-w/2] = index
+
+if locs:
+	for l in hdata.Locations:
+		for dx in xrange(2*l['radius']+1):
+			for dy in xrange(2*l['radius']+1):
+				if (dx-l['radius'])*(dx-l['radius'])+(dy-l['radius'])*(dy-l['radius'])>=l['radius']*l['radius']: continue
+				y=l['lat']+dy-l['radius']
+				x=l['long']+dx-l['radius']
+				if 0 <= x < 256 and 0 <= y < 256:
+					citymap[y][x] = -1
 
 cx, cy = None, None
 
@@ -55,7 +79,9 @@ print "256 256"
 print "15"
 for y in xrange(256):
 	for x in xrange(256):
-		if citymap[y][x]:
+		if citymap[y][x]<0:
+			stuff = 0
+		elif citymap[y][x]:
 			stuff = hash(str(citymap[y][x]))
 			if stuff&0xfff == 0xfff:
 				stuff = 0x245

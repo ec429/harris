@@ -139,6 +139,14 @@ Targets = Table([('name', parse_string),
 				 ])
 Targets.read(open('dat/targets'))
 
+# Locations: NAME:LAT:LONG:RADIUS
+Locations = Table([('name', parse_string),
+				   ('lat', parse_int),
+				   ('long', parse_int),
+				   ('radius', parse_int),
+				   ])
+Locations.read(open('dat/locations'))
+
 if __name__ == "__main__":
 	if '--bombers' in sys.argv or '--all' in sys.argv:
 		print '%d bombers' % len(Bombers)
@@ -155,6 +163,9 @@ if __name__ == "__main__":
 	if '--ftrbases' in sys.argv or '--all' in sys.argv:
 		print '%d ftrbases' % len(Ftrbases)
 		print Ftrbases
+	if '--locations' in sys.argv or '--all' in sys.argv:
+		print '%d locations' % len(Locations)
+		print Locations
 	if '--targets' in sys.argv or '--all' in sys.argv:
 		print '%d targets' % len(Targets)
 		print Targets

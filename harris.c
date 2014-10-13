@@ -86,6 +86,8 @@ unsigned int nftypes=0;
 fightertype *ftypes=NULL;
 unsigned int nfbases=0;
 ftrbase *fbases=NULL;
+unsigned int nlocs=0;
+locxn *locs=NULL;
 unsigned int ntargs=0;
 target *targs=NULL;
 unsigned int nflaks=0;
@@ -190,6 +192,11 @@ int main(int argc, char *argv[])
 	if((rc=load_ftrbases()))
 	{
 		fprintf(stderr, "Failed to load ftrbases, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_locations()))
+	{
+		fprintf(stderr, "Failed to load locations, rc=%d\n", rc);
 		return(rc);
 	}
 	if((rc=load_targets()))

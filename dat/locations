@@ -1,0 +1,173 @@
+# Format: dsv
+# NAME:LAT:LONG:RADIUS
+# Used for reporting the locations of events (see run_raid.c:describe_location())
+# TCLASS_CITY targets are automatically added to this list
+
+# England
+London:          121: 45:20
+York:             64: 32:12
+Scarborough:      57: 42:8
+Leeds:            67: 26:10
+Hull:             69: 41:10
+Grimsby:          74: 47:8
+Scunthorpe:       74: 39:6
+Sheffield:        78: 27:8
+Lincoln:          80: 41:10
+Skegness:         83: 51:6
+Boston:           87: 45:7
+King's Lynn:      92: 53:7
+Norwich:          95: 65:10
+Peterborough:     97: 43:9
+Lowestoft:        98: 71:6
+Birmingham:       99: 21:10
+Cambridge:       104: 51:10
+Ipswich:         107: 62:10
+Colchester:      110: 58:9
+Margate:         123: 65:8
+Maidstone:       125: 56:7
+Dover:           129: 64:8
+Hastings:        135: 55:6
+Brighton:        135: 47:10
+Crawley:         129: 43:8
+Portsmouth:      135: 34:10
+Southampton:     133: 28:10
+Weymouth:        140: 13:10
+Yeovil:          130:  9:8
+Bristol:         122: 11:10
+Swindon:         119: 23:8
+Reading:         122: 34:8
+Luton:           111: 42:8
+Northampton:     103: 34:10
+Leicester:        94: 30:10
+Nottingham:       87: 30:10
+
+# Netherlands
+Amsterdam:       101:115:15
+Rotterdam:       111:109:15
+Den Helder:       88:113:12
+Maastricht:      135:127:12
+Soesterberg:     105:120:6
+Groningen:        82:139:8
+Leeuwarden:       83:128:8
+Sneek:            85:125:8
+Hoorn:            95:117:6
+Zwolle:           98:131:8
+Meppel:           92:133:6
+Emmen:            90:143:6
+Arnhem:          106:129:7
+Nijmegen:        110:128:8
+Eindhoven:       121:124:8
+Breda:           117:113:6
+Bergen op Zoom:  120:105:6
+Vlissingen:      121: 97:6
+
+# Belgium
+Brussels:        135:108:15
+Ghent:           132: 99:10
+Bruges:          127: 92:10
+Oostende:        127: 86:8
+Antwerp:         126:108:8
+Mons:            143:101:6
+Hasselt:         133:120:6
+Liège:           140:124:8
+Charleroi:       144:109:8
+Namur:           144:115:7
+Rochefort:       149:122:5
+
+# Luxemburg
+Luxemburg City:  161:131:10
+
+# France
+Le Havre:        165: 49:7
+Cherbourg:       161: 25:8
+Lorient:         201:  1:6
+Calais:          132: 73:10
+Dunkerque:       130: 79:8
+Boulogne:        136: 70:8
+Lille:           143: 89:11
+Rouen:           166: 62:12
+Amiens:          157: 80:12
+Paris:           178: 79:20
+Reims:           169:103:12
+Metz:            172:132:10
+Nancy:           181:132:9
+Mulhouse:        199:148:6
+Lyon:            241:114:12
+Sedan:           162:116:10
+
+# Denmark
+Aalborg:           1:183:6
+Herning:          11:171:6
+Copenhagen:       23:221:16
+Malmö:            25:229:12
+Odense:           28:191:10
+Esbjerg:          26:167:10
+Svendborg:        37:194:12
+Nykobing:         45:212:9
+
+# Germany
+Flensburg:        45:179:9
+Hörnum:           51:163:9
+Fehmarn:          52:202:7
+Greifswald:       60:233:7
+Neubrandenburg:   74:232:7
+Templin:          82:236:5
+Cottbus:         112:245:6
+Emden:            77:147:6
+Leer:             82:151:6
+Oldenburg:        83:161:8
+Löningen:         95:155:6
+Lingen:           97:149:6
+Nordhorn:        100:145:6
+Rheine:          103:150:6
+Osnabrück:       103:158:7
+Bielefeld:       109:165:9
+Paderborn:       115:169:8
+Münster:         110:154:12
+Kleve:           111:132:8
+Bocholt:         112:140:7
+Aachen:          136:131:10
+München-Gladbach:130:136:10
+Gelsenkirchen:   120:143:8
+Hüls:            124:139:9
+Olsberg:         125:166:6
+Marberg:         134:169:6
+Siegen:          133:158:5
+Wetzlar:         142:168:9
+Koblenz:         146:153:7
+Trier:           159:142:7
+Freiburg:        196:156:6
+Karlsruhe:       173:164:10
+Saarbrücken:     169:146:8
+Göttingen:       118:186:9
+Nordhausen:      119:197:6
+Husum:            52:171:8
+Itzehoe:          63:179:7
+Cuxhaven:         67:168:8
+Bremerhaven:      74:167:10
+Sulingen:         94:169:6
+Hamelin:         106:178:6
+Celle:            95:187:6
+Lüneburg:         81:191:6
+Ludwigslust:      80:207:6
+Wolfsburg:        99:197:9
+Brunswick:       104:194:10
+Wismar:           65:206:7
+Stendal:          95:213:6
+Brandenburg:     100:222:9
+Chemnitz:        135:226:10
+Plauen:          142:215:6
+Dessau:          109:217:6
+Coburg:          148:199:7
+Suhl:            140:196:5
+Bad Hersfeld:    132:184:5
+Fulda:           143:181:7
+Bamberg:         156:198:7
+Augsburg:        187:202:8
+Ulm:             188:186:6
+
+# Switzerland
+Zurich:          209:166:15
+Basel:           205:153:12
+Bern:            219:151:12
+Geneva:          233:133:15

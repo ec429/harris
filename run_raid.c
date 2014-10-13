@@ -50,10 +50,9 @@ const char *describe_location(int x, int y)
 {
 	static char cbuf[80];
 	int mi=-1, md=50;
-	for(unsigned int i=0;i<ntargs;i++)
+	for(unsigned int i=0;i<nlocs;i++)
 	{
-		if(targs[i].class!=TCLASS_CITY) continue;
-		int d=(targs[i].lon-x)*(targs[i].lon-x)+(targs[i].lat-y)*(targs[i].lat-y);
+		int d=(locs[i].lon-x)*(locs[i].lon-x)+(locs[i].lat-y)*(locs[i].lat-y);
 		if(d<md)
 		{
 			mi=i;
@@ -66,16 +65,16 @@ const char *describe_location(int x, int y)
 	}
 	else if(md==0)
 	{
-		snprintf(cbuf, 80, "at %s", targs[mi].name);
+		snprintf(cbuf, 80, "at %s", locs[mi].name);
 	}
 	else
 	{
-		int dx=targs[mi].lon-x,
-			dy=targs[mi].lat-y,
+		int dx=locs[mi].lon-x,
+			dy=locs[mi].lat-y,
 			th=floor(atan2(dy, dx)*4/M_PI+4.5),
 			d=sqrt(md)*3;
 		const char *dir=(const char *[8]){"W", "NW", "N", "NE", "E", "SE", "S", "SW"}[th%8];
-		snprintf(cbuf, 80, "%umi %s of %s", d, dir, targs[mi].name);
+		snprintf(cbuf, 80, "%umi %s of %s", d, dir, locs[mi].name);
 	}
 	return(cbuf);
 }

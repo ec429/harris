@@ -10,7 +10,8 @@
 int load_bombers(void); // -> types
 int load_fighters(void); // -> ftypes
 int load_ftrbases(void); // -> fbases
-int load_targets(void); // -> targs
+int load_locations(void); // -> locs
+int load_targets(void); // -> targs, locs
 int load_flaksites(void); // -> flaks
 int load_events(void); // -> event
 int load_texts(void); // -> evtext, types.text, types.newtext, ftypes.text, ftypes.newtext
