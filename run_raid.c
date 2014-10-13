@@ -69,8 +69,8 @@ const char *describe_location(int x, int y)
 	}
 	else
 	{
-		int dx=locs[mi].lon-x,
-			dy=locs[mi].lat-y,
+		int dx=x-locs[mi].lon,
+			dy=y-locs[mi].lat,
 			th=floor(atan2(dy, dx)*4/M_PI+4.5),
 			d=sqrt(md)*3;
 		const char *dir=(const char *[8]){"W", "NW", "N", "NE", "E", "SE", "S", "SW"}[th%8];
