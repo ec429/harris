@@ -203,8 +203,8 @@ flaksite;
 
 typedef struct
 {
-	enum {DS_NONE, DS_FIGHTER, DS_FLAK, DS_TFLK, DS_MECH} ds;
-	unsigned int idx; // index of fighter, flak or target if applicable
+	enum {DS_NONE, DS_FIGHTER, DS_FLAK, DS_TFLK, DS_MECH, DS_BOMBER, DS_FUEL} ds;
+	unsigned int idx; // index of bomber, fighter, flak or target if applicable
 }
 dmgsrc;
 
@@ -250,6 +250,7 @@ typedef struct
 	bool crashed;
 	bool landed;
 	double damage;
+	dmgsrc ld; // last damage source
 	bool radar;
 	unsigned int fuelt;
 	signed int k; // which bomber this fighter is attacking (-1 for none)

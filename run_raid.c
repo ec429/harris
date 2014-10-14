@@ -110,6 +110,29 @@ void describe_crb(const game *state, unsigned int k)
 	}
 }
 
+void describe_crf(const game *state, unsigned int j)
+{
+	ac_fighter f=state->fighters[j];
+	int x=f.lon, y=f.lat;
+	fprintf(stderr, "%s %s crashed %s", ftypes[f.type].manu, ftypes[f.type].name, describe_location(x, y));
+	switch(f.ld.ds)
+	{
+		case DS_NONE: /* should never happen */
+			fprintf(stderr, " with no prior damage\n");
+		break;
+		case DS_FUEL:
+			fprintf(stderr, " killer: fuel exhaustion\n");
+		break;
+		case DS_BOMBER:;
+			ac_bomber b=state->bombers[f.ld.idx];
+			fprintf(stderr, " killer: %s %s\n", types[b.type].manu, types[b.type].name);
+		break;
+		default:
+			fprintf(stderr, " killer: a bug (ds=%d, idx=%u)\n", f.ld.ds, f.ld.idx);
+		break;
+	}
+}
+
 int run_raid_create(void)
 {
 	run_raid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
@@ -210,6 +233,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		state->fighters[i].k=-1;
 		state->fighters[i].hflak=-1;
 		state->fighters[i].damage=0;
+		state->fighters[i].ld.ds=DS_NONE;
 		state->fighters[i].landed=true;
 		state->fighters[i].lat=fbases[state->fighters[i].base].lat;
 		state->fighters[i].lon=fbases[state->fighters[i].base].lon;
@@ -909,6 +933,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				if((state->fighters[j].damage>=100)||brandp(state->fighters[j].damage/4000.0))
 				{
 					cr_append(&state->hist, state->now, now, state->fighters[j].id, true, state->fighters[j].type);
+					describe_crf(state, j);
 					state->fighters[j].crashed=true;
 					int t=state->fighters[j].targ;
 					if(t>=0)
@@ -935,6 +960,9 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					if(t>state->fighters[j].fuelt+(ftypes[type].night?96:56))
 					{
 						cr_append(&state->hist, state->now, now, state->fighters[j].id, true, state->fighters[j].type);
+						if(!state->fighters[j].ld.ds)
+							state->fighters[j].ld.ds=DS_FUEL;
+						describe_crf(state, j);
 						state->fighters[j].crashed=true;
 						fightersleft--;
 					}
@@ -1004,7 +1032,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								unsigned int dmg=irandu(20);
 								state->fighters[j].damage+=dmg;
 								if(dmg)
+								{
 									dmac_append(&state->hist, state->now, now, state->fighters[j].id, true, state->fighters[j].type, dmg, state->fighters[j].damage, state->bombers[k].id);
+									state->fighters[j].ld=(dmgsrc){.ds=DS_BOMBER, .idx=k};
+								}
 								if(brandp(0.6)) // fighter breaks off to avoid return fire, but 40% chance to maintain contact
 									state->fighters[j].k=-1;
 							}
