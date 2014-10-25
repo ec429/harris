@@ -106,11 +106,20 @@ int load_bombers(void)
 					pn[12+p]=tolower(this.name[p]);
 				}
 				strncat(pn, ".png", 256);
-				if(!(this.picture=IMG_Load(pn))&&!this.extra)
+				SDL_Surface *rawpic;
+				if(!(rawpic=IMG_Load(pn))&&!this.extra)
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
 					return(1);
 				}
+				this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, rawpic->format->BitsPerPixel, rawpic->format->Rmask, rawpic->format->Gmask, rawpic->format->Bmask, rawpic->format->Amask);
+				if(!this.picture)
+				{
+					fprintf(stderr, "SDL_CreateRGBSurface: %s\n", SDL_GetError());
+					return(1);
+				}
+				SDL_FillRect(this.picture, &(SDL_Rect){0, 0, this.picture->w, this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 0));
+				SDL_BlitSurface(rawpic, NULL, this.picture, &(SDL_Rect){(36-rawpic->w)>>1, (40-rawpic->h)>>1, 0, 0});
 				char sn[256];
 				strcpy(sn, "art/large/bombers/");
 				for(size_t p=0;p<nlen;p++)
@@ -224,11 +233,20 @@ int load_fighters(void)
 					pn[13+p]=tolower(this.name[p]);
 				}
 				strncat(pn, ".png", 256);
-				if(!(this.picture=IMG_Load(pn)))
+				SDL_Surface *rawpic;
+				if(!(rawpic=IMG_Load(pn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
 					return(1);
 				}
+				this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, rawpic->format->BitsPerPixel, rawpic->format->Rmask, rawpic->format->Gmask, rawpic->format->Bmask, rawpic->format->Amask);
+				if(!this.picture)
+				{
+					fprintf(stderr, "SDL_CreateRGBSurface: %s\n", SDL_GetError());
+					return(1);
+				}
+				SDL_FillRect(this.picture, &(SDL_Rect){0, 0, this.picture->w, this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 0));
+				SDL_BlitSurface(rawpic, NULL, this.picture, &(SDL_Rect){(36-rawpic->w)>>1, (40-rawpic->h)>>1, 0, 0});
 				char sn[256];
 				strcpy(sn, "art/large/fighters/");
 				for(size_t p=0;p<nlen;p++)

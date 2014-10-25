@@ -102,30 +102,18 @@ void describe_crb(const game *state, unsigned int k)
 	atg_element *kb=RB_kill_box[fill_kill_box++];
 	kb->hidden=false;
 	atg_ebox_empty(kb);
-	SDL_Surface *bp=types[b.type].picture;
-	SDL_Surface *bpic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, bp->format->BitsPerPixel, bp->format->Rmask, bp->format->Gmask, bp->format->Bmask, bp->format->Amask);
-	if(!bpic)
+	atg_element *btpic=atg_create_element_image(types[b.type].picture);
+	if(!btpic)
 	{
-		fprintf(stderr, "bpic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		fprintf(stderr, "atg_create_element_image failed\n");
 	}
 	else
 	{
-		SDL_FillRect(bpic, &(SDL_Rect){0, 0, bpic->w, bpic->h}, SDL_MapRGB(bpic->format, 0, 0, 0));
-		SDL_BlitSurface(bp, NULL, bpic, &(SDL_Rect){(36-bp->w)>>1, (40-bp->h)>>1, 0, 0});
-		atg_element *btpic=atg_create_element_image(bpic);
-		SDL_FreeSurface(bpic); // Drop the extra reference
-		if(!btpic)
+		btpic->w=38;
+		if(atg_ebox_pack(kb, btpic))
 		{
-			fprintf(stderr, "atg_create_element_image failed\n");
-		}
-		else
-		{
-			btpic->w=38;
-			if(atg_ebox_pack(kb, btpic))
-			{
-				perror("atg_ebox_pack");
-				atg_free_element(btpic);
-			}
+			perror("atg_ebox_pack");
+			atg_free_element(btpic);
 		}
 	}
 	atg_element *crl=atg_create_element_label(" crashed ", 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
@@ -312,30 +300,18 @@ void describe_crf(const game *state, unsigned int j)
 			}
 		}
 		ac_bomber b=state->bombers[f.ld.idx];
-		SDL_Surface *bp=types[b.type].picture;
-		SDL_Surface *bpic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, bp->format->BitsPerPixel, bp->format->Rmask, bp->format->Gmask, bp->format->Bmask, bp->format->Amask);
-		if(!bpic)
+		atg_element *btpic=atg_create_element_image(types[b.type].picture);
+		if(!btpic)
 		{
-			fprintf(stderr, "bpic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+			fprintf(stderr, "atg_create_element_image failed\n");
 		}
 		else
 		{
-			SDL_FillRect(bpic, &(SDL_Rect){0, 0, bpic->w, bpic->h}, SDL_MapRGB(bpic->format, 0, 0, 0));
-			SDL_BlitSurface(bp, NULL, bpic, &(SDL_Rect){(36-bp->w)>>1, (40-bp->h)>>1, 0, 0});
-			atg_element *btpic=atg_create_element_image(bpic);
-			SDL_FreeSurface(bpic); // Drop the extra reference
-			if(!btpic)
+			btpic->w=38;
+			if(atg_ebox_pack(kb, btpic))
 			{
-				fprintf(stderr, "atg_create_element_image failed\n");
-			}
-			else
-			{
-				btpic->w=38;
-				if(atg_ebox_pack(kb, btpic))
-				{
-					perror("atg_ebox_pack");
-					atg_free_element(btpic);
-				}
+				perror("atg_ebox_pack");
+				atg_free_element(btpic);
 			}
 		}
 	}

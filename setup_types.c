@@ -117,16 +117,7 @@ int setup_types_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, types[i].picture->format->BitsPerPixel, types[i].picture->format->Rmask, types[i].picture->format->Gmask, types[i].picture->format->Bmask, types[i].picture->format->Amask);
-		if(!pic)
-		{
-			fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
-			return(1);
-		}
-		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
-		SDL_BlitSurface(types[i].picture, NULL, pic, &(SDL_Rect){(36-types[i].picture->w)>>1, (40-types[i].picture->h)>>1, 0, 0});
-		atg_element *btpic=atg_create_element_image(pic);
-		SDL_FreeSurface(pic); // Drop the extra reference
+		atg_element *btpic=atg_create_element_image(types[i].picture);
 		if(!btpic)
 		{
 			fprintf(stderr, "atg_create_element_image failed\n");

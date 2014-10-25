@@ -208,16 +208,7 @@ int intel_fighters_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		SDL_Surface *pic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, ftypes[i].picture->format->BitsPerPixel, ftypes[i].picture->format->Rmask, ftypes[i].picture->format->Gmask, ftypes[i].picture->format->Bmask, ftypes[i].picture->format->Amask);
-		if(!pic)
-		{
-			fprintf(stderr, "pic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
-			return(1);
-		}
-		SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
-		SDL_BlitSurface(ftypes[i].picture, NULL, pic, &(SDL_Rect){(36-ftypes[i].picture->w)>>1, (40-ftypes[i].picture->h)>>1, 0, 0});
-		atg_element *fpic=atg_create_element_image(pic);
-		SDL_FreeSurface(pic);
+		atg_element *fpic=atg_create_element_image(ftypes[i].picture);
 		if(!fpic)
 		{
 			fprintf(stderr, "atg_create_element_image failed\n");
