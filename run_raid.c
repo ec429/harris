@@ -23,7 +23,6 @@
 atg_element *run_raid_box;
 char *RB_time_label;
 atg_element *RB_map;
-SDL_Surface *RB_atime_image;
 unsigned int totalraids;
 int **dij, **nij, **tij, **lij;
 unsigned int *heat;
@@ -178,23 +177,6 @@ int run_raid_create(void)
 	}
 	RB_map->h=terrain->h+2;
 	if(atg_ebox_pack(RB_hbox, RB_map))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	RB_atime_image=SDL_CreateRGBSurface(SDL_HWSURFACE, 600, 240, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
-	if(!RB_atime_image)
-	{
-		fprintf(stderr, "RB_atime_image: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-		return(1);
-	}
-	atg_element *RB_atime=atg_create_element_image(RB_atime_image);
-	if(!RB_atime)
-	{
-		fprintf(stderr, "atg_create_element_image failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(run_raid_box, RB_atime))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -469,7 +451,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		weather_overlay=render_weather(state->weather);
 		SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
-		SDL_FillRect(RB_atime_image, &(SDL_Rect){.x=0, .y=0, .w=RB_atime_image->w, .h=RB_atime_image->h}, SDL_MapRGBA(RB_atime_image->format, GAME_BG_COLOUR.r, GAME_BG_COLOUR.g, GAME_BG_COLOUR.b, GAME_BG_COLOUR.a));
 		while(inair)
 		{
 			t++;
@@ -1516,6 +1497,5 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 
 void run_raid_free(void)
 {
-	SDL_FreeSurface(RB_atime_image);
 	atg_free_element(run_raid_box);
 }
