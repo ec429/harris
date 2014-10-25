@@ -23,6 +23,8 @@
 atg_element *run_raid_box;
 char *RB_time_label;
 atg_element *RB_map;
+atg_element *RB_kill_box[10];
+unsigned int fill_kill_box;
 unsigned int totalraids;
 int **dij, **nij, **tij, **lij;
 unsigned int *heat;
@@ -78,58 +80,282 @@ const char *describe_location(int x, int y)
 	return(cbuf);
 }
 
+void scroll_kill_box(void)
+{
+	for(unsigned int i=0;i<5;i++)
+	{
+		atg_element tmp=*RB_kill_box[i];
+		*RB_kill_box[i]=*RB_kill_box[i+5];
+		*RB_kill_box[i+5]=tmp;
+		atg_ebox_empty(RB_kill_box[i+5]);
+	}
+	fill_kill_box=5;
+}
+
 void describe_crb(const game *state, unsigned int k)
 {
 	ac_bomber b=state->bombers[k];
 	int x=b.lon, y=b.lat;
-	fprintf(stderr, "%s %s crashed %s", types[b.type].manu, types[b.type].name, describe_location(x, y));
+	const char *loc=describe_location(x, y);
+	if(fill_kill_box>9)
+		scroll_kill_box();
+	atg_element *kb=RB_kill_box[fill_kill_box++];
+	kb->hidden=false;
+	atg_ebox_empty(kb);
+	SDL_Surface *bp=types[b.type].picture;
+	SDL_Surface *bpic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, bp->format->BitsPerPixel, bp->format->Rmask, bp->format->Gmask, bp->format->Bmask, bp->format->Amask);
+	if(!bpic)
+	{
+		fprintf(stderr, "bpic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+	}
+	else
+	{
+		SDL_FillRect(bpic, &(SDL_Rect){0, 0, bpic->w, bpic->h}, SDL_MapRGB(bpic->format, 0, 0, 0));
+		SDL_BlitSurface(bp, NULL, bpic, &(SDL_Rect){(36-bp->w)>>1, (40-bp->h)>>1, 0, 0});
+		atg_element *btpic=atg_create_element_image(bpic);
+		SDL_FreeSurface(bpic); // Drop the extra reference
+		if(!btpic)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+		}
+		else
+		{
+			btpic->w=38;
+			if(atg_ebox_pack(kb, btpic))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(btpic);
+			}
+		}
+	}
+	atg_element *crl=atg_create_element_label(" crashed ", 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+	if(!crl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+	}
+	else
+	{
+		if(atg_ebox_pack(kb, crl))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(crl);
+		}
+	}
+	atg_element *locl=atg_create_element_label(loc, 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+	if(!locl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+	}
+	else
+	{
+		if(atg_ebox_pack(kb, locl))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(locl);
+		}
+	}
+	fprintf(stderr, "%s %s crashed %s", types[b.type].manu, types[b.type].name, loc);
+	char reason[80]="";
 	switch(b.ld.ds)
 	{
 		case DS_NONE: /* should never happen */
-			fprintf(stderr, " with no prior damage\n");
+			snprintf(reason, 80, " with no prior damage");
 		break;
 		case DS_MECH:
-			fprintf(stderr, " killer: mechanical failure\n");
+			snprintf(reason, 80, " - killer: mechanical failure");
 		break;
 		case DS_FLAK:;
 			flaksite fs=flaks[b.ld.idx];
-			fprintf(stderr, " killer: flak %s\n", describe_location(fs.lon, fs.lat));
+			snprintf(reason, 80, " - killer: flak %s", describe_location(fs.lon, fs.lat));
 		break;
 		case DS_TFLK:;
 			target t=targs[b.ld.idx];
-			fprintf(stderr, " killer: flak at %s\n", t.name);
+			snprintf(reason, 80, " - killer: flak at %s", t.name);
 		break;
 		case DS_FIGHTER:;
 			ac_fighter f=state->fighters[b.ld.idx];
-			fprintf(stderr, " killer: %s %s\n", ftypes[f.type].manu, ftypes[f.type].name);
+			snprintf(reason, 80, " - killer: %s %s", ftypes[f.type].manu, ftypes[f.type].name);
 		break;
 		default:
-			fprintf(stderr, " killer: a bug (ds=%d, idx=%u)\n", b.ld.ds, b.ld.idx);
+			snprintf(reason, 80, " - killer: a bug (ds=%d, idx=%u)", b.ld.ds, b.ld.idx);
 		break;
 	}
+	if(b.ld.ds==DS_FIGHTER)
+	{
+		atg_element *rl=atg_create_element_label(" - killer: ", 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+		if(!rl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(kb, rl))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(rl);
+			}
+		}
+		ac_fighter f=state->fighters[b.ld.idx];
+		atg_element *ri=atg_create_element_image(ftypes[f.type].picture);
+		if(!ri)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(kb, ri))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(ri);
+			}
+		}
+	}
+	else
+	{
+		atg_element *rl=atg_create_element_label(reason, 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+		if(!rl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(kb, rl))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(rl);
+			}
+		}
+	}
+	fprintf(stderr, "%s\n", reason);
 }
 
 void describe_crf(const game *state, unsigned int j)
 {
 	ac_fighter f=state->fighters[j];
 	int x=f.lon, y=f.lat;
-	fprintf(stderr, "%s %s crashed %s", ftypes[f.type].manu, ftypes[f.type].name, describe_location(x, y));
+	const char *loc=describe_location(x, y);
+	if(fill_kill_box>9)
+		scroll_kill_box();
+	atg_element *kb=RB_kill_box[fill_kill_box++];
+	kb->hidden=false;
+	atg_ebox_empty(kb);
+	atg_element *ftpic=atg_create_element_image(ftypes[f.type].picture);
+	if(!ftpic)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+	}
+	else
+	{
+		if(atg_ebox_pack(kb, ftpic))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(ftpic);
+		}
+	}
+	atg_element *crl=atg_create_element_label(" crashed ", 12, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
+	if(!crl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+	}
+	else
+	{
+		if(atg_ebox_pack(kb, crl))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(crl);
+		}
+	}
+	atg_element *locl=atg_create_element_label(loc, 12, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
+	if(!locl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+	}
+	else
+	{
+		if(atg_ebox_pack(kb, locl))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(locl);
+		}
+	}
+	fprintf(stderr, "%s %s crashed %s", ftypes[f.type].manu, ftypes[f.type].name, loc);
+	char reason[80]="";
 	switch(f.ld.ds)
 	{
 		case DS_NONE: /* should never happen */
-			fprintf(stderr, " with no prior damage\n");
+			snprintf(reason, 80, " with no prior damage\n");
 		break;
 		case DS_FUEL:
-			fprintf(stderr, " killer: fuel exhaustion\n");
+			snprintf(reason, 80, " - killer: fuel exhaustion\n");
 		break;
 		case DS_BOMBER:;
 			ac_bomber b=state->bombers[f.ld.idx];
-			fprintf(stderr, " killer: %s %s\n", types[b.type].manu, types[b.type].name);
+			snprintf(reason, 80, " - killer: %s %s\n", types[b.type].manu, types[b.type].name);
 		break;
 		default:
-			fprintf(stderr, " killer: a bug (ds=%d, idx=%u)\n", f.ld.ds, f.ld.idx);
+			snprintf(reason, 80, " - killer: a bug (ds=%d, idx=%u)\n", f.ld.ds, f.ld.idx);
 		break;
 	}
+	if(f.ld.ds==DS_BOMBER)
+	{
+		atg_element *rl=atg_create_element_label(" - killer: ", 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+		if(!rl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(kb, rl))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(rl);
+			}
+		}
+		ac_bomber b=state->bombers[f.ld.idx];
+		SDL_Surface *bp=types[b.type].picture;
+		SDL_Surface *bpic=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, bp->format->BitsPerPixel, bp->format->Rmask, bp->format->Gmask, bp->format->Bmask, bp->format->Amask);
+		if(!bpic)
+		{
+			fprintf(stderr, "bpic=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		}
+		else
+		{
+			SDL_FillRect(bpic, &(SDL_Rect){0, 0, bpic->w, bpic->h}, SDL_MapRGB(bpic->format, 0, 0, 0));
+			SDL_BlitSurface(bp, NULL, bpic, &(SDL_Rect){(36-bp->w)>>1, (40-bp->h)>>1, 0, 0});
+			atg_element *btpic=atg_create_element_image(bpic);
+			SDL_FreeSurface(bpic); // Drop the extra reference
+			if(!btpic)
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+			}
+			else
+			{
+				btpic->w=38;
+				if(atg_ebox_pack(kb, btpic))
+				{
+					perror("atg_ebox_pack");
+					atg_free_element(btpic);
+				}
+			}
+		}
+	}
+	else
+	{
+		atg_element *rl=atg_create_element_label(reason, 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+		if(!rl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(kb, rl))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(rl);
+			}
+		}
+	}
+	fprintf(stderr, "%s\n", reason);
 }
 
 int run_raid_create(void)
@@ -180,6 +406,35 @@ int run_raid_create(void)
 	{
 		perror("atg_ebox_pack");
 		return(1);
+	}
+	atg_element *kills_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){191, 191, 223, ATG_ALPHA_OPAQUE});
+	if(!kills_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	kills_box->w=800;
+	kills_box->h=400;
+	if(atg_ebox_pack(run_raid_box, kills_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int i=0;i<10;i++)
+	{
+		if(!(RB_kill_box[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		RB_kill_box[i]->h=40;
+		RB_kill_box[i]->w=800;
+		RB_kill_box[i]->hidden=true;
+		if(atg_ebox_pack(kills_box, RB_kill_box[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	return(0);
 }
@@ -429,6 +684,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_Surface *ac_overlay=render_ac(state);
 		SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
 		SDL_BlitSurface(with_ac, NULL, map_img->data, NULL);
+		for(unsigned int i=0;i<10;i++)
+		{
+			atg_ebox_empty(RB_kill_box[i]);
+			RB_kill_box[i]->hidden=true;
+		}
+		fill_kill_box=0;
 		unsigned int inair=totalraids, t=0;
 		cidam=0;
 		bridge=0;
