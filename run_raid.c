@@ -1186,7 +1186,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					state->fighters[j].targ=-1;
 					state->fighters[j].hflak=-1;
 					state->fighters[j].k=-1;
-					if(t>state->fighters[j].fuelt+(ftypes[type].night?96:56))
+					if(t>state->fighters[j].fuelt+(ftypes[type].night?96:58))
 					{
 						cr_append(&state->hist, state->now, now, state->fighters[j].id, true, state->fighters[j].type);
 						if(!state->fighters[j].ld.ds)
