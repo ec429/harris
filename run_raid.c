@@ -88,6 +88,7 @@ void scroll_kill_box(void)
 		*RB_kill_box[i]=*RB_kill_box[i+5];
 		*RB_kill_box[i+5]=tmp;
 		atg_ebox_empty(RB_kill_box[i+5]);
+		RB_kill_box[i+5]->hidden=true;
 	}
 	fill_kill_box=5;
 }
@@ -101,7 +102,6 @@ void describe_crb(const game *state, unsigned int k)
 		scroll_kill_box();
 	atg_element *kb=RB_kill_box[fill_kill_box++];
 	kb->hidden=false;
-	atg_ebox_empty(kb);
 	atg_element *btpic=atg_create_element_image(types[b.type].picture);
 	if(!btpic)
 	{
@@ -116,7 +116,7 @@ void describe_crb(const game *state, unsigned int k)
 			atg_free_element(btpic);
 		}
 	}
-	atg_element *crl=atg_create_element_label(" crashed ", 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+	atg_element *crl=atg_create_element_label(" crashed ", 14, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
 	if(!crl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -129,7 +129,7 @@ void describe_crb(const game *state, unsigned int k)
 			atg_free_element(crl);
 		}
 	}
-	atg_element *locl=atg_create_element_label(loc, 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+	atg_element *locl=atg_create_element_label(loc, 14, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
 	if(!locl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -168,9 +168,10 @@ void describe_crb(const game *state, unsigned int k)
 			snprintf(reason, 80, " - killer: a bug (ds=%d, idx=%u)", b.ld.ds, b.ld.idx);
 		break;
 	}
+	fprintf(stderr, "%s\n", reason);
 	if(b.ld.ds==DS_FIGHTER)
 	{
-		atg_element *rl=atg_create_element_label(" - killer: ", 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+		atg_element *rl=atg_create_element_label(" - killer: ", 14, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
 		if(!rl)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
@@ -200,7 +201,7 @@ void describe_crb(const game *state, unsigned int k)
 	}
 	else
 	{
-		atg_element *rl=atg_create_element_label(reason, 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+		atg_element *rl=atg_create_element_label(reason, 14, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
 		if(!rl)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
@@ -214,7 +215,6 @@ void describe_crb(const game *state, unsigned int k)
 			}
 		}
 	}
-	fprintf(stderr, "%s\n", reason);
 }
 
 void describe_crf(const game *state, unsigned int j)
@@ -226,7 +226,6 @@ void describe_crf(const game *state, unsigned int j)
 		scroll_kill_box();
 	atg_element *kb=RB_kill_box[fill_kill_box++];
 	kb->hidden=false;
-	atg_ebox_empty(kb);
 	atg_element *ftpic=atg_create_element_image(ftypes[f.type].picture);
 	if(!ftpic)
 	{
@@ -240,7 +239,7 @@ void describe_crf(const game *state, unsigned int j)
 			atg_free_element(ftpic);
 		}
 	}
-	atg_element *crl=atg_create_element_label(" crashed ", 12, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
+	atg_element *crl=atg_create_element_label(" crashed ", 14, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
 	if(!crl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -253,7 +252,7 @@ void describe_crf(const game *state, unsigned int j)
 			atg_free_element(crl);
 		}
 	}
-	atg_element *locl=atg_create_element_label(loc, 12, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
+	atg_element *locl=atg_create_element_label(loc, 14, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
 	if(!locl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -271,22 +270,23 @@ void describe_crf(const game *state, unsigned int j)
 	switch(f.ld.ds)
 	{
 		case DS_NONE: /* should never happen */
-			snprintf(reason, 80, " with no prior damage\n");
+			snprintf(reason, 80, " with no prior damage");
 		break;
 		case DS_FUEL:
-			snprintf(reason, 80, " - killer: fuel exhaustion\n");
+			snprintf(reason, 80, " - killer: fuel exhaustion");
 		break;
 		case DS_BOMBER:;
 			ac_bomber b=state->bombers[f.ld.idx];
-			snprintf(reason, 80, " - killer: %s %s\n", types[b.type].manu, types[b.type].name);
+			snprintf(reason, 80, " - killer: %s %s", types[b.type].manu, types[b.type].name);
 		break;
 		default:
-			snprintf(reason, 80, " - killer: a bug (ds=%d, idx=%u)\n", f.ld.ds, f.ld.idx);
+			snprintf(reason, 80, " - killer: a bug (ds=%d, idx=%u)", f.ld.ds, f.ld.idx);
 		break;
 	}
+	fprintf(stderr, "%s\n", reason);
 	if(f.ld.ds==DS_BOMBER)
 	{
-		atg_element *rl=atg_create_element_label(" - killer: ", 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+		atg_element *rl=atg_create_element_label(" - killer: ", 14, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
 		if(!rl)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
@@ -317,7 +317,7 @@ void describe_crf(const game *state, unsigned int j)
 	}
 	else
 	{
-		atg_element *rl=atg_create_element_label(reason, 12, (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE});
+		atg_element *rl=atg_create_element_label(reason, 14, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
 		if(!rl)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
@@ -331,7 +331,6 @@ void describe_crf(const game *state, unsigned int j)
 			}
 		}
 	}
-	fprintf(stderr, "%s\n", reason);
 }
 
 int run_raid_create(void)
@@ -383,14 +382,14 @@ int run_raid_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *kills_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){191, 191, 223, ATG_ALPHA_OPAQUE});
+	atg_element *kills_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!kills_box)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	kills_box->w=800;
-	kills_box->h=400;
+	kills_box->h=440;
 	if(atg_ebox_pack(run_raid_box, kills_box))
 	{
 		perror("atg_ebox_pack");
@@ -407,6 +406,18 @@ int run_raid_create(void)
 		RB_kill_box[i]->w=800;
 		RB_kill_box[i]->hidden=true;
 		if(atg_ebox_pack(kills_box, RB_kill_box[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+		if(!shim)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		shim->h=4;
+		if(atg_ebox_pack(kills_box, shim))
 		{
 			perror("atg_ebox_pack");
 			return(1);
