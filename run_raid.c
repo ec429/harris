@@ -93,57 +93,142 @@ void scroll_kill_box(void)
 	fill_kill_box=5;
 }
 
-void describe_crb(const game *state, unsigned int k)
+void describe_cr_helper(atg_colour colour, SDL_Surface *pic, const char *loc, const char *reason, SDL_Surface *kpic)
 {
-	ac_bomber b=state->bombers[k];
-	int x=b.lon, y=b.lat;
-	const char *loc=describe_location(x, y);
 	if(fill_kill_box>9)
 		scroll_kill_box();
 	atg_element *kb=RB_kill_box[fill_kill_box++];
 	kb->hidden=false;
-	atg_element *btpic=atg_create_element_image(types[b.type].picture);
-	if(!btpic)
+	atg_element *tpic=atg_create_element_image(pic);
+	if(!tpic)
 	{
 		fprintf(stderr, "atg_create_element_image failed\n");
 	}
 	else
 	{
-		btpic->w=38;
-		if(atg_ebox_pack(kb, btpic))
+		tpic->w=38;
+		if(atg_ebox_pack(kb, tpic))
 		{
 			perror("atg_ebox_pack");
-			atg_free_element(btpic);
+			atg_free_element(tpic);
 		}
 	}
-	atg_element *crl=atg_create_element_label(" crashed ", 14, (atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE});
+	atg_element *text_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){23, 27, 35, ATG_ALPHA_OPAQUE}), *text_line=NULL;
+	if(text_box)
+	{
+		if(atg_ebox_pack(kb, text_box))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(text_box);
+		}
+		else
+		{
+			atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){23, 27, 35, ATG_ALPHA_OPAQUE});
+			if(shim)
+			{
+				shim->h=11;
+				if(atg_ebox_pack(text_box, shim))
+				{
+					perror("atg_ebox_pack");
+					atg_free_element(shim);
+				}
+				else
+				{
+					text_line=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){23, 27, 35, ATG_ALPHA_OPAQUE});
+					if(text_line)
+					{
+						if(atg_ebox_pack(text_box, text_line))
+						{
+							perror("atg_ebox_pack");
+							atg_free_element(text_line);
+							text_line=NULL;
+						}
+					}
+				}
+			}
+		}
+	}
+	if(!text_line)
+		text_line=kb;
+	atg_element *crl=atg_create_element_label(" crashed ", 14, colour);
 	if(!crl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
 	}
 	else
 	{
-		if(atg_ebox_pack(kb, crl))
+		if(atg_ebox_pack(text_line, crl))
 		{
 			perror("atg_ebox_pack");
 			atg_free_element(crl);
 		}
 	}
-	atg_element *locl=atg_create_element_label(loc, 14, (atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE});
+	atg_element *locl=atg_create_element_label(loc, 14, colour);
 	if(!locl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
 	}
 	else
 	{
-		if(atg_ebox_pack(kb, locl))
+		if(atg_ebox_pack(text_line, locl))
 		{
 			perror("atg_ebox_pack");
 			atg_free_element(locl);
 		}
 	}
-	fprintf(stderr, "%s %s crashed %s", types[b.type].manu, types[b.type].name, loc);
+	if(kpic)
+	{
+		atg_element *rl=atg_create_element_label(" - killer: ", 14, colour);
+		if(!rl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(text_line, rl))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(rl);
+			}
+		}
+		atg_element *ri=atg_create_element_image(kpic);
+		if(!ri)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(kb, ri))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(ri);
+			}
+		}
+	}
+	else
+	{
+		atg_element *rl=atg_create_element_label(reason, 14, colour);
+		if(!rl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(text_line, rl))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(rl);
+			}
+		}
+	}
+}
+
+void describe_crb(const game *state, unsigned int k)
+{
+	ac_bomber b=state->bombers[k];
+	int x=b.lon, y=b.lat;
 	char reason[80]="";
+	SDL_Surface *kpic=NULL;
 	switch(b.ld.ds)
 	{
 		case DS_NONE: /* should never happen */
@@ -163,110 +248,23 @@ void describe_crb(const game *state, unsigned int k)
 		case DS_FIGHTER:;
 			ac_fighter f=state->fighters[b.ld.idx];
 			snprintf(reason, 80, " - killer: %s %s", ftypes[f.type].manu, ftypes[f.type].name);
+			kpic=ftypes[f.type].picture;
 		break;
 		default:
 			snprintf(reason, 80, " - killer: a bug (ds=%d, idx=%u)", b.ld.ds, b.ld.idx);
 		break;
 	}
-	fprintf(stderr, "%s\n", reason);
-	if(b.ld.ds==DS_FIGHTER)
-	{
-		atg_element *rl=atg_create_element_label(" - killer: ", 14, (atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE});
-		if(!rl)
-		{
-			fprintf(stderr, "atg_create_element_label failed\n");
-		}
-		else
-		{
-			if(atg_ebox_pack(kb, rl))
-			{
-				perror("atg_ebox_pack");
-				atg_free_element(rl);
-			}
-		}
-		ac_fighter f=state->fighters[b.ld.idx];
-		atg_element *ri=atg_create_element_image(ftypes[f.type].picture);
-		if(!ri)
-		{
-			fprintf(stderr, "atg_create_element_image failed\n");
-		}
-		else
-		{
-			if(atg_ebox_pack(kb, ri))
-			{
-				perror("atg_ebox_pack");
-				atg_free_element(ri);
-			}
-		}
-	}
-	else
-	{
-		atg_element *rl=atg_create_element_label(reason, 14, (atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE});
-		if(!rl)
-		{
-			fprintf(stderr, "atg_create_element_label failed\n");
-		}
-		else
-		{
-			if(atg_ebox_pack(kb, rl))
-			{
-				perror("atg_ebox_pack");
-				atg_free_element(rl);
-			}
-		}
-	}
+	const char *loc=describe_location(x, y);
+	describe_cr_helper((atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE}, types[b.type].picture, loc, reason, kpic);
+	fprintf(stderr, "%s %s crashed %s%s\n", types[b.type].manu, types[b.type].name, loc, reason);
 }
 
 void describe_crf(const game *state, unsigned int j)
 {
 	ac_fighter f=state->fighters[j];
 	int x=f.lon, y=f.lat;
-	const char *loc=describe_location(x, y);
-	if(fill_kill_box>9)
-		scroll_kill_box();
-	atg_element *kb=RB_kill_box[fill_kill_box++];
-	kb->hidden=false;
-	atg_element *ftpic=atg_create_element_image(ftypes[f.type].picture);
-	if(!ftpic)
-	{
-		fprintf(stderr, "atg_create_element_image failed\n");
-	}
-	else
-	{
-		if(atg_ebox_pack(kb, ftpic))
-		{
-			perror("atg_ebox_pack");
-			atg_free_element(ftpic);
-		}
-	}
-	atg_element *crl=atg_create_element_label(" crashed ", 14, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
-	if(!crl)
-	{
-		fprintf(stderr, "atg_create_element_label failed\n");
-	}
-	else
-	{
-		if(atg_ebox_pack(kb, crl))
-		{
-			perror("atg_ebox_pack");
-			atg_free_element(crl);
-		}
-	}
-	atg_element *locl=atg_create_element_label(loc, 14, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
-	if(!locl)
-	{
-		fprintf(stderr, "atg_create_element_label failed\n");
-	}
-	else
-	{
-		if(atg_ebox_pack(kb, locl))
-		{
-			perror("atg_ebox_pack");
-			atg_free_element(locl);
-		}
-	}
-	fprintf(stderr, "%s %s crashed %s", ftypes[f.type].manu, ftypes[f.type].name, loc);
 	char reason[80]="";
+	SDL_Surface *kpic=NULL;
 	switch(f.ld.ds)
 	{
 		case DS_NONE: /* should never happen */
@@ -278,59 +276,15 @@ void describe_crf(const game *state, unsigned int j)
 		case DS_BOMBER:;
 			ac_bomber b=state->bombers[f.ld.idx];
 			snprintf(reason, 80, " - killer: %s %s", types[b.type].manu, types[b.type].name);
+			kpic=types[b.type].picture;
 		break;
 		default:
 			snprintf(reason, 80, " - killer: a bug (ds=%d, idx=%u)", f.ld.ds, f.ld.idx);
 		break;
 	}
-	fprintf(stderr, "%s\n", reason);
-	if(f.ld.ds==DS_BOMBER)
-	{
-		atg_element *rl=atg_create_element_label(" - killer: ", 14, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
-		if(!rl)
-		{
-			fprintf(stderr, "atg_create_element_label failed\n");
-		}
-		else
-		{
-			if(atg_ebox_pack(kb, rl))
-			{
-				perror("atg_ebox_pack");
-				atg_free_element(rl);
-			}
-		}
-		ac_bomber b=state->bombers[f.ld.idx];
-		atg_element *btpic=atg_create_element_image(types[b.type].picture);
-		if(!btpic)
-		{
-			fprintf(stderr, "atg_create_element_image failed\n");
-		}
-		else
-		{
-			btpic->w=38;
-			if(atg_ebox_pack(kb, btpic))
-			{
-				perror("atg_ebox_pack");
-				atg_free_element(btpic);
-			}
-		}
-	}
-	else
-	{
-		atg_element *rl=atg_create_element_label(reason, 14, (atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE});
-		if(!rl)
-		{
-			fprintf(stderr, "atg_create_element_label failed\n");
-		}
-		else
-		{
-			if(atg_ebox_pack(kb, rl))
-			{
-				perror("atg_ebox_pack");
-				atg_free_element(rl);
-			}
-		}
-	}
+	const char *loc=describe_location(x, y);
+	describe_cr_helper((atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE}, ftypes[f.type].picture, loc, reason, kpic);
+	fprintf(stderr, "%s %s crashed %s%s\n", ftypes[f.type].manu, ftypes[f.type].name, loc, reason);
 }
 
 int run_raid_create(void)
