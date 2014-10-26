@@ -149,6 +149,7 @@ manifest = {
 				'flak',
 				'ftrbases',
 				'intel',
+				'locations',
 				'starts',
 				'targets',
 				'texts',
