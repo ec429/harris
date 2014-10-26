@@ -35,6 +35,9 @@ save/%.sav: save/%.sav.in gensave.py
 dat/targets: FORCE
 	sed -i dat/targets -e 's/ö/o/g' -e 's/ü/u/g' -e 's/Ø/O/g'
 
+dat/locations: FORCE
+	sed -i dat/locations -e 's/ö/o/g' -e 's/ü/u/g' -e 's/è/e/g'
+
 dat/cities/Lubeck.pbm: dat/cities/Lübeck.pbm
 	cp dat/cities/Lübeck.pbm dat/cities/Lubeck.pbm
 
