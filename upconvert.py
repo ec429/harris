@@ -11,6 +11,7 @@ changes = {'0.2.1':[('dclass', '*', 8), # first version supported by upconvert
                     ('type', '+', 7),
                     ('type', '+', 12),
                     ('type', '+', 13)],
+           '0.2.4':[], # no relevant changes
           }
 
 firstver = min(changes)
