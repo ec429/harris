@@ -656,7 +656,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		while(inair)
 		{
 			t++;
-			time now = maketime(t);
+			harris_time now = maketime(t);
 			if(RB_time_label) snprintf(RB_time_label, 6, "%02u:%02u", now.hour, now.minute);
 			if((!(t&3))&&(it<720))
 			{
@@ -1686,7 +1686,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			}
 			else if(state->bombers[i].damage>50)
 			{
-				fa_append(&state->hist, state->now, (time){11, 00}, state->bombers[i].id, false, type, 1);
+				fa_append(&state->hist, state->now, (harris_time){11, 00}, state->bombers[i].id, false, type, 1);
 				state->bombers[i].failed=true; // mark as u/s
 			}
 		}

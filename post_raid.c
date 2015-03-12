@@ -34,7 +34,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		unsigned int type=state->bombers[i].type;
 		if(!datewithin(state->now, types[type].entry, types[type].exit))
 		{
-			ob_append(&state->hist, state->now, (time){11, 10}, state->bombers[i].id, false, type);
+			ob_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type);
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
 				state->bombers[j]=state->bombers[j+1];
@@ -45,7 +45,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		{
 			if(brandp((types[type].svp/100.0)/2.0))
 			{
-				fa_append(&state->hist, state->now, (time){11, 10}, state->bombers[i].id, false, type, 0);
+				fa_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type, 0);
 				state->bombers[i].failed=false;
 			}
 		}
@@ -53,7 +53,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		{
 			if(brandp((1-types[type].svp/100.0)/2.4))
 			{
-				fa_append(&state->hist, state->now, (time){11, 10}, state->bombers[i].id, false, type, 1);
+				fa_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type, 1);
 				state->bombers[i].failed=true;
 			}
 		}
@@ -64,7 +64,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	state->cshr+=state->morale;
 	state->cshr*=.96;
 	state->cash+=state->cshr;
-	ca_append(&state->hist, state->now, (time){11, 20}, state->cshr, state->cash);
+	ca_append(&state->hist, state->now, (harris_time){11, 20}, state->cshr, state->cash);
 	// Update bomber prodn caps
 	for(unsigned int i=0;i<ntypes;i++)
 	{
@@ -86,7 +86,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					nb[n].nav[j]=false;
 				if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[i].nav[NAV_GEE])
 					nb[n].nav[NAV_GEE]=true;
-				ct_append(&state->hist, state->now, (time){11, 25}, state->bombers[n].id, false, state->bombers[n].type);
+				ct_append(&state->hist, state->now, (harris_time){11, 25}, state->bombers[n].id, false, state->bombers[n].type);
 			}
 		}
 		if(!datewithin(state->now, types[i].entry, types[i].exit)) continue;
@@ -141,7 +141,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		types[m].pcbuf-=cost;
 		types[m].pc+=cost/100;
 		types[m].pribuf-=8;
-		ct_append(&state->hist, state->now, (time){11, 30}, state->bombers[n].id, false, state->bombers[n].type);
+		ct_append(&state->hist, state->now, (harris_time){11, 30}, state->bombers[n].id, false, state->bombers[n].type);
 	}
 	// install navaids
 	for(unsigned int n=0;n<NNAVAIDS;n++)
@@ -168,7 +168,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			if(state->bombers[j].failed) continue;
 			if(state->bombers[j].nav[n]) continue;
 			state->bombers[j].nav[n]=true;
-			na_append(&state->hist, state->now, (time){11, 35}, state->bombers[j].id, false, state->bombers[j].type, n);
+			na_append(&state->hist, state->now, (harris_time){11, 35}, state->bombers[j].id, false, state->bombers[j].type, n);
 			state->napb[n]-=navprod[n];
 			if(++nac>=(notnew?10:4)) break;
 		}
@@ -188,7 +188,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				if(!state->bombers[i].pff)
 				{
 					state->bombers[i].pff=true;
-					pf_append(&state->hist, state->now, (time){11, 40}, state->bombers[i].id, false, type);
+					pf_append(&state->hist, state->now, (harris_time){11, 40}, state->bombers[i].id, false, type);
 				}
 				continue;
 			}
@@ -203,7 +203,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				if(state->bombers[i].type!=j) continue;
 				if(state->bombers[i].pff) continue;
 				state->bombers[i].pff=true;
-				pf_append(&state->hist, state->now, (time){11, 40}, state->bombers[i].id, false, j);
+				pf_append(&state->hist, state->now, (harris_time){11, 40}, state->bombers[i].id, false, j);
 				pffneed--;
 			}
 		}
@@ -231,11 +231,11 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				double dflk=(targs[i].flak*state->dmg[i]*.0005)-(state->flk[i]*.05);
 				state->flk[i]+=dflk;
 				if(dflk)
-					tfk_append(&state->hist, state->now, (time){11, 45}, i, dflk, state->flk[i]);
+					tfk_append(&state->hist, state->now, (harris_time){11, 45}, i, dflk, state->flk[i]);
 				double ddmg=min(state->dmg[i]*.1/(double)rcity, 100-state->dmg[i]);
 				state->dmg[i]+=ddmg;
 				if(ddmg)
-					tdm_append(&state->hist, state->now, (time){11, 45}, i, ddmg, state->dmg[i]);
+					tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
 				produce(i, state, state->dmg[i]*targs[i].prod*0.8);
 			}
 			break;
@@ -244,7 +244,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				double ddmg=min(state->dmg[i]*.2/(double)rother, 100-state->dmg[i]);
 				state->dmg[i]+=ddmg;
 				if(ddmg)
-					tdm_append(&state->hist, state->now, (time){11, 45}, i, ddmg, state->dmg[i]);
+					tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
 				produce(i, state, state->dmg[i]*targs[i].prod/20.0);
 			}
 			break;
@@ -265,7 +265,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 						goto unflak;
 					state->dmg[i]+=ddmg;
 					if(ddmg)
-						tdm_append(&state->hist, state->now, (time){11, 45}, i, ddmg, state->dmg[i]);
+						tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
 					produce(i, state, state->dmg[i]*targs[i].prod*cscale/2.0);
 				}
 				else
@@ -273,7 +273,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					unflak:
 					if(state->flk[i])
 					{
-						tfk_append(&state->hist, state->now, (time){11, 45}, i, -state->flk[i], 0);
+						tfk_append(&state->hist, state->now, (harris_time){11, 45}, i, -state->flk[i], 0);
 						state->flk[i]=0;
 					}
 				}
@@ -298,7 +298,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		if(state->fighters[i].crashed||!datewithin(state->now, ftypes[type].entry, ftypes[type].exit))
 		{
 			if(!state->fighters[i].crashed&&!datewithin(state->now, ftypes[type].entry, ftypes[type].exit))
-				ob_append(&state->hist, state->now, (time){11, 48}, state->fighters[i].id, true, type);
+				ob_append(&state->hist, state->now, (harris_time){11, 48}, state->fighters[i].id, true, type);
 			state->nfighters--;
 			for(unsigned int j=i;j<state->nfighters;j++)
 				state->fighters[j]=state->fighters[j+1];
@@ -326,7 +326,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			if((!state->fighters[i].radar)&&(ftypes[type].radpri==maxradpri))
 			{
 				state->fighters[i].radar=true;
-				na_append(&state->hist, state->now, (time){11, 49}, state->fighters[i].id, true, type, 0);
+				na_append(&state->hist, state->now, (harris_time){11, 49}, state->fighters[i].id, true, type, 0);
 				state->gprod[ICLASS_RADAR]-=5000;
 				rcount--;
 			}
@@ -376,10 +376,10 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		while(!datewithin(state->now, fbases[base].entry, fbases[base].exit));
 		(state->fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0, .id=rand_acid()};
 		state->gprod[ICLASS_AC]-=ftypes[i].cost;
-		ct_append(&state->hist, state->now, (time){11, 50}, state->fighters[n].id, true, i);
+		ct_append(&state->hist, state->now, (harris_time){11, 50}, state->fighters[n].id, true, i);
 	}
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
-		gp_append(&state->hist, state->now, (time){11, 55}, i, state->gprod[i], state->dprod[i]);
+		gp_append(&state->hist, state->now, (harris_time){11, 55}, i, state->gprod[i], state->dprod[i]);
 	state->now=tomorrow;
 	for(unsigned int i=0;i<ntypes;i++)
 	{

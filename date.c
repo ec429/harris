@@ -96,12 +96,12 @@ void drawmoon(SDL_Surface *s, double phase)
 	}
 }
 
-inline time maketime(int t)
+inline harris_time maketime(int t)
 {
-	return((time){(12+(t/120))%24, (t/2)%60});
+	return((harris_time){(12+(t/120))%24, (t/2)%60});
 }
 
-inline unsigned int rrtime(time t)
+inline unsigned int rrtime(harris_time t)
 {
 	int h=t.hour-12;
 	if(h<0) h+=24;
