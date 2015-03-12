@@ -3,8 +3,8 @@
 # Installation directories
 DESTDIR ?=
 PREFIX ?= /usr/local
-BINIDIR := $(DESTDIR)$(PREFIX)/games
-DATIDIR := $(DESTDIR)$(PREFIX)/share/games/harris
+BINIDIR ?= $(PREFIX)/games
+DATIDIR ?= $(PREFIX)/share/games/harris
 # User directories (relative to $HOME)
 USAVDIR := .local/share/harris
 
@@ -24,13 +24,13 @@ SDLFLAGS := `sdl-config --cflags`
 all: harris $(SAVES)
 
 install: all
-	install -d $(BINIDIR) $(DATIDIR)
-	install harris $(BINIDIR)/
-	./install.py -d $(DATIDIR)
+	install -d $(DESTDIR)$(BINIDIR) $(DESTDIR)$(DATIDIR)
+	install harris $(DESTDIR)$(BINIDIR)/
+	./install.py -d $(DESTDIR)$(DATIDIR)
 
 uninstall:
-	rm $(BINIDIR)/harris
-	rm -r $(DATIDIR)
+	rm $(DESTDIR)$(BINIDIR)/harris
+	rm -r $(DESTDIR)$(DATIDIR)
 
 clean:
 	-rm harris harris.o $(OBJS) $(SAVES)
