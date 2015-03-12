@@ -37,7 +37,7 @@ typedef struct
 	unsigned int hour;
 	unsigned int minute;
 }
-time;
+harris_time;
 
 typedef uint32_t acid; // a/c ID
 

@@ -27,7 +27,7 @@
 #define CAST_FLOAT
 #endif
 
-bool version_newer(const unsigned char v1[3], const unsigned char v2[3]) // true iff v1 newer than v2
+bool version_newer(const int v1[3], const int v2[3]) // true iff v1 newer than v2
 {
 	for(unsigned int i=0;i<3;i++)
 	{
@@ -46,8 +46,8 @@ int loadgame(const char *fn, game *state)
 		perror("fopen");
 		return(1);
 	}
-	unsigned char s_version[3]={0,0,0};
-	unsigned char version[3]={VER_MAJ,VER_MIN,VER_REV};
+	int s_version[3]={0,0,0};
+	int version[3]={VER_MAJ,VER_MIN,VER_REV};
 	bool warned_pff=false, warned_acid=false;
 	state->weather.seed=0;
 	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++) // default everything to medium
@@ -68,7 +68,7 @@ int loadgame(const char *fn, game *state)
 		int e=0,f; // poor-man's try...
 		if(strcmp(tag, "HARR")==0)
 		{
-			f=sscanf(dat, "%hhu.%hhu.%hhu\n", s_version, s_version+1, s_version+2);
+			f=sscanf(dat, "%d.%d.%d\n", s_version, s_version+1, s_version+2);
 			if(f!=3)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -698,7 +698,7 @@ int savegame(const char *fn, game state)
 		return(1);
 	}
 	char p_id[9];
-	fprintf(fs, "HARR:%hhu.%hhu.%hhu\n", VER_MAJ, VER_MIN, VER_REV);
+	fprintf(fs, "HARR:%d.%d.%d\n", VER_MAJ, VER_MIN, VER_REV);
 	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
 	fprintf(fs, "DClasses:%u\n", DIFFICULTY_CLASSES);
 	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++)
@@ -738,9 +738,9 @@ int savegame(const char *fn, game state)
 			flags |= 1;
 		fprintf(fs, "Type %u:%u,%u,%s\n", state.fighters[i].type, state.fighters[i].base, flags, p_id);
 	}
-	fprintf(fs, "Targets:%hhu\n", ntargs);
+	fprintf(fs, "Targets:%d\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)
-		fprintf(fs, "Targ %hhu:"FLOAT","FLOAT","FLOAT","FLOAT"\n", i, CAST_FLOAT state.dmg[i], CAST_FLOAT (targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0), CAST_FLOAT state.heat[i], CAST_FLOAT state.flam[i]);
+		fprintf(fs, "Targ %d:"FLOAT","FLOAT","FLOAT","FLOAT"\n", i, CAST_FLOAT state.dmg[i], CAST_FLOAT (targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0), CAST_FLOAT state.heat[i], CAST_FLOAT state.flam[i]);
 	fprintf(fs, "Weather state:"FLOAT","FLOAT"\n", CAST_FLOAT state.weather.push, CAST_FLOAT state.weather.slant);
 	for(unsigned int x=0;x<256;x++)
 	{
