@@ -124,7 +124,7 @@ int hist_load(FILE *in, size_t nents, history *hist)
 	return(0);
 }
 
-int ev_append(history *hist, date d, time t, const char *ev)
+int ev_append(history *hist, date d, harris_time t, const char *ev)
 {
 	char *p=hist_alloc(hist);
 	if(!p) return(1);
@@ -136,7 +136,7 @@ int ev_append(history *hist, date d, time t, const char *ev)
 	return(0);
 }
 
-int eva_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, const char *ev)
+int eva_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, const char *ev)
 {
 	char buf[HIST_LINE];
 	size_t i=sprintf(buf, "A ");
@@ -148,38 +148,38 @@ int eva_append(history *hist, date d, time t, acid id, bool ftr, unsigned int ty
 	return(ev_append(hist, d, t, buf));
 }
 
-int ct_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type)
+int ct_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type)
 {
 	return(eva_append(hist, d, t, id, ftr, type, "CT"));
 }
 
-int na_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int nid)
+int na_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int nid)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "NA %u", nid);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int pf_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type)
+int pf_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type)
 {
 	return(eva_append(hist, d, t, id, ftr, type, "PF"));
 }
 
-int ra_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int tid)
+int ra_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int tid)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "RA %u", tid);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int hi_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int tid, unsigned int bmb)
+int hi_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int tid, unsigned int bmb)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "HI %u %u", tid, bmb);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int dmac_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, acid src)
+int dmac_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, acid src)
 {
 	char buf[HIST_LINE];
 	size_t i=snprintf(buf, 72, "DM %a %a AC ", ddmg, cdmg);
@@ -187,38 +187,38 @@ int dmac_append(history *hist, date d, time t, acid id, bool ftr, unsigned int t
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int dmfk_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int fid)
+int dmfk_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int fid)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "DM %a %a FK %u", ddmg, cdmg, fid);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int dmtf_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int tid)
+int dmtf_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int tid)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "DM %a %a TF %u", ddmg, cdmg, tid);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int fa_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type, unsigned int fa)
+int fa_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int fa)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "FA %u", fa);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
-int cr_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type)
+int cr_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type)
 {
 	return(eva_append(hist, d, t, id, ftr, type, "CR"));
 }
 
-int ob_append(history *hist, date d, time t, acid id, bool ftr, unsigned int type)
+int ob_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type)
 {
 	return(eva_append(hist, d, t, id, ftr, type, "OB"));
 }
 
-int evt_append(history *hist, date d, time t, unsigned int tid, const char *ev)
+int evt_append(history *hist, date d, harris_time t, unsigned int tid, const char *ev)
 {
 	char buf[HIST_LINE];
 	size_t i=snprintf(buf, HIST_LINE, "T %u ", tid);
@@ -226,26 +226,26 @@ int evt_append(history *hist, date d, time t, unsigned int tid, const char *ev)
 	return(ev_append(hist, d, t, buf));
 }
 
-int tdm_append(history *hist, date d, time t, unsigned int tid, double ddmg, double cdmg)
+int tdm_append(history *hist, date d, harris_time t, unsigned int tid, double ddmg, double cdmg)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "DM %a %a", ddmg, cdmg);
 	return(evt_append(hist, d, t, tid, buf));
 }
 
-int tfk_append(history *hist, date d, time t, unsigned int tid, double dflk, double cflk)
+int tfk_append(history *hist, date d, harris_time t, unsigned int tid, double dflk, double cflk)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "FK %a %a", dflk, cflk);
 	return(evt_append(hist, d, t, tid, buf));
 }
 
-int tsh_append(history *hist, date d, time t, unsigned int tid)
+int tsh_append(history *hist, date d, harris_time t, unsigned int tid)
 {
 	return(evt_append(hist, d, t, tid, "SH"));
 }
 
-int evm_append(history *hist, date d, time t, const char *ev)
+int evm_append(history *hist, date d, harris_time t, const char *ev)
 {
 	char buf[HIST_LINE];
 	size_t i=sprintf(buf, "M ");
@@ -253,28 +253,28 @@ int evm_append(history *hist, date d, time t, const char *ev)
 	return(ev_append(hist, d, t, buf));
 }
 
-int ca_append(history *hist, date d, time t, unsigned int cshr, unsigned int cash)
+int ca_append(history *hist, date d, harris_time t, unsigned int cshr, unsigned int cash)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "CA %u %u", cshr, cash);
 	return(evm_append(hist, d, t, buf));
 }
 
-int co_append(history *hist, date d, time t, double confid)
+int co_append(history *hist, date d, harris_time t, double confid)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "CO %a", confid);
 	return(evm_append(hist, d, t, buf));
 }
 
-int mo_append(history *hist, date d, time t, double morale)
+int mo_append(history *hist, date d, harris_time t, double morale)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "MO %a", morale);
 	return(evm_append(hist, d, t, buf));
 }
 
-int gp_append(history *hist, date d, time t, unsigned int iclass, double gprod, double dprod)
+int gp_append(history *hist, date d, harris_time t, unsigned int iclass, double gprod, double dprod)
 {
 	char buf[HIST_LINE];
 	snprintf(buf, HIST_LINE, "GP %u %a %a", iclass, gprod, dprod);
