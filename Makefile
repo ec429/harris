@@ -8,8 +8,8 @@ DATIDIR := $(DESTDIR)$(PREFIX)/share/games/harris
 # User directories (relative to $HOME)
 USAVDIR := .local/share/harris
 
-CC := gcc
-CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDIR=\"$(USAVDIR)\"
+CC ?= gcc
+CFLAGS += -Wall -Wextra -Werror -pedantic --std=gnu99 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDIR=\"$(USAVDIR)\"
 
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
