@@ -19,7 +19,10 @@ def extract_value(save):
 	bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
 	bentry = [b.get('entry', hhist.date(0, 0, 0)) for b in hdata.Bombers]
 	total = sum(bvalues) + cash
-	res = [{'date':save.init.date, 'cash':cash, 'cshr':cshr, 'bombers':bcount, 'bvalues':bvalues, 'total':total}]
+	project = total + 25 * cshr
+	old = total
+	oldp = project
+	res = [{'date':save.init.date, 'cash':cash, 'cshr':cshr, 'bombers':list(bcount), 'bvalues':bvalues, 'total':total, 'project': project}]
 	for d in days:
 		if broughton and d[0] == broughton['date']:
 			if wlng: wlng['cost'] *= 2/3.0
@@ -45,10 +48,14 @@ def extract_value(save):
 		bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
 		cash -= spend
 		total = sum(bvalues) + cash
-		res.append({'date':d[0].next(), 'cash':cash, 'cshr':cshr, 'bombers':bcount, 'bvalues':bvalues, 'total':total})
+		project = total + 25 * cshr
+		res.append({'date':d[0].next(), 'cash':cash, 'cshr':cshr, 'bombers':list(bcount), 'bvalues':bvalues, 'total':total, 'project': project, 'delta':total - old, 'deltap':project - oldp})
+		old = total
+		oldp = project
 	return res
 
 if __name__ == '__main__':
 	save = hsave.Save.parse(sys.stdin)
 	value = extract_value(save)
-	print value
+	for row in value:
+		print '%s: %s; %7d+%6d/ => %8d (%+7d)'%(row['date'], ','.join('%3d'%b for b in row['bombers']), row['cash'], row['cshr'], row['project'], row.get('deltap', 0))
