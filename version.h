@@ -1,3 +1,3 @@
-#define VER_MAJ	0
-#define VER_MIN	2
-#define VER_REV	4
+#define VER_MAJ	0u
+#define VER_MIN	2u
+#define VER_REV	4u

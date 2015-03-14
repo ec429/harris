@@ -241,7 +241,7 @@ SDL_Surface *time_spinner_render_callback(const atg_element *e)
 	if(!e) return(NULL);
 	atg_spinner *s=e->elemdata;
 	if(!s) return(NULL);
-	time t=maketime(s->value);
+	harris_time t=maketime(s->value);
 	snprintf(s->val, 6, s->fmt, t.hour, t.minute); // it is assumed that 6 <= VALUE_LEN (from atg:w_spinner.c)
 	SDL_Surface *content=atg_render_box(&(atg_element){.w=e->w, .h=e->h, .elemdata=s->content, .clickable=false, .userdata=NULL});
 	if(!content) return(NULL);

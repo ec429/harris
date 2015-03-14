@@ -20,8 +20,8 @@ int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>
 double pom(date when); // returns in [0,1); 0 for new moon, 0.5 for full moon
 double foldpom(double pom); // returns illumination in [0,1]
 void drawmoon(SDL_Surface *s, double phase); // renders moon to image
-time maketime(int t); // converts run_raid time to clock time
-unsigned int rrtime(time t); // converts clock time to run_raid time
+harris_time maketime(int t); // converts run_raid time to clock time
+unsigned int rrtime(harris_time t); // converts clock time to run_raid time
 date nextday(date when); // computes the date 1 day after the given one
-#define TM(H,M)		(time){.hour=(H), .minute=(M)}
+#define TM(H,M)		(harris_time){.hour=(H), .minute=(M)}
 #define RRT(H,M)	rrtime(TM((H),(M)))
