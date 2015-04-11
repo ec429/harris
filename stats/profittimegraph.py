@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	after = hhist.date.parse(opts.after) if opts.after else None
 	save = hsave.Save.parse(sys.stdin)
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
-	targets = [t['dmg'] for t in save.init.targets]
+	targets = [[t['dmg'], 0, dict((i,0) for i in xrange(save.ntypes))] for t in save.init.targets]
 	costs = {b['i']:b['cost'] for b in hdata.Bombers}
 	days = sorted(hhist.group_by_date(save.history))
 	data = []

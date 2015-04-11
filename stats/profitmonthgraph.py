@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	data = []
 	month = save.history[0]['date']
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
-	targets = [t['dmg'] for t in save.init.targets]
+	targets = [[t['dmg'], 0, dict((i,0) for i in xrange(save.ntypes))] for t in save.init.targets]
 	history = sorted(hhist.group_by_date(save.history))
 	i = 0
 	while month <= save.history[-1]['date']:
