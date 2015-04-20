@@ -113,6 +113,10 @@ SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *ro
 bool lorw[128][128]; // TRUE for water
 unsigned char tnav[128][128]; // Recognisability of terrain.  High for rivers, even higher for coastline
 
+unsigned int nregions=0;
+struct region *regions;
+unsigned int region[256][256];
+
 unsigned int mainsizex=default_w, mainsizey=default_h;
 bool fullscreen=false;
 

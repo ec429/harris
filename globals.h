@@ -50,6 +50,9 @@ extern SDL_Surface *tick, *cross;
 
 extern bool lorw[128][128];
 extern unsigned char tnav[128][128];
+extern unsigned int nregions;
+extern struct region *regions;
+extern unsigned int region[256][256];
 
 extern unsigned int mainsizex, mainsizey;
 extern bool fullscreen;

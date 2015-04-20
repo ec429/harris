@@ -1,0 +1,46 @@
+# Key to region.png
+# Format: R:G:B:Class:Name
+# Classes: Friendly/Neutral/Enemy, Land/Water
+# "Neutral" means "Crews who bale out here have some chance of getting home"; the region may still be enemy-held for much of the war.
+00:00:00:FL:the United Kingdom
+ff:ff:ff:FL:the Isle of Wight
+ff:ff:00:NL:France
+00:ff:ff:NL:Luxembourg
+00:00:ff:NL:Switzerland
+7f:00:7f:EL:Austria
+00:ff:00:EL:Italy
+00:ff:7f:NL:Slovenia
+00:00:7f:NL:Croatia
+ff:00:7f:NW:the Adriatic Sea
+7f:ff:00:NW:the Bay of Biscay
+00:00:3f:FW:the English Channel
+00:bf:bf:NW:the North Sea
+3f:bf:bf:FW:the Wash
+00:3f:3f:FW:the Bristol Channel
+00:bf:3f:FW:the Irish Sea
+00:3f:bf:EW:the Baltic Sea
+7f:3f:00:NL:Belgium
+ff:7f:00:NL:the Netherlands
+# today called the Ĳsselmeer
+ff:7f:3f:NW:the Zuider Zee
+ff:bf:bf:EW:the Kattegat
+ff:3f:7f:EW:the Skagerrak
+3f:3f:3f:FL:the Channel Islands
+# today the Czech and Slovak Republics
+7f:7f:7f:NL:Czechoslovakia
+ff:7f:7f:NL:Poland
+ff:ff:7f:NL:Denmark
+7f:ff:7f:NL:Sweden
+# Germany
+00:3f:7f:EW:the Jadebusen
+ff:00:ff:EL:Schleswig-Holstein
+7f:00:ff:EL:Mecklenburg-Vorpommern
+bf:7f:00:EL:Niedersachsen
+00:7f:00:EL:Sachsen
+bf:3f:00:EL:Brandenburg
+3f:3f:00:EL:Thuringia
+ff:00:00:EL:Nordrhein-Westfalen
+bf:00:00:EL:Hesse
+bf:bf:bf:EL:Pfalz
+3f:7f:00:EL:Baden-Wurttemberg
+bf:5f:00:EL:Bavaria

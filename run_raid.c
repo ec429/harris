@@ -62,7 +62,7 @@ const char *describe_location(int x, int y)
 	}
 	if(mi<0)
 	{
-		snprintf(cbuf, 80, "at (%u,%u)", y, x);
+		snprintf(cbuf, 80, "in %s", regions[region[x][y]].name);
 	}
 	else if(md==0)
 	{

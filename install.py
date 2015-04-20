@@ -169,6 +169,8 @@ manifest = {
 			'overlay_coast.png',
 			'overlay_terrain.png',
 			'overlay_water.png',
+			'regions.png',
+			'farben',
 		]},
 	'save': {'.':[
 			'qstart.sav',

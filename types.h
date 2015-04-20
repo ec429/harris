@@ -320,3 +320,11 @@ struct gee
 	signed int lat, lon;
 	unsigned int range, jrange;
 };
+
+struct region
+{
+	char *name;
+	unsigned char rgb[3];
+	enum {REGSTAT_FRIENDLY, REGSTAT_NEUTRAL, REGSTAT_ENEMY} status;
+	bool water;
+};

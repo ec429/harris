@@ -880,6 +880,81 @@ int load_intel(void)
 	return(0);
 }
 
+int load_regions(void)
+{
+	FILE *rfp=fopen("map/farben", "r");
+	if(!rfp)
+	{
+		fprintf(stderr, "Failed to open data file `map/farben'!\n");
+		return(1);
+	}
+	else
+	{
+		char *rfile=slurp(rfp);
+		fclose(rfp);
+		char *next=rfile?strtok(rfile, "\n"):NULL;
+		while(next)
+		{
+			if(*next!='#')
+			{
+				// R:G:B:Class:Name
+				struct region this;
+				ssize_t db;
+				char fne, lw;
+				unsigned int r,g,b;
+				int e;
+				if((e=sscanf(next, "%x:%x:%x:%c%c:"zn, &r, &g, &b, &fne, &lw, &db))!=5)
+				{
+					fprintf(stderr, "Malformed `farben' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
+				}
+				this.rgb[0]=r;
+				this.rgb[1]=g;
+				this.rgb[2]=b;
+				switch(fne)
+				{
+					case 'F':
+						this.status=REGSTAT_FRIENDLY;
+					break;
+					case 'N':
+						this.status=REGSTAT_NEUTRAL;
+					break;
+					case 'E':
+						this.status=REGSTAT_ENEMY;
+					break;
+					default:
+						fprintf(stderr, "Malformed `farben' line `%s'\n", next);
+						fprintf(stderr, "  unrecognised region status `%c'\n", fne);
+						return(1);
+					break;
+				}
+				switch(lw)
+				{
+					case 'L':
+						this.water=false;
+					break;
+					case 'W':
+						this.water=true;
+					break;
+					default:
+						fprintf(stderr, "Malformed `farben' line `%s'\n", next);
+						fprintf(stderr, "  unrecognised region lw class `%c'\n", lw);
+						return(1);
+					break;
+				}
+				this.name=strdup(next+db);
+				regions=(struct region *)realloc(regions, (nregions+1)*sizeof(struct region));
+				regions[nregions++]=this;
+			}
+			next=strtok(NULL, "\n");
+		}
+		free(rfile);
+		fprintf(stderr, "Loaded %u regions\n", nregions);
+	}
+	return(0);
+}
+
 int load_images(void)
 {
 	SDL_Surface *water;
@@ -1089,6 +1164,34 @@ int load_images(void)
 	}
 	SDL_FillRect(yellow_overlay, &(SDL_Rect){.x=0, .y=0, .w=yellow_overlay->w, .h=yellow_overlay->h}, SDL_MapRGBA(yellow_overlay->format, 255, 255, 0, 63));
 	
+	int e=load_regions();
+	if(e)
+		return(e);
+	SDL_Surface *region_map=IMG_Load("map/regions.png");
+	if(!region_map)
+	{
+		fprintf(stderr, "Region map: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	for(unsigned int y=0;y<256;y++)
+		for(unsigned int x=0;x<256;x++)
+		{
+			size_t s_off = (y*region_map->pitch) + (x*region_map->format->BytesPerPixel);
+			uint32_t pixval = *(uint32_t *)((char *)region_map->pixels + s_off);
+			Uint8 r,g,b;
+			SDL_GetRGB(pixval, region_map->format, &r, &g, &b);
+			unsigned int i;
+			for(i=0;i<nregions;i++)
+				if(r==regions[i].rgb[0] && g==regions[i].rgb[1] && b==regions[i].rgb[2])
+					break;
+			if(i==nregions)
+			{
+				fprintf(stderr, "Unhandled region %02x:%02x:%02x at (%u,%u)\n", r, g, b, x, y);
+				return(1);
+			}
+			region[x][y]=i;
+		}
+	SDL_FreeSurface(region_map);
 	return(0);
 }
 
