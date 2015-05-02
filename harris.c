@@ -40,6 +40,7 @@
 #include "intel_bombers.h"
 #include "intel_fighters.h"
 #include "intel_targets.h"
+#include "handle_crews.h"
 
 #include "version.h"
 
@@ -469,6 +470,7 @@ int main(int argc, char *argv[])
 	screens[SCRN_INTELBMB]=MAKE_SCRN(intel_bombers);
 	screens[SCRN_INTELFTR]=MAKE_SCRN(intel_fighters);
 	screens[SCRN_INTELTRG]=MAKE_SCRN(intel_targets);
+	screens[SCRN_HCREWS]=MAKE_SCRN(handle_crews);
 	#undef MAKE_SCRN
 
 	for(unsigned int i=0;i<NUM_SCREENS;i++)

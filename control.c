@@ -30,7 +30,7 @@ atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map, *GB_filters;
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
-atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel;
+atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel, *GB_hcrews;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
@@ -447,6 +447,18 @@ int control_create(void)
 	}
 	GB_fintel->w=159;
 	if(atg_ebox_pack(GB_bt, GB_fintel))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	GB_hcrews=atg_create_element_button("Crews & Training", (atg_colour){127, 223, 159, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 63, ATG_ALPHA_OPAQUE});
+	if(!GB_hcrews)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	GB_hcrews->w=159;
+	if(atg_ebox_pack(GB_bt, GB_hcrews))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1452,6 +1464,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						{
 							intel_caller=SCRN_CONTROL;
 							return(SCRN_INTELFTR);
+						}
+						else if(trigger.e==GB_hcrews)
+						{
+							return(SCRN_HCREWS);
 						}
 						else if(trigger.e==GB_save)
 						{

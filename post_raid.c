@@ -214,9 +214,9 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			}
 		}
 	}
-	// recruit crews, and train them
-	refill_students(state);
+	// train crews, and recruit more
 	train_students(state);
+	refill_students(state);
 	// German production
 	unsigned int rcity=GET_DC(state,RCITY),
 	             rother=GET_DC(state,ROTHER);
@@ -527,6 +527,6 @@ void train_students(game *state)
 	{
 		if(state->crews[i].status==CSTATUS_STUDENT)
 			if(state->crews[i].assignment)
-				state->crews[i].skill=state->crews[i].skill*.96+.01;
+				state->crews[i].skill=state->crews[i].skill*.96+1;
 	}
 }
