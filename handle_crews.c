@@ -293,7 +293,10 @@ void update_crews(game *state)
 	unsigned int count[CREW_CLASSES][CREW_STATUSES];
 	unsigned int dens[CREW_CLASSES][CREW_STATUSES][101];
 	unsigned int tops[CREW_CLASSES][2][31];
+	unsigned int need[CREW_CLASSES];
+	unsigned int pool[CREW_CLASSES];
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
+	{
 		for(unsigned int j=0;j<CREW_STATUSES;j++)
 		{
 			count[i][j]=0;
@@ -303,6 +306,9 @@ void update_crews(game *state)
 				for(unsigned int k=0;k<31;k++)
 					tops[i][j][k]=0;
 		}
+		need[i]=0;
+		pool[i]=cclasses[i].initpool;
+	}
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
 		unsigned int cls=state->crews[i].class, sta=state->crews[i].status;
@@ -318,15 +324,37 @@ void update_crews(game *state)
 		{
 			unsigned int top=state->crews[i].tour_ops;
 			tops[cls][1][min(top/6, 30)]++;
+			pool[cls]+=cclasses[i].pupils;
+			if(cclasses[i].extra_pupil!=CCLASS_NONE)
+				pool[cclasses[i].extra_pupil]++;
 		}
 	}
+	for(unsigned int i=0;i<state->nbombers;i++)
+		if(!state->bombers[i].failed)
+			for(unsigned int j=0;j<MAX_CREW;j++)
+			{
+				enum cclass ct=types[state->bombers[i].type].crew[j];
+				if(ct!=CCLASS_NONE)
+					need[ct]++;
+			}
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
 		for(unsigned int j=0;j<CREW_STATUSES;j++)
 		{
 			unsigned int mxd=0;
 			for(unsigned int k=0;k<101;k++)
 				mxd=max(dens[i][j][k], mxd);
-			snprintf(HC_count[i][j], 32, "%u", count[i][j]);
+			switch(j)
+			{
+				case CSTATUS_CREWMAN:
+					snprintf(HC_count[i][j], 32, "%4u/%4u", count[i][j], need[i]);
+				break;
+				case CSTATUS_STUDENT:
+					snprintf(HC_count[i][j], 32, "%4u/%4u", count[i][j], pool[i]);
+				break;
+				default:
+					snprintf(HC_count[i][j], 32, "%u", count[i][j]);
+				break;
+			}
 			SDL_FillRect(HC_skill[i][j], &(SDL_Rect){0, 0, HC_skill[i][j]->w, HC_skill[i][j]->h}, SDL_MapRGB(HC_skill[i][j]->format, 7, 7, 15));
 			line(HC_skill[i][j], 50, 0, 50, 16, (atg_colour){23, 23, 23, ATG_ALPHA_OPAQUE});
 			line(HC_skill[i][j], 25, 0, 25, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
