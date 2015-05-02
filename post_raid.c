@@ -217,6 +217,43 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	// train crews, and recruit more
 	train_students(state);
 	refill_students(state);
+	// crews go to instructors and vice-versa
+	for(unsigned int i=0;i<state->ncrews;i++)
+	{
+		switch(state->crews[i].status)
+		{
+			case CSTATUS_CREWMAN:
+				if(state->crews[i].tour_ops>=30)
+				{
+					state->crews[i].status=CSTATUS_INSTRUC;
+					state->crews[i].tour_ops=0;
+					int j=state->crews[i].assignment;
+					if(j>=0)
+					{
+						unsigned int k;
+						for(k=0;k<MAX_CREW;k++)
+							if(state->bombers[j].crew[k]==(int)i)
+								break;
+						if(k<MAX_CREW)
+							state->bombers[j].crew[k]=0;
+						else // can't happen
+							fprintf(stderr, "Warning: crew linkage error b%u c%u\n", k, i);
+					}
+					state->crews[i].assignment=-1;
+				}
+			break;
+			case CSTATUS_INSTRUC:
+				if(++state->crews[i].tour_ops>180)
+				{
+					state->crews[i].status=CSTATUS_CREWMAN;
+					state->crews[i].tour_ops=0;
+					state->crews[i].assignment=-1;
+				}
+			break;
+			default:
+			break;
+		}
+	}
 	// German production
 	unsigned int rcity=GET_DC(state,RCITY),
 	             rother=GET_DC(state,ROTHER);

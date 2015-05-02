@@ -292,7 +292,7 @@ typedef struct
 	*/
 	int assignment;
 	/* meaning depends on status
-		CREWMAN: bomber index
+		CREWMAN: bomber index (or -1)
 		STUDENT: 1 if we have an instructor, 0 otherwise
 		INSTRUC: currently not used
 	*/

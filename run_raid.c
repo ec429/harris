@@ -601,6 +601,14 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				b_roundto(le, 1000);
 				//fprintf(stderr, "%s: %ulb hc + %u lb gp + %ulb in + %ulb ti = %ulb\n", types[type].name, state->bombers[k].b_hc, state->bombers[k].b_gp, state->bombers[k].b_in, state->bombers[k].b_ti, loadweight(state->bombers[k]));
 				#undef b_roundto
+				for(unsigned int i=0;i<MAX_CREW;i++)
+					if(types[type].crew[i]!=CCLASS_NONE)
+					{
+						if(state->bombers[k].crew[i]<0) // can't happen
+							fprintf(stderr, "No crew assigned to %u slot %u\n", k, i);
+						else
+							state->crews[state->bombers[k].crew[i]].tour_ops++;
+					}
 			}
 		}
 		oboe.k=-1;

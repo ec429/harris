@@ -22,6 +22,7 @@ atg_element *handle_crews_box;
 atg_element *HC_cont, *HC_full;
 char *HC_count[CREW_CLASSES][CREW_STATUSES];
 SDL_Surface *HC_skill[CREW_CLASSES][CREW_STATUSES];
+SDL_Surface *HC_tops[CREW_CLASSES][2];
 
 void update_crews(game *state);
 
@@ -108,7 +109,7 @@ int handle_crews_create(void)
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
-		header->w=200;
+		header->w=240;
 		if(atg_ebox_pack(head_box, header))
 		{
 			perror("atg_ebox_pack");
@@ -149,7 +150,7 @@ int handle_crews_create(void)
 				fprintf(stderr, "atg_create_element_box failed\n");
 				return(1);
 			}
-			cell_box->w=200;
+			cell_box->w=240;
 			if(atg_ebox_pack(row_box, cell_box))
 			{
 				perror("atg_ebox_pack");
@@ -190,6 +191,39 @@ int handle_crews_create(void)
 			{
 				perror("atg_ebox_pack");
 				return(1);
+			}
+			if(status!=CSTATUS_STUDENT)
+			{
+				atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, HCTBL_BG_COLOUR);
+				if(!shim)
+				{
+					fprintf(stderr, "atg_create_element_box failed\n");
+					return(1);
+				}
+				shim->w=10;
+				if(atg_ebox_pack(cell_box, shim))
+				{
+					perror("atg_ebox_pack");
+					return(1);
+				}
+				unsigned int sta=status?1:0;
+				HC_tops[i][sta]=SDL_CreateRGBSurface(SDL_HWSURFACE, 31, 17, 32,  0xff000000, 0xff0000, 0xff00, 0xff);
+				if(!HC_tops[i][sta])
+				{
+					fprintf(stderr, "HC_tops[][]=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+					return(1);
+				}
+				atg_element *tops=atg_create_element_image(HC_tops[i][sta]);
+				if(!tops)
+				{
+					fprintf(stderr, "atg_create_element_image failed\n");
+					return(1);
+				}
+				if(atg_ebox_pack(cell_box, tops))
+				{
+					perror("atg_ebox_pack");
+					return(1);
+				}
 			}
 		}
 	}
@@ -258,12 +292,16 @@ void update_crews(game *state)
 {
 	unsigned int count[CREW_CLASSES][CREW_STATUSES];
 	unsigned int dens[CREW_CLASSES][CREW_STATUSES][101];
+	unsigned int tops[CREW_CLASSES][2][31];
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
 		for(unsigned int j=0;j<CREW_STATUSES;j++)
 		{
 			count[i][j]=0;
 			for(unsigned int k=0;k<101;k++)
 				dens[i][j][k]=0;
+			if(j<2)
+				for(unsigned int k=0;k<31;k++)
+					tops[i][j][k]=0;
 		}
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
@@ -271,6 +309,16 @@ void update_crews(game *state)
 		count[cls][sta]++;
 		unsigned int skill=floor(state->crews[i].skill);
 		dens[cls][sta][min(skill, 100)]++;
+		if(sta==CSTATUS_CREWMAN)
+		{
+			unsigned int top=state->crews[i].tour_ops;
+			tops[cls][0][min(top, 30)]++;
+		}
+		else if(sta==CSTATUS_INSTRUC)
+		{
+			unsigned int top=state->crews[i].tour_ops;
+			tops[cls][1][min(top/6, 30)]++;
+		}
 	}
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
 		for(unsigned int j=0;j<CREW_STATUSES;j++)
@@ -283,12 +331,28 @@ void update_crews(game *state)
 			line(HC_skill[i][j], 50, 0, 50, 16, (atg_colour){23, 23, 23, ATG_ALPHA_OPAQUE});
 			line(HC_skill[i][j], 25, 0, 25, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
 			line(HC_skill[i][j], 75, 0, 75, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
+			if(j<2)
+				SDL_FillRect(HC_tops[i][j], &(SDL_Rect){0, 0, HC_tops[i][j]->w, HC_tops[i][j]->h}, SDL_MapRGB(HC_tops[i][j]->format, 7, 7, 15));
 			if(!count[i][j]) continue;
 			for(unsigned int k=0;k<101;k++)
 			{
 				double frac=dens[i][j][k]/(double)mxd;
 				unsigned int br=63+ceil(frac*192);
 				line(HC_skill[i][j], k, 8-ceil(frac*8), k, 8+ceil(frac*8), (atg_colour){br, br, br, ATG_ALPHA_OPAQUE});
+			}
+			if(j<2)
+			{
+				unsigned int mxt=0;
+				for(unsigned int k=0;k<31;k++)
+					mxt=max(tops[i][j][k], mxt);
+				line(HC_tops[i][j], 10, 0, 10, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
+				line(HC_tops[i][j], 20, 0, 20, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
+				for(unsigned int k=0;k<31;k++)
+				{
+					double frac=tops[i][j][k]/(double)mxt;
+					unsigned int br=63+ceil(frac*63);
+					line(HC_tops[i][j], k, 8-ceil(frac*8), k, 8+ceil(frac*8), (atg_colour){br, 7, 15, ATG_ALPHA_OPAQUE});
+				}
 			}
 		}
 }

@@ -14,20 +14,20 @@ Navigator tasks:
 	* Radionavigation.  Affects accuracy achieved by navaids.
 	+ The navigator also aims the bombs in some bombers (those with no Bomb-aimer) at 75%.
 	+ In the absence of a Wireless-op, the navigator's Communications skill is used at 75%.
-Bomb-aimer skills:
+Bomb-aimer tasks:
 	* Aiming.  Affects hits on precision targets; generally irrelevant to area bombing.  (Maybe adds a random offset to bmblat/lon?)
 	* Map-reading.  Feeds into ground-track navigation.
 	+ The bomb-aimer also mans the front turret in some bombers (flag CREWBG) at 75%.
 	+ Also operates H2S if fitted.
-Engineer skills:
+Engineer tasks:
 	* Airmanship.  Affects things like fuel efficiency, speed and altitude.
-	* Damage control.  Helps bomber survive being hit / mech fail.
+	* Damage control.  Helps bomber survive being hit / mech fail.  [Sum]
 	+ The engineer is also a look-out man (see under Gunner).
-W/Op skills:
+W/Op tasks:
 	* Communications.  Mostly signals are only received (broadcast winds etc.) but also affects crew recovery if ditching.
 	* Damage control (see under Engineer).
 	+ The wireless-op also mans the front turret in some bombers (flag CREWWG).  (Really the 'trade' in the RAF was WOp/AG but that's too much hassle to deal with)
-Gunner skills:
+Gunner tasks:
 	* Lookout.  Spotting fighters before they attack, directing the aircraft's evasive action afterwards. [Mean]
 	* Marksmanship.  Ability to shoot back. [Random select]
 
@@ -66,7 +66,7 @@ Pos Init Inst
   P 60   2 +1E
   N 60   3 +1B
   B 20   5 +1G
-  E 50   4
+  E  0   4
   W 30   6 +1G
   G 75   5
 
