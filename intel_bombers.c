@@ -16,7 +16,7 @@
 
 atg_element *intel_bombers_box;
 atg_element *IB_full, *IB_bombers_tab, *IB_fighters_tab, *IB_targets_tab, *IB_cont;
-atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box;
+atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box, *IB_crew_box;
 unsigned int IB_i;
 SDL_Surface *IB_blank;
 
@@ -569,6 +569,49 @@ void update_intel_bombers(const game *state)
 				perror("atg_ebox_pack");
 				atg_free_element(s_bar);
 				break;
+			}
+		}
+	}
+	atg_element *crew_row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+	if(!crew_row)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+	}
+	else if(atg_ebox_pack(IB_stat_box, crew_row))
+	{
+		perror("atg_ebox_pack");
+		atg_free_element(crew_row);
+	}
+	else
+	{
+		atg_element *crew_name=atg_create_element_label("Crew", 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+		if(crew_name)
+		{
+			crew_name->w=108;
+			if(atg_ebox_pack(crew_row, crew_name))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(crew_name);
+			}
+		}
+		char crew_buf[MAX_CREW+1];
+		unsigned int cbp=0;
+		crew_buf[cbp]=0;
+		for(unsigned int j=0;j<MAX_CREW;j++)
+		{
+			enum cclass cls=types[IB_i].crew[j];
+			if(cls!=CCLASS_NONE)
+				crew_buf[cbp++]=cclasses[cls].letter;
+			crew_buf[cbp]=0;
+		}
+		atg_element *crew_value=atg_create_element_label(crew_buf, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+		if(crew_value)
+		{
+			crew_value->w=72;
+			if(atg_ebox_pack(crew_row, crew_value))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(crew_value);
 			}
 		}
 	}
