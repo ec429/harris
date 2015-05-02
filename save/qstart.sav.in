@@ -34,6 +34,12 @@ Bombers:406
 *41*Type 2:1,0,0,NOID
 *50*Type 3:0,0,0,NOID
 *23*Type 3:1,0,0,NOID
+Crews:2090
+*500*Crewgen P:30,0,NOID
+*440*Crewgen N:40,0,NOID
+*150*Crewgen B:15,0,NOID
+*400*Crewgen W:25,0,NOID
+*600*Crewgen G:35,0,NOID
 GProd:8
 IClass 0:6000
 IClass 1:80000

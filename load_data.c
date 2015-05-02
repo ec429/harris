@@ -46,7 +46,7 @@ int load_bombers(void)
 			if(*next&&(*next!='#'))
 			{
 				bombertype this;
-				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
+				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
@@ -76,11 +76,54 @@ int load_bombers(void)
 				}
 				exit++;
 				this.exit=readdate(exit, (date){9999, 99, 99});
-				const char *nav=strchr(exit, ':');
+				const char *crew=strchr(exit, ':');
+				if(!crew)
+				{
+					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+					fprintf(stderr, "  missing :CREW\n");
+					return(1);
+				}
+				unsigned int ci=0;
+				while(true)
+				{
+					char c=*++crew;
+					if(c==':') break;
+					if(isspace(c)) continue;
+					if(!c)
+					{
+						crew=NULL;
+						break;
+					}
+					if(ci<MAX_CREW)
+					{
+						for(unsigned int cp=0;cp<CREW_CLASSES;cp++)
+							if(c==cclasses[cp].letter)
+							{
+								this.crew[ci++]=cp;
+								c=0;
+								break;
+							}
+						if(c)
+						{
+							fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+							fprintf(stderr, "  bad CREW member `%c'\n", c);
+							return(1);
+						}
+					}
+					else
+					{
+						fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+						fprintf(stderr, "  too many CREW\n");
+						return(1);
+					}
+				}
+				while(ci<MAX_CREW)
+					this.crew[ci++]=CCLASS_NONE;
+				const char *nav=crew;
 				if(!nav)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					fprintf(stderr, "  missing :NAVAIDS\n");
+					fprintf(stderr, "  missing :NAVAIDS,FLAGS,BOMBLOADS\n");
 					return(1);
 				}
 				nav++;

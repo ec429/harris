@@ -317,9 +317,67 @@ int loadgame(const char *fn, game *state)
 					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff};
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						state->bombers[i].nav[n]=(nav>>n)&1;
+					for(unsigned int k=0;k<MAX_CREW;k++)
+						state->bombers[i].crew[k]=-1;
 					if(gacid(p_id, &state->bombers[i].id))
 					{
 						fprintf(stderr, "32 Invalid value \"%s\" for a/c ID in tag \"%s\"\n", p_id, tag);
+						e|=32;
+						break;
+					}
+				}
+			}
+		}
+		else if(strcmp(tag, "Crews")==0)
+		{
+			f=sscanf(dat, "%u\n", &state->ncrews);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else
+			{
+				free(state->crews);
+				state->crews=malloc(state->ncrews*sizeof(crewman));
+				for(unsigned int i=0;i<state->ncrews;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					char status[11];
+					char class;
+					double skill;
+					unsigned int tops;
+					char p_id[9];
+					f=sscanf(line, "%10s %c:%la,%u,%8s\n", status, &class, &skill, &tops, p_id);
+					if(f!=5)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					state->crews[i]=(crewman){.skill=skill, .tour_ops=tops, .assignment=-1};
+					if((state->crews[i].class=lookup_crew_letter(class))==CCLASS_NONE)
+					{
+						fprintf(stderr, "32 Invalid value '%c' for crew class in tag \"%s\"\n", class, tag);
+						e|=32;
+						break;
+					}
+					if((state->crews[i].status=lookup_crew_status(status))==CSTATUS_NONE)
+					{
+						fprintf(stderr, "32 Invalid value \"%s\" for crew status in tag \"%s\"\n", status, tag);
+						e|=32;
+						break;
+					}
+					if(gacid(p_id, &state->crews[i].id))
+					{
+						fprintf(stderr, "32 Invalid value \"%s\" for c/m ID in tag \"%s\"\n", p_id, tag);
 						e|=32;
 						break;
 					}
@@ -723,6 +781,12 @@ int savegame(const char *fn, game state)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		pacid(state.bombers[i].id, p_id);
 		fprintf(fs, "Type %u:%u,%u,%u,%s\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id);
+	}
+	fprintf(fs, "Crews:%u\n", state.ncrews);
+	for(unsigned int i=0;i<state.ncrews;i++)
+	{
+		pacid(state.crews[i].id, p_id);
+		fprintf(fs, "%s %c:%la,%u,%s\n", cstatuses[state.crews[i].status], cclasses[state.crews[i].class].letter, state.crews[i].skill, state.crews[i].tour_ops, p_id);
 	}
 	fprintf(fs, "GProd:%u\n", ICLASS_MIXED);
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)

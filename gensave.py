@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, zlib, struct
+import sys, zlib, struct, random, math
 
 def multiply(line):
 	if len(line) > 1:
@@ -19,6 +19,33 @@ def genids(line, i):
 		return '%s,%s\n' % (line[:-6], h.zfill(8))
 	else:
 		return line
+
+def poisson(lamb):
+	if lamb <= 0:
+		return 0
+	l = math.exp(-lamb)
+	k = 0
+	p = 1
+	while p > l:
+		k += 1
+		p *= random.random()
+	return k - 1
+
+def gencrews(line, i):
+	words = line.split(':')
+	cls = words[0][-1]
+	words = words[1].split(',')
+	ms = int(words[0])
+	tops = int(words[1])
+	acid = words[2]
+	z = '_'.join((salt, str(i), line))
+	ha = zlib.crc32(z) & 0xffffffff
+	random.seed(ha)
+	skill = poisson(ms)
+	if windows:
+		return "Crewman %c:%s,%u,%s"%(cls, float_to_hex(skill), tops, acid)
+	else:
+		return "Crewman %c:%u,%u,%s"%(cls, skill, tops, acid)
 
 windows = '--windows' in sys.argv
 
@@ -41,12 +68,14 @@ for line in sys.stdin.readlines():
 	lines = multiply(line)
 	for i,line in enumerate(lines):
 		line = genids(line, i)
+		if line.startswith("Crewgen"):
+			line = gencrews(line, i)
 		if windows and ':' in line:
 			to_conv = {'Confid':(0,),
 				       'Morale':(0,),
 				       'IClass':(1,),
 				       'Targets init':(0,1,2,3),
-				       'Targ':(1,2,3,4),}
+				       'Targ':(1,2,3,4)}
 			tag, values = line.rstrip('\n').split(':', 1)
 			values = values.split(',')
 			if tag in to_conv:

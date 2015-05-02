@@ -14,7 +14,7 @@ CFLAGS += -Wall -Wextra -Werror -pedantic --std=gnu99 -g -DDATIDIR=\"$(DATIDIR)\
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
 SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS)
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o $(SCREEN_OBJS)
+OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o $(SCREEN_OBJS)
 INCLUDES := $(OBJS:.o=.h) types.h globals.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
@@ -85,11 +85,11 @@ save_game.o: ui.h globals.h events.h saving.h
 
 control.o: ui.h globals.h events.h widgets.h date.h bits.h render.h routing.h weather.h intel_bombers.h intel_targets.h run_raid.h
 
-run_raid.o: ui.h globals.h events.h date.h history.h render.h rand.h routing.h weather.h geom.h
+run_raid.o: ui.h globals.h events.h date.h history.h render.h rand.h routing.h weather.h geom.h control.h
 
 raid_results.o: ui.h globals.h events.h bits.h date.h history.h weather.h run_raid.h
 
-post_raid.o: ui.h globals.h events.h bits.h date.h history.h rand.h
+post_raid.o: ui.h globals.h events.h bits.h date.h history.h rand.h control.h
 
 intel_bombers.o: ui.h globals.h events.h bits.h date.h
 
@@ -97,7 +97,7 @@ intel_fighters.o: ui.h globals.h events.h bits.h date.h
 
 intel_targets.o: ui.h globals.h events.h bits.h date.h render.h
 
-%.o: %.c %.h types.h dclass.h
+%.o: %.c %.h types.h dclass.h crew.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 static: all

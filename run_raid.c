@@ -19,6 +19,7 @@
 #include "rand.h"
 #include "weather.h"
 #include "geom.h"
+#include "control.h"
 
 atg_element *run_raid_box;
 char *RB_time_label;
@@ -1681,6 +1682,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				state->nbombers--;
 				for(unsigned int j=i;j<state->nbombers;j++)
 					state->bombers[j]=state->bombers[j+1];
+				fixup_crew_assignments(state, i, true);
 				i--;
 				continue;
 			}

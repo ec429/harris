@@ -1,0 +1,75 @@
+crewing rules
+
+bombertype has 'crew' field, eg. Lanc is PNBEWGG (Pilot, Nav, Bomb-aimer, Flight-engineer, Wireless-op, 2 Air-gunners)
+
+Crewmembers have a single all-encompassing "skill value" which controls their effectiveness at their tasks.  [Square brackets indicate how to aggregate skills of multiple crewmembers]
+Pilot tasks:
+	* Evasive action.  Relevant to both flak and fighter attack. [Max]
+	* Course-holding.  Affects navigational accuracy. [Max]
+	+ The pilot is also a look-out man (see under Gunner).
+	+ In the absence of a Flight-engineer, the pilot's skill is used for Airmanship at 75%. [Max]
+Navigator tasks:
+	* Astronavigation.  Gives rough fixes; important when ground obscured by cloud (or over water).
+	* Ground track.  Navigation by ground features is particularly effective with moonlight.
+	* Radionavigation.  Affects accuracy achieved by navaids.
+	+ The navigator also aims the bombs in some bombers (those with no Bomb-aimer) at 75%.
+	+ In the absence of a Wireless-op, the navigator's Communications skill is used at 75%.
+Bomb-aimer skills:
+	* Aiming.  Affects hits on precision targets; generally irrelevant to area bombing.  (Maybe adds a random offset to bmblat/lon?)
+	* Map-reading.  Feeds into ground-track navigation.
+	+ The bomb-aimer also mans the front turret in some bombers (flag CREWBG) at 75%.
+	+ Also operates H2S if fitted.
+Engineer skills:
+	* Airmanship.  Affects things like fuel efficiency, speed and altitude.
+	* Damage control.  Helps bomber survive being hit / mech fail.
+	+ The engineer is also a look-out man (see under Gunner).
+W/Op skills:
+	* Communications.  Mostly signals are only received (broadcast winds etc.) but also affects crew recovery if ditching.
+	* Damage control (see under Engineer).
+	+ The wireless-op also mans the front turret in some bombers (flag CREWWG).  (Really the 'trade' in the RAF was WOp/AG but that's too much hassle to deal with)
+Gunner skills:
+	* Lookout.  Spotting fighters before they attack, directing the aircraft's evasive action afterwards. [Mean]
+	* Marksmanship.  Ability to shoot back. [Random select]
+
+Later we will add a separate skill value for "heavy bomber experience", practised by flying bombers with the HEAVY flag and trained at an HCU, which scales skill level when flying HEAVY bombers.
+Also, as well as an initial skill value, crewmembers will be generated with an overall 'learning rate' and 'learning cap'; the rate scales progress and the cap limits potential.  (The cap is approached asymptotically.)  For now we just have standard values for everyone.
+
+Ideas for crew reassignment:
+1	For each pair of bombertypes there should be a "move best crews" option, which backfills by moving the worst crews in the other direction.  Best is always based on what they're moving to, and worst on what they're moving from.  Any crewmembers without a corresponding spot on the other bombertype's crew will stay where they are.
+2	Have a "skilled crews priority" setting for each type, and automatically rebalance skilled crews accordingly.
+
+In either case, the PFF section of those types which have partial PFF (flags PFF&&!NOARM, ie. Lancaster I & X) are treated as a separate 'type' for this purpose.  When moving a bomber to the PFF (ie. 'PF' event), the best crew on the type are automatically moved with it.
+
+Crews in training appear in a 'staging area'; while they remain there, they slowly gain skill (not as rapidly as crews on ops).  Thus faster production means shorter training and less skilled sprogs.
+Crews can be moved between training and a bombertype the same as between a pair of bombertypes.
+When more bombers of a type are sent on a raid than there are crews assigned to that type, a further crew must be assigned.  This depends on some type flags:
+	Main Force: the best crew from the training pool is assigned to the type.
+	PFF: the best non-PFF crew on the type is moved (perhaps triggering a further assignment).
+	PFF&&NOARM: the best crew not already on the type is moved (perhaps triggering a further assignment).
+[Not implemented yet.  At the moment we just look for a crewman not assigned to a raid, then look for a student.  We don't search for the 'best'.]
+
+When a crewmember finishes his tour of 30 ops, he is screened: moved to 'instructors' for six months (during which time he increases the training pool size for his crew position), before returning for his next tour (available for crew assignment).  Thus higher survival rates mean longer training and better skills.
+The interaction of rules means that crews can't go straight from instructor to PFF Lancs, but they can go straight to Mosquitoes.  [Is this still true?]
+Maybe it should also be possible to borrow screened instructors for Millennium-style raids (but that won't be in the first version of this feature).
+
+Skill acquisition:
+Pos Practised by
+  P Flight as P.  Slower if secondary P (e.g. Manchester/Stirling, second dickey if we implement that).
+  N Flight as N.
+  B Dropping any payload except leaflets.
+  E Flight as E (or P absent E), slow; damage or mech fail incurred, fast.
+  W Flight as W.
+  G Flight as G, slow; Fighter spotted, fast.
+
+Table of position, initial pool size, and pupils per instructor
+Pos Init Inst
+  P 60   2 +1E
+  N 60   3 +1B
+  B 20   5 +1G
+  E 50   4
+  W 30   6 +1G
+  G 75   5
+
+The skill levels of each position in each situation (type, pool, instructors) should be displayed as a box-and-whisker plot (shows all five quartiles).
+
+Perhaps have an event EATS (Empire Air Training Scheme) that increases pool size.

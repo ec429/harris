@@ -3,7 +3,6 @@
 
 This module currently provides the following data:
 Per bombertype:
-	Crew counts
 	Short names
 	Graphing colour
 Per fightertype:
@@ -15,21 +14,21 @@ Per industry class:
 """
 
 Bombers = {
-	"Blenheim":   {"crew":3, "short":"BLEN", "colour":'0.5',    },
-	"Whitley":    {"crew":5, "short":"WHIT", "colour":'y',      },
-	"Hampden":    {"crew":4, "short":"HAMP", "colour":'r',      },
-	"Wellington": {"crew":6, "short":"WLNG", "colour":'c',      },
-	"Manchester": {"crew":7, "short":"MANC", "colour":'m',      },
-	"Southampton":{"crew":6, "short":"SOUT", "colour":'#800000',},
-	"Stirling":   {"crew":7, "short":"STIR", "colour":'0.5',    },
-	"Elswick":    {"crew":5, "short":"ELSW", "colour":'#80e000',},
-	"Halifax I":  {"crew":7, "short":"HAL1", "colour":'#806000',},
-	"Lancaster I":{"crew":7, "short":"LAN1", "colour":'b',      },
-	"Mosquito":   {"crew":2, "short":"MOSQ", "colour":'r',      },
-	"Halifax III":{"crew":7, "short":"HAL3", "colour":'y',      },
-	"Windsor":    {"crew":6, "short":"WIND", "colour":'m',      },
-	"Selkirk":    {"crew":7, "short":"SELK", "colour":'0.5',    },
-	"Lancaster X":{"crew":7, "short":"LANX", "colour":'c',      },
+	"Blenheim":   {"short":"BLEN", "colour":'0.5',    },
+	"Whitley":    {"short":"WHIT", "colour":'y',      },
+	"Hampden":    {"short":"HAMP", "colour":'r',      },
+	"Wellington": {"short":"WLNG", "colour":'c',      },
+	"Manchester": {"short":"MANC", "colour":'m',      },
+	"Southampton":{"short":"SOUT", "colour":'#800000',},
+	"Stirling":   {"short":"STIR", "colour":'0.5',    },
+	"Elswick":    {"short":"ELSW", "colour":'#80e000',},
+	"Halifax I":  {"short":"HAL1", "colour":'#806000',},
+	"Lancaster I":{"short":"LAN1", "colour":'b',      },
+	"Mosquito":   {"short":"MOSQ", "colour":'r',      },
+	"Halifax III":{"short":"HAL3", "colour":'y',      },
+	"Windsor":    {"short":"WIND", "colour":'m',      },
+	"Selkirk":    {"short":"SELK", "colour":'0.5',    },
+	"Lancaster X":{"short":"LANX", "colour":'c',      },
 	}
 
 Fighters = {

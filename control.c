@@ -39,8 +39,11 @@ SDL_Surface *GB_moonimg;
 int filter_nav[NNAVAIDS], filter_pff=0;
 
 bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS]);
+bool ensure_crewed(game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 int update_raidnums(const game *state, int seltarg);
+
+enum cclass shortof=CCLASS_NONE;
 
 int control_create(void)
 {
@@ -1292,12 +1295,14 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											default:
 												amount=10;
 										}
+										shortof=CCLASS_NONE;
 										for(unsigned int j=0;j<state->nbombers;j++)
 										{
 											if(state->bombers[j].type!=i) continue;
 											if(state->bombers[j].failed) continue;
 											if(!state->bombers[j].landed) continue;
 											if(!filter_apply(state->bombers[j], filter_pff, filter_nav)) continue;
+											if(!ensure_crewed(state, j)) continue;
 											state->bombers[j].landed=false;
 											amount--;
 											unsigned int n=state->raids[seltarg].nbombers++;
@@ -1311,6 +1316,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											(state->raids[seltarg].bombers=new)[n]=j;
 											if(!amount) break;
 										}
+										if(amount&&shortof!=CCLASS_NONE) // indicate why we failed to assign
+											fprintf(stderr, "Out of %ss\n", cclasses[shortof].name);
 										if(GB_raidnum[i])
 										{
 											unsigned int count=0;
@@ -1513,6 +1520,102 @@ bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS])
 	return(true);
 }
 
+bool ensure_crewed(game *state, unsigned int i)
+{
+	unsigned int type=state->bombers[i].type;
+	for(unsigned int j=0;j<MAX_CREW;j++)
+	{
+		if(types[type].crew[j]==CCLASS_NONE)
+			continue;
+		if(state->bombers[i].crew[j]<0)
+		{
+			// 1. Look for an available CREWMAN
+			// either unassigned, or assigned to a bomber who's not on a raid (yet)
+			for(unsigned int k=0;k<state->ncrews;k++)
+				if(state->crews[k].class==types[type].crew[j])
+					if(state->crews[k].status==CSTATUS_CREWMAN)
+					{
+						if(state->crews[k].assignment<0)
+						{
+							state->crews[k].assignment=i;
+							state->bombers[i].crew[j]=k;
+							break;
+						}
+						else if(state->bombers[state->crews[k].assignment].landed)
+						{
+							unsigned int l=state->crews[k].assignment, m;
+							if(l==i) continue; // don't steal from ourselves
+							// TODO check for pff-crossing
+							for(m=0;m<MAX_CREW;m++)
+								if(state->bombers[l].crew[m]==(int)k)
+								{
+									state->bombers[l].crew[m]=-1;
+									break;
+								}
+							if(m==MAX_CREW) // XXX should never happen
+							{
+								fprintf(stderr, "Warning: crew linkage error b%u c%u\n", l, k);
+								continue;
+							}
+							state->crews[k].assignment=i;
+							state->bombers[i].crew[j]=k;
+							break;
+						}
+					}
+		}
+		if(state->bombers[i].crew[j]<0)
+		{
+			// 2. Look for a matching STUDENT and promote them to CREWMAN
+			for(unsigned int k=0;k<state->ncrews;k++)
+				if(state->crews[k].class==types[type].crew[j])
+					if(state->crews[k].status==CSTATUS_STUDENT)
+					{
+						state->crews[k].status=CSTATUS_CREWMAN;
+						state->crews[k].tour_ops=0;
+						state->crews[k].assignment=i;
+						state->bombers[i].crew[j]=k;
+					}
+		}
+		if(state->bombers[i].crew[j]<0)
+		{
+			// 3. Give up, and don't allow assigning this bomber to any raid
+			shortof=types[type].crew[j];
+			return(false);
+		}
+	}
+	return(true);
+}
+
+// Relink crew assignments after a bomber is destroyed, obsoleted or otherwise removed from the list
+// This would be so much easier if everything was in linked-lists... ah well
+void fixup_crew_assignments(game *state, unsigned int i, bool kill)
+{
+	for(unsigned int j=0;j<state->ncrews;j++)
+		if(state->crews[j].status==CSTATUS_CREWMAN)
+		{
+			if(state->crews[j].assignment>(int)i)
+			{
+				state->crews[j].assignment--;
+			}
+			else if(state->crews[j].assignment==(int)i)
+			{
+				if(kill)
+				{
+					state->ncrews--;
+					for(unsigned int k=j;k<state->ncrews;k++)
+						state->crews[k]=state->crews[k+1];
+					for(unsigned int k=0;k<state->nbombers;k++)
+						for(unsigned int l=0;l<MAX_CREW;l++)
+							if(state->bombers[k].crew[l]>(int)j)
+								state->bombers[k].crew[l]--;
+					j--;
+				}
+				else
+					state->crews[j].assignment=-1;
+			}
+		}
+}
+
 int update_raidbox(const game *state, int seltarg)
 {
 	if(GB_raid_label)
@@ -1633,6 +1736,7 @@ void game_preinit(game *state)
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
 				state->bombers[j]=state->bombers[j+1];
+			fixup_crew_assignments(state, i, false);
 			i--;
 			stripped++;
 			continue;

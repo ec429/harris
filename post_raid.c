@@ -16,8 +16,11 @@
 #include "date.h"
 #include "history.h"
 #include "rand.h"
+#include "control.h"
 
 void produce(int targ, game *state, double amount);
+void refill_students(game *state);
+void train_students(game *state);
 
 atg_element *post_raid_box;
 
@@ -38,6 +41,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
 				state->bombers[j]=state->bombers[j+1];
+			fixup_crew_assignments(state, i, false);
 			i--;
 			continue;
 		}
@@ -137,6 +141,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			nb[n].nav[j]=false;
 		if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[m].nav[NAV_GEE])
 			nb[n].nav[NAV_GEE]=true;
+		for(unsigned int j=0;j<MAX_CREW;j++)
+			nb[n].crew[j]=-1;
 		state->cash-=cost;
 		types[m].pcbuf-=cost;
 		types[m].pc+=cost/100;
@@ -208,6 +214,9 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			}
 		}
 	}
+	// recruit crews, and train them
+	refill_students(state);
+	train_students(state);
 	// German production
 	unsigned int rcity=GET_DC(state,RCITY),
 	             rother=GET_DC(state,ROTHER);
@@ -456,4 +465,68 @@ void produce(int targ, game *state, double amount)
 		state->gprod[ICLASS_RAIL]-=amount/8.0;
 	state->gprod[targs[targ].iclass]+=amount;
 	state->dprod[targs[targ].iclass]+=amount;
+}
+
+void refill_students(game *state)
+{
+	for(unsigned int i=0;i<CREW_CLASSES;i++)
+	{
+		unsigned int scount=0;
+		unsigned int pool=cclasses[i].initpool;
+		for(unsigned int j=0;j<state->ncrews;j++)
+		{
+			if(state->crews[j].status==CSTATUS_STUDENT)
+			{
+				if(state->crews[j].class!=i) continue;
+				scount++;
+			}
+			else if(state->crews[j].status==CSTATUS_INSTRUC)
+			{
+				if(state->crews[j].class==i)
+					pool+=cclasses[i].pupils;
+				else if(cclasses[state->crews[j].class].extra_pupil==i)
+					pool++;
+			}
+		}
+		if(scount<pool)
+		{
+			unsigned int add=min(pool-scount, max(pool/24, 1));
+			unsigned int nc=state->ncrews+add;
+			crewman *new=realloc(state->crews, nc*sizeof(crewman));
+			if(!new)
+			{
+				perror("realloc");
+				// nothing we can do about it except give up refilling
+				return;
+			}
+			state->crews=new;
+			for(unsigned int j=state->ncrews;j<nc;j++)
+				state->crews[j]=(crewman){.id=rand_acid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .tour_ops=0, .assignment=1};
+			state->ncrews=nc;
+		}
+		else if(scount>pool)
+		{
+			for(unsigned int j=state->ncrews;j-->0;) // iterates [0,ncrews) in reverse
+				if(state->crews[j].status==CSTATUS_STUDENT)
+					if(state->crews[j].class==i)
+						if(state->crews[j].assignment)
+						{
+							state->crews[j].assignment=0;
+							if(scount--<=pool)
+								break;
+						}
+			if(scount!=pool)
+				fprintf(stderr, "Warning: student pool error %u != %u\n", scount, pool);
+		}
+	}
+}
+
+void train_students(game *state)
+{
+	for(unsigned int i=0;i<state->ncrews;i++)
+	{
+		if(state->crews[i].status==CSTATUS_STUDENT)
+			if(state->crews[i].assignment)
+				state->crews[i].skill=state->crews[i].skill*.96+.01;
+	}
 }

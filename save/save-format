@@ -23,10 +23,10 @@ for(i=0;i<NNAVAIDS;i++)
 	"Nprio %u:%d,%u\n", i, state.nap[i], state.napb[i]
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
-	either
-		"Type %u:%u,%u,%u,NOID\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff
-	or
-		"Type %u:%u,%u,%u,%s\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id)
+	"Type %u:%u,%u,%u,%s\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id)
+"Crews:%u\n", ncrews
+for(i=0;i<ncrews;i++)
+	"%s %c:%la,%u,%s\n", cstatuses[crews[i].status], cclasses[crews[i].class].letter, crews[i].skill, crews[i].tour_ops, pacid(crews[i].id)
 "GProd:%u\n", iclasses // should be a constant
 for(i=0;i<iclasses;i++)
 	"IClass %u:%la\n", i, gprod[i]

@@ -10,6 +10,7 @@
 
 #include <atg.h>
 #include "dclass.h"
+#include "crew.h"
 
 #define NNAVAIDS	4
 #define MAXMSGS		8
@@ -89,9 +90,11 @@ extern struct bombloadinfo
 }
 bombloads[NBOMBLOADS];
 
+#define MAX_CREW	7
+
 typedef struct
 {
-	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS,BOMBLOADS
+	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
 	char * manu;
 	char * name;
 	unsigned int cost;
@@ -106,6 +109,7 @@ typedef struct
 	date entry;
 	date novelty;
 	date exit;
+	enum cclass crew[MAX_CREW];
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
 	bool noarm, pff, heavy, inc, broughton, extra;
@@ -212,6 +216,7 @@ typedef struct
 {
 	acid id;
 	unsigned int type;
+	int crew[MAX_CREW]; // -1 for unassigned
 	unsigned int targ;
 	double lat, lon;
 	double navlat, navlon; // error in "believed position" relative to true position
@@ -275,12 +280,35 @@ raid;
 
 typedef struct
 {
+	acid id;
+	enum cclass class;
+	enum cstatus status;
+	double skill;
+	unsigned int tour_ops;
+	/* meaning depends on status
+		CREWMAN: number of ops completed this tour.  After 30, become INSTRUC
+		STUDENT: currently not used
+		INSTRUC: number of days spent instructing.  After 180, become CREWMAN
+	*/
+	int assignment;
+	/* meaning depends on status
+		CREWMAN: bomber index
+		STUDENT: 1 if we have an instructor, 0 otherwise
+		INSTRUC: currently not used
+	*/
+}
+crewman;
+
+typedef struct
+{
 	date now;
 	unsigned int difficulty[DIFFICULTY_CLASSES]; // [0] is ignored
 	unsigned int cash, cshr;
 	double confid, morale;
 	unsigned int nbombers;
 	ac_bomber *bombers;
+	unsigned int ncrews;
+	crewman *crews;
 	bool *btypes;
 	int nap[NNAVAIDS];
 	unsigned int napb[NNAVAIDS];
