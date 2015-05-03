@@ -235,7 +235,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 							if(state->bombers[j].crew[k]==(int)i)
 								break;
 						if(k<MAX_CREW)
-							state->bombers[j].crew[k]=0;
+							state->bombers[j].crew[k]=-1;
 						else // can't happen
 							fprintf(stderr, "Warning: crew linkage error b%u c%u\n", k, i);
 					}
