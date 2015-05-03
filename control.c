@@ -1590,6 +1590,7 @@ bool ensure_crewed(game *state, unsigned int i)
 						state->crews[k].tour_ops=0;
 						state->crews[k].assignment=i;
 						state->bombers[i].crew[j]=k;
+						break;
 					}
 		}
 		if(state->bombers[i].crew[j]<0)
