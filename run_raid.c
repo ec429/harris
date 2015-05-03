@@ -623,14 +623,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				b_roundto(le, 1000);
 				//fprintf(stderr, "%s: %ulb hc + %u lb gp + %ulb in + %ulb ti = %ulb\n", types[type].name, state->bombers[k].b_hc, state->bombers[k].b_gp, state->bombers[k].b_in, state->bombers[k].b_ti, loadweight(state->bombers[k]));
 				#undef b_roundto
-				for(unsigned int i=0;i<MAX_CREW;i++)
-					if(types[type].crew[i]!=CCLASS_NONE)
-					{
-						if(state->bombers[k].crew[i]<0) // can't happen
-							fprintf(stderr, "No crew assigned to %u slot %u\n", k, i);
-						else
-							state->crews[state->bombers[k].crew[i]].tour_ops++;
-					}
 			}
 		}
 		oboe.k=-1;
@@ -1694,11 +1686,19 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			{
 				unsigned int k=state->raids[i].bombers[j], type=state->bombers[k].type;
 				dij[i][type]++;
+				if(!state->bombers[k].bombed) continue;
+				for(unsigned int l=0;l<MAX_CREW;l++)
+					if(types[type].crew[l]!=CCLASS_NONE)
+					{
+						if(state->bombers[k].crew[l]<0) // can't happen
+							fprintf(stderr, "No crew assigned to %u slot %u\n", k, l);
+						else
+							state->crews[state->bombers[k].crew[l]].tour_ops++;
+					}
 				bool leaf=state->bombers[k].b_le;
 				bool mine=(targs[i].class==TCLASS_MINING);
 				for(unsigned int l=0;l<ntargs;l++)
 				{
-					if(!state->bombers[k].bombed) break;
 					if(!datewithin(state->now, targs[l].entry, targs[l].exit)) continue;
 					int dx=floor(state->bombers[k].bmblon+.5)-targs[l].lon, dy=floor(state->bombers[k].bmblat+.5)-targs[l].lat;
 					int hx=targs[l].picture->w/2;
