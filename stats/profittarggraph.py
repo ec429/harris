@@ -7,17 +7,23 @@ manager (Debian: apt-get install python-matplotlib)
 
 import sys
 import hsave, hdata, hhist, profit
-from extra_data import Bombers as extra
 import matplotlib.pyplot as plt
 import optparse
 
 def parse_args(argv):
 	x = optparse.OptionParser()
-	x.add_option('--legend', action='store_true', default=True)
-	x.add_option('--nolegend', dest='legend', action='store_false')
 	x.add_option('-a', '--after', type='string')
 	x.add_option('-b', '--before', type='string')
+	x.add_option('-t', '--type', type='string')
 	opts, args = x.parse_args()
+	if opts.type:
+		try:
+			opts.type=[b['name'] for b in hdata.Bombers].index(opts.type)
+		except ValueError:
+			try:
+				opts.type=int(opts.type)
+			except ValueError:
+				x.error("No such type", opts.type)
 	return opts, args
 
 if __name__ == '__main__':
@@ -25,7 +31,7 @@ if __name__ == '__main__':
 	before = hhist.date.parse(opts.before) if opts.before else None
 	after = hhist.date.parse(opts.after) if opts.after else None
 	save = hsave.Save.parse(sys.stdin)
-	prof = profit.extract_targ_profit(save, before, after)
+	prof = profit.extract_targ_profit(save, before, after, typ=opts.type)
 	sort = [prof[i] for i in xrange(len(prof))]
 	totals = {k: sum(d[k] for d in sort) for k in ['gain', 'cost']}
 	data = [(d['cost'], d['gain'], d['gain'] * 1.0 / d['cost'] if d['cost'] else None) for d in sort]

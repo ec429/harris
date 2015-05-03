@@ -11,7 +11,7 @@ class NoLastHI(EventMatchupError): pass
 class LastHIMismatch(EventMatchupError): pass
 class NoLastRA(EventMatchupError): pass
 
-def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
+def daily_profit(d, bombers, targets, start, stop, typ=None): # updates bombers, targets
 	lasthi = None
 	if stop:
 		return
@@ -33,7 +33,8 @@ def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 							if acid not in ra:
 								raise NoLastRA(h)
 							rti = ra[acid]
-							targets[rti][2][int(h['data']['type']['ti'])] += 1
+							if typ is None or bombers[acid][0] == typ:
+								targets[rti][2][bombers[acid][0]] += 1
 					elif h['data']['etyp'] == 'RA':
 						ra[acid] = h['data']['data']['target']
 					elif h['data']['etyp'] == 'HI':
@@ -66,7 +67,7 @@ def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 						if 'UBOOT' in targ['flags']:
 							f *= 1.2
 						if targets[ti][0]: # not 100% accurate but close enough
-							if start:
+							if start and (typ is None or bombers[acid][0] == typ):
 								bombers[acid][1] += h['data']['data']['bombs'] * f
 								targets[rti][1] += h['data']['data']['bombs'] * f
 		elif h['class'] == 'T':
@@ -80,7 +81,7 @@ def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 				if acid not in ra:
 					raise NoLastRA(h)
 				rti = ra[acid]
-				if start:
+				if start and (typ is None or bombers[lasthi[1]][0] == typ):
 					bombers[lasthi[1]][1] += 15000
 					targets[rti][1] += 15000
 			elif h['data']['etyp'] == 'DM':
@@ -93,7 +94,7 @@ def daily_profit(d, bombers, targets, start, stop): # updates bombers, targets
 					if acid not in ra:
 						raise NoLastRA(h)
 					rti = ra[acid]
-					if start:
+					if start and (typ is None or bombers[lasthi[1]][0] == typ):
 						bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
 						targets[rti][1] += 500*h['data']['data']['ddmg']
 
@@ -114,12 +115,12 @@ def extract_profit(save, before=None, after=None):
 			for i in results
 			if save.prio[i] is not None or full[i][0]}
 
-def extract_targ_profit(save, before=None, after=None):
+def extract_targ_profit(save, before=None, after=None, typ=None):
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
 	targets = [[t['dmg'], 0, dict((i,0) for i in xrange(save.ntypes))] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
-		daily_profit(d, bombers, targets, d[0]>=after if after else True, d[0]>=before if before else False)
+		daily_profit(d, bombers, targets, d[0]>=after if after else True, d[0]>=before if before else False, typ=typ)
 	gains, losses = zip(*targets)[1:]
 	lossvalue = [sum(l*hdata.Bombers[i]['cost'] for i,l in loss.items()) for loss in losses]
 	return {i: {'gain': gains[i], 'loss': losses[i], 'cost': lossvalue[i]} for i in xrange(save.init.ntargets)}
@@ -129,7 +130,19 @@ def parse_args(argv):
 	x.add_option('-a', '--after', type='string')
 	x.add_option('-b', '--before', type='string')
 	x.add_option('-t', '--by-target', action='store_true')
-	return x.parse_args()
+	x.add_option('--type', type='string')
+	opts, args = x.parse_args()
+	if opts.type:
+		if not opts.by_target:
+			x.error("--type requires --by-target")
+		try:
+			opts.type=[b['name'] for b in hdata.Bombers].index(opts.type)
+		except ValueError:
+			try:
+				opts.type=int(opts.type)
+			except ValueError:
+				x.error("No such type", opts.type)
+	return opts, args
 
 if __name__ == '__main__':
 	opts, args = parse_args(sys.argv)
@@ -137,7 +150,7 @@ if __name__ == '__main__':
 	after = hhist.date.parse(opts.after) if opts.after else None
 	save = hsave.Save.parse(sys.stdin)
 	if opts.by_target:
-		profit = extract_targ_profit(save, before, after)
+		profit = extract_targ_profit(save, before, after, typ=opts.type)
 		for i in profit:
 			name = hdata.Targets[i]['name'].ljust(40)
 			gain = profit[i]['gain']
