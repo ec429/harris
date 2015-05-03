@@ -712,6 +712,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						inair--;
 						continue;
 					}
+					// E airmanship TODO
 					if(brandp(types[type].fail/(50.0*min(240.0, 48.0+t-state->bombers[k].startt))+state->bombers[k].damage/2400.0))
 					{
 						if(state->bombers[k].ld.ds==DS_NONE)
@@ -923,17 +924,31 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(brandp(types[type].defn/400.0))
 									ddmg=100;
 								else
+								{
 									ddmg=irandu(types[type].defn)/2.5;
+									// Damage control; also E practise (even if ddmg==0)
+									double sdc=0;
+									for(unsigned int l=1;l<MAX_CREW;l++)
+									{
+										if(types[type].crew[l]==CCLASS_E)
+										{
+											sdc+=get_crew(state, k, l)->skill;
+											practise(*get_crew(state, k, l), 0.5);
+										}
+										else if(types[type].crew[l]==CCLASS_W)
+										{
+											sdc+=get_crew(state, k, l)->skill;
+										}
+									}
+									while(ddmg&&brandp(sdc/(sdc+100.0)))
+										ddmg=max(ddmg-1,0);
+								}
 								state->bombers[k].damage+=ddmg;
 								if(ddmg)
 								{
 									dmtf_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, ddmg, state->bombers[k].damage, i);
 									state->bombers[k].ld=(dmgsrc){.ds=DS_TFLK, .idx=i};
 								}
-								// E practise (even if ddmg==0)
-								for(unsigned int l=1;l<MAX_CREW;l++)
-									if(types[type].crew[l]==CCLASS_E)
-										practise(*get_crew(state, k, l), 0.5);
 							}
 						}
 						bool water=false;
@@ -962,17 +977,31 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(brandp(types[type].defn/500.0))
 									ddmg=100;
 								else
+								{
 									ddmg=irandu(types[type].defn)/5.0;
+									double sdc=0;
+									// Damage control; also E practise (even if ddmg==0)
+									for(unsigned int l=1;l<MAX_CREW;l++)
+									{
+										if(types[type].crew[l]==CCLASS_E)
+										{
+											sdc+=get_crew(state, k, l)->skill;
+											practise(*get_crew(state, k, l), 0.5);
+										}
+										else if(types[type].crew[l]==CCLASS_W)
+										{
+											sdc+=get_crew(state, k, l)->skill;
+										}
+									}
+									while(ddmg&&brandp(sdc/(sdc+100.0)))
+										ddmg=max(ddmg-1,0);
+								}
 								state->bombers[k].damage+=ddmg;
 								if(ddmg)
 								{
 									dmfk_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, ddmg, state->bombers[k].damage, i);
 									state->bombers[k].ld=(dmgsrc){.ds=DS_FLAK, .idx=i};
 								}
-								// E practise (even if ddmg==0)
-								for(unsigned int l=1;l<MAX_CREW;l++)
-									if(types[type].crew[l]==CCLASS_E)
-										practise(*get_crew(state, k, l), 0.5);
 							}
 						}
 						if(rad&&xyr(dx, dy, 12)) // 36 miles range for Würzburg radar (Wikipedia gives range as "up to 43mi")
@@ -1251,28 +1280,71 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							state->fighters[j].lon+=cx*spd;
 							state->fighters[j].lat+=cy*spd;
 						}
+						double pskill=get_crew(state, k, 0)->skill;
+						double slskill=0, gskill[3]={0, 0, 0}; // we assume no-one has more than 3 Gs.  If they do, we ignore the excess.
+						unsigned int ng=0, nl=0;
+						for(unsigned int l=1;l<MAX_CREW;l++)
+						{
+							if(types[bt].crew[l]==CCLASS_P)
+								pskill=max(pskill, get_crew(state, k, l)->skill);
+							else if((types[bt].crew[l]==CCLASS_G)||(types[bt].crew[l]==CCLASS_W&&types[bt].crewwg))
+							{
+								if(ng<3)
+									gskill[ng++]=get_crew(state, k, l)->skill;
+								slskill+=get_crew(state, k, l)->skill;
+								nl++;
+							}
+							else if(types[bt].crew[l]==CCLASS_B&&types[bt].crewbg)
+							{
+								if(ng<3)
+									gskill[ng++]=get_crew(state, k, l)->skill*0.75;
+								slskill+=get_crew(state, k, l)->skill*0.75;
+								nl++;
+							}
+							else if(types[bt].crew[l]==CCLASS_W)
+							{
+								slskill+=get_crew(state, k, l)->skill;
+								nl++;
+							}
+						}
+						double mlskill=nl?slskill/nl:0;
 						if(d<(airad?0.4:radcon?0.34:0.25)*(.7*moonillum+.6))
 						{
-							if(brandp(ftypes[ft].mnv*(2.7+loadness(state->bombers[k]))/400.0))
+							if(brandp(ftypes[ft].mnv*(2.7+loadness(state->bombers[k]))/(200.0+pskill+mlskill*3)))
 							{
 								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/15.0;
+								double sdc=0;
+								// Damage control; also E practise (even if dmg==0)
+								for(unsigned int l=1;l<MAX_CREW;l++)
+								{
+									if(types[bt].crew[l]==CCLASS_E)
+									{
+										sdc+=get_crew(state, k, l)->skill;
+										practise(*get_crew(state, k, l), 0.5);
+									}
+									else if(types[bt].crew[l]==CCLASS_W)
+									{
+										sdc+=get_crew(state, k, l)->skill;
+									}
+								}
+								while(dmg&&brandp(sdc/(sdc+100.0)))
+									dmg--;
 								state->bombers[k].damage+=dmg;
 								if(dmg)
 								{
 									dmac_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, dmg, state->bombers[k].damage, state->fighters[j].id);
 									state->bombers[k].ld=(dmgsrc){.ds=DS_FIGHTER, .idx=j};
 								}
-								// E practise (even if dmg==0)
-								for(unsigned int l=1;l<MAX_CREW;l++)
-									if(types[bt].crew[l]==CCLASS_E)
-										practise(*get_crew(state, k, l), 0.5);
 							}
 							if(brandp(0.35))
 								state->fighters[j].k=-1;
 						}
 						if(d<(ftypes[ft].night?0.3:0.2)*(.8*moonillum+.6)) // easier to spot nightfighters as they're bigger
 						{
-							if(!types[bt].noarm&&(brandp(0.2/types[bt].defn)))
+							double rgskill=0;
+							if(ng)
+								rgskill=gskill[irandu(ng)];
+							if(!types[bt].noarm&&(brandp(rgskill*0.04/types[bt].defn)))
 							{
 								unsigned int dmg=irandu(20);
 								state->fighters[j].damage+=dmg;

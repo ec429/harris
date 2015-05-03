@@ -113,6 +113,7 @@ typedef struct
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
 	bool noarm, pff, heavy, inc, broughton, extra;
+	bool crewbg, crewwg;
 	unsigned int blat, blon;
 	SDL_Surface *picture, *side_image;
 	char *text, *newtext;

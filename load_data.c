@@ -141,6 +141,8 @@ int load_bombers(void)
 				this.inc=strstr(nav, "INC");
 				this.broughton=strstr(nav, "BROUGHTON");
 				this.extra=strstr(nav, "EXTRA");
+				this.crewwg=strstr(nav, "CREWWG");
+				this.crewbg=strstr(nav, "CREWBG");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
 				char pn[256];
