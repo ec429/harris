@@ -5,9 +5,9 @@ bombertype has 'crew' field, eg. Lanc is PNBEWGG (Pilot, Nav, Bomb-aimer, Flight
 Crewmembers have a single all-encompassing "skill value" which controls their effectiveness at their tasks.  [Square brackets indicate how to aggregate skills of multiple crewmembers]
 Pilot tasks:
 	* Evasive action.  Relevant to both flak and fighter attack. [Max]
-	* Course-holding.  Affects navigational accuracy. [Max]
+	* Course-holding.  Affects navigational accuracy. [Primary]
 	+ The pilot is also a look-out man (see under Gunner).
-	+ In the absence of a Flight-engineer, the pilot's skill is used for Airmanship at 75%. [Max]
+	+ In the absence of a Flight-engineer, the pilot's skill is used for Airmanship at 50%. [Max]
 Navigator tasks:
 	* Astronavigation.  Gives rough fixes; important when ground obscured by cloud (or over water).
 	* Ground track.  Navigation by ground features is particularly effective with moonlight.

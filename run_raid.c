@@ -470,7 +470,20 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				state->bombers[k].navlon=0;
 				state->bombers[k].driftlat=0;
 				state->bombers[k].driftlon=0;
-				state->bombers[k].speed=types[type].speed/450.0;
+				double askill=0; // Airmanship
+				for(unsigned int l=0;l<MAX_CREW;l++)
+				{
+					if(types[type].crew[l]==CCLASS_E)
+					{
+						askill=get_crew(state, k, l)->skill;
+						break;
+					}
+					else if(types[type].crew[l]==CCLASS_P)
+					{
+						askill=max(askill, get_crew(state, k, l)->skill*.5);
+					}
+				}
+				state->bombers[k].speed=(types[type].speed+askill/20.0-2.0)/450.0;
 				if(stream)
 				{
 					// aim for Zero Hour 01:00 plus up to 10 minutes
@@ -490,7 +503,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					state->bombers[k].startt=(state->raids[i].zerohour-480)+irandu(90); // 2100 to 2145
 				startt=min(startt, state->bombers[k].startt);
 				ra_append(&state->hist, state->now, maketime(startt), state->bombers[k].id, false, state->bombers[k].type, i);
-				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6/(double)state->bombers[k].speed;
+				double eff=0.98+askill/1e3; // engineer fuel factor
+				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6*eff/(double)state->bombers[k].speed;
 				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)state->bombers[k].speed+12;
 				if(!stream) eta+=36;
 				if(eta>state->bombers[k].fuelt)
@@ -712,31 +726,65 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						inair--;
 						continue;
 					}
-					// E airmanship TODO
+					double askill=0; // Airmanship
+					double sdc=0; // Damage control
+					double nskill=0; // Navigator
+					crewman *bac=NULL; // Bomb-aimer
+					for(unsigned int l=0;l<MAX_CREW;l++)
+					{
+						if(types[type].crew[l]==CCLASS_E)
+						{
+							sdc+=(askill=get_crew(state, k, l)->skill);
+						}
+						else if(types[type].crew[l]==CCLASS_W)
+						{
+							sdc+=get_crew(state, k, l)->skill;
+						}
+						else if(types[type].crew[l]==CCLASS_N)
+						{
+							nskill=get_crew(state, k, l)->skill;
+							if(!bac)
+								bac=get_crew(state, k, l);
+						}
+						else if(types[type].crew[l]==CCLASS_B)
+						{
+							bac=get_crew(state, k, l);
+						}
+						else if(types[type].crew[l]==CCLASS_P)
+						{
+							// we assume P are always before E in crew order
+							// thus we get "max of Pskill*.5" if there are no E, otherwise we get Eskill.
+							askill=max(askill, get_crew(state, k, l)->skill*.5);
+						}
+					}
 					if(brandp(types[type].fail/(50.0*min(240.0, 48.0+t-state->bombers[k].startt))+state->bombers[k].damage/2400.0))
 					{
-						if(state->bombers[k].ld.ds==DS_NONE)
-							state->bombers[k].ld.ds=DS_MECH;
-						fa_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, 1);
-						state->bombers[k].failed=true;
-						if(brandp((1.0+state->bombers[k].damage/50.0)/(240.0-types[type].fail*5.0)))
-						{
-							cr_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type);
-							state->bombers[k].crashed=true;
-							describe_crb(state, k);
-							inair--;
-							continue;
-						}
 						// E practise
 						for(unsigned int l=1;l<MAX_CREW;l++)
 							if(types[type].crew[l]==CCLASS_E)
 								practise(*get_crew(state, k, l), 0.05);
+						if(!brandp(askill/200))
+						{
+							if(state->bombers[k].ld.ds==DS_NONE)
+								state->bombers[k].ld.ds=DS_MECH;
+							fa_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, 1);
+							state->bombers[k].failed=true;
+							if(brandp((1.0+state->bombers[k].damage/50.0)/(240.0-types[type].fail*5.0)))
+							{
+								cr_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type);
+								state->bombers[k].crashed=true;
+								describe_crb(state, k);
+								inair--;
+								continue;
+							}
+						}
 					}
 					unsigned int stage=state->bombers[k].routestage;
 					while((stage<8)&&!(state->bombers[k].route[stage][0]||state->bombers[k].route[stage][1]))
 						stage=++state->bombers[k].routestage;
 					bool home=(state->bombers[k].failed&&!state->bombers[k].bombed)||(stage>=8);
-					if((stage==4)&&state->bombers[k].nav[NAV_OBOE]&&xyr(state->bombers[k].lon-oboe.lon, state->bombers[k].lat-oboe.lat, 50+types[type].alt*.3)) // OBOE
+					double altitude=types[type].alt+(irandu(askill)-10)/10.0;
+					if((stage==4)&&state->bombers[k].nav[NAV_OBOE]&&xyr(state->bombers[k].lon-oboe.lon, state->bombers[k].lat-oboe.lat, 50+altitude*.3)) // OBOE
 					{
 						if(oboe.k==-1)
 							oboe.k=k;
@@ -927,19 +975,9 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								{
 									ddmg=irandu(types[type].defn)/2.5;
 									// Damage control; also E practise (even if ddmg==0)
-									double sdc=0;
 									for(unsigned int l=1;l<MAX_CREW;l++)
-									{
 										if(types[type].crew[l]==CCLASS_E)
-										{
-											sdc+=get_crew(state, k, l)->skill;
 											practise(*get_crew(state, k, l), 0.5);
-										}
-										else if(types[type].crew[l]==CCLASS_W)
-										{
-											sdc+=get_crew(state, k, l)->skill;
-										}
-									}
 									while(ddmg&&brandp(sdc/(sdc+100.0)))
 										ddmg=max(ddmg-1,0);
 								}
@@ -979,20 +1017,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								else
 								{
 									ddmg=irandu(types[type].defn)/5.0;
-									double sdc=0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
-									{
 										if(types[type].crew[l]==CCLASS_E)
-										{
-											sdc+=get_crew(state, k, l)->skill;
 											practise(*get_crew(state, k, l), 0.5);
-										}
-										else if(types[type].crew[l]==CCLASS_W)
-										{
-											sdc+=get_crew(state, k, l)->skill;
-										}
-									}
 									while(ddmg&&brandp(sdc/(sdc+100.0)))
 										ddmg=max(ddmg-1,0);
 								}
@@ -1038,8 +1066,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								state->fighters[j].k=k;
 						}
 					}
-					// TODO: navigation affected by navaids
-					double navacc=3.0/types[type].accu;
+					double navacc=3.0/(types[type].accu+get_crew(state, k, 0)->skill/10.0-4.0);
 					double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
 					state->bombers[k].driftlon=state->bombers[k].driftlon*.98+ex;
 					state->bombers[k].driftlat=state->bombers[k].driftlat*.98+ey;
@@ -1051,15 +1078,16 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					state->bombers[k].navlat-=state->bombers[k].driftlat;
 					if(state->bombers[k].nav[NAV_GEE]&&xyr(state->bombers[k].lon-gee.lon, state->bombers[k].lat-gee.lat, datebefore(state->now, event[EVENT_GEEJAM])?56+(types[type].alt*.3):gee.jrange))
 					{
-						state->bombers[k].navlon=(state->bombers[k].navlon>0?1:-1)*min(fabs(state->bombers[k].navlon), 0.4);
-						state->bombers[k].navlat=(state->bombers[k].navlat>0?1:-1)*min(fabs(state->bombers[k].navlat), 2.4);
+						double geeacc=100.0/(nskill+200.0);
+						state->bombers[k].navlon=(state->bombers[k].navlon>0?1:-1)*min(fabs(state->bombers[k].navlon), geeacc);
+						state->bombers[k].navlat=(state->bombers[k].navlat>0?1:-1)*min(fabs(state->bombers[k].navlat), geeacc*6.0);
 					}
 					unsigned int x=state->bombers[k].lon/2, y=state->bombers[k].lat/2;
 					double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
-					if(state->bombers[k].nav[NAV_H2S]) // TODO: restrict usage after NAXOS
+					if(state->bombers[k].nav[NAV_H2S]&&bac) // TODO: restrict usage after NAXOS
 					{
 						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
-						wea=max(wea, h*0.08-12);
+						wea=max(wea, h*0.08*((80+bac->skill)/120.0)-12);
 					}
 					double navp=types[type].accu*0.05*(sqrt(moonillum)*.8+.5)/(double)(8+max(16-wea, 8));
 					if(home&&(state->bombers[k].lon<64)) navp=1;
@@ -1068,7 +1096,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					if(b)
 					{
 						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
-						double cf=(700.0+state->bombers[k].lon-h*0.6)/1e3;
+						double ns;
+						if(bac)
+							ns=(nskill*3+bac->skill)/4.0;
+						else // can't happen
+							ns=nskill;
+						double cf=(700.0+state->bombers[k].lon-h*0.6)/(1e3+ns*5);
 						state->bombers[k].navlon*=cf;
 						state->bombers[k].navlat*=cf;
 						state->bombers[k].driftlon*=cf;
