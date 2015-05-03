@@ -2,11 +2,7 @@
 """tombstone - total number of aircrew lost"""
 
 import sys
-import hhist, hdata, extra_data
-
-for t in hdata.Bombers.data:
-	assert t['name'] in extra_data.Bombers.keys()
-	t['crew'] = extra_data.Bombers[t['name']]['crew']
+import hhist, hdata
 
 def count_losses(ents):
 	days = sorted(hhist.group_by_date(ents))
@@ -17,7 +13,7 @@ def count_losses(ents):
 			if ent['data']['type']['fb'] != 'B': continue
 			typ = ent['data']['type']['ti']
 			if ent['data']['etyp'] == 'CR':
-				res += hdata.Bombers[typ]['crew']
+				res += len(hdata.Bombers[typ]['crew'])
 	return(res)
 
 if __name__ == '__main__':

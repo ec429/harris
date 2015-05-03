@@ -69,8 +69,14 @@ def parse_date(text):
 		return None
 def parse_flags(text):
 	return [flag for flag in text.split(',') if flag]
+def parse_crew(text):
+	cclasses='PNBEWG'
+	for c in text.strip():
+		if c not in cclasses:
+			raise Exception("No such cclass", c, "as found in", text)
+	return text.strip()
 
-# Bombers: MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:NAVAIDS,FLAGS
+# Bombers: MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS
 Bombers = Table([('manf', parse_string),
 				 ('name', parse_string), 
 				 ('cost', parse_int),
@@ -86,6 +92,7 @@ Bombers = Table([('manf', parse_string),
 				 ('blong', parse_int),
 				 ('entry', parse_date),
 				 ('exit', parse_date),
+				 ('crew', parse_crew),
 				 ('flags', parse_flags), # Flags includes NAVAIDS
 				 ])
 Bombers.read(open('dat/bombers'))
