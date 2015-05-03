@@ -360,9 +360,9 @@ void update_crews(game *state)
 		{
 			unsigned int top=state->crews[i].tour_ops;
 			tops[cls][1][min(top/6, 30)]++;
-			pool[cls]+=cclasses[i].pupils;
-			if(cclasses[i].extra_pupil!=CCLASS_NONE)
-				pool[cclasses[i].extra_pupil]++;
+			pool[cls]+=cclasses[cls].pupils;
+			if(cclasses[cls].extra_pupil!=CCLASS_NONE)
+				pool[cclasses[cls].extra_pupil]++;
 		}
 	}
 	for(unsigned int i=0;i<state->nbombers;i++)
