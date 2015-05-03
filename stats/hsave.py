@@ -152,6 +152,10 @@ class Save(object):
 			self.nbombers = int(rest)
 			self.bombers = []
 			return self.Bombers, False
+		if tag == 'Crews':
+			self.ncrews = int(rest)
+			self.crews = []
+			return self.Crews, False
 		if tag == 'GProd':
 			self.iclasses = int(rest)
 			self.gprod = {i:0 for i in xrange(self.iclasses)}
@@ -223,6 +227,14 @@ class Save(object):
 			self.bombers.append({'type':int(typ), 'fail':bool(int(fail)), 'nav':int(nav), 'pff':bool(int(pff)), 'id':int(acid, 16)})
 			return len(self.bombers) == self.nbombers
 		raise UnrecognisedSubtag('Bombers', tag, rest)
+	def Crews(self, tag, rest): # "%s %c:%la,%u,%s\n", cstatuses[crews[i].status], cclasses[crews[i].class].letter, crews[i].skill, crews[i].tour_ops, pacid(crews[i].id)
+		for t in ['Crewman', 'Student', 'Instructor']:
+			if tag.startswith(t+' '):
+				typ = tag[-1]
+				skill, tops, acid = rest.split(',', 3)
+				self.crews.append({'status':t, 'type':typ, 'skill':readfloat(skill), 'tops':int(tops), 'id':int(acid, 16)})
+				return len(self.crews) == self.ncrews
+		raise UnrecognisedSubtag('Crews', tag, rest)
 	def Fighters(self, tag, rest):
 		if tag.startswith('Type '):
 			typ = int(tag[5:])
