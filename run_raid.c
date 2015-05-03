@@ -855,15 +855,16 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						}
 						if(((fabs(cx)<cr)&&(fabs(cy)<cr)&&roeok&&!pffstop&&(dm==state->bombers[k].targ))||((fuel||damaged)&&(roeok||leaf)))
 						{
-							state->bombers[k].bmblon=state->bombers[k].lon;
-							state->bombers[k].bmblat=state->bombers[k].lat;
+							double pre=25.0/(50.0+(bac?bac->skill:0)); // probable radius of error
+							state->bombers[k].bmblon=state->bombers[k].lon+drandu(pre*2.0)-pre;
+							state->bombers[k].bmblat=state->bombers[k].lat+drandu(pre*2.0)-pre;
 							state->bombers[k].navlon=targs[dm].lon-state->bombers[k].lon;
 							state->bombers[k].navlat=targs[dm].lat-state->bombers[k].lat;
 							state->bombers[k].bt=t;
 							state->bombers[k].bombed=true;
 							if(!leaf)
 							{
-								// B practise
+								// B practise (if no B, the N doesn't practise even though they're 'bac')
 								for(unsigned int l=1;l<MAX_CREW;l++)
 									if(types[type].crew[l]==CCLASS_B)
 										practise(*get_crew(state, k, l), 1);
@@ -885,6 +886,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										state->dmg[ta]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(t), ta, dmg, state->dmg[ta]);
 										targs[ta].fires+=state->bombers[k].b_in*(state->flam[ta]/40.0)/1500+state->bombers[k].b_ti/30;
+										if(state->bombers[k].pff&&state->bombers[k].fix)
+											targs[ta].skym=t;
 										break;
 									}
 								}

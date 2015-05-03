@@ -222,7 +222,7 @@ typedef struct
 	double lat, lon;
 	double navlat, navlon; // error in "believed position" relative to true position
 	double driftlat, driftlon; // rate of error
-	unsigned int bmblat, bmblon; // true position where bombs were dropped (if any)
+	double bmblat, bmblon; // true position where bombs were dropped (if any)
 	unsigned int bt; // time when bombs were dropped (if any)
 	unsigned int route[8][2]; // [0123 out, 4 bmb, 567 in][0 lat, 1 lon]. {0, 0} indicates "not used, skip to next routestage"
 	unsigned int routestage; // 8 means "passed route[7], heading for base"
