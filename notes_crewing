@@ -57,7 +57,7 @@ Pos Practised by
   P Flight as P.  Slower if secondary P (e.g. Manchester/Stirling, second dickey if we implement that).
   N Flight as N.
   B Dropping any payload except leaflets.
-  E Flight as E (or P absent E), slow; damage or mech fail incurred, fast.
+  E Flight as E, slow; damage or mech fail incurred, fast.
   W Flight as W.
   G Flight as G, slow; Fighter spotted, fast.
 

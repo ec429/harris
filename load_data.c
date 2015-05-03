@@ -99,6 +99,12 @@ int load_bombers(void)
 						for(unsigned int cp=0;cp<CREW_CLASSES;cp++)
 							if(c==cclasses[cp].letter)
 							{
+								if(!ci&&cp!=CCLASS_P) // game assumes first crewman is always P
+								{
+									fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+									fprintf(stderr, "  first CREW member `%c' not `P'\n", c);
+									return(1);
+								}
 								this.crew[ci++]=cp;
 								c=0;
 								break;

@@ -288,6 +288,14 @@ void describe_crf(const game *state, unsigned int j)
 	fprintf(stderr, "%s %s crashed %s%s\n", ftypes[f.type].manu, ftypes[f.type].name, loc, reason);
 }
 
+crewman *get_crew(const game *state, unsigned int i, unsigned int j)
+{
+	if(state->bombers[i].crew[j]<0) return(NULL);
+	return(state->crews+state->bombers[i].crew[j]);
+}
+
+#define practise(_c, _v)	((_c).skill = (_c).skill * (1 - (_v)/100.0) + (_v))
+
 int run_raid_create(void)
 {
 	run_raid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
@@ -718,6 +726,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							inair--;
 							continue;
 						}
+						// E practise
+						for(unsigned int l=1;l<MAX_CREW;l++)
+							if(types[type].crew[l]==CCLASS_E)
+								practise(*get_crew(state, k, l), 0.05);
 					}
 					unsigned int stage=state->bombers[k].routestage;
 					while((stage<8)&&!(state->bombers[k].route[stage][0]||state->bombers[k].route[stage][1]))
@@ -802,6 +814,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							state->bombers[k].bombed=true;
 							if(!leaf)
 							{
+								// B practise
+								for(unsigned int l=1;l<MAX_CREW;l++)
+									if(types[type].crew[l]==CCLASS_B)
+										practise(*get_crew(state, k, l), 1);
 								for(unsigned int ta=0;ta<ntargs;ta++)
 								{
 									if(targs[ta].class!=TCLASS_CITY) continue;
@@ -841,6 +857,31 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					if(d==0) dx=dy=-1;
 					state->bombers[k].lon+=dx;
 					state->bombers[k].lat+=dy;
+					// 'flight-as' practise.  crew[0] is always a P, and learns faster than other Ps
+					practise(*get_crew(state, k, 0), 1/600.0);
+					for(unsigned int l=1;l<MAX_CREW;l++)
+					{
+						switch(types[type].crew[l])
+						{
+							case CCLASS_P:
+								practise(*get_crew(state, k, l), 1e-3);
+							break;
+							case CCLASS_N:
+								practise(*get_crew(state, k, l), 1/500.0);
+							break;
+							case CCLASS_E:
+								practise(*get_crew(state, k, l), 1/800.0);
+							break;
+							case CCLASS_W:
+								practise(*get_crew(state, k, l), 1/500.0);
+							break;
+							case CCLASS_G:
+								practise(*get_crew(state, k, l), 1/800.0);
+							break;
+							default:
+							break;
+						}
+					}
 					for(unsigned int i=0;i<ntargs;i++)
 					{
 						if(!datewithin(state->now, targs[i].entry, targs[i].exit)) continue;
@@ -889,6 +930,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									dmtf_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, ddmg, state->bombers[k].damage, i);
 									state->bombers[k].ld=(dmgsrc){.ds=DS_TFLK, .idx=i};
 								}
+								// E practise (even if ddmg==0)
+								for(unsigned int l=1;l<MAX_CREW;l++)
+									if(types[type].crew[l]==CCLASS_E)
+										practise(*get_crew(state, k, l), 0.5);
 							}
 						}
 						bool water=false;
@@ -924,6 +969,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									dmfk_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, ddmg, state->bombers[k].damage, i);
 									state->bombers[k].ld=(dmgsrc){.ds=DS_FLAK, .idx=i};
 								}
+								// E practise (even if ddmg==0)
+								for(unsigned int l=1;l<MAX_CREW;l++)
+									if(types[type].crew[l]==CCLASS_E)
+										practise(*get_crew(state, k, l), 0.5);
 							}
 						}
 						if(rad&&xyr(dx, dy, 12)) // 36 miles range for Würzburg radar (Wikipedia gives range as "up to 43mi")
@@ -1213,6 +1262,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									dmac_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, dmg, state->bombers[k].damage, state->fighters[j].id);
 									state->bombers[k].ld=(dmgsrc){.ds=DS_FIGHTER, .idx=j};
 								}
+								// E practise (even if dmg==0)
+								for(unsigned int l=1;l<MAX_CREW;l++)
+									if(types[bt].crew[l]==CCLASS_E)
+										practise(*get_crew(state, k, l), 0.5);
 							}
 							if(brandp(0.35))
 								state->fighters[j].k=-1;
@@ -1231,6 +1284,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(brandp(0.6)) // fighter breaks off to avoid return fire, but 40% chance to maintain contact
 									state->fighters[j].k=-1;
 							}
+							// G practise (even if we missed)
+							for(unsigned int l=1;l<MAX_CREW;l++)
+								if(types[bt].crew[l]==CCLASS_G)
+									practise(*get_crew(state, k, l), 1);
 						}
 					}
 				}
