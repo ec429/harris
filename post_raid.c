@@ -515,6 +515,7 @@ void refill_students(game *state)
 			if(state->crews[j].status==CSTATUS_STUDENT)
 			{
 				if(state->crews[j].class!=i) continue;
+				state->crews[j].assignment=1;
 				scount++;
 			}
 			else if(state->crews[j].status==CSTATUS_INSTRUC)
@@ -549,7 +550,7 @@ void refill_students(game *state)
 						if(state->crews[j].assignment)
 						{
 							state->crews[j].assignment=0;
-							if(scount--<=pool)
+							if(--scount<=pool)
 								break;
 						}
 			if(scount!=pool)
