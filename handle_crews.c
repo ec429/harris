@@ -226,6 +226,42 @@ int handle_crews_create(void)
 				}
 			}
 		}
+		atg_element *cd_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, HCTBL_BG_COLOUR);
+		if(!cd_box)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		cd_box->w=800;
+		cd_box->h=20;
+		if(atg_ebox_pack(handle_crews_box, cd_box))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, HCTBL_BG_COLOUR);
+		if(!shim)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		shim->w=40;
+		if(atg_ebox_pack(cd_box, shim))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *class_desc=atg_create_element_label(cclasses[i].desc, 8, (atg_colour){183, 183, 183, ATG_ALPHA_OPAQUE});
+		if(!class_desc)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(cd_box, class_desc))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	return(0);
 }
