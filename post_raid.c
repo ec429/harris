@@ -526,6 +526,7 @@ void refill_students(game *state)
 					pool++;
 			}
 		}
+		pool/=GET_DC(state, TPOOL);
 		if(scount<pool)
 		{
 			unsigned int add=min(pool-scount, max(pool/24, 1));

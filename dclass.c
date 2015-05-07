@@ -18,4 +18,5 @@ dclass dclasses[DIFFICULTY_CLASSES]={
 	[DCLASS_ROTHER]= {.name="Resilience (other)",   .desc="How much damage it takes to destroy other targets",       .values={12, 20, 36}},
 	[DCLASS_FLAK]  = {.name="Flak strength",        .desc="Strength of target flak defences and sited flak",         .values={50, 25, 15}},
 	[DCLASS_FSR]   = {.name="Fighter strength",     .desc="Effectiveness of enemy fighters",                         .values={8, 10, 12}},
+	[DCLASS_TPOOL] = {.name="Training pool size",   .desc="Ratio of instructors to students in crew training",       .values={1, 2, 3}},
 };
