@@ -1372,7 +1372,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							double rgskill=0;
 							if(ng)
 								rgskill=gskill[irandu(ng)];
-							if(!types[bt].noarm&&(brandp(rgskill*0.04/types[bt].defn)))
+							if(!types[bt].noarm&&(brandp(rgskill*0.004/types[bt].defn)))
 							{
 								unsigned int dmg=irandu(20);
 								state->fighters[j].damage+=dmg;
