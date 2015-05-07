@@ -12,6 +12,7 @@
 
 int irandu(int n)
 {
+	if(!n) return(0);
 	// This is poor quality randomness, but that doesn't really matter here
 	return(rand()%n);
 }
