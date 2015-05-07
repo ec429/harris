@@ -294,7 +294,7 @@ crewman *get_crew(const game *state, unsigned int i, unsigned int j)
 	return(state->crews+state->bombers[i].crew[j]);
 }
 
-#define practise(_c, _v)	((_c).skill = min((_c).skill * (1 - (_v)/100.0) + (_v) * (_c).lrate, 100.0))
+#define practise(_c, _v)	((_c).skill = min((_c).skill * (1 - (_v)/100.0) + (_v) * (_c).lrate / 100.0, 100.0))
 
 int run_raid_create(void)
 {
@@ -772,7 +772,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						}
 					}
 					unsigned int stage=state->bombers[k].routestage;
-					while((stage<8)&&!(state->bombers[k].route[stage][0]||state->bombers[k].route[stage][1]))
+					while((stage<8)&&(t>RRT(7,0)||!(state->bombers[k].route[stage][0]||state->bombers[k].route[stage][1])))
 						stage=++state->bombers[k].routestage;
 					bool home=(state->bombers[k].failed&&!state->bombers[k].bombed)||(stage>=8);
 					double altitude=types[type].alt+(irandu(askill)-10)/10.0;
@@ -1065,6 +1065,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
 					state->bombers[k].driftlon=state->bombers[k].driftlon*.98+ex;
 					state->bombers[k].driftlat=state->bombers[k].driftlat*.98+ey;
+					clamp(state->bombers[k].driftlon, -2.0, 2.0);
+					clamp(state->bombers[k].driftlat, -2.0, 2.0);
 					state->bombers[k].lon+=state->bombers[k].driftlon;
 					state->bombers[k].lat+=state->bombers[k].driftlat;
 					clamp(state->bombers[k].lon, 0, 256);
