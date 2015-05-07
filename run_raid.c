@@ -294,7 +294,7 @@ crewman *get_crew(const game *state, unsigned int i, unsigned int j)
 	return(state->crews+state->bombers[i].crew[j]);
 }
 
-#define practise(_c, _v)	((_c).skill = (_c).skill * (1 - (_v)/100.0) + (_v) * (_c).lrate)
+#define practise(_c, _v)	((_c).skill = min((_c).skill * (1 - (_v)/100.0) + (_v) * (_c).lrate, 100.0))
 
 int run_raid_create(void)
 {

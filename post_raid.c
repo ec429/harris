@@ -566,6 +566,7 @@ void train_students(game *state)
 	{
 		if(state->crews[i].status==CSTATUS_STUDENT)
 			if(state->crews[i].assignment)
-				state->crews[i].skill=state->crews[i].skill*.96+state->crews[i].lrate/100.0;
+				if((state->crews[i].skill<1)||brandp(5.0/pow(state->crews[i].skill, 1.5)))
+					state->crews[i].skill=min(state->crews[i].skill+irandu(state->crews[i].lrate)/50.0, 100.0);
 	}
 }
