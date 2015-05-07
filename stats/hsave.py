@@ -227,12 +227,12 @@ class Save(object):
 			self.bombers.append({'type':int(typ), 'fail':bool(int(fail)), 'nav':int(nav), 'pff':bool(int(pff)), 'id':int(acid, 16)})
 			return len(self.bombers) == self.nbombers
 		raise UnrecognisedSubtag('Bombers', tag, rest)
-	def Crews(self, tag, rest): # "%s %c:%la,%u,%s\n", cstatuses[crews[i].status], cclasses[crews[i].class].letter, crews[i].skill, crews[i].tour_ops, pacid(crews[i].id)
+	def Crews(self, tag, rest):
 		for t in ['Crewman', 'Student', 'Instructor']:
 			if tag.startswith(t+' '):
 				typ = tag[-1]
-				skill, tops, acid = rest.split(',', 3)
-				self.crews.append({'status':t, 'type':typ, 'skill':readfloat(skill), 'tops':int(tops), 'id':int(acid, 16)})
+				skill, lrate, tops, acid = rest.split(',', 4)
+				self.crews.append({'status':t, 'type':typ, 'skill':readfloat(skill), 'lrate':int(lrate), 'tops':int(tops), 'id':int(acid, 16)})
 				return len(self.crews) == self.ncrews
 		raise UnrecognisedSubtag('Crews', tag, rest)
 	def Fighters(self, tag, rest):
