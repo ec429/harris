@@ -356,7 +356,7 @@ int loadgame(const char *fn, game *state)
 					unsigned int lrate, tops;
 					char p_id[9];
 					f=sscanf(line, "%10s %c:%la,%u,%u,%8s\n", status, &class, &skill, &lrate, &tops, p_id);
-					if(f!=5)
+					if(f!=6)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
