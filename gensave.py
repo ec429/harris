@@ -33,7 +33,7 @@ def poisson(lamb):
 
 def gencrews(line, i):
 	words = line.split(':')
-	cls = words[0][-1]
+	_, stat, cls = words[0].split()
 	words = words[1].split(',')
 	ms = int(words[0])
 	ml = int(words[1])
@@ -44,10 +44,11 @@ def gencrews(line, i):
 	random.seed(ha)
 	skill = poisson(ms)
 	lrate = poisson(ml)
+	tops = random.randint(0, tops)
 	if windows:
-		return "Crewman %c:%s,%u,%u,%s"%(cls, float_to_hex(skill), lrate, tops, acid)
+		return "%s %c:%s,%u,%u,%s"%(stat, cls, float_to_hex(skill), lrate, tops, acid)
 	else:
-		return "Crewman %c:%u,%u,%u,%s"%(cls, skill, lrate, tops, acid)
+		return "%s %c:%u,%u,%u,%s"%(stat, cls, skill, lrate, tops, acid)
 
 windows = '--windows' in sys.argv
 
@@ -70,7 +71,7 @@ for line in sys.stdin.readlines():
 	lines = multiply(line)
 	for i,line in enumerate(lines):
 		line = genids(line, i)
-		if line.startswith("Crewgen"):
+		if line.startswith("CG "):
 			line = gencrews(line, i)
 		if windows and ':' in line:
 			to_conv = {'Confid':(0,),
