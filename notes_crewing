@@ -34,14 +34,13 @@ Gunner tasks:
 Later we will add a separate skill value for "heavy bomber experience", practised by flying bombers with the HEAVY flag and trained at an HCU, which scales skill level when flying HEAVY bombers.
 Also, as well as an initial skill value, crewmembers will be generated with an overall 'learning rate' and 'learning cap'; the rate scales progress and the cap limits potential.  (The cap is approached asymptotically.)  For now we just have standard values for everyone.
 
-Ideas for crew reassignment:
+Ideas for crew reassignment.  Nothing like this is implemented yet.
 1	For each pair of bombertypes there should be a "move best crews" option, which backfills by moving the worst crews in the other direction.  Best is always based on what they're moving to, and worst on what they're moving from.  Any crewmembers without a corresponding spot on the other bombertype's crew will stay where they are.
 2	Have a "skilled crews priority" setting for each type, and automatically rebalance skilled crews accordingly.
 
 In either case, the PFF section of those types which have partial PFF (flags PFF&&!NOARM, ie. Lancaster I & X) are treated as a separate 'type' for this purpose.  When moving a bomber to the PFF (ie. 'PF' event), the best crew on the type are automatically moved with it.
 
 Crews in training appear in a 'staging area'; while they remain there, they slowly gain skill (not as rapidly as crews on ops).  Thus faster production means shorter training and less skilled sprogs.
-Crews can be moved between training and a bombertype the same as between a pair of bombertypes.
 When more bombers of a type are sent on a raid than there are crews assigned to that type, a further crew must be assigned.  This depends on some type flags:
 	Main Force: the best crew from the training pool is assigned to the type.
 	PFF: the best non-PFF crew on the type is moved (perhaps triggering a further assignment).
@@ -61,7 +60,7 @@ Pos Practised by
   W Flight as W.
   G Flight as G, slow; Fighter spotted, fast.
 
-Table of position, initial pool size, and pupils per instructor
+Table of position, initial pool size, and pupils per instructor (Easy level)
 Pos Init Inst
   P 60   2 +1E
   N 60   3 +1B
@@ -70,6 +69,8 @@ Pos Init Inst
   W 30   6 +1G
   G 75   5
 
-The skill levels of each position in each situation (type, pool, instructors) should be displayed as a box-and-whisker plot (shows all five quartiles).
+On Medium this is divided by 2; on Hard by 3.
+
+The skill levels of each position in each situation (crews, training pool, instructors) are displayed as a histogram.  For crews there is also a histogram (in red) showing progress through their tour; for instructors a similar red histogram shows progress through their 180 days of screening.
 
 Perhaps have an event EATS (Empire Air Training Scheme) that increases pool size.
