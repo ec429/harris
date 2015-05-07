@@ -385,7 +385,7 @@ void update_crews(game *state)
 					snprintf(HC_count[i][j], 32, "%4u/%4u", count[i][j], need[i]);
 				break;
 				case CSTATUS_STUDENT:
-					snprintf(HC_count[i][j], 32, "%4u/%4u", count[i][j], pool[i]);
+					snprintf(HC_count[i][j], 32, "%4u/%4u", count[i][j], pool[i]/GET_DC(state, TPOOL));
 				break;
 				default:
 					snprintf(HC_count[i][j], 32, "%u", count[i][j]);
