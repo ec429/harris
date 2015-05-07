@@ -36,16 +36,18 @@ def gencrews(line, i):
 	cls = words[0][-1]
 	words = words[1].split(',')
 	ms = int(words[0])
-	tops = int(words[1])
-	acid = words[2]
+	ml = int(words[1])
+	tops = int(words[2])
+	acid = words[3]
 	z = '_'.join((salt, str(i), line))
 	ha = zlib.crc32(z) & 0xffffffff
 	random.seed(ha)
 	skill = poisson(ms)
+	lrate = poisson(ml)
 	if windows:
-		return "Crewman %c:%s,%u,%s"%(cls, float_to_hex(skill), tops, acid)
+		return "Crewman %c:%s,%u,%u,%s"%(cls, float_to_hex(skill), lrate, tops, acid)
 	else:
-		return "Crewman %c:%u,%u,%s"%(cls, skill, tops, acid)
+		return "Crewman %c:%u,%u,%u,%s"%(cls, skill, lrate, tops, acid)
 
 windows = '--windows' in sys.argv
 

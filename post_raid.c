@@ -540,7 +540,7 @@ void refill_students(game *state)
 			}
 			state->crews=new;
 			for(unsigned int j=state->ncrews;j<nc;j++)
-				state->crews[j]=(crewman){.id=rand_acid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .tour_ops=0, .assignment=1};
+				state->crews[j]=(crewman){.id=rand_acid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .lrate=60+irandu(60), .tour_ops=0, .assignment=1};
 			state->ncrews=nc;
 		}
 		else if(scount>pool)
@@ -566,6 +566,6 @@ void train_students(game *state)
 	{
 		if(state->crews[i].status==CSTATUS_STUDENT)
 			if(state->crews[i].assignment)
-				state->crews[i].skill=state->crews[i].skill*.96+1;
+				state->crews[i].skill=state->crews[i].skill*.96+state->crews[i].lrate/100.0;
 	}
 }

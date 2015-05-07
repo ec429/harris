@@ -285,6 +285,7 @@ typedef struct
 	enum cclass class;
 	enum cstatus status;
 	double skill;
+	unsigned int lrate;
 	unsigned int tour_ops;
 	/* meaning depends on status
 		CREWMAN: number of ops completed this tour.  After 30, become INSTRUC

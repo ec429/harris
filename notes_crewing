@@ -31,8 +31,9 @@ Gunner tasks:
 	* Lookout.  Spotting fighters before they attack, directing the aircraft's evasive action afterwards. [Mean]
 	* Marksmanship.  Ability to shoot back. [Random select]
 
+As well as an initial skill value, crewmembers are generated with a 'learning rate' which scales progress and caps potential.  (The cap is approached asymptotically.)
+
 Later we will add a separate skill value for "heavy bomber experience", practised by flying bombers with the HEAVY flag and trained at an HCU, which scales skill level when flying HEAVY bombers.
-Also, as well as an initial skill value, crewmembers will be generated with an overall 'learning rate' and 'learning cap'; the rate scales progress and the cap limits potential.  (The cap is approached asymptotically.)  For now we just have standard values for everyone.
 
 Ideas for crew reassignment.  Nothing like this is implemented yet.
 1	For each pair of bombertypes there should be a "move best crews" option, which backfills by moving the worst crews in the other direction.  Best is always based on what they're moving to, and worst on what they're moving from.  Any crewmembers without a corresponding spot on the other bombertype's crew will stay where they are.
