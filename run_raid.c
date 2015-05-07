@@ -1096,7 +1096,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							ns=(nskill*3+bac->skill)/4.0;
 						else // can't happen
 							ns=nskill;
-						double cf=(700.0+state->bombers[k].lon-h*0.6)/(1e3+ns*5);
+						double cf=(700.0+state->bombers[k].lon-h*0.6)/(700.0+ns*5.0);
 						state->bombers[k].navlon*=cf;
 						state->bombers[k].navlat*=cf;
 						state->bombers[k].driftlon*=cf;
