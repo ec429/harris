@@ -1065,8 +1065,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
 					state->bombers[k].driftlon=state->bombers[k].driftlon*.98+ex;
 					state->bombers[k].driftlat=state->bombers[k].driftlat*.98+ey;
-					clamp(state->bombers[k].driftlon, -2.0, 2.0);
-					clamp(state->bombers[k].driftlat, -2.0, 2.0);
+					clamp(state->bombers[k].driftlon, -1.0, 1.0);
+					clamp(state->bombers[k].driftlat, -1.0, 1.0);
 					state->bombers[k].lon+=state->bombers[k].driftlon;
 					state->bombers[k].lat+=state->bombers[k].driftlat;
 					clamp(state->bombers[k].lon, 0, 256);
@@ -1098,7 +1098,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							ns=(nskill*3+bac->skill)/4.0;
 						else // can't happen
 							ns=nskill;
-						double cf=(700.0+state->bombers[k].lon-h*0.6)/(700.0+ns*5.0);
+						double cf=min((700.0+state->bombers[k].lon-h*0.6)/(840.0+ns*4.0), 0.96);
 						state->bombers[k].navlon*=cf;
 						state->bombers[k].navlat*=cf;
 						state->bombers[k].driftlon*=cf;
