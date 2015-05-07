@@ -397,14 +397,14 @@ void update_crews(game *state)
 			line(HC_skill[i][j], 75, 0, 75, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
 			if(j<2)
 				SDL_FillRect(HC_tops[i][j], &(SDL_Rect){0, 0, HC_tops[i][j]->w, HC_tops[i][j]->h}, SDL_MapRGB(HC_tops[i][j]->format, 7, 7, 15));
-			if(!count[i][j]) continue;
-			for(unsigned int k=0;k<101;k++)
-			{
-				double frac=dens[i][j][k]/(double)mxd;
-				unsigned int br=63+ceil(frac*192);
-				line(HC_skill[i][j], k, 8-ceil(frac*8), k, 8+ceil(frac*8), (atg_colour){br, br, br, ATG_ALPHA_OPAQUE});
-			}
-			if(j<2)
+			if(count[i][j])
+				for(unsigned int k=0;k<101;k++)
+				{
+					double frac=dens[i][j][k]/(double)mxd;
+					unsigned int br=63+ceil(frac*192);
+					line(HC_skill[i][j], k, 8-ceil(frac*8), k, 8+ceil(frac*8), (atg_colour){br, br, br, ATG_ALPHA_OPAQUE});
+				}
+			if(j<2 && count[i][j*2])
 			{
 				unsigned int mxt=0;
 				for(unsigned int k=0;k<31;k++)
