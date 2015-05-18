@@ -1564,11 +1564,12 @@ bool ensure_crewed(game *state, unsigned int i)
 		if(types[type].crew[j]==CCLASS_NONE)
 			continue;
 		int k=state->bombers[i].crew[j];
-		if(k>=0 && ((state->crews[k].skill*filter_elite<50*filter_elite) ||
-		            (state->bombers[i].pff&&(CREWOPS(k)<types[type].noarm?30:15)) ||
-		            ((filter_student==1)&&CREWOPS(k))))
+		// 0. Deassign current crewman if unsuitable
+		if(k>=0 && ((state->crews[k].skill*filter_elite<50*filter_elite) || // 'elite' filter
+		            (state->bombers[i].pff&&(CREWOPS(k)<types[type].noarm?30:15)) || // PFF requirements
+		            ((filter_student==1)&&CREWOPS(k)) || // 'student' filter
+		            state->crews[k].class!=types[type].crew[j])) // cclass changed under us
 		{
-			// deassign
 			state->crews[k].assignment=-1;
 			state->bombers[i].crew[j]=-1;
 		}
