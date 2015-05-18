@@ -28,7 +28,7 @@ extern game state;
 
 atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
-atg_element *GB_map, *GB_filters;
+atg_element *GB_map;
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel, *GB_hcrews;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
@@ -37,6 +37,7 @@ char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 SDL_Surface *GB_moonimg;
 int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0;
+atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite;
 
 bool filter_apply(ac_bomber b);
 bool ensure_crewed(game *state, unsigned int i);
@@ -562,13 +563,36 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	GB_filters=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	atg_element *GB_mpad=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!GB_mpad)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_bt, GB_mpad))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	GB_mpad->h=4;
+	atg_element *GB_filters=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
 	if(!GB_filters)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
 	if(atg_ebox_pack(GB_bt, GB_filters))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *GB_ft=atg_create_element_label("Filters:", 12, (atg_colour){239, 239, 0, ATG_ALPHA_OPAQUE});
+	if(!GB_ft)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_filters, GB_ft))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -584,30 +608,7 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	GB_pad->h=12;
-	atg_element *GB_ft=atg_create_element_label("Filters:", 12, (atg_colour){239, 239, 0, ATG_ALPHA_OPAQUE});
-	if(!GB_ft)
-	{
-		fprintf(stderr, "atg_create_element_label failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(GB_filters, GB_ft))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	atg_element *GB_fi=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){23, 23, 31, ATG_ALPHA_OPAQUE});
-	if(!GB_fi)
-	{
-		fprintf(stderr, "atg_create_element_box failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(GB_filters, GB_fi))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	atg_element *GB_fi_nav[NNAVAIDS];
+	GB_pad->w=4;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		filter_nav[n]=0;
@@ -616,30 +617,28 @@ int control_create(void)
 			fprintf(stderr, "create_filter_switch failed\n");
 			return(1);
 		}
-		if(atg_ebox_pack(GB_fi, GB_fi_nav[n]))
+		if(atg_ebox_pack(GB_filters, GB_fi_nav[n]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
 		}
 	}
-	atg_element *GB_fi_pff=create_filter_switch(pffpic, &filter_pff);
-	if(!GB_fi_pff)
+	if(!(GB_fi_pff=create_filter_switch(pffpic, &filter_pff)))
 	{
 		fprintf(stderr, "create_filter_switch failed\n");
 		return(1);
 	}
-	if(atg_ebox_pack(GB_fi, GB_fi_pff))
+	if(atg_ebox_pack(GB_filters, GB_fi_pff))
 	{
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *GB_fi_elite=create_filter_switch(elitepic, &filter_elite);
-	if(!GB_fi_elite)
+	if(!(GB_fi_elite=create_filter_switch(elitepic, &filter_elite)))
 	{
 		fprintf(stderr, "create_filter_switch failed\n");
 		return(1);
 	}
-	if(atg_ebox_pack(GB_fi, GB_fi_elite))
+	if(atg_ebox_pack(GB_filters, GB_fi_elite))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1033,9 +1032,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	}
 	bool shownav=false;
 	filter_pff=0;
+	GB_fi_pff->hidden=datebefore(state->now, event[EVENT_PFF]);
 	filter_elite=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
+		GB_fi_nav[n]->hidden=datebefore(state->now, event[navevent[n]]);
 		if(!datebefore(state->now, event[navevent[n]])) shownav=true;
 		filter_nav[n]=0;
 	}
