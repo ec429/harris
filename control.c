@@ -1547,6 +1547,8 @@ bool filter_apply(ac_bomber b)
 	return(true);
 }
 
+#define CREWOPS(k)	(state->crews[(k)].tour_ops + 30 * state->crews[(k)].full_tours) // TODO second tours should only be 20 ops
+
 bool ensure_crewed(game *state, unsigned int i)
 {
 	unsigned int type=state->bombers[i].type;
@@ -1555,7 +1557,8 @@ bool ensure_crewed(game *state, unsigned int i)
 		if(types[type].crew[j]==CCLASS_NONE)
 			continue;
 		int k=state->bombers[i].crew[j];
-		if(k>=0&&state->crews[k].skill*filter_elite<50*filter_elite) // TODO also apply restrictions on who can crew PFF?
+		if(k>=0 && ((state->crews[k].skill*filter_elite<50*filter_elite) ||
+		            (state->bombers[i].pff&&CREWOPS(k)<types[type].noarm?30:15)))
 		{
 			// deassign
 			state->crews[k].assignment=-1;
@@ -1570,6 +1573,7 @@ bool ensure_crewed(game *state, unsigned int i)
 					if(state->crews[k].status==CSTATUS_CREWMAN)
 					{
 						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
+						if(state->bombers[i].pff&&CREWOPS(k)<types[type].noarm?30:15) continue;
 						if(state->crews[k].assignment<0)
 						{
 							state->crews[k].assignment=i;
@@ -1580,7 +1584,7 @@ bool ensure_crewed(game *state, unsigned int i)
 						{
 							unsigned int l=state->crews[k].assignment, m;
 							if(l==i) continue; // don't steal from ourselves
-							// TODO check for pff-crossing
+							if(state->bombers[l].pff&&!state->bombers[i].pff) continue; // don't pull out of PFF either
 							for(m=0;m<MAX_CREW;m++)
 								if(state->bombers[l].crew[m]==(int)k)
 								{
@@ -1606,6 +1610,7 @@ bool ensure_crewed(game *state, unsigned int i)
 					if(state->crews[k].status==CSTATUS_STUDENT)
 					{
 						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
+						if(state->bombers[i].pff) continue; // never promote STUDENTs to PFF, that's silly
 						state->crews[k].status=CSTATUS_CREWMAN;
 						state->crews[k].tour_ops=0;
 						state->crews[k].assignment=i;

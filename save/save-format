@@ -26,7 +26,7 @@ for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u,%u,%s\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id)
 "Crews:%u\n", ncrews
 for(i=0;i<ncrews;i++)
-	"%s %c:%la,%u,%u,%s\n", cstatuses[crews[i].status], cclasses[crews[i].class].letter, crews[i].skill, crews[i].lrate, crews[i].tour_ops, pacid(crews[i].id)
+	"%s %c:%la,%u,%u,%u,%s\n", cstatuses[crews[i].status], cclasses[crews[i].class].letter, crews[i].skill, crews[i].lrate, crews[i].tour_ops, crews[i].full_tours, pacid(crews[i].id)
 "GProd:%u\n", iclasses // should be a constant
 for(i=0;i<iclasses;i++)
 	"IClass %u:%la\n", i, gprod[i]

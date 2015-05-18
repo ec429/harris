@@ -292,6 +292,7 @@ typedef struct
 		STUDENT: currently not used
 		INSTRUC: number of days spent instructing.  After 180, become CREWMAN
 	*/
+	unsigned int full_tours; // always the count of complete CREWMAN tours
 	int assignment;
 	/* meaning depends on status
 		CREWMAN: bomber index (or -1)
