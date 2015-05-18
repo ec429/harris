@@ -88,6 +88,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				(state->bombers=nb)[n]=(ac_bomber){.type=i, .failed=false, .id=rand_acid()};
 				for(unsigned int j=0;j<NNAVAIDS;j++)
 					nb[n].nav[j]=false;
+				for(unsigned int j=0;j<MAX_CREW;j++)
+					nb[n].crew[j]=-1;
 				if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[i].nav[NAV_GEE])
 					nb[n].nav[NAV_GEE]=true;
 				ct_append(&state->hist, state->now, (harris_time){11, 25}, state->bombers[n].id, false, state->bombers[n].type);
