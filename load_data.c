@@ -1115,6 +1115,11 @@ int load_images(void)
 		fprintf(stderr, "Elite icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(studentpic=IMG_Load("art/filters/student.png")))
+	{
+		fprintf(stderr, "Student icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	for(unsigned int l=0;l<NBOMBLOADS;l++)
 	{
 		if(!(bombloads[l].pic=IMG_Load(bombloads[l].fn)))

@@ -36,8 +36,8 @@ atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 SDL_Surface *GB_moonimg;
-int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0;
-atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite;
+int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0, filter_student=0;
+atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite, *GB_fi_student;
 
 bool filter_apply(ac_bomber b);
 bool ensure_crewed(game *state, unsigned int i);
@@ -643,6 +643,16 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(!(GB_fi_student=create_filter_switch(studentpic, &filter_student)))
+	{
+		fprintf(stderr, "create_filter_switch failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_filters, GB_fi_student))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	atg_element *GB_middle=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 	if(!GB_middle)
 	{
@@ -1034,6 +1044,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	filter_pff=0;
 	GB_fi_pff->hidden=datebefore(state->now, event[EVENT_PFF]);
 	filter_elite=0;
+	filter_student=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		GB_fi_nav[n]->hidden=datebefore(state->now, event[navevent[n]]);
@@ -1558,13 +1569,14 @@ bool ensure_crewed(game *state, unsigned int i)
 			continue;
 		int k=state->bombers[i].crew[j];
 		if(k>=0 && ((state->crews[k].skill*filter_elite<50*filter_elite) ||
-		            (state->bombers[i].pff&&CREWOPS(k)<types[type].noarm?30:15)))
+		            (state->bombers[i].pff&&(CREWOPS(k)<types[type].noarm?30:15)) ||
+		            ((filter_student==1)&&CREWOPS(k))))
 		{
 			// deassign
 			state->crews[k].assignment=-1;
 			state->bombers[i].crew[j]=-1;
 		}
-		if(state->bombers[i].crew[j]<0)
+		if((state->bombers[i].crew[j]<0)&&(filter_student!=1))
 		{
 			// 1. Look for an available CREWMAN
 			// either unassigned, or assigned to a bomber who's not on a raid (yet)
@@ -1573,7 +1585,7 @@ bool ensure_crewed(game *state, unsigned int i)
 					if(state->crews[k].status==CSTATUS_CREWMAN)
 					{
 						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
-						if(state->bombers[i].pff&&CREWOPS(k)<types[type].noarm?30:15) continue;
+						if(state->bombers[i].pff&&(CREWOPS(k)<types[type].noarm?30:15)) continue;
 						if(state->crews[k].assignment<0)
 						{
 							state->crews[k].assignment=i;
@@ -1602,7 +1614,7 @@ bool ensure_crewed(game *state, unsigned int i)
 						}
 					}
 		}
-		if(state->bombers[i].crew[j]<0)
+		if((state->bombers[i].crew[j]<0)&&(filter_student!=-1))
 		{
 			// 2. Look for a matching STUDENT and promote them to CREWMAN
 			for(unsigned int k=0;k<state->ncrews;k++)

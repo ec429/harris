@@ -54,6 +54,7 @@ manifest = {
 			'filters': {'.':[
 					'elite.png',
 					'pff.png',
+					'student.png',
 				]},
 			'large': {
 					'bombers': {'.':[
