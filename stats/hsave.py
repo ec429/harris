@@ -231,8 +231,8 @@ class Save(object):
 		for t in ['Crewman', 'Student', 'Instructor']:
 			if tag.startswith(t+' '):
 				typ = tag[-1]
-				skill, lrate, tops, acid = rest.split(',', 4)
-				self.crews.append({'status':t, 'type':typ, 'skill':readfloat(skill), 'lrate':int(lrate), 'tops':int(tops), 'id':int(acid, 16)})
+				skill, lrate, tops, ft, acid = rest.split(',', 4)
+				self.crews.append({'status':t, 'type':typ, 'skill':readfloat(skill), 'lrate':int(lrate), 'tops':int(tops), 'ft':int(ft), 'id':int(acid, 16)})
 				return len(self.crews) == self.ncrews
 		raise UnrecognisedSubtag('Crews', tag, rest)
 	def Fighters(self, tag, rest):
