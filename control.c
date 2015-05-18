@@ -1041,15 +1041,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		state->bombers[j].ld.ds=DS_NONE;
 	}
 	bool shownav=false;
-	filter_pff=0;
 	GB_fi_pff->hidden=datebefore(state->now, event[EVENT_PFF]);
-	filter_elite=0;
-	filter_student=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		GB_fi_nav[n]->hidden=datebefore(state->now, event[navevent[n]]);
 		if(!datebefore(state->now, event[navevent[n]])) shownav=true;
-		filter_nav[n]=0;
 	}
 	for(unsigned int i=0;i<ntypes;i++)
 	{

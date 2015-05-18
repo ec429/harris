@@ -63,7 +63,7 @@ routing.o: rand.h globals.h events.h date.h geom.h
 
 history.o: bits.h date.h
 
-saving.o: bits.h date.h globals.h events.h history.h rand.h version.h
+saving.o: bits.h control.h date.h globals.h events.h history.h rand.h version.h
 
 render.o: bits.h globals.h events.h date.h
 
