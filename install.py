@@ -52,6 +52,7 @@ manifest = {
 					'me262.png',
 				]},
 			'filters': {'.':[
+					'elite.png',
 					'pff.png',
 				]},
 			'large': {

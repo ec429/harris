@@ -103,6 +103,7 @@ SDL_Surface *intelbtn=NULL;
 SDL_Surface *nointelbtn=NULL;
 SDL_Surface *navpic[NNAVAIDS];
 SDL_Surface *pffpic=NULL;
+SDL_Surface *elitepic=NULL;
 SDL_Surface *resizebtn=NULL;
 SDL_Surface *fullbtn=NULL;
 SDL_Surface *exitbtn=NULL;

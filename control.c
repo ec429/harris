@@ -36,9 +36,9 @@ atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 SDL_Surface *GB_moonimg;
-int filter_nav[NNAVAIDS], filter_pff=0;
+int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0;
 
-bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS]);
+bool filter_apply(ac_bomber b);
 bool ensure_crewed(game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 int update_raidnums(const game *state, int seltarg);
@@ -633,6 +633,17 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *GB_fi_elite=create_filter_switch(elitepic, &filter_elite);
+	if(!GB_fi_elite)
+	{
+		fprintf(stderr, "create_filter_switch failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_fi, GB_fi_elite))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	atg_element *GB_middle=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 	if(!GB_middle)
 	{
@@ -1022,13 +1033,12 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	}
 	bool shownav=false;
 	filter_pff=0;
+	filter_elite=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(!datebefore(state->now, event[navevent[n]])) shownav=true;
 		filter_nav[n]=0;
 	}
-	if(GB_filters)
-		GB_filters->hidden=!(shownav||!datebefore(state->now, event[EVENT_PFF]));
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
@@ -1313,7 +1323,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											if(state->bombers[j].type!=i) continue;
 											if(state->bombers[j].failed) continue;
 											if(!state->bombers[j].landed) continue;
-											if(!filter_apply(state->bombers[j], filter_pff, filter_nav)) continue;
+											if(!filter_apply(state->bombers[j])) continue;
 											if(!ensure_crewed(state, j)) continue;
 											state->bombers[j].landed=false;
 											amount--;
@@ -1371,7 +1381,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									{
 										unsigned int k=state->raids[seltarg].bombers[l];
 										if(state->bombers[k].type!=i) continue;
-										if(!filter_apply(state->bombers[k], filter_pff, filter_nav)) continue;
+										if(!filter_apply(state->bombers[k])) continue;
 										state->bombers[k].landed=true;
 										amount--;
 										state->raids[seltarg].nbombers--;
@@ -1524,7 +1534,7 @@ void control_free(void)
 	atg_free_element(control_box);
 }
 
-bool filter_apply(ac_bomber b, int filter_pff, int filter_nav[NNAVAIDS])
+bool filter_apply(ac_bomber b)
 {
 	if(filter_pff>0&&!b.pff) return(false);
 	if(filter_pff<0&&b.pff) return(false);
@@ -1543,6 +1553,13 @@ bool ensure_crewed(game *state, unsigned int i)
 	{
 		if(types[type].crew[j]==CCLASS_NONE)
 			continue;
+		int k=state->bombers[i].crew[j];
+		if(k>=0&&state->crews[k].skill*filter_elite<50*filter_elite) // TODO also apply restrictions on who can crew PFF?
+		{
+			// deassign
+			state->crews[k].assignment=-1;
+			state->bombers[i].crew[j]=-1;
+		}
 		if(state->bombers[i].crew[j]<0)
 		{
 			// 1. Look for an available CREWMAN
@@ -1551,6 +1568,7 @@ bool ensure_crewed(game *state, unsigned int i)
 				if(state->crews[k].class==types[type].crew[j])
 					if(state->crews[k].status==CSTATUS_CREWMAN)
 					{
+						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
 						if(state->crews[k].assignment<0)
 						{
 							state->crews[k].assignment=i;
@@ -1586,6 +1604,7 @@ bool ensure_crewed(game *state, unsigned int i)
 				if(state->crews[k].class==types[type].crew[j])
 					if(state->crews[k].status==CSTATUS_STUDENT)
 					{
+						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
 						state->crews[k].status=CSTATUS_CREWMAN;
 						state->crews[k].tour_ops=0;
 						state->crews[k].assignment=i;
