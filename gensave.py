@@ -38,7 +38,8 @@ def gencrews(line, i):
 	ms = int(words[0])
 	ml = int(words[1])
 	tops = int(words[2])
-	acid = words[3]
+	ft = int(words[3])
+	acid = words[4]
 	z = '_'.join((salt, str(i), line))
 	ha = zlib.crc32(z) & 0xffffffff
 	random.seed(ha)
@@ -46,9 +47,9 @@ def gencrews(line, i):
 	lrate = poisson(ml)
 	tops = random.randint(0, tops)
 	if windows:
-		return "%s %c:%s,%u,%u,%s"%(stat, cls, float_to_hex(skill), lrate, tops, acid)
+		return "%s %c:%s,%u,%u,%u,%s"%(stat, cls, float_to_hex(skill), lrate, tops, ft, acid)
 	else:
-		return "%s %c:%u,%u,%u,%s"%(stat, cls, skill, lrate, tops, acid)
+		return "%s %c:%u,%u,%u,%u,%s"%(stat, cls, skill, lrate, tops, ft, acid)
 
 windows = '--windows' in sys.argv
 
