@@ -228,6 +228,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				if(state->crews[i].tour_ops>=30)
 				{
 					state->crews[i].status=CSTATUS_INSTRUC;
+					st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 					state->crews[i].tour_ops=0;
 					int j=state->crews[i].assignment;
 					if(j>=0)
@@ -248,6 +249,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				if(++state->crews[i].tour_ops>180)
 				{
 					state->crews[i].status=CSTATUS_CREWMAN;
+					st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 					state->crews[i].tour_ops=0;
 					state->crews[i].assignment=-1;
 				}
@@ -542,7 +544,10 @@ void refill_students(game *state)
 			}
 			state->crews=new;
 			for(unsigned int j=state->ncrews;j<nc;j++)
+			{
 				state->crews[j]=(crewman){.id=rand_cmid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .lrate=60+irandu(60), .tour_ops=0, .assignment=1};
+				ge_append(&state->hist, state->now, (harris_time){11, 43}, state->crews[j].id, i, state->crews[j].lrate);
+			}
 			state->ncrews=nc;
 		}
 		else if(scount>pool)
@@ -569,6 +574,11 @@ void train_students(game *state)
 		if(state->crews[i].status==CSTATUS_STUDENT)
 			if(state->crews[i].assignment)
 				if((state->crews[i].skill<1)||brandp(5.0/pow(state->crews[i].skill, 1.5)))
-					state->crews[i].skill=min(state->crews[i].skill+irandu(state->crews[i].lrate)/50.0, 100.0);
+				{
+					double new=min(state->crews[i].skill+irandu(state->crews[i].lrate)/50.0, 100.0);
+					if(floor(new)>floor(state->crews[i].skill))
+						sk_append(&state->hist, state->now, (harris_time){11, 43}, state->crews[i].id, state->crews[i].class, new);
+					state->crews[i].skill=new;
+				}
 	}
 }

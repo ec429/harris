@@ -280,3 +280,47 @@ int gp_append(history *hist, date d, harris_time t, unsigned int iclass, double 
 	snprintf(buf, HIST_LINE, "GP %u %a %a", iclass, gprod, dprod);
 	return(evm_append(hist, d, t, buf));
 }
+
+int evc_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, const char *ev)
+{
+	char buf[HIST_LINE];
+	size_t i=sprintf(buf, "C ");
+	pcmid(id, buf+i);i+=16;
+	buf[i++]=' ';
+	buf[i++]=cclasses[cls].letter;
+	strncpy(buf+i, ev, HIST_LINE-i);
+	return(ev_append(hist, d, t, buf));
+}
+
+int ge_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int lrate)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "GE %u", lrate);
+	return(evc_append(hist, d, t, id, cls, buf));
+}
+
+int sk_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int skill)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "SK %u", skill);
+	return(evc_append(hist, d, t, id, cls, buf));
+}
+
+int st_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, enum cstatus status)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "ST %c", cstatuses[status][0]);
+	return(evc_append(hist, d, t, id, cls, buf));
+}
+
+int op_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int tops)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "OP %u", tops);
+	return(evc_append(hist, d, t, id, cls, buf));
+}
+
+int de_append(history *hist, date d, harris_time t, cmid id, enum cclass cls)
+{
+	return(evc_append(hist, d, t, id, cls, "DE"));
+}

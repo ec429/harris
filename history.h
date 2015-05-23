@@ -40,3 +40,10 @@ int ca_append(history *hist, date d, harris_time t, unsigned int cshr, unsigned 
 int co_append(history *hist, date d, harris_time t, double confid); // Append a CO (confid) event to the history
 int mo_append(history *hist, date d, harris_time t, double morale); // Append a MO (morale) event to the history
 int gp_append(history *hist, date d, harris_time t, unsigned int iclass, double gprod, double dprod); // Append a GP (GProd) event to the history
+
+int evc_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, const char *ev); // Append a crewman event to the history
+int ge_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int lrate); // Append a GE (generated) event to the history
+int sk_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int skill); // Append a SK (skill-up) event to the history
+int st_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, enum cstatus status); // Append a ST (status change) event to the history
+int op_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int tops); // Append a OP (operation) event to the history
+int de_append(history *hist, date d, harris_time t, cmid id, enum cclass cls); // Append a DE (death) event to the history

@@ -1,14 +1,17 @@
 <record> ::= <date> <time> <data>
-<data>   ::= A <ac-uid> <b-or-f><type:int> <a-event> | T <targ-id:int> <t-event> | I <init-ev> | M <misc-ev>
+<data>   ::= A <ac-uid> <b-or-f><type:int> <a-event> | T <targ-id:int> <t-event> | I <init-ev> | M <misc-ev> | C <cm-uid> <cclass> <crew-ev>
 <date>   ::= <day>-<month>-<year> # as save file; times < 12:00 are saved under the previous day
 <time>   ::= <hh>:<mm> # raids cannot begin before 18:00; post-raid is 11:00 thru 11:59
 <ac-uid> ::= <hex>*8 # randomly generated token.  P(match) = 2^-32 ~= 1/4.2e9
+<cm-uid> ::= <hex>*16 # P(match) is negligible
 <b-or-f> ::= B | F
+<cclass> ::= P | N | B | E | W | G
 <a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev> | <obs-ev>
 <ct-ev>  ::= CT
 <nav-ev> ::= NA <navaid:int> # installation of a navaid (or, for fighters, radar)
 <pff-ev> ::= PF # assignment to PFF - not reversible
-<raid-ev>::= RA <targ-id:int>
+<raid-ev>::= RA <targ-id:int> <ra-crew>
+<ra-crew>::= <cm-uid> [<ra-crew>]
 <hit-ev> ::= HI <targ-id:int> <bmb:int> # bmb is either lb of bombs, lb of mines, or # of leaflets.  Need targ-id as we might have hit a different target to the one we were aiming for
 <dmg-ev> ::= DM <delta-dmg:float> <current-dmg:float> (AC <from:ac-uid> | FK <flak-id:int> | TF <targ-d:int>)
 <fail-ev>::= FA <failstate:int> # is really a bool
@@ -24,3 +27,10 @@
 <conf-ev>::= CO <confid:float>
 <mora-ev>::= MO <morale:float>
 <gprd-ev>::= GP <iclass:int> <gprod:float> <dprod:float> # dprod is _not_ the difference from the previous gprod!
+<crew-ev>::= <gen-ev> | <ski-ev> | <csta-ev> | <op-ev> | <deth-ev>
+<gen-ev> ::= GE <lrate:int> # generation of a new (student) crewman
+<ski-ev> ::= SK <skill:int> # reached a new integer-part of skill
+<csta-ev>::= ST <cstatus> # status change
+<cstatus>::= C | S | I
+<op-ev>  ::= OP <tops:int> # completed an op (*not* generated daily for instructors!)
+<deth-ev>::= DE

@@ -17,6 +17,7 @@
 #include "widgets.h"
 #include "date.h"
 #include "bits.h"
+#include "history.h"
 #include "render.h"
 #include "routing.h"
 #include "weather.h"
@@ -1621,6 +1622,7 @@ bool ensure_crewed(game *state, unsigned int i)
 						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
 						if(state->bombers[i].pff) continue; // never promote STUDENTs to PFF, that's silly
 						state->crews[k].status=CSTATUS_CREWMAN;
+						st_append(&state->hist, state->now, (harris_time){12, 00}, state->crews[k].id, state->crews[k].class, state->crews[k].status);
 						state->crews[k].tour_ops=0;
 						state->crews[k].assignment=i;
 						state->bombers[i].crew[j]=k;
@@ -1652,6 +1654,7 @@ void fixup_crew_assignments(game *state, unsigned int i, bool kill)
 			{
 				if(kill)
 				{
+					de_append(&state->hist, state->now, (harris_time){11, 00}, state->crews[j].id, state->crews[j].class);
 					state->ncrews--;
 					for(unsigned int k=j;k<state->ncrews;k++)
 						state->crews[k]=state->crews[k+1];

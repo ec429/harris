@@ -294,7 +294,12 @@ crewman *get_crew(const game *state, unsigned int i, unsigned int j)
 	return(state->crews+state->bombers[i].crew[j]);
 }
 
-#define practise(_c, _v)	((_c).skill = min((_c).skill * (1 - (_v)/100.0) + (_v) * (_c).lrate / 100.0, 100.0))
+#define practise(_c, _v)	do { \
+	double _new = min((_c).skill * (1 - (_v)/100.0) + (_v) * (_c).lrate / 100.0, 100.0); \
+	if(floor(_new) > floor((_c).skill)) \
+		sk_append(&state->hist, state->now, now, (_c).id, (_c).class, _new);\
+	(_c).skill = _new; \
+	} while(0);
 
 int run_raid_create(void)
 {
@@ -1693,9 +1698,15 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					if(types[type].crew[l]!=CCLASS_NONE)
 					{
 						if(state->bombers[k].crew[l]<0) // can't happen
+						{
 							fprintf(stderr, "No crew assigned to %u slot %u\n", k, l);
+						}
 						else
-							state->crews[state->bombers[k].crew[l]].tour_ops++;
+						{
+							unsigned int m=state->bombers[k].crew[l];
+							state->crews[m].tour_ops++;
+							op_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->crews[m].id, state->crews[m].class, state->crews[m].tour_ops);
+						}
 					}
 				bool leaf=state->bombers[k].b_le;
 				bool mine=(targs[i].class==TCLASS_MINING);
