@@ -288,6 +288,7 @@ int evc_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, c
 	pcmid(id, buf+i);i+=16;
 	buf[i++]=' ';
 	buf[i++]=cclasses[cls].letter;
+	buf[i++]=' ';
 	strncpy(buf+i, ev, HIST_LINE-i);
 	return(ev_append(hist, d, t, buf));
 }
