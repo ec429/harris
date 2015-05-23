@@ -12,6 +12,7 @@ class BadHistLine(Exception): pass
 class NoSuchEvent(BadHistLine): pass
 class NoSuchAcType(BadHistLine): pass
 class NoSuchDmgType(BadHistLine): pass
+class NoSuchCrewClass(BadHistLine): pass
 class ExcessData(BadHistLine): pass
 class OutOfOrder(Exception): pass
 
@@ -167,7 +168,38 @@ def targ_parse(text):
 			'text':rest,
 			'data':parsers.get(etyp, lambda x: {})(rest)}
 
-parsers = {'A':ac_parse, 'I':init_parse, 'M':misc_parse, 'T':targ_parse};
+def crew_parse(text):
+	def ge_parse(text):
+		if ' ' in text: raise ExcessData('C', 'GE', text.split(' ', 1)[1])
+		return {'lrate':int(text)}
+	def sk_parse(text):
+		if ' ' in text: raise ExcessData('C', 'SK', text.split(' ', 1)[1])
+		return {'skill':int(text)}
+	def st_parse(text):
+		if len(text) > 1: raise ExcessData('C', 'ST', text.split(' ', 1)[1])
+		return {'status':text}
+	def op_parse(text):
+		if ' ' in text: raise ExcessData('C', 'OP', text.split(' ', 1)[1])
+		return {'tops':int(text)}
+	def de_parse(text):
+		if text: raise ExcessData('C', 'DE', text.split(' ', 1)[1])
+		return {}
+	parsers = {'GE':ge_parse, 'SK':sk_parse, 'ST':st_parse, 'OP':op_parse, 'DE':de_parse}
+	parts = text.split(' ', 3)
+	cmid, cls, etyp = parts[0:3]
+	if len(parts) > 3:
+		rest = parts[3]
+	else:
+		rest = ''
+	if cls not in 'PNBWEG':
+		raise NoSuchCrewClass('C', cls)
+	return {'cmid':int(cmid, 16),
+			'class':cls,
+			'etyp':etyp,
+			'text':rest,
+			'data':parsers.get(etyp, lambda x: {})(rest)}
+
+parsers = {'A':ac_parse, 'I':init_parse, 'M':misc_parse, 'T':targ_parse, 'C':crew_parse};
 
 def raw_parse(line):
 	sdate, time, ec, data = line.split(' ', 3)
