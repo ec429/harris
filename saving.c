@@ -355,8 +355,8 @@ int loadgame(const char *fn, game *state)
 					char class;
 					double skill;
 					unsigned int lrate, tops, ft;
-					char p_id[9];
-					f=sscanf(line, "%10s %c:%la,%u,%u,%u,%8s\n", status, &class, &skill, &lrate, &tops, &ft, p_id);
+					char p_id[17];
+					f=sscanf(line, "%10s %c:%la,%u,%u,%u,%16s\n", status, &class, &skill, &lrate, &tops, &ft, p_id);
 					if(f!=7)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
@@ -376,7 +376,7 @@ int loadgame(const char *fn, game *state)
 						e|=32;
 						break;
 					}
-					if(gacid(p_id, &state->crews[i].id))
+					if(gcmid(p_id, &state->crews[i].id))
 					{
 						fprintf(stderr, "32 Invalid value \"%s\" for c/m ID in tag \"%s\"\n", p_id, tag);
 						e|=32;
@@ -761,7 +761,7 @@ int savegame(const char *fn, game state)
 		perror("fopen");
 		return(1);
 	}
-	char p_id[9];
+	char p_id[17];
 	fprintf(fs, "HARR:%u.%u.%u\n", VER_MAJ, VER_MIN, VER_REV);
 	fprintf(fs, "DATE:%02d-%02d-%04d\n", state.now.day, state.now.month, state.now.year);
 	fprintf(fs, "DClasses:%u\n", DIFFICULTY_CLASSES);
@@ -791,7 +791,7 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Crews:%u\n", state.ncrews);
 	for(unsigned int i=0;i<state.ncrews;i++)
 	{
-		pacid(state.crews[i].id, p_id);
+		pcmid(state.crews[i].id, p_id);
 		fprintf(fs, "%s %c:%la,%u,%u,%u,%s\n", cstatuses[state.crews[i].status], cclasses[state.crews[i].class].letter, state.crews[i].skill, state.crews[i].lrate, state.crews[i].tour_ops, state.crews[i].full_tours, p_id);
 	}
 	fprintf(fs, "GProd:%u\n", ICLASS_MIXED);

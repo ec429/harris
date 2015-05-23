@@ -33,3 +33,10 @@ acid rand_acid(void)
 	// but 0xffffffff is probably RAND_MAX anyway
 	return(rand()&0xffffffff);
 }
+
+cmid rand_cmid(void)
+{
+	// and this is unbelievably corny
+	cmid l=rand_acid(), r=rand_acid();
+	return((l<<32)|r);
+}

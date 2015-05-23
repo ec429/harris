@@ -31,6 +31,8 @@ void free_string(string *s); // frees a string (is just free(s->buf); really)
 
 void pacid(acid id, char buf[9]); // print an a/c id as hex
 int gacid(const char from[8], acid *buf); // parse an a/c id from hex
+void pcmid(cmid id, char buf[17]); // similar but for c/m ids
+int gcmid(const char from[16], cmid *buf);
 
 #ifdef WINDOWS /* doesn't have strndup, we need to implement one */
 char *strndup(const char *s, size_t size);

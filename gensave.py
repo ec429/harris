@@ -47,9 +47,9 @@ def gencrews(line, i):
 	lrate = poisson(ml)
 	tops = random.randint(0, tops)
 	if windows:
-		return "%s %c:%s,%u,%u,%u,%s"%(stat, cls, float_to_hex(skill), lrate, tops, ft, acid)
+		return "%s %c:%s,%u,%u,%u,00000000%s"%(stat, cls, float_to_hex(skill), lrate, tops, ft, acid)
 	else:
-		return "%s %c:%u,%u,%u,%u,%s"%(stat, cls, skill, lrate, tops, ft, acid)
+		return "%s %c:%u,%u,%u,%u,00000000%s"%(stat, cls, skill, lrate, tops, ft, acid)
 
 windows = '--windows' in sys.argv
 

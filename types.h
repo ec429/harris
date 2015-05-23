@@ -41,6 +41,7 @@ typedef struct
 harris_time;
 
 typedef uint32_t acid; // a/c ID
+typedef uint64_t cmid; // crewman ID
 
 typedef struct
 {
@@ -281,7 +282,7 @@ raid;
 
 typedef struct
 {
-	acid id;
+	cmid id;
 	enum cclass class;
 	enum cstatus status;
 	double skill;

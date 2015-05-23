@@ -178,6 +178,30 @@ int gacid(const char from[8], acid *buf)
 	return(0);
 }
 
+void pcmid(cmid id, char buf[17])
+{
+	for(size_t i=0;i<16;i++)
+		buf[i]=hex[(id>>(i<<2))&0xf];
+	buf[16]=0;
+}
+
+int gcmid(const char from[16], cmid *buf)
+{
+	if(!buf) return(1);
+	*buf=0;
+	unsigned int val;
+	char fbuf[2]={0, 0};
+	for(size_t i=0;i<16;i++)
+	{
+		if(!from[i]) break; // Allow short strings.  It's fine because we're little endian
+		if(!isxdigit(from[i])) return(1);
+		fbuf[0]=from[i];
+		sscanf(fbuf, "%x", &val);
+		*buf|=((uint64_t)val)<<(i<<2);
+	}
+	return(0);
+}
+
 #ifdef WINDOWS /* doesn't have strndup, we need to implement one */
 char *strndup(const char *s, size_t size)
 {
