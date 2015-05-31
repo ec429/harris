@@ -199,9 +199,10 @@ def crew_parse(text):
 			'text':rest,
 			'data':parsers.get(etyp, lambda x: {})(rest)}
 
-parsers = {'A':ac_parse, 'I':init_parse, 'M':misc_parse, 'T':targ_parse, 'C':crew_parse};
-
-def raw_parse(line):
+def raw_parse(line, crew_hist=False):
+	parsers = {'A':ac_parse, 'I':init_parse, 'M':misc_parse, 'T':targ_parse};
+	if crew_hist:
+		parsers['C'] = crew_parse
 	sdate, time, ec, data = line.split(' ', 3)
 	odate = date.parse(sdate)
 	hour, minute = time.split(':', 1)

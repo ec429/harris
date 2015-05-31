@@ -26,9 +26,10 @@ def readfloat(text):
 class Save(object):
 	def __init__(self): pass
 	@classmethod
-	def parse(cls, f, read_init=True, check_integrity=False):
+	def parse(cls, f, read_init=True, check_integrity=False, crew_hist=False):
 		self = cls()
 		self.read_init = read_init
+		self.crew_hist = crew_hist
 		self.dclasses = None
 		self.difficulty = {}
 		stage = None
@@ -270,7 +271,7 @@ class Save(object):
 		self.messages[-1] += rest
 		return False
 	def History(self, tag, rest):
-		hist = hhist.raw_parse(rest)
+		hist = hhist.raw_parse(rest, crew_hist=self.crew_hist)
 		if self.read_init:
 			if hist['class'] == 'I':
 				if hist['data']['event'] == 'INIT':
