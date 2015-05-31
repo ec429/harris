@@ -230,6 +230,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					state->crews[i].status=CSTATUS_INSTRUC;
 					st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 					state->crews[i].tour_ops=0;
+					state->crews[i].full_tours++;
 					int j=state->crews[i].assignment;
 					if(j>=0)
 					{
