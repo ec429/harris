@@ -1300,7 +1300,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							{
 								if(c.e==GB_btpic[i])
 								{
-									double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.6;
+									double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
 									if(types[i].range<dist)
 										fprintf(stderr, "insufficient range: %u<%g\n", types[i].range, dist);
 									else
