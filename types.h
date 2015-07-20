@@ -101,7 +101,8 @@ typedef struct
 	unsigned int cost;
 	unsigned int speed;
 	unsigned int alt;
-	unsigned int cap;
+	unsigned int capwt;
+	unsigned int capbulk;
 	unsigned int svp;
 	unsigned int defn;
 	unsigned int fail;
@@ -113,7 +114,7 @@ typedef struct
 	enum cclass crew[MAX_CREW];
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
-	bool noarm, pff, heavy, inc, broughton, extra;
+	bool noarm, pff, heavy, inc, broughton, extra, ovltank;
 	bool crewbg, crewwg;
 	unsigned int blat, blon;
 	SDL_Surface *picture, *side_image;
@@ -131,6 +132,45 @@ typedef struct
 bombertype;
 
 #define fuelcap(t)	types[t].range*180.0/(double)(types[t].speed)
+
+typedef enum
+{
+	BSTAT_COST,
+	BSTAT_SPEED,
+	BSTAT_ALT,
+	BSTAT_CAPWT,
+	BSTAT_SVP,
+	BSTAT_DEFN,
+	BSTAT_FAIL,
+	BSTAT_ACCU,
+	BSTAT_RANGE,
+	BSTAT__NUMERIC=BSTAT_RANGE,
+	BSTAT_CREW,
+	BSTAT_FLAGS
+}
+bstat;
+
+typedef enum
+{
+	BFLAG_OVLTANK,
+}
+bflag;
+
+typedef struct
+{
+	// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
+	unsigned int bt;
+	bstat s;
+	union
+	{
+		unsigned int i;
+		bflag f;
+		enum cclass crew[MAX_CREW];
+	}
+	v;
+	date d;
+}
+bmod;
 
 typedef struct
 {
@@ -246,7 +286,7 @@ ac_bomber;
 
 #define loadweight(b)	((b).b_hc+(b).b_gp+(b).b_in+(b).b_ti+(b).b_le/20)
 #define loadbulk(b)	((b).b_hc+(b).b_gp+(b).b_in*1.5+(b).b_ti*2+(b).b_le/3)
-#define loadness(b)	((((b).bombed?0:loadweight(b))/(double)(types[(b).type].cap)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
+#define loadness(b)	((((b).bombed?0:loadweight(b))/(double)(types[(b).type].capwt)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
 
 typedef struct
 {

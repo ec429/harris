@@ -463,7 +463,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					dist+=d;
 					if(l<4) outward+=d;
 				}
-				unsigned int cap=types[type].cap;
+				unsigned int cap=types[type].capwt;
 				state->bombers[k].bombed=false;
 				state->bombers[k].crashed=false;
 				state->bombers[k].landed=false;
@@ -525,12 +525,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				state->bombers[k].b_in=0;
 				state->bombers[k].b_ti=0;
 				state->bombers[k].b_le=0;
-				unsigned int bulk=types[type].cap;
+				unsigned int bulk=types[type].capbulk;
 				bool inext=true;
 				switch(targs[i].class)
 				{
 					case TCLASS_LEAFLET:
-						state->bombers[k].b_le=min(types[type].cap*3, cap*20);
+						state->bombers[k].b_le=min(bulk*3, cap*20);
 					break;
 					case TCLASS_CITY:
 						switch(state->bombers[k].pff?state->raids[i].pffloads[type]:state->raids[i].loads[type])
@@ -539,7 +539,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(cap>=4000) // cookie + gp+in mix
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
-									while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+									while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
 									{
 										if(inext)
 											transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
@@ -550,7 +550,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 								else // can't take a cookie, so just gp+in mix (but more gp than BL_USUAL)
 								{
-									while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+									while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
 									{
 										if(inext)
 											transfer(min(bulk/1.5, 300), cap, state->bombers[k].b_in);
@@ -561,15 +561,15 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 							break;
 							case BL_USUAL:
-								if(types[type].load[BL_PLUMDUFF]&&types[type].cap>=10000&&cap>4000) // cookie + incendiaries
+								if(types[type].load[BL_PLUMDUFF]&&types[type].capwt>=10000&&cap>4000) // cookie + incendiaries
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
-									bulk=types[type].cap-loadbulk(state->bombers[k]);
+									bulk=types[type].capbulk-loadbulk(state->bombers[k]);
 									state->bombers[k].b_in=min(cap, bulk/1.5);
 								}
 								else // gp+in mix
 								{
-									while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+									while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
 									{
 										if(inext)
 											transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
@@ -590,7 +590,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 								// else fallthrough to BL_ILLUM
 							case BL_ILLUM:
-								while(cap&&(bulk=types[type].cap-loadbulk(state->bombers[k])))
+								while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
 								{
 									if(inext)
 										transfer(min(bulk/2.0, 250), cap, state->bombers[k].b_ti);
@@ -600,7 +600,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 							break;
 							case BL_PPLUS: // LanX, up to 12,000lb cookie; LanI, up to 8,000lb cookie
-								transfer(min(types[type].cap/5333, cap/4000)*4000, cap, state->bombers[k].b_hc);
+								transfer(min(types[type].capwt/5333, cap/4000)*4000, cap, state->bombers[k].b_hc);
 								state->bombers[k].b_gp=cap;
 							break;
 							case BL_PONLY:
@@ -969,11 +969,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							if(brandp(state->flk[i]*flakscale/min((9+targs[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
-								if(brandp(types[type].defn/400.0))
+								if(brandp(types[type].defn/800.0))
 									ddmg=100;
 								else
 								{
-									ddmg=irandu(types[type].defn)/2.5;
+									ddmg=irandu(types[type].defn)/5.0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
 										if(types[type].crew[l]==CCLASS_E)
@@ -995,7 +995,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						if((x>=0)&&(y>=0)&&(x<128)&&(y<128))
 							water=lorw[x][y];
 						if(dd<(water?8*8:30*30))
-							targs[i].threat+=sqrt(targs[i].prod*types[type].cap/5000/(6.0+max(dd, 0.25)));
+							targs[i].threat+=sqrt(targs[i].prod*types[type].capbulk/5000/(6.0+max(dd, 0.25)));
 					}
 					for(unsigned int i=0;i<nflaks;i++)
 					{
@@ -1012,11 +1012,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							if(brandp(flaks[i].strength*flakscale/min((12+flaks[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
-								if(brandp(types[type].defn/500.0))
+								if(brandp(types[type].defn/1000.0))
 									ddmg=100;
 								else
 								{
-									ddmg=irandu(types[type].defn)/5.0;
+									ddmg=irandu(types[type].defn)/10.0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
 										if(types[type].crew[l]==CCLASS_E)
@@ -1178,7 +1178,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						if(0<=boxx&&boxx<16&&0<=boxy&&boxy<16)
 						{
 							unsigned int type=state->bombers[k].type;
-							unsigned int size=types[type].cap/1000; // how big a signal on Freya ground radar
+							unsigned int size=types[type].capbulk/1000; // how big a signal on Freya ground radar
 							// TODO: extra WINDOW (will need UI support in raid planning)
 							size*=irandu(3);
 							boxes[boxx][boxy]+=size;
@@ -1347,7 +1347,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						{
 							if(brandp(ftypes[ft].mnv*(2.7+loadness(state->bombers[k]))/(200.0+pskill+mlskill*3)))
 							{
-								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/15.0;
+								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/30.0;
 								double sdc=0;
 								// Damage control; also E practise (even if dmg==0)
 								for(unsigned int l=1;l<MAX_CREW;l++)
@@ -1379,7 +1379,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							double rgskill=0;
 							if(ng)
 								rgskill=gskill[irandu(ng)];
-							if(!types[bt].noarm&&(brandp(rgskill*0.004/types[bt].defn)))
+							if(!types[bt].noarm&&(brandp(rgskill*0.002/types[bt].defn)))
 							{
 								unsigned int dmg=irandu(20);
 								state->fighters[j].damage+=dmg;

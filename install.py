@@ -162,6 +162,7 @@ manifest = {
 				'ftrbases',
 				'intel',
 				'locations',
+				'mods',
 				'starts',
 				'targets',
 				'texts',

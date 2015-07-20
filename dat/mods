@@ -1,0 +1,53 @@
+# Format: dsv
+# DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
+# Description is not used in-game
+# ACNAME should match NAME from dat/bombers
+# Stat is one of cost, speed, alt, capwt, (capbulk), svp, defn, fail, accu, range, crew, (loads), flags
+#   (bracketed stats are not currently supported)
+# old is ignored by game
+# new is the new value of the stat (or, for flags, the flag to set)
+
+# Description            A/c name    stat    old     new   DD-MM-YYYY
+Self-sealing tank       :Whitley    :defn :     32:     30:06-02-1940
+Self-sealing tank       :Wellington :defn :     15:     14:29-02-1940
+Self-sealing tank       :Hampden    :defn :     24:     23:21-03-1940
+Self-sealing tank       :Blenheim   :defn :     28:     26:04-05-1940
+Electric bomb release   :Whitley    :accu :     32:     34:10-08-1940
+Crew rationalisation    :Stirling   :crew :PPNEWGG:PNBEWGG:18-04-1941
+Crew rationalisation    :Manchester :crew :PPNBWGG:PNBEWGG:22-04-1941
+Broughton shadow factory:Wellington :cost :  12000:   8000:30-07-1941
+Remove beam guns        :Halifax I  :speed:    225:    227:09-09-1941
+Remove beam guns        :Halifax I  :alt  :    200:    202:09-09-1941
+Engine derating         :Manchester :fail :     16:     14:14-09-1941
+Engine derating         :Manchester :speed:    210:    206:14-09-1941
+Engine derating         :Manchester :capwt:  10350:   9000:14-09-1941
+Engine derating         :Manchester :svp  :     64:     66:14-09-1941
+Exactor priming         :Stirling   :svp  :     40:     45:21-10-1941
+Exhaust shrouds         :Halifax I  :defn :     22:     20:02-12-1941
+Exhaust shrouds         :Halifax I  :fail :      6:      8:02-12-1941
+Exhaust shrouds         :Halifax I  :speed:    227:    216:02-12-1941
+Exhaust shrouds         :Halifax I  :alt  :    202:    184:02-12-1941
+Exhaust shrouds         :Halifax I  :range:    335:    320:02-12-1941
+Bulbous rudder          :Halifax I  :defn :     20:     16:15-01-1942
+Remove exhaust shrouds  :Halifax I  :defn :     16:     18:12-03-1942
+Remove exhaust shrouds  :Halifax I  :fail :      8:      6:12-03-1942
+Remove exhaust shrouds  :Halifax I  :speed:    216:    227:12-03-1942
+Remove exhaust shrouds  :Halifax I  :alt  :    184:    202:12-03-1942
+Remove exhaust shrouds  :Halifax I  :range:    320:    335:12-03-1942
+Type XIV Bomb Sight     :Lancaster I:accu :     60:     72:19-04-1942
+Overload tanks          :Halifax I  :flags:       :OVLTANK:09-05-1942
+Type XIV Bomb Sight     :Halifax I  :accu :     62:     68:27-06-1942
+Remove nose turret      :Halifax I  :speed:    227:    230:21-08-1942
+Remove nose turret      :Halifax I  :range:    335:    340:21-08-1942
+Remove nose turret      :Halifax I  :crew :PNWEGGG:PNBWEGG:21-08-1942
+Type XIV Bomb Sight     :Stirling   :accu :     50:     56:07-11-1942
+T-1 Bomb Sight          :Wellington :accu :     40:     52:13-03-1943
+#Bulged Bomb Bay         :Mosquito   :capwt:   2000:   4000:03-04-1943
+#Bulged Bomb Bay         :Mosquito   :capbulk: 2000:   4000:03-04-1943
+#Bulged Bomb Bay         :Mosquito   :loads:Ab,Il:Ab,Il,Po,Hh:03-04-1943
+Two-stage Merlin        :Mosquito   :alt  :    300:    320:22-07-1943
+Two-stage Merlin        :Mosquito   :range:    390:    400:22-07-1943
+Two-stage Merlin        :Mosquito   :speed:    325:    340:22-07-1943
+Paddleblade prop        :Lancaster I:speed:    232:    236:01-11-1943
+Paddleblade prop        :Lancaster I:alt  :    225:    230:01-11-1943
+Gransden Lodge          :Lancaster I:defn :     12:     11:18-02-1944

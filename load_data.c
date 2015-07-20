@@ -28,6 +28,50 @@
 #define zn	"%zn"
 #endif
 
+int parse_crew(const char *src, enum cclass dst[MAX_CREW])
+{
+	const char *in=src;
+	unsigned int ci=0;
+	while(true)
+	{
+		char c=*in++;
+		if(c==':') break;
+		if(isspace(c)) continue;
+		if(!c) break;
+		if(ci<MAX_CREW)
+		{
+			for(unsigned int cp=0;cp<CREW_CLASSES;cp++)
+				if(c==cclasses[cp].letter)
+				{
+					if(!ci&&cp!=CCLASS_P) // game assumes first crewman is always P
+					{
+						fprintf(stderr, "Malformed crewspec `%s'\n", src);
+						fprintf(stderr, "  first CREW member `%c' not `P'\n", c);
+						return(1);
+					}
+					dst[ci++]=cp;
+					c=0;
+					break;
+				}
+			if(c)
+			{
+				fprintf(stderr, "Malformed crewspec `%s'\n", src);
+				fprintf(stderr, "  bad CREW member `%c'\n", c);
+				return(1);
+			}
+		}
+		else
+		{
+			fprintf(stderr, "Malformed crewspec `%s'\n", src);
+			fprintf(stderr, "  too many CREW\n");
+			return(1);
+		}
+	}
+	while(ci<MAX_CREW)
+		dst[ci++]=CCLASS_NONE;
+	return(0);
+}
+
 int load_bombers(void)
 {
 	FILE *typefp=fopen("dat/bombers", "r");
@@ -51,12 +95,13 @@ int load_bombers(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.cost, &this.speed, &this.alt, &this.cap, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=13)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.cost, &this.speed, &this.alt, &this.capwt, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=13)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
 					return(1);
 				}
+				this.capbulk=this.capwt;
 				size_t nlen=strlen(this.name)+1;
 				this.name=realloc(this.name, nlen);
 				this.entry=readdate(next+db, (date){0, 0, 0});
@@ -83,49 +128,12 @@ int load_bombers(void)
 					fprintf(stderr, "  missing :CREW\n");
 					return(1);
 				}
-				unsigned int ci=0;
-				while(true)
+				if(parse_crew(++crew, this.crew))
 				{
-					char c=*++crew;
-					if(c==':') break;
-					if(isspace(c)) continue;
-					if(!c)
-					{
-						crew=NULL;
-						break;
-					}
-					if(ci<MAX_CREW)
-					{
-						for(unsigned int cp=0;cp<CREW_CLASSES;cp++)
-							if(c==cclasses[cp].letter)
-							{
-								if(!ci&&cp!=CCLASS_P) // game assumes first crewman is always P
-								{
-									fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-									fprintf(stderr, "  first CREW member `%c' not `P'\n", c);
-									return(1);
-								}
-								this.crew[ci++]=cp;
-								c=0;
-								break;
-							}
-						if(c)
-						{
-							fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-							fprintf(stderr, "  bad CREW member `%c'\n", c);
-							return(1);
-						}
-					}
-					else
-					{
-						fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-						fprintf(stderr, "  too many CREW\n");
-						return(1);
-					}
+					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+					return(1);
 				}
-				while(ci<MAX_CREW)
-					this.crew[ci++]=CCLASS_NONE;
-				const char *nav=crew;
+				const char *nav=strchr(crew, ':');
 				if(!nav)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
@@ -204,6 +212,7 @@ int load_bombers(void)
 			}
 			next=strtok(NULL, "\n");
 		}
+		rawtypes=(bombertype *)malloc(ntypes*sizeof(bombertype));
 		free(typefile);
 		for(unsigned int i=0;i<ntypes;i++)
 		{
@@ -212,8 +221,152 @@ int load_bombers(void)
 				fprintf(stderr, "create_priority_selector failed (i=%u)\n", i);
 				return(1);
 			}
+			rawtypes[i]=types[i];
 		}
 		fprintf(stderr, "Loaded %u bomber types\n", ntypes);
+	}
+	return(0);
+}
+
+int load_mods(void)
+{
+	FILE *modfp=fopen("dat/mods", "r");
+	if(!modfp)
+	{
+		fprintf(stderr, "Failed to open data file `mods'!\n");
+		return(1);
+	}
+	else
+	{
+		char *modfile=slurp(modfp);
+		fclose(modfp);
+		char *next=modfile?strtok(modfile, "\n"):NULL;
+		while(next)
+		{
+			if(*next&&(*next!='#'))
+			{
+				bmod this;
+				// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
+				char *colon=strchr(next, ':');
+				if(!colon)
+				{
+					fprintf(stderr, "Missing : in `mods' line %s\n", next);
+					return(1);
+				}
+				char *acname=++colon;
+				colon=strchr(colon, ':');
+				if(!colon)
+				{
+					fprintf(stderr, "Missing : in `mods' line %s\n", next);
+					return(1);
+				}
+				char *space=colon;
+				*colon++=0;
+				while(space>acname && space[-1]==' ')
+					*--space=0;
+				for(this.bt=0;this.bt<ntypes;this.bt++)
+					if(!strcmp(acname, types[this.bt].name))
+						break;
+				if(this.bt>=ntypes)
+				{
+					fprintf(stderr, "No such bomber named %s\n", acname);
+					return(1);
+				}
+				char *statname=colon;
+				colon=strchr(colon, ':');
+				if(!colon)
+				{
+					fprintf(stderr, "Missing : in `mods' line %s:%s:%s\n", next, acname, statname);
+					return(1);
+				}
+				space=colon;
+				*colon++=0;
+				while(space>acname && space[-1]==' ')
+					*--space=0;
+				if(!strcmp(statname, "cost"))
+					this.s=BSTAT_COST;
+				else if(!strcmp(statname, "speed"))
+					this.s=BSTAT_SPEED;
+				else if(!strcmp(statname, "alt"))
+					this.s=BSTAT_ALT;
+				else if(!strcmp(statname, "capwt"))
+					this.s=BSTAT_CAPWT;
+				else if(!strcmp(statname, "svp"))
+					this.s=BSTAT_SVP;
+				else if(!strcmp(statname, "defn"))
+					this.s=BSTAT_DEFN;
+				else if(!strcmp(statname, "fail"))
+					this.s=BSTAT_FAIL;
+				else if(!strcmp(statname, "accu"))
+					this.s=BSTAT_ACCU;
+				else if(!strcmp(statname, "range"))
+					this.s=BSTAT_RANGE;
+				else if(!strcmp(statname, "crew"))
+					this.s=BSTAT_CREW;
+				else if(!strcmp(statname, "flags"))
+					this.s=BSTAT_FLAGS;
+				else
+				{
+					fprintf(stderr, "No such statname %s\n", statname);
+					return(1);
+				}
+				colon=strchr(colon, ':');
+				if(!colon)
+				{
+					fprintf(stderr, "Missing : in `mods' line %s:%s:%s\n", next, acname, statname);
+					return(1);
+				}
+				*colon++=0;
+				char *newval=colon;
+				colon=strchr(colon, ':');
+				if(!colon)
+				{
+					fprintf(stderr, "Missing : in `mods' line %s:%s:%s\n", next, acname, statname);
+					return(1);
+				}
+				*colon++=0;
+				if(this.s<=BSTAT__NUMERIC)
+				{
+					if(sscanf(newval, "%u", &this.v.i)!=1)
+					{
+						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
+						return(1);
+					}
+				}
+				else if(this.s==BSTAT_CREW)
+				{
+					if(parse_crew(newval, this.v.crew))
+					{
+						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
+						return(1);
+					}
+				}
+				else if(this.s==BSTAT_FLAGS)
+				{
+					if(!strncmp(newval, "OVLTANK", 7))
+					{
+						this.v.f=BFLAG_OVLTANK;
+					}
+					else
+					{
+						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
+						return(1);
+					}
+				}
+				else // can't happen
+				{
+					fprintf(stderr, "Unhandled stat %s\n", statname);
+					return(1);
+				}
+				this.d=readdate(colon, (date){9999, 99, 99});
+				mods=(bmod *)realloc(mods, (nmods+1)*sizeof(bmod));
+				mods[nmods]=this;
+				nmods++;
+			}
+			next=strtok(NULL, "\n");
+		}
+		free(modfile);
+		fprintf(stderr, "Loaded %u bomber mods\n", nmods);
 	}
 	return(0);
 }

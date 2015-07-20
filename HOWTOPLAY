@@ -22,8 +22,6 @@ Contents
 * Bombloads
 * Budget
 * Reference
- - Bomber types
- - General
 * Tutorial
 
 Object of the game
@@ -128,31 +126,7 @@ The budget is also increased by £2/day for each percentage point of Confidence,
 
 Reference
 ~~~~~~~~~
-Bomber types
-------------
-Manufacturer & Type           Cost Speed  Ceiling Payload Sv De Fa Ac Range Available  Obsolete
- Bristol Blenheim            £5000 198mph 20500ft  1200lb 55 14  6 60 190   From start 10-01-1941
- Armstrong-Whitworth Whitley £8000 165mph 17600ft  7000lb 70 16  9 32 320   From start 18-06-1941
- Handley Page Hampden       £10000 202mph 19000ft  4000lb 65 12  8 48 265   From start 02-11-1941
- Vickers Wellington         £12000 190mph 18000ft  4500lb 85  7  2 40 311   From start 21-10-1943
- Avro Manchester            £20000 210mph 18500ft 10350lb 64 12 16 55 325   05-11-1940 26-06-1942
- Supermarine Southampton    £33000 230mph 22000ft 16000lb 64 11  6 50 265   25-12-1940 17-11-1943 [X]
- Short Stirling             £25000 200mph 17500ft 14000lb 40  9  7 50 280   16-01-1941 08-07-1943
- Armstrong-Whitworth Elswick£10000 186mph 20200ft  7500lb 65 15 10 40 330   13-02-1941 03-02-1943 [X]
- Handley Page Halifax I     £28000 225mph 20000ft 13000lb 80 11  6 68 335   14-05-1941 31-03-1944
- Avro Lancaster I           £40000 232mph 22500ft 14000lb 70  6  4 72 350   07-02-1942   Never
- de Havilland Mosquito      £15000 340mph 30000ft  4000lb 80  2  4 64 400   12-08-1942   Never
- Handley Page Halifax III   £30000 230mph 22000ft 13500lb 90  7  5 70 345   30-04-1943   Never
- Vickers Windsor            £50000 260mph 27000ft 15000lb 80  4  5 70 365   26-06-1943   Never    [X]
- Short Selkirk              £36000 210mph 18500ft 18000lb 72  9  6 58 300   13-08-1943 02-02-1945 [X]
- Avro Lancaster X           £45000 240mph 24000ft 16000lb 80  5  3 75 360   13-02-1944   Never
-Column index: "Sv" is serviceability, "De" is defence (bigger = more likely to be shot down), "Fa" is failure (bigger = more likely to turn back with mechanical trouble), "Ac" is accuracy (bigger = better navigation and bombing), "Range" is measured in map pixels which are about 3 miles.  "Ceiling" is only important for navaid range.
-[X] marks "alternate-history" bombers — cancelled projects, lost prototypes, etc. — which are only included in the game if they have been selected on the "Set Up New Game - Aircraft Types Selection" screen.
-Note also that the Wellington's cost falls to £8000 after the event 'BROUGHTON'.
-The authoritative version of this information is the file "dat/bombers".
 
-General
--------
 The data files which specify various objects in Harris all live in the folder "dat", and all have a simple 'colon-separated values' format.  The details of each column are given in comments (lines beginning with '#').
 The files are:
  dat/bombers  - details of bomber types (stats, dates)
@@ -160,6 +134,7 @@ The files are:
  dat/fighters - details of fighter types (stats, dates)
  dat/flak     - details of flak sites (location, strength, dates, etc.)
  dat/ftrbases - details of fighter bases (location, dates)
+ dat/mods     - changes to bomber stats at various points in time
  dat/targets  - details of targets (location, dates, target class, size, etc.)
  dat/texts    - text content of messages to display on events, new a/c types, etc.
 Note that changes to most of these files will break save-compatibility if the number of records is changed.

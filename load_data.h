@@ -8,6 +8,7 @@
 */
 
 int load_bombers(void); // -> types
+int load_mods(void); // -> mods
 int load_fighters(void); // -> ftypes
 int load_ftrbases(void); // -> fbases
 int load_locations(void); // -> locs

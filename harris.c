@@ -83,6 +83,9 @@ struct screen screens[NUM_SCREENS];
 
 unsigned int ntypes=0;
 bombertype *types=NULL;
+bombertype *rawtypes=NULL;
+unsigned int nmods=0;
+bmod *mods=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
 unsigned int nfbases=0;
@@ -187,6 +190,11 @@ int main(int argc, char *argv[])
 		SDL_WM_SetIcon(icon, NULL);
 
 	if((rc=load_bombers()))
+	{
+		fprintf(stderr, "Failed to load bombers, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_mods()))
 	{
 		fprintf(stderr, "Failed to load bombers, rc=%d\n", rc);
 		return(rc);

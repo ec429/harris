@@ -1205,7 +1205,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						SDL_BlitSurface(types[i].picture, NULL, pic, NULL);
 						if(seltarg>=0)
 						{
-							double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.6;
+							double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
 							if(types[i].range<dist)
 								SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
 						}
@@ -1747,7 +1747,7 @@ int update_raidnums(const game *state, int seltarg)
 			}
 			else
 			{
-				unsigned int cap=types[i].cap;
+				unsigned int cap=types[i].capwt;
 				double dist;
 				if(stream)
 				{
