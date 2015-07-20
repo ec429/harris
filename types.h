@@ -114,7 +114,7 @@ typedef struct
 	enum cclass crew[MAX_CREW];
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
-	bool noarm, pff, heavy, inc, broughton, extra, ovltank;
+	bool noarm, pff, heavy, inc, extra, ovltank;
 	bool crewbg, crewwg;
 	unsigned int blat, blon;
 	SDL_Surface *picture, *side_image;
@@ -159,6 +159,7 @@ bflag;
 typedef struct
 {
 	// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
+	char *desc;
 	unsigned int bt;
 	bstat s;
 	union

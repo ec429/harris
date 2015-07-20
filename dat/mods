@@ -1,11 +1,15 @@
 # Format: dsv
 # DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
-# Description is not used in-game
+# Description is not used in-game (except in debugging messages)
 # ACNAME should match NAME from dat/bombers
 # Stat is one of cost, speed, alt, capwt, (capbulk), svp, defn, fail, accu, range, crew, (loads), flags
 #   (bracketed stats are not currently supported)
 # old is ignored by game
 # new is the new value of the stat (or, for flags, the flag to set)
+
+# WARNING: mods which touch the same stat on the same type MUST be in date order!
+#  (The game does not check for this!)
+# So please keep this whole file in date order.
 
 # Description            A/c name    stat    old     new   DD-MM-YYYY
 Self-sealing tank       :Whitley    :defn :     32:     30:06-02-1940

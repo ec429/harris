@@ -488,8 +488,6 @@ void update_intel_bombers(const game *state)
 		}
 		int val=*(unsigned int *)((char *)&types[IB_i]+b_stat_rows[i].v_off);
 		val=(val+b_stat_rows[i].v_shift)*b_stat_rows[i].v_scale;
-		if(i==STAT_COST&&types[IB_i].broughton&&!datebefore(state->now, event[EVENT_BROUGHTON]))
-			val=(val*2)/3;
 		atg_element *s_name=atg_create_element_label(b_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 		if(s_name)
 		{

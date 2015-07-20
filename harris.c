@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 	}
 	if((rc=load_mods()))
 	{
-		fprintf(stderr, "Failed to load bombers, rc=%d\n", rc);
+		fprintf(stderr, "Failed to load mods, rc=%d\n", rc);
 		return(rc);
 	}
 	if((rc=load_fighters()))

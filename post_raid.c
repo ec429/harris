@@ -15,6 +15,7 @@
 #include "bits.h"
 #include "date.h"
 #include "history.h"
+#include "mods.h"
 #include "rand.h"
 #include "control.h"
 
@@ -69,6 +70,16 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	state->cshr*=.96;
 	state->cash+=state->cshr;
 	ca_append(&state->hist, state->now, (harris_time){11, 20}, state->cshr, state->cash);
+	// Apply any mods
+	for(unsigned int m=0;m<nmods;m++)
+		if(!diffdate(tomorrow, mods[m].d))
+		{
+			unsigned int bt=mods[m].bt;
+			if(apply_mod(m))
+				fprintf(stderr, "Failed to apply mod `%s' to %s %s\n", mods[m].desc, types[bt].manu, types[bt].name);
+			else
+				fprintf(stderr, "Applied mod `%s' to %s %s\n", mods[m].desc, types[bt].manu, types[bt].name);
+		}
 	// Update bomber prodn caps
 	for(unsigned int i=0;i<ntypes;i++)
 	{
@@ -126,8 +137,6 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		if(!state->btypes[m]) // is possible, if m==0
 			break;
 		unsigned int cost=types[m].cost;
-		if(types[m].broughton&&!datebefore(state->now, event[EVENT_BROUGHTON]))
-			cost=(cost*2)/3;
 		if(cost>state->cash) break;
 		if(cost>types[m].pcbuf) break;
 		unsigned int n=state->nbombers++;

@@ -147,7 +147,6 @@ int load_bombers(void)
 				this.pff=strstr(nav, "PFF");
 				this.heavy=strstr(nav, "HEAVY");
 				this.inc=strstr(nav, "INC");
-				this.broughton=strstr(nav, "BROUGHTON");
 				this.extra=strstr(nav, "EXTRA");
 				this.crewwg=strstr(nav, "CREWWG");
 				this.crewbg=strstr(nav, "CREWBG");
@@ -253,7 +252,9 @@ int load_mods(void)
 					fprintf(stderr, "Missing : in `mods' line %s\n", next);
 					return(1);
 				}
-				char *acname=++colon;
+				*colon++=0;
+				this.desc=strdup(next);
+				char *acname=colon;
 				colon=strchr(colon, ':');
 				if(!colon)
 				{

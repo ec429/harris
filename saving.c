@@ -15,6 +15,7 @@
 #include "date.h"
 #include "globals.h"
 #include "history.h"
+#include "mods.h"
 #include "rand.h"
 #include "version.h"
 
@@ -749,6 +750,11 @@ int loadgame(const char *fn, game *state)
 	filter_student=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		filter_nav[n]=0;
+	for(unsigned int i=0;i<ntypes;i++)
+		types[i]=rawtypes[i];
+	for(unsigned int m=0;m<nmods;m++)
+		if(!datebefore(state->now, mods[m].d))
+			apply_mod(m);
 	return(0);
 }
 
