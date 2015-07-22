@@ -985,13 +985,13 @@ int load_texts(void)
 						item+=4;
 					}
 					for(i=0;i<ntypes;i++)
-						if(!strcmp(types[i].name, item)) break;
+						if(!strcmp(rawtypes[i].name, item)) break;
 					if(i<ntypes)
 					{
 						if(new)
-							types[i].newtext=strdup(next);
+							rawtypes[i].newtext=strdup(next);
 						else
-							types[i].text=strdup(next);
+							rawtypes[i].text=strdup(next);
 					}
 					else
 					{

@@ -256,7 +256,7 @@ int control_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		GB_btint[i]=atg_create_element_image(types[i].text?intelbtn:nointelbtn);
+		GB_btint[i]=atg_create_element_image(rawtypes[i].text?intelbtn:nointelbtn);
 		if(!GB_btint[i])
 		{
 			fprintf(stderr, "atg_create_element_image failed\n");

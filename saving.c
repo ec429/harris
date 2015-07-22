@@ -208,10 +208,10 @@ int loadgame(const char *fn, game *state)
 							e|=4;
 							break;
 						}
-						types[j].prio=prio;
-						types[j].pribuf=pribuf;
-						types[j].pc=pc;
-						types[j].pcbuf=pcbuf;
+						rawtypes[j].prio=prio;
+						rawtypes[j].pribuf=pribuf;
+						rawtypes[j].pc=pc;
+						rawtypes[j].pcbuf=pcbuf;
 						state->btypes[j]=true;
 					}
 				}
