@@ -32,7 +32,7 @@ atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
-atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel, *GB_hcrews, *GB_diff;
+atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
@@ -46,7 +46,7 @@ bool ensure_crewed(game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 int update_raidnums(const game *state, int seltarg);
 
-enum cclass shortof=CCLASS_NONE;
+bool shortof[CREW_CLASSES];
 
 int control_create(void)
 {
@@ -465,6 +465,58 @@ int control_create(void)
 	{
 		perror("atg_ebox_pack");
 		return(1);
+	}
+	atg_element *csbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!csbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	csbox->w=159;
+	if(atg_ebox_pack(GB_bt, csbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *csshim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!csshim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	csshim->w=4;
+	if(atg_ebox_pack(csbox, csshim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *cslbl=atg_create_element_label("Crew req.: ", 12, (atg_colour){191, 127, 127, ATG_ALPHA_OPAQUE});
+	if(!cslbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	cslbl->w=155-10*CREW_CLASSES;
+	if(atg_ebox_pack(csbox, cslbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int c=0;c<CREW_CLASSES;c++)
+	{
+		char text[2]={cclasses[c].letter, 0};
+		GB_cshort[c]=atg_create_element_label(text, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+		if(!GB_cshort[c])
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		GB_cshort[c]->w=10;
+		if(atg_ebox_pack(csbox, GB_cshort[c]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	GB_diff=atg_create_element_button("Show Difficulty", (atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 31, ATG_ALPHA_OPAQUE});
 	if(!GB_diff)
@@ -1173,6 +1225,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	bool rfsh=true;
 	while(1)
 	{
+		for(unsigned int c=0;c<CREW_CLASSES;c++)
+		{
+			atg_label *l=(atg_label *)GB_cshort[c]->elemdata;
+			l->colour=shortof[c]?(atg_colour){231, 95, 95, ATG_ALPHA_OPAQUE}:(atg_colour){15, 31, 15, ATG_ALPHA_OPAQUE};
+		}
 		if(rfsh)
 		{
 			for(unsigned int i=0;i<ntargs;i++)
@@ -1339,7 +1396,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											default:
 												amount=10;
 										}
-										shortof=CCLASS_NONE;
+										memset(shortof, 0, sizeof(shortof));
 										for(unsigned int j=0;j<state->nbombers;j++)
 										{
 											if(state->bombers[j].type!=i) continue;
@@ -1360,8 +1417,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											(state->raids[seltarg].bombers=new)[n]=j;
 											if(!amount) break;
 										}
-										if(amount&&shortof!=CCLASS_NONE) // indicate why we failed to assign
-											fprintf(stderr, "Out of %ss\n", cclasses[shortof].name);
+										if(amount) // indicate why we failed to assign
+											for(unsigned int c=0;c<CREW_CLASSES;c++)
+												if(shortof[c])
+													fprintf(stderr, "Out of %ss\n", cclasses[c].name);
 										if(GB_raidnum[i])
 										{
 											unsigned int count=0;
@@ -1578,6 +1637,8 @@ bool filter_apply(ac_bomber b)
 bool ensure_crewed(game *state, unsigned int i)
 {
 	unsigned int type=state->bombers[i].type;
+	bool ok=true;
+	memset(shortof, 0, sizeof(shortof));
 	for(unsigned int j=0;j<MAX_CREW;j++)
 	{
 		if(types[type].crew[j]==CCLASS_NONE)
@@ -1650,11 +1711,11 @@ bool ensure_crewed(game *state, unsigned int i)
 		if(state->bombers[i].crew[j]<0)
 		{
 			// 3. Give up, and don't allow assigning this bomber to any raid
-			shortof=types[type].crew[j];
-			return(false);
+			shortof[types[type].crew[j]]=true;
+			ok=false;
 		}
 	}
-	return(true);
+	return(ok);
 }
 
 // Relink crew assignments after a bomber is destroyed, obsoleted or otherwise removed from the list
