@@ -73,7 +73,7 @@ load_data.o: globals.h events.h bits.h date.h render.h ui.h widgets.h
 
 main_menu.o: ui.h globals.h events.h saving.h setup_game.h control.h
 
-setup_game.o: ui.h globals.h events.h saving.h intel_bombers.h intel_fighters.h
+setup_game.o: ui.h globals.h events.h saving.h intel_bombers.h intel_fighters.h setup_difficulty.h
 
 setup_difficulty.o: ui.h globals.h events.h
 
@@ -83,7 +83,7 @@ load_game.o: ui.h globals.h events.h saving.h
 
 save_game.o: ui.h globals.h events.h saving.h
 
-control.o: ui.h globals.h events.h widgets.h date.h bits.h history.h render.h routing.h weather.h intel_bombers.h intel_targets.h run_raid.h
+control.o: ui.h globals.h events.h widgets.h date.h bits.h history.h render.h routing.h weather.h intel_bombers.h intel_targets.h run_raid.h setup_difficulty.h
 
 run_raid.o: ui.h globals.h events.h date.h history.h render.h rand.h routing.h weather.h geom.h control.h
 

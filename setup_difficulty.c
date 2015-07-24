@@ -15,8 +15,10 @@
 #include "globals.h"
 
 atg_element *setup_difficulty_box;
-atg_element *SD_full, *SD_exit, *SD_back, *SD_cont;
+atg_element *SD_topbox, *SD_topbox_show;
+atg_element *SD_full, *SD_exit, *SD_back, *SD_cont, *SD_row0;
 atg_element *SD_diff[DIFFICULTY_CLASSES][3];
+bool difficulty_show_only;
 
 #define SD_BG_COLOUR	(atg_colour){31, 31, 47, ATG_ALPHA_OPAQUE}
 
@@ -28,7 +30,7 @@ int setup_difficulty_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	atg_element *SD_topbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, SD_BG_COLOUR);
+	SD_topbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, SD_BG_COLOUR);
 	if(!SD_topbox)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -70,6 +72,28 @@ int setup_difficulty_create(void)
 	}
 	SD_exit->clickable=true;
 	if(atg_ebox_pack(SD_topbox, SD_exit))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	SD_topbox_show=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, SD_BG_COLOUR);
+	if(!SD_topbox_show)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(setup_difficulty_box, SD_topbox_show))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *SD_title_show=atg_create_element_label("Show Difficulty Settings", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
+	if(!SD_title_show)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(SD_topbox_show, SD_title_show))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -136,6 +160,8 @@ int setup_difficulty_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		if(!d)
+			SD_row0=SD_row;
 		atg_element *row_name=atg_create_element_label(dclasses[d].name, 11, (atg_colour){239, 239, 223, ATG_ALPHA_OPAQUE});
 		if(!row_name)
 		{
@@ -219,6 +245,10 @@ screen_id setup_difficulty_screen(atg_canvas *canvas, game *state)
 			mixed_difficulty=true;
 			break;
 		}
+	SD_back->hidden=difficulty_show_only;
+	SD_topbox->hidden=difficulty_show_only;
+	SD_row0->hidden=difficulty_show_only;
+	SD_topbox_show->hidden=!difficulty_show_only;
 	
 	while(1)
 	{
@@ -241,7 +271,7 @@ screen_id setup_difficulty_screen(atg_canvas *canvas, game *state)
 					switch(s.type)
 					{
 						case SDL_QUIT:
-							return(SCRN_MAINMENU);
+							return(difficulty_show_only?SCRN_CONTROL:SCRN_MAINMENU);
 						case SDL_VIDEORESIZE:
 							mainsizex=canvas->surface->w;
 							mainsizey=canvas->surface->h;
@@ -256,7 +286,7 @@ screen_id setup_difficulty_screen(atg_canvas *canvas, game *state)
 						atg_setopts_canvas(canvas, fullscreen?SDL_FULLSCREEN:SDL_RESIZABLE);
 					}
 					else if (c.e==SD_exit)
-						return(SCRN_MAINMENU);
+						return(difficulty_show_only?SCRN_CONTROL:SCRN_MAINMENU);
 					else if(c.e)
 					{
 						fprintf(stderr, "Clicked on unknown clickable!\n");
@@ -264,17 +294,18 @@ screen_id setup_difficulty_screen(atg_canvas *canvas, game *state)
 				break;
 				case ATG_EV_TOGGLE:;
 					atg_ev_toggle toggle=e.event.toggle;
-					for(unsigned int d=0;d<DIFFICULTY_CLASSES;d++)
-						for(unsigned int i=0;i<3;i++)
-							if(toggle.e==SD_diff[d][i])
-							{
-								state->difficulty[d]=i;
-								mixed_difficulty=d;
-								if(!d)
-									for(unsigned int d=1;d<DIFFICULTY_CLASSES;d++)
-										state->difficulty[d]=i;
-								goto toggle_found;
-							}
+					if(!difficulty_show_only)
+						for(unsigned int d=0;d<DIFFICULTY_CLASSES;d++)
+							for(unsigned int i=0;i<3;i++)
+								if(toggle.e==SD_diff[d][i])
+								{
+									state->difficulty[d]=i;
+									mixed_difficulty=d;
+									if(!d)
+										for(unsigned int d=1;d<DIFFICULTY_CLASSES;d++)
+											state->difficulty[d]=i;
+									goto toggle_found;
+								}
 					fprintf(stderr, "Clicked on unknown toggle!\n");
 					toggle_found:
 				break;
@@ -282,9 +313,9 @@ screen_id setup_difficulty_screen(atg_canvas *canvas, game *state)
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e==SD_cont)
 					{
-						return(SCRN_SETPTYPS);
+						return(difficulty_show_only?SCRN_CONTROL:SCRN_SETPTYPS);
 					}
-					else if(trigger.e==SD_back)
+					else if(trigger.e==SD_back&&!difficulty_show_only)
 					{
 						return(SCRN_SETPGAME);
 					}

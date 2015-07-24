@@ -16,6 +16,7 @@
 #include "saving.h"
 #include "intel_bombers.h"
 #include "intel_fighters.h"
+#include "setup_difficulty.h"
 #ifdef WINDOWS
 #include "bits.h" /* for strndup */
 #endif
@@ -683,6 +684,7 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 					{
 						for(unsigned int i=0;i<ntypes;i++)
 							state->btypes[i]=!types[i].extra;
+						difficulty_show_only=false;
 						return(SCRN_SETPDIFF);
 					}
 					else if(!trigger.e)

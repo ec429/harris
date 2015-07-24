@@ -10,3 +10,4 @@
 #include <atg.h>
 
 extern atg_element *setup_difficulty_box;
+extern bool difficulty_show_only;
