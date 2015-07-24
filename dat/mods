@@ -17,8 +17,8 @@ Self-sealing tank       :Wellington :defn :     15:     14:29-02-1940
 Self-sealing tank       :Hampden    :defn :     24:     23:21-03-1940
 Self-sealing tank       :Blenheim   :defn :     28:     26:04-05-1940
 Electric bomb release   :Whitley    :accu :     32:     34:10-08-1940
-Crew rationalisation    :Stirling   :crew :PPNEWGG:PNBEWGG:18-04-1941
-Crew rationalisation    :Manchester :crew :PPNBWGG:PNBEWGG:22-04-1941
+Crew rationalisation    :Stirling   :crew :PPNWEGG:PNBWEGG:18-04-1941
+Crew rationalisation    :Manchester :crew :PPNBWGG:PNBWEGG:22-04-1941
 Broughton shadow factory:Wellington :cost :  12000:   8000:30-07-1941
 Remove beam guns        :Halifax I  :speed:    225:    227:09-09-1941
 Remove beam guns        :Halifax I  :alt  :    200:    202:09-09-1941
