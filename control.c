@@ -1417,10 +1417,6 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											(state->raids[seltarg].bombers=new)[n]=j;
 											if(!amount) break;
 										}
-										if(amount) // indicate why we failed to assign
-											for(unsigned int c=0;c<CREW_CLASSES;c++)
-												if(shortof[c])
-													fprintf(stderr, "Out of %ss\n", cclasses[c].name);
 										if(GB_raidnum[i])
 										{
 											unsigned int count=0;
