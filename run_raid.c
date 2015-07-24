@@ -852,7 +852,14 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						}
 						if(((fabs(cx)<cr)&&(fabs(cy)<cr)&&roeok&&!pffstop&&(dm==state->bombers[k].targ))||((fuel||damaged)&&(roeok||leaf)))
 						{
-							double pre=25.0/(50.0+(bac?bac->skill:0)); // probable radius of error
+							double bskill=0;
+							if(bac)
+							{
+								bskill=bac->skill;
+								if(bac->class!=CCLASS_B)
+									bskill*=0.75;
+							}
+							double pre=25.0/(50.0+bskill); // probable radius of error
 							state->bombers[k].bmblon=state->bombers[k].lon+drandu(pre*2.0)-pre;
 							state->bombers[k].bmblat=state->bombers[k].lat+drandu(pre*2.0)-pre;
 							state->bombers[k].navlon=targs[dm].lon-state->bombers[k].lon;
