@@ -1688,7 +1688,7 @@ bool ensure_crewed(game *state, unsigned int i)
 						}
 					}
 		}
-		if((state->bombers[i].crew[j]<0)&&(filter_student!=-1))
+		if((state->bombers[i].crew[j]<0)&&(filter_student!=-1)&&!state->bombers[i].pff) // never promote STUDENTs to PFF, that's silly
 		{
 			// 2. Look for a matching STUDENT and promote them to CREWMAN
 			for(unsigned int k=0;k<state->ncrews;k++)
@@ -1696,7 +1696,6 @@ bool ensure_crewed(game *state, unsigned int i)
 					if(state->crews[k].status==CSTATUS_STUDENT)
 					{
 						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
-						if(state->bombers[i].pff) continue; // never promote STUDENTs to PFF, that's silly
 						state->crews[k].status=CSTATUS_CREWMAN;
 						st_append(&state->hist, state->now, (harris_time){12, 00}, state->crews[k].id, state->crews[k].class, state->crews[k].status);
 						state->crews[k].tour_ops=0;
