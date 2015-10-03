@@ -378,6 +378,8 @@ int loadgame(const char *fn, game *state)
 						e|=32;
 						break;
 					}
+					if(state->crews[i].status!=CSTATUS_ESCAPEE)
+						state->crews[i].assignment=-1;
 					if(gcmid(p_id, &state->crews[i].id))
 					{
 						fprintf(stderr, "32 Invalid value \"%s\" for c/m ID in tag \"%s\"\n", p_id, tag);
