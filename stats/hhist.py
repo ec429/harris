@@ -184,7 +184,13 @@ def crew_parse(text):
 	def de_parse(text):
 		if text: raise ExcessData('C', 'DE', text.split(' ', 1)[1])
 		return {}
-	parsers = {'GE':ge_parse, 'SK':sk_parse, 'ST':st_parse, 'OP':op_parse, 'DE':de_parse}
+	def pw_parse(text):
+		if text: raise ExcessData('C', 'PW', text.split(' ', 1)[1])
+		return {}
+	def ex_parse(text):
+		if ' ' in text: raise ExcessData('C', 'EX', text.split(' ', 1)[1])
+		return {'rt':int(text)}
+	parsers = {'GE':ge_parse, 'SK':sk_parse, 'ST':st_parse, 'OP':op_parse, 'DE':de_parse, 'PW':pw_parse, 'EX':ex_parse}
 	parts = text.split(' ', 3)
 	cmid, cls, etyp = parts[0:3]
 	if len(parts) > 3:
@@ -225,14 +231,14 @@ def group_by_date(entries):
 		res[-1][1].append(ent)
 	return(res)
 
-def import_from_save(f):
+def import_from_save(f, crew_hist=False):
 	start = False
 	entries = []
 	for line in f:
 		if line[-1:] == '\n':
 			line = line[:-1]
 		if start:
-			entries.append(raw_parse(line))
+			entries.append(raw_parse(line, crew_hist=crew_hist))
 		elif line.startswith('History:'):
 			start = True
 	return entries

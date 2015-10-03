@@ -27,10 +27,11 @@
 <conf-ev>::= CO <confid:float>
 <mora-ev>::= MO <morale:float>
 <gprd-ev>::= GP <iclass:int> <gprod:float> <dprod:float> # dprod is _not_ the difference from the previous gprod!
-<crew-ev>::= <gen-ev> | <ski-ev> | <csta-ev> | <op-ev> | <deth-ev>
+<crew-ev>::= <gen-ev> | <ski-ev> | <csta-ev> | <op-ev> | <deth-ev> | <escp-ev>
 <gen-ev> ::= GE <lrate:int> # generation of a new (student) crewman
 <ski-ev> ::= SK <skill:int> # reached a new integer-part of skill
-<csta-ev>::= ST <cstatus> # status change
-<cstatus>::= C | S | I
+<csta-ev>::= ST <cstatus> # status change (see also EX)
+<cstatus>::= C | S | I # never have E as that's an <escp-ev> rather than a <csta-ev>
 <op-ev>  ::= OP <tops:int> # completed an op (*not* generated daily for instructors!)
-<deth-ev>::= DE
+<deth-ev>::= DE | PW
+<escp-ev>::= EX <rtime:int> # number of days until return

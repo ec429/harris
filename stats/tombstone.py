@@ -6,24 +6,27 @@ import hhist, hdata
 
 def count_losses(ents):
 	days = sorted(hhist.group_by_date(ents))
-	res = 0
+	de = 0
+	pw = 0
 	for d in days:
 		for ent in d[1]:
-			if ent['class'] != 'A': continue
-			if ent['data']['type']['fb'] != 'B': continue
-			typ = ent['data']['type']['ti']
-			if ent['data']['etyp'] == 'CR':
-				res += len(hdata.Bombers[typ]['crew'])
-	return(res)
+			if ent['class'] != 'C': continue
+			if ent['data']['etyp'] == 'DE':
+				de += 1
+			elif ent['data']['etyp'] == 'PW':
+				pw += 1
+	return(de, pw)
 
 if __name__ == '__main__':
-	entries = hhist.import_from_save(sys.stdin)
-	tombstone = count_losses(entries)
+	entries = hhist.import_from_save(sys.stdin, crew_hist=True)
+	tombstone, pw = count_losses(entries)
 	if not tombstone:
 		print 'No losses have yet been incurred!'
 	else:
-		# it can never be 1, so we can always use the plural
-		print '%d airmen are Missing In Action' % tombstone
+		if tombstone == 1:
+			print '1 airman has been Killed In Action'
+		else:
+			print '%d airmen have been Killed In Action' % tombstone
 		print r'''
       ----
      /    \
@@ -36,3 +39,6 @@ if __name__ == '__main__':
  \ | \ ,   /| o
 -|/-\|-|--\|-\|/
 '''
+	if pw:
+		print
+		print '(PoW count: %d)' % pw
