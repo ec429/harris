@@ -1,4 +1,4 @@
-HARR:0.2.4
+HARR:0.3.0
 DATE:04-03-1943
 Difficulty:0,1
 Confid:60
@@ -40,6 +40,35 @@ Bombers:901
 *53*Type 9:1,1,0,NOID
 *51*Type 10:0,5,1,NOID
 *14*Type 10:1,5,1,NOID
+Crews:6050
+*200*CG Crewman P:45,120,29,1,-1,NOID
+*150*CG Instructor P:50,120,179,1,-1,NOID
+*140*CG Crewman N:55,120,29,1,-1,NOID
+*150*CG Instructor N:60,120,179,1,-1,NOID
+*60*CG Crewman B:30,120,29,1,-1,NOID
+*60*CG Instructor B:35,120,179,1,-1,NOID
+*160*CG Crewman W:38,120,29,1,-1,NOID
+*140*CG Instructor W:42,120,179,1,-1,NOID
+*200*CG Crewman G:45,120,29,1,-1,NOID
+*188*CG Instructor G:45,120,179,1,-1,NOID
+*228*CG Crewman P:35,96,20,0,-1,NOID
+*268*CG Crewman N:40,96,20,0,-1,NOID
+*136*CG Crewman B:30,96,25,0,-1,NOID
+*184*CG Crewman W:36,96,20,0,-1,NOID
+*665*CG Crewman G:32,96,20,0,-1,NOID
+*400*CG Crewman P:25,90,10,0,-1,NOID
+*400*CG Crewman N:20,90,10,0,-1,NOID
+*300*CG Crewman B:15,90,12,0,-1,NOID
+*324*CG Crewman E:35,90,16,0,-1,NOID
+*30*CG Instructor E:45,96,60,1,-1,NOID
+*300*CG Crewman W:25,90,10,0,-1,NOID
+*600*CG Crewman G:20,90,10,0,-1,NOID
+*80*CG Student P:20,90,0,0,-1,NOID
+*105*CG Student N:20,90,0,0,-1,NOID
+*85*CG Student B:25,90,0,0,-1,NOID
+*75*CG Student E:30,90,0,0,-1,NOID
+*135*CG Student W:22,90,0,0,-1,NOID
+*287*CG Student G:18,90,0,0,-1,NOID
 GProd:8
 IClass 0:6000
 IClass 1:135000
