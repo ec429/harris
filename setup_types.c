@@ -155,7 +155,7 @@ int setup_types_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		if(!(ST_btint[i]=atg_create_element_image(types[i].text?intelbtn:nointelbtn)))
+		if(!(ST_btint[i]=atg_create_element_image(rawtypes[i].text?intelbtn:nointelbtn)))
 		{
 			fprintf(stderr, "atg_create_element_image failed\n");
 			return(1);
