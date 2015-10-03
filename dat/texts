@@ -142,11 +142,6 @@ The bombers' job is done, and the aircrews can stand down at last.
 
 Congratulations!
 
-==BROUGHTON==
-
-As the shadow factory at Broughton is now fully operational, Vickers Wellingtons can now be produced much more
- rapidly and cheaply.  Accordingly, they now cost only £8,000 out of your budget, rather than £12,000.
-
 ==PFF==
 
 The Air Ministry have mandated the creation of "Pathfinder Force", a unit drawn from the best crews in the
@@ -182,6 +177,115 @@ A new blind bombing aid, Gee-H, has been developed.  Based on the OBOE principle
 ==ALLGEE==
 
 GEE sets are now plentiful enough to be installed on the production line in every new bomber.
+
+==MOD_SSTANK==
+
+A new self-sealing fuel tank has been developed to reduce the loss rate of bombers.  The first units have been
+ installed in your Whitleys; bombers of other types will be modified as production permits.
+
+==MOD_SSTEND==
+
+All bombers now have self-sealing fuel tanks installed.
+
+==MOD_RELEASE==
+
+Your Whitley bombers have now been equipped with an electric bomb release, replacing their earlier, somewhat
+ crude, mechanical system.  This should improve their bombing accuracy slightly.
+
+==MOD_CREWSTIR==
+
+The crews of your Stirling bombers are being rationalised; instead of a second pilot they will now carry a
+ specialist bomb-aimer.
+
+==MOD_CREWMANC==
+
+Crew rationalisation has also been applied to the Avro Manchester; the second pilot is replaced with a flight
+ engineer to improve aircraft performance and help with damage control.
+
+==BROUGHTON==
+
+As the shadow factory at Broughton is now fully operational, Vickers Wellingtons can now be produced much more
+ rapidly and cheaply.  Accordingly, they now cost only £8,000 out of your budget, rather than £12,000.
+
+==MOD_BEAMGUNS==
+
+As night bombers are rarely attacked from abeam, the beam guns have been removed from all your Handley Page
+ Halifaxes.  This reduces their weight and thus helps improve their somewhat sluggish performance.
+
+==MOD_DERATE==
+
+We have been unable to devote sufficient resources to make the Rolls-Royce Vulture engine reliable.  Consequently
+ it has been decided to de-rate the engine, reducing its maximum power but hopefully extending its working life.
+Your Avro Manchesters, powered by this engine, will now only carry 9,000lb of bombs, at a lower maximum speed,
+ but should manage greater serviceability, and fewer losses through mechanical failure.
+
+==MOD_EXACTOR==
+
+New procedures for the handling of Short Stirling throttle controls have been promulgated and distributed to all
+ Stirling aircrew.  It is expected that by properly priming the 'Exactor' control units, various failures will be
+ rendered less frequent, improving the Stirling's woeful serviceability record.
+
+==MOD_SHROUD==
+
+To reduce Halifax losses to nightfighters, exhaust shrouds are being fitted to cover the engine exhaust flames
+ which are so dangerously visible to an attacker behind the bomber.
+
+==MOD_RUDDER==
+
+A partial solution to the Halifax's rudder overbalance woes has been found.  The new bulbous rudder has been
+ fitted to all Halifaxes, and is expected to reduce the heavy losses which, it is thought, have occurred when the
+ bomber fails to recover from evasive maneuvers.
+However, the new rudder is not perfect; a complete fix will have to wait for the redesigned tailplane on the Mark
+ III Halifax which Handley Page are developing.
+
+==MOD_NOSHROUD==
+
+It has been found that the Halifax exhaust shrouds severely hamper the performance of the engines.  As well as
+ reducing reliability, they decrease the aircraft's speed, ceiling and range.  Consequently, they have been
+ removed.
+
+==MOD_XIV==
+
+The new Mark XIV Course Setting Bomb Sight, now being installed in your Lancaster bombers, should considerably
+ increase bombing accuracy.  Your other heavy bombers will be similarly equipped as production permits.
+
+==MOD_OVLTANK==
+
+Overload tanks have been developed for the Handley Page Halifax.  These tanks can be carried in the bomb bay to
+ increase the aircraft's range at the expense of some payload.
+
+==MOD_NOSETRT==
+
+The nose turrets are being removed from all Halifax bombers to reduce weight, it having been determined by the
+ Operational Research branch that nose guns are not very useful for the type's defence.  The nose gunner will be
+ replaced by a full-time bomb aimer.
+
+==MOD_XIVEND==
+
+The Mark XIV bomb sight has now been fitted to all heavy bombers.
+
+==MOD_TSIGHT==
+
+American production of the T-1 bomb sight, based on the Mark XIV, has enabled us to fit these sights to the force
+ of Vickers Wellington bombers, thus giving them an acceptable accuracy.
+
+==MOD_MERLIN==
+
+The new two-stage supercharged Merlin 77 engines now being fitted to the de Havilland Mosquito give it an
+ increased top speed of 340mph, as well as improving the service ceiling and range.
+
+==MOD_PROP==
+
+Your Avro Lancasters are being modified with new wide-chord airscrews, able to more efficiently absorb the power
+ from the ever-improving Merlin engines.  This will augment the type's maximum speed and ceiling altitude.
+
+==MOD_GLODGE==
+
+A modification has been applied to your Lancaster Mark I aircraft.  Known as the "Gransden Lodge" mod, it
+ involves the removal of some of the perspex from the tail gunner's turret, improving his night vision (at the
+ expense of his comfort).  This should help to reduce losses to nightfighter attacks.
+This mod is not applicable to the Mark X Lancasters, as they have the Rose twin .50 caliber turret in place of
+ the Fraser-Nash FN120 quad-.303 of the Mark I.
 
 ==BOOZER==
 
