@@ -23,6 +23,7 @@
 #include "weather.h"
 #include "intel_bombers.h"
 #include "intel_targets.h"
+#include "rand.h"
 #include "run_raid.h"
 #include "setup_difficulty.h"
 
@@ -1716,7 +1717,7 @@ bool ensure_crewed(game *state, unsigned int i)
 
 // Relink crew assignments after a bomber is destroyed, obsoleted or otherwise removed from the list
 // This would be so much easier if everything was in linked-lists... ah well
-void fixup_crew_assignments(game *state, unsigned int i, bool kill)
+void fixup_crew_assignments(game *state, unsigned int i, bool kill, double wskill)
 {
 	for(unsigned int j=0;j<state->ncrews;j++)
 		if(state->crews[j].status==CSTATUS_CREWMAN)
@@ -1729,15 +1730,50 @@ void fixup_crew_assignments(game *state, unsigned int i, bool kill)
 			{
 				if(kill)
 				{
-					de_append(&state->hist, state->now, (harris_time){11, 00}, state->crews[j].id, state->crews[j].class);
-					state->ncrews--;
-					for(unsigned int k=j;k<state->ncrews;k++)
-						state->crews[k]=state->crews[k+1];
-					for(unsigned int k=0;k<state->nbombers;k++)
-						for(unsigned int l=0;l<MAX_CREW;l++)
-							if(state->bombers[k].crew[l]>(int)j)
-								state->bombers[k].crew[l]--;
-					j--;
+					int x=state->bombers[i].lon, y=state->bombers[i].lat;
+					struct region reg=regions[region[x][y]];
+					double psurvive=reg.water?0.1+(0.15*wskill/100.0):0.35;
+					double pescape[REG_STATUSES]={
+						[REGSTAT_FRIENDLY]=1.0,
+						[REGSTAT_NEUTRAL]=0.6,
+						[REGSTAT_ENEMY]=0.3,};
+					if(brandp(psurvive))
+					{
+						if(brandp(pescape[reg.status]))
+						{
+							int type=state->bombers[i].type;
+							int bx=types[type].blon, by=types[type].blat;
+							double d=hypot(x-bx,y-by);
+							unsigned int rt=ceil(exp(sqrt(d)/3.0));
+							state->crews[j].status=CSTATUS_ESCAPEE;
+							state->crews[j].assignment=rt;
+							ex_append(&state->hist, state->now, (harris_time){11, 00}, state->crews[j].id, state->crews[j].class, rt);
+						}
+						else
+						{
+							pw_append(&state->hist, state->now, (harris_time){11, 00}, state->crews[j].id, state->crews[j].class);
+							state->ncrews--;
+							for(unsigned int k=j;k<state->ncrews;k++)
+								state->crews[k]=state->crews[k+1];
+							for(unsigned int k=0;k<state->nbombers;k++)
+								for(unsigned int l=0;l<MAX_CREW;l++)
+									if(state->bombers[k].crew[l]>(int)j)
+										state->bombers[k].crew[l]--;
+							j--;
+						}
+					}
+					else
+					{
+						de_append(&state->hist, state->now, (harris_time){11, 00}, state->crews[j].id, state->crews[j].class);
+						state->ncrews--;
+						for(unsigned int k=j;k<state->ncrews;k++)
+							state->crews[k]=state->crews[k+1];
+						for(unsigned int k=0;k<state->nbombers;k++)
+							for(unsigned int l=0;l<MAX_CREW;l++)
+								if(state->bombers[k].crew[l]>(int)j)
+									state->bombers[k].crew[l]--;
+						j--;
+					}
 				}
 				else
 					state->crews[j].assignment=-1;
@@ -1865,7 +1901,7 @@ void game_preinit(game *state)
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
 				state->bombers[j]=state->bombers[j+1];
-			fixup_crew_assignments(state, i, false);
+			fixup_crew_assignments(state, i, false, 0);
 			i--;
 			stripped++;
 			continue;

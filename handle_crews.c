@@ -20,8 +20,8 @@
 atg_element *handle_crews_box;
 
 atg_element *HC_cont, *HC_full;
-char *HC_count[CREW_CLASSES][CREW_STATUSES];
-SDL_Surface *HC_skill[CREW_CLASSES][CREW_STATUSES];
+char *HC_count[CREW_CLASSES][SHOW_STATUSES];
+SDL_Surface *HC_skill[CREW_CLASSES][SHOW_STATUSES];
 SDL_Surface *HC_tops[CREW_CLASSES][2];
 
 void update_crews(game *state);
@@ -101,7 +101,7 @@ int handle_crews_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	for(unsigned int status=0;status<CREW_STATUSES;status++)
+	for(unsigned int status=0;status<SHOW_STATUSES;status++)
 	{
 		atg_element *header=atg_create_element_label(cstatuses[status], 12, (atg_colour){191, 191, 191, ATG_ALPHA_OPAQUE});
 		if(!header)
@@ -142,7 +142,7 @@ int handle_crews_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		for(unsigned int status=0;status<CREW_STATUSES;status++)
+		for(unsigned int status=0;status<SHOW_STATUSES;status++)
 		{
 			atg_element *cell_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, HCTBL_BG_COLOUR);
 			if(!cell_box)
@@ -326,14 +326,14 @@ void handle_crews_free(void)
 
 void update_crews(game *state)
 {
-	unsigned int count[CREW_CLASSES][CREW_STATUSES];
-	unsigned int dens[CREW_CLASSES][CREW_STATUSES][101];
+	unsigned int count[CREW_CLASSES][SHOW_STATUSES];
+	unsigned int dens[CREW_CLASSES][SHOW_STATUSES][101];
 	unsigned int tops[CREW_CLASSES][2][31];
 	unsigned int need[CREW_CLASSES];
 	unsigned int pool[CREW_CLASSES];
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
 	{
-		for(unsigned int j=0;j<CREW_STATUSES;j++)
+		for(unsigned int j=0;j<SHOW_STATUSES;j++)
 		{
 			count[i][j]=0;
 			for(unsigned int k=0;k<101;k++)
@@ -348,6 +348,8 @@ void update_crews(game *state)
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
 		unsigned int cls=state->crews[i].class, sta=state->crews[i].status;
+		if(sta>=SHOW_STATUSES)
+			continue;
 		count[cls][sta]++;
 		unsigned int skill=floor(state->crews[i].skill);
 		dens[cls][sta][min(skill, 100)]++;
@@ -374,7 +376,7 @@ void update_crews(game *state)
 					need[ct]++;
 			}
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
-		for(unsigned int j=0;j<CREW_STATUSES;j++)
+		for(unsigned int j=0;j<SHOW_STATUSES;j++)
 		{
 			unsigned int mxd=0;
 			for(unsigned int k=0;k<101;k++)
@@ -387,6 +389,7 @@ void update_crews(game *state)
 				case CSTATUS_STUDENT:
 					snprintf(HC_count[i][j], 32, "%4u/%4u", count[i][j], pool[i]/GET_DC(state, TPOOL));
 				break;
+				case CSTATUS_INSTRUC:
 				default:
 					snprintf(HC_count[i][j], 32, "%u", count[i][j]);
 				break;

@@ -46,11 +46,8 @@ int clear_raids(game *state)
 	return(0);
 }
 
-/* The string returned by this function should not be free()d,
- * and may be overwritten by subsequent calls */
-const char *describe_location(int x, int y)
+bool identify_location(int x, int y, int *lr)
 {
-	static char cbuf[80];
 	int mi=-1, md=50;
 	for(unsigned int i=0;i<nlocs;i++)
 	{
@@ -63,20 +60,34 @@ const char *describe_location(int x, int y)
 	}
 	if(mi<0)
 	{
-		snprintf(cbuf, 80, "in %s", regions[region[x][y]].name);
+		if(lr) *lr=region[x][y];
+		return(false);
 	}
-	else if(md==0)
+	if(lr) *lr=mi;
+	return(true);
+}
+
+/* The string returned by this function should not be free()d,
+ * and may be overwritten by subsequent calls */
+const char *describe_location(int x, int y)
+{
+	static char cbuf[80];
+	int lri;
+	if(!identify_location(x, y, &lri))
 	{
-		snprintf(cbuf, 80, "at %s", locs[mi].name);
+		snprintf(cbuf, 80, "in %s", regions[lri].name);
 	}
 	else
 	{
-		int dx=x-locs[mi].lon,
-			dy=y-locs[mi].lat,
+		int dx=x-locs[lri].lon,
+			dy=y-locs[lri].lat,
 			th=floor(atan2(dy, dx)*4/M_PI+4.5),
-			d=sqrt(md)*3;
+			d=hypot(dx, dy)*3;
 		const char *dir=(const char *[8]){"W", "NW", "N", "NE", "E", "SE", "S", "SW"}[th%8];
-		snprintf(cbuf, 80, "%umi %s of %s", d, dir, locs[mi].name);
+		if(d==0)
+			snprintf(cbuf, 80, "at %s", locs[lri].name);
+		else
+			snprintf(cbuf, 80, "%umi %s of %s", d, dir, locs[lri].name);
 	}
 	return(cbuf);
 }
@@ -1872,10 +1883,19 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			if(state->bombers[i].crashed)
 			{
 				lij[state->bombers[i].targ][state->bombers[i].type]++;
+				double wskill=0; // Wireless-Op
+				for(unsigned int j=0;j<MAX_CREW;j++)
+				{
+					if(types[type].crew[j]==CCLASS_W)
+					{
+						wskill=get_crew(state, i, j)->skill;
+						break;
+					}
+				}
+				fixup_crew_assignments(state, i, true, wskill);
 				state->nbombers--;
 				for(unsigned int j=i;j<state->nbombers;j++)
 					state->bombers[j]=state->bombers[j+1];
-				fixup_crew_assignments(state, i, true);
 				i--;
 				continue;
 			}

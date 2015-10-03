@@ -35,11 +35,11 @@ Bombers:406
 *50*Type 3:0,0,0,NOID
 *23*Type 3:1,0,0,NOID
 Crews:2090
-*500*CG Crewman P:30,120,0,0,NOID
-*440*CG Crewman N:40,120,0,0,NOID
-*150*CG Crewman B:15,120,0,0,NOID
-*400*CG Crewman W:25,120,0,0,NOID
-*600*CG Crewman G:35,120,0,0,NOID
+*500*CG Crewman P:30,120,0,0,-1,NOID
+*440*CG Crewman N:40,120,0,0,-1,NOID
+*150*CG Crewman B:15,120,0,0,-1,NOID
+*400*CG Crewman W:25,120,0,0,-1,NOID
+*600*CG Crewman G:35,120,0,0,-1,NOID
 GProd:8
 IClass 0:6000
 IClass 1:80000

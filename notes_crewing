@@ -76,3 +76,5 @@ On Medium this is divided by 2; on Hard by 3.
 The skill levels of each position in each situation (crews, training pool, instructors) are displayed as a histogram.  For crews there is also a histogram (in red) showing progress through their tour; for instructors a similar red histogram shows progress through their 180 days of screening.
 
 Perhaps have an event EATS (Empire Air Training Scheme) that increases pool size.
+
+When a bomber is shot down, some of its crew may survive (probability is higher over land than over water; in the latter case W/Op skill improves chances).  Then, they will either become prisoners of war, or escape (more likely in neutral territory, certain in friendly territory) and return (after a time depending on distance of crash from base) ready for further operations.

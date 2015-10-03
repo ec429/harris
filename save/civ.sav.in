@@ -35,27 +35,27 @@ Bombers:411
 *98*Type 3:0,0,0,NOID
 *25*Type 3:1,0,0,NOID
 Crews:3006
-*300*CG Crewman P:45,120,29,0,NOID
-*50*CG Instructor P:50,120,90,1,NOID
-*240*CG Crewman N:55,120,29,0,NOID
-*50*CG Instructor N:60,120,90,1,NOID
-*100*CG Crewman B:30,120,29,0,NOID
-*20*CG Instructor B:35,120,90,1,NOID
-*260*CG Crewman W:38,120,29,0,NOID
-*40*CG Instructor W:42,120,90,1,NOID
-*300*CG Crewman G:45,120,29,0,NOID
-*88*CG Instructor G:45,120,90,1,NOID
-*128*CG Crewman P:25,90,10,0,NOID
-*168*CG Crewman N:20,90,10,0,NOID
-*36*CG Crewman B:15,90,12,0,NOID
-*144*CG Crewman W:25,90,10,0,NOID
-*365*CG Crewman G:20,90,10,0,NOID
-*80*CG Student P:20,90,0,0,NOID
-*105*CG Student N:20,90,0,0,NOID
-*85*CG Student B:25,90,0,0,NOID
-*25*CG Student E:30,90,0,0,NOID
-*135*CG Student W:22,90,0,0,NOID
-*287*CG Student G:18,90,0,0,NOID
+*300*CG Crewman P:45,120,29,0,-1,NOID
+*50*CG Instructor P:50,120,90,1,-1,NOID
+*240*CG Crewman N:55,120,29,0,-1,NOID
+*50*CG Instructor N:60,120,90,1,-1,NOID
+*100*CG Crewman B:30,120,29,0,-1,NOID
+*20*CG Instructor B:35,120,90,1,-1,NOID
+*260*CG Crewman W:38,120,29,0,-1,NOID
+*40*CG Instructor W:42,120,90,1,-1,NOID
+*300*CG Crewman G:45,120,29,0,-1,NOID
+*88*CG Instructor G:45,120,90,1,-1,NOID
+*128*CG Crewman P:25,90,10,0,-1,NOID
+*168*CG Crewman N:20,90,10,0,-1,NOID
+*36*CG Crewman B:15,90,12,0,-1,NOID
+*144*CG Crewman W:25,90,10,0,-1,NOID
+*365*CG Crewman G:20,90,10,0,-1,NOID
+*80*CG Student P:20,90,0,0,-1,NOID
+*105*CG Student N:20,90,0,0,-1,NOID
+*85*CG Student B:25,90,0,0,-1,NOID
+*25*CG Student E:30,90,0,0,-1,NOID
+*135*CG Student W:22,90,0,0,-1,NOID
+*287*CG Student G:18,90,0,0,-1,NOID
 GProd:8
 IClass 0:9000
 IClass 1:120000

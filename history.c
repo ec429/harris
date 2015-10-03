@@ -325,3 +325,15 @@ int de_append(history *hist, date d, harris_time t, cmid id, enum cclass cls)
 {
 	return(evc_append(hist, d, t, id, cls, "DE"));
 }
+
+int pw_append(history *hist, date d, harris_time t, cmid id, enum cclass cls)
+{
+	return(evc_append(hist, d, t, id, cls, "PW"));
+}
+
+int ex_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int rt)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "EX %u", rt);
+	return(evc_append(hist, d, t, id, cls, buf));
+}

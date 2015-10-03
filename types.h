@@ -333,6 +333,7 @@ typedef struct
 		CREWMAN: number of ops completed this tour.  After 30, become INSTRUC
 		STUDENT: currently not used
 		INSTRUC: number of days spent instructing.  After 180, become CREWMAN
+		ESCAPEE: as CREWMAN.  On safe return, become CREWMAN again
 	*/
 	unsigned int full_tours; // always the count of complete CREWMAN tours
 	int assignment;
@@ -340,6 +341,7 @@ typedef struct
 		CREWMAN: bomber index (or -1)
 		STUDENT: 1 if we have an instructor, 0 otherwise
 		INSTRUC: currently not used
+		ESCAPEE: days until return
 	*/
 }
 crewman;
@@ -398,6 +400,6 @@ struct region
 {
 	char *name;
 	unsigned char rgb[3];
-	enum {REGSTAT_FRIENDLY, REGSTAT_NEUTRAL, REGSTAT_ENEMY} status;
+	enum {REGSTAT_FRIENDLY, REGSTAT_NEUTRAL, REGSTAT_ENEMY, REG_STATUSES} status;
 	bool water;
 };

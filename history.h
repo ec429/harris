@@ -47,3 +47,5 @@ int sk_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, un
 int st_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, enum cstatus status); // Append a ST (status change) event to the history
 int op_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int tops); // Append a OP (operation) event to the history
 int de_append(history *hist, date d, harris_time t, cmid id, enum cclass cls); // Append a DE (death) event to the history
+int pw_append(history *hist, date d, harris_time t, cmid id, enum cclass cls); // Append a PW (prisoner of war) event to the history
+int ex_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int rt); // Append an EX (escape) event to the history

@@ -23,6 +23,7 @@ const char *cstatuses[CREW_STATUSES]={
 	[CSTATUS_CREWMAN] = "Crewman",
 	[CSTATUS_STUDENT] = "Student",
 	[CSTATUS_INSTRUC] = "Instructor",
+	[CSTATUS_ESCAPEE] = "Escaping",
 };
 
 enum cclass lookup_crew_letter(char letter)
