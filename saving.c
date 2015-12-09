@@ -19,16 +19,6 @@
 #include "rand.h"
 #include "version.h"
 
-#ifdef WINDOWS /* Because of this little bugger, savegames from Windows won't work on Linux/Unix and vice-versa */
-#define FLOAT	"%llx"
-#define CAST_FLOAT_PTR	(unsigned long long *)
-#define CAST_FLOAT	(unsigned long long)
-#else
-#define FLOAT	"%la"
-#define CAST_FLOAT_PTR
-#define CAST_FLOAT
-#endif
-
 bool version_newer(const unsigned int v1[3], const unsigned int v2[3]) // true iff v1 newer than v2
 {
 	for(unsigned int i=0;i<3;i++)

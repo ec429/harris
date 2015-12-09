@@ -9,7 +9,7 @@ DATIDIR ?= $(PREFIX)/share/games/harris
 USAVDIR := .local/share/harris
 
 CC ?= gcc
-CFLAGS += -Wall -Wextra -Werror -pedantic --std=gnu99 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDIR=\"$(USAVDIR)\"
+CFLAGS += -Wall -Wextra -Werror --std=gnu11 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDIR=\"$(USAVDIR)\"
 
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
@@ -21,7 +21,7 @@ SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
 
-all: harris $(SAVES)
+all: harris stats $(SAVES)
 
 install: all
 	install -d $(DESTDIR)$(BINIDIR) $(DESTDIR)$(DATIDIR)
@@ -37,6 +37,9 @@ clean:
 
 realclean: clean
 	-rm events.h
+
+stats: hist_record.o bits.o crew.o hist_record.h bits.h crew.h saving.h
+	make -C stats/
 
 harris: harris.o $(OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) harris.o -o $@ $(SDL)
@@ -61,7 +64,7 @@ date.o: ui.h bits.h render.h
 
 routing.o: rand.h globals.h events.h date.h geom.h
 
-history.o: bits.h date.h
+history.o: bits.h date.h saving.h
 
 saving.o: bits.h control.h date.h globals.h events.h history.h mods.h rand.h version.h
 
@@ -100,6 +103,8 @@ intel_targets.o: ui.h globals.h events.h bits.h date.h render.h
 handle_crews.o: ui.h globals.h bits.h render.h
 
 mods.o: ui.h globals.h bits.h render.h
+
+hist_record.o: bits.h date.h
 
 %.o: %.c %.h types.h dclass.h crew.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<

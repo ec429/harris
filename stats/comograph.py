@@ -11,8 +11,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 	legend = '--nolegend' not in sys.argv
-	entries = hhist.import_from_save(sys.stdin)
-	data = como.extract_como(entries)
+	data = como.extract_como(sys.stdin)
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 	plt.axis(ymin=0, ymax=100)

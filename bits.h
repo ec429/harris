@@ -37,3 +37,7 @@ int gcmid(const char from[16], cmid *buf);
 #ifdef WINDOWS /* doesn't have strndup, we need to implement one */
 char *strndup(const char *s, size_t size);
 #endif
+
+#define container_of(ptr, type, member) ({                      \
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+	(type *)( (char *)__mptr - offsetof(type,member) );})

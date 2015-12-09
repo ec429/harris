@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "bits.h"
 #include "date.h"
+#include "saving.h"
 
 char *hist_alloc(history *hist)
 {
@@ -182,7 +183,7 @@ int hi_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned 
 int dmac_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, acid src)
 {
 	char buf[HIST_LINE];
-	size_t i=snprintf(buf, 72, "DM %a %a AC ", ddmg, cdmg);
+	size_t i=snprintf(buf, 72, "DM "FLOAT" "FLOAT" AC ", CAST_FLOAT ddmg, CAST_FLOAT cdmg);
 	pacid(src, buf+i);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
@@ -190,14 +191,14 @@ int dmac_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigne
 int dmfk_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int fid)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "DM %a %a FK %u", ddmg, cdmg, fid);
+	snprintf(buf, HIST_LINE, "DM "FLOAT" "FLOAT" FK %u", CAST_FLOAT ddmg, CAST_FLOAT cdmg, fid);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
 int dmtf_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, double ddmg, double cdmg, unsigned int tid)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "DM %a %a TF %u", ddmg, cdmg, tid);
+	snprintf(buf, HIST_LINE, "DM "FLOAT" "FLOAT" TF %u", CAST_FLOAT ddmg, CAST_FLOAT cdmg, tid);
 	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
@@ -229,14 +230,14 @@ int evt_append(history *hist, date d, harris_time t, unsigned int tid, const cha
 int tdm_append(history *hist, date d, harris_time t, unsigned int tid, double ddmg, double cdmg)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "DM %a %a", ddmg, cdmg);
+	snprintf(buf, HIST_LINE, "DM "FLOAT" "FLOAT, CAST_FLOAT ddmg, CAST_FLOAT cdmg);
 	return(evt_append(hist, d, t, tid, buf));
 }
 
 int tfk_append(history *hist, date d, harris_time t, unsigned int tid, double dflk, double cflk)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "FK %a %a", dflk, cflk);
+	snprintf(buf, HIST_LINE, "FK "FLOAT" "FLOAT, CAST_FLOAT dflk, CAST_FLOAT cflk);
 	return(evt_append(hist, d, t, tid, buf));
 }
 
@@ -263,21 +264,21 @@ int ca_append(history *hist, date d, harris_time t, unsigned int cshr, unsigned 
 int co_append(history *hist, date d, harris_time t, double confid)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "CO %a", confid);
+	snprintf(buf, HIST_LINE, "CO "FLOAT, CAST_FLOAT confid);
 	return(evm_append(hist, d, t, buf));
 }
 
 int mo_append(history *hist, date d, harris_time t, double morale)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "MO %a", morale);
+	snprintf(buf, HIST_LINE, "MO "FLOAT, CAST_FLOAT morale);
 	return(evm_append(hist, d, t, buf));
 }
 
 int gp_append(history *hist, date d, harris_time t, unsigned int iclass, double gprod, double dprod)
 {
 	char buf[HIST_LINE];
-	snprintf(buf, HIST_LINE, "GP %u %a %a", iclass, gprod, dprod);
+	snprintf(buf, HIST_LINE, "GP %u "FLOAT" "FLOAT, iclass, CAST_FLOAT gprod, CAST_FLOAT dprod);
 	return(evm_append(hist, d, t, buf));
 }
 
