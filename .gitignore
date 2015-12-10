@@ -5,5 +5,3 @@ save/*.sav
 events.h
 mysav
 dat/cities/composed.pnm
-stats/read_history
-stats/como

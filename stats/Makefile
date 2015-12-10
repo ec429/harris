@@ -10,7 +10,7 @@ INCLUDES := $(OBJS:.o=.h) ../types.h ../dclass.h ../saving.h
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
 
-all: read_history como
+all: read_history como cshr
 
 FORCE:
 ../hist_record.o: FORCE

@@ -11,8 +11,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 	legend = '--nolegend' not in sys.argv
-	entries = hhist.import_from_save(sys.stdin)
-	data = cshr.extract_cshr(entries)
+	data = cshr.extract_cshr(sys.stdin)
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 	dates = [key.ordinal() for key in sorted(data)]

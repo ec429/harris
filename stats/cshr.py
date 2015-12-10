@@ -2,16 +2,26 @@
 """cshr - cash rate (budget) tracking"""
 
 import sys
-import hhist
+import os.path
+import subprocess
+import hhist, hsave
 
-class BadTimeSeries(Exception): pass
-class UnpairedEntry(BadTimeSeries): pass
+this_script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-def extract_cshr(ents):
-	return {e['date']: e['data']['data']['cshr'] for e in ents if e['class'] == 'M' and e['data']['etyp'] == 'CA'}
+def extract_cshr(f):
+	records = subprocess.check_output(os.path.join(this_script_path, 'cshr'), stdin=f)
+	entries = {}
+	for record in records.splitlines():
+		date, etyp, delta, current = record.split(" ")
+		date = hhist.date.parse(date)
+		delta = hsave.readfloat(delta)
+		if etyp == 'CA':
+			entries[date] = delta
+		else:
+			raise Exception("Bad etyp", etyp, "in record", record)
+	return entries
 
 if __name__ == '__main__':
-	entries = hhist.import_from_save(sys.stdin)
-	cshr = extract_cshr(entries)
+	cshr = extract_cshr(sys.stdin)
 	for c in sorted(cshr):
 		print '%s: cshr=%d' % (c, cshr[c])

@@ -38,7 +38,8 @@ clean:
 realclean: clean
 	-rm events.h
 
-stats: hist_record.o bits.o crew.o hist_record.h bits.h crew.h saving.h
+FORCE:
+stats: hist_record.o bits.o crew.o hist_record.h bits.h crew.h saving.h FORCE
 	make -C stats/
 
 harris: harris.o $(OBJS)
