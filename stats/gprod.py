@@ -2,30 +2,40 @@
 """gprod - German production tracking"""
 
 import sys
-import hhist, hdata, hsave
+import hhist, hsave
+import subprocess
+import pprint
 
-def extract_gprod(save):
-	days = sorted(hhist.group_by_date(save.history))
-	res = [{'date':save.init.date}]
-	res[0]['gprod'] = dict(save.init.gprod)
-	res[0]['gprod']['total'] = sum(save.init.gprod.values())
-	for d in days:
-		gprod = {i:0 for i in xrange(save.iclasses)}
-		dprod = {i:0 for i in xrange(save.iclasses)}
-		for h in d[1]:
-			if h['class'] == 'M':
-				if h['data']['etyp'] == 'GP':
-					gprod[h['data']['data']['iclass']] = h['data']['data']['gprod']
-					dprod[h['data']['data']['iclass']] = h['data']['data']['dprod']
-		grow = {'total': sum(gprod.values())}
-		drow = {'total': sum(dprod.values())}
-		grow.update(gprod)
-		drow.update(dprod)
-		row = {'date':d[0].next(), 'gprod':grow, 'dprod':drow}
-		res.append(row)
+def extract_gprod(f):
+	records = subprocess.check_output(['grep', ' 11:55 M GP '], stdin=f)
+	res = []
+	d = None
+	day = {}
+	def save_day():
+		if day:
+			grow = {i:day[i][0] for i in day}
+			drow = {i:day[i][1] for i in day}
+			for dct in [grow, drow]:
+				dct['total'] = sum(dct.values())
+			res.append({'date':d, 'gprod':grow, 'dprod':drow})
+	for record in records.splitlines():
+		# <date> 11:55 M GP <class> <current> <delta>
+		date, time, M, GP, cls, current, delta = record.split(" ")
+		assert time == '11:55', record
+		assert M == 'M', record
+		assert GP == 'GP', record
+		date = hhist.date.parse(date)
+		if date != d:
+			save_day()
+			day = {}
+			d = date
+		cls = int(cls)
+		current = hsave.readfloat(current)
+		delta = hsave.readfloat(delta)
+		day[cls] = (current, delta)
+	save_day()
 	return res
 
 if __name__ == '__main__':
-	save = hsave.Save.parse(sys.stdin)
-	gprod = extract_gprod(save)
-	print gprod
+	gprod = extract_gprod(sys.stdin)
+	pprint.pprint(gprod)
