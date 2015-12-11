@@ -83,13 +83,12 @@ typedef enum
 }
 bombload;
 
-extern struct bombloadinfo
+struct bombloadinfo
 {
 	const char *name;
 	const char *fn;
 	SDL_Surface *pic;
-}
-bombloads[NBOMBLOADS];
+};
 
 #define MAX_CREW	7
 

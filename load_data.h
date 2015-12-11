@@ -7,6 +7,10 @@
 	load_data: load game entity data
 */
 
+#include <stdbool.h>
+
+int load_data(void); // performs all the loads below
+
 int load_bombers(void); // -> types
 int load_mods(void); // -> mods
 int load_fighters(void); // -> ftypes

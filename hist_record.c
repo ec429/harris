@@ -13,38 +13,6 @@
 #include "date.h"
 #include "saving.h"
 
-/* Copied from date.c, which we can't link against because of indirect dependency on some globals.
- * This is arguably wrong, but difficult to fix for reasons too complicated to explain here.
- */
-date readdate(const char *t, date nulldate)
-{
-	date d;
-	if(t&&*t&&(sscanf(t, "%u-%u-%d", &d.day, &d.month, &d.year)==3)) return(d);
-	return(nulldate);
-}
-
-harris_time readtime(const char *text, harris_time nulltime)
-{
-	harris_time t;
-	if(text&&*text&&(sscanf(text, "%u:%u", &t.hour, &t.minute)==2)) return(t);
-	return(nulltime);
-}
-
-/* Copied from date.c, which we can't link against because of indirect dependency on some globals.
- * This is arguably wrong, but difficult to fix for reasons too complicated to explain here.
- */
-size_t writedate(date when, char *buf)
-{
-	if(!buf) return(0);
-	return(sprintf(buf, "%02u-%02u-%04d", when.day, when.month, when.year));
-}
-
-size_t writetime(harris_time when, char *buf)
-{
-	if(!buf) return(0);
-	return(sprintf(buf, "%02u:%02u", when.hour, when.minute));
-}
-
 /* Get next word from line, or complain we didn't get one */
 #define WORD_OR_ERR(_what)	if (!(word = strtok(NULL, " "))) { \
 					fprintf(stderr, "Expected " _what ", got EOL\n"); \
@@ -249,7 +217,7 @@ int parse_ac(struct ac_record *rec)
 	}
 	if (!strcmp(word, "DM"))
 	{
-		rec->type = AE_HIT;
+		rec->type = AE_DMG;
 		return parse_dmg(&rec->dmg);
 	}
 	if (!strcmp(word, "FA"))
@@ -545,7 +513,7 @@ int parse_esc(struct esc_record *rec)
 /* <data>   ::= ... | C <cm-uid> <cclass> <crew-ev>
  * <crew-ev>::= <gen-ev> | <ski-ev> | <csta-ev> | <op-ev> | <deth-ev> | <escp-ev>
  */
-int parse_crew(struct crew_record *rec)
+int parse_crewev(struct crew_record *rec)
 {
 	char *word;
 
@@ -665,7 +633,7 @@ int parse_event(struct hist_record *rec, char *line)
 	if (!strcmp(word, "C"))
 	{
 		rec->type = HT_CREW;
-		return parse_crew(&rec->crew);
+		return parse_crewev(&rec->crew);
 	}
 	fprintf(stderr, "Unrecognised event class '%s'\n", word);
 	return 2;

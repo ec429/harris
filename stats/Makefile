@@ -1,25 +1,10 @@
-# Makefile for harris
+# Makefile for harris game stats extractors
 
-CC ?= gcc
-CFLAGS += -Wall -Wextra -Werror --std=gnu11 -g -I..
+STATS_OBJS := stats/hashtable.o hist_record.o
+STATS_INCLUDES := $(STATS_OBJS:.o=.h)
 
-LIBS := -latg -lm
-OBJS := ../hist_record.o ../bits.o ../crew.o
-INCLUDES := $(OBJS:.o=.h) ../types.h ../dclass.h ../saving.h
+stats: stats/read_history stats/como stats/cshr stats/kills
 
-SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
-SDLFLAGS := `sdl-config --cflags`
-
-all: read_history como cshr
-
-FORCE:
-../hist_record.o: FORCE
-	make -C .. hist_record.o
-../bits.o: FORCE
-	make -C .. bits.o
-../crew.o: FORCE
-	make -C .. crew.o
-
-%: %.c $(OBJS) $(INCLUDES)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(LIBS) $< $(OBJS) -o $@ $(SDL)
+stats/kills: stats/kills.c $(OBJS) $(STATS_OBJS) $(INCLUDES) $(STATS_INCLUDES)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I . $(SDLFLAGS) $(LDFLAGS) $(LIBS) $< $(OBJS) $(STATS_OBJS) -o $@ $(SDL)
 

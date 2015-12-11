@@ -8,12 +8,7 @@
 */
 
 #include "types.h"
-
-/* Date and time readers and writers */
-date readdate(const char *t, date nulldate);
-harris_time readtime(const char *text, harris_time nulltime);
-size_t writedate(date when, char *buf);
-size_t writetime(harris_time when, char *buf);
+#include "date.h"
 
 /* Event classes start here */
 

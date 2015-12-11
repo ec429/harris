@@ -14,8 +14,8 @@ CFLAGS += -Wall -Wextra -Werror --std=gnu11 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDI
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
 SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS) handle_crews.o
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o mods.o $(SCREEN_OBJS)
-INCLUDES := $(OBJS:.o=.h) types.h globals.h version.h
+OBJS := globals.o weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o mods.o $(SCREEN_OBJS)
+INCLUDES := $(OBJS:.o=.h) types.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
@@ -38,9 +38,7 @@ clean:
 realclean: clean
 	-rm events.h
 
-FORCE:
-stats: hist_record.o bits.o crew.o hist_record.h bits.h crew.h saving.h FORCE
-	make -C stats/
+include stats/Makefile
 
 harris: harris.o $(OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) harris.o -o $@ $(SDL)
@@ -54,10 +52,10 @@ events.h: dat/events mkevents.py
 events.c: dat/events mkevents.py
 	./mkevents.py c >events.c
 
-widgets.o: widgets.c widgets.h bits.h date.h render.h
-
 save/%.sav: save/%.sav.in gensave.py
 	./gensave.py --salt $< <$< >$@
+
+widgets.o: bits.h date.h globals.h render.h
 
 weather.o: rand.h
 
@@ -104,6 +102,8 @@ intel_targets.o: ui.h globals.h events.h bits.h date.h render.h
 handle_crews.o: ui.h globals.h bits.h render.h
 
 mods.o: ui.h globals.h bits.h render.h
+
+globals.o: ui.h
 
 hist_record.o: bits.h date.h
 

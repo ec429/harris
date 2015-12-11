@@ -27,6 +27,19 @@ size_t writedate(date when, char *buf)
 	return(sprintf(buf, "%02u-%02u-%04d", when.day, when.month, when.year));
 }
 
+harris_time readtime(const char *text, harris_time nulltime)
+{
+	harris_time t;
+	if(text&&*text&&(sscanf(text, "%u:%u", &t.hour, &t.minute)==2)) return(t);
+	return(nulltime);
+}
+
+size_t writetime(harris_time when, char *buf)
+{
+	if(!buf) return(0);
+	return(sprintf(buf, "%02u:%02u", when.hour, when.minute));
+}
+
 bool datebefore(date date1, date date2) // returns true if date1 is strictly before date2
 {
 	if(date1.year!=date2.year) return(date1.year<date2.year);

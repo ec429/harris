@@ -15,6 +15,8 @@
 #define NAV_OBOE	2
 #define NAV_GH		3
 
+int set_init_state(game *state);
+
 extern const char * const navaids[NNAVAIDS];
 extern const char * const navpicfn[NNAVAIDS];
 extern unsigned int navevent[NNAVAIDS];
@@ -25,6 +27,8 @@ extern char *evtext[NEVENTS];
 
 extern struct oboe oboe;
 extern struct gee gee;
+
+extern struct bombloadinfo bombloads[NBOMBLOADS];
 
 extern unsigned int ntypes;
 extern bombertype *types;

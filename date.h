@@ -14,6 +14,8 @@
 
 date readdate(const char *t, date nulldate); // converts date from string
 size_t writedate(date when, char *buf); // converts date to string, returns bytes written
+harris_time readtime(const char *text, harris_time nulltime);
+size_t writetime(harris_time when, char *buf);
 bool datebefore(date date1, date date2); // returns true if date1 is strictly before date2
 #define datewithin(now, start, end)		((!datebefore((now), (start)))&&datebefore((now), (end)))
 int diffdate(date date1, date date2); // returns <0 if date1<date2, >0 if date1>date2, 0 if date1==date2

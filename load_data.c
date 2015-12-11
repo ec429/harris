@@ -12,6 +12,7 @@
 #include <math.h>
 #include <atg.h>
 #include <SDL_image.h>
+#include <unistd.h>
 
 #include "globals.h"
 #include "bits.h"
@@ -69,6 +70,73 @@ int parse_crew(const char *src, enum cclass dst[MAX_CREW])
 	}
 	while(ci<MAX_CREW)
 		dst[ci++]=CCLASS_NONE;
+	return(0);
+}
+
+int load_data(void)
+{
+	int rc;
+
+	if((rc=load_bombers()))
+	{
+		fprintf(stderr, "Failed to load bombers, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_mods()))
+	{
+		fprintf(stderr, "Failed to load mods, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_fighters()))
+	{
+		fprintf(stderr, "Failed to load fighters, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_ftrbases()))
+	{
+		fprintf(stderr, "Failed to load ftrbases, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_locations()))
+	{
+		fprintf(stderr, "Failed to load locations, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_targets()))
+	{
+		fprintf(stderr, "Failed to load targets, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_flaksites()))
+	{
+		fprintf(stderr, "Failed to load flaksites, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_events()))
+	{
+		fprintf(stderr, "Failed to load events, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_texts()))
+	{
+		fprintf(stderr, "Failed to load texts, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_intel()))
+	{
+		fprintf(stderr, "Failed to load intel, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_images()))
+	{
+		fprintf(stderr, "Failed to load images, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_starts()))
+	{
+		fprintf(stderr, "Failed to load startpoints, rc=%d\n", rc);
+		return(rc);
+	}
 	return(0);
 }
 

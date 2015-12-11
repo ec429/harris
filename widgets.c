@@ -10,6 +10,7 @@
 #include <atg_internals.h>
 #include "bits.h"
 #include "date.h"
+#include "globals.h"
 #include "render.h"
 
 const char *prio_labels[4]={"NONE","LOW","MED","HIGH"};
