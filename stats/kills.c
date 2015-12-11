@@ -37,7 +37,6 @@ int main(int argc, char **argv)
 	struct hist_record rec;
 	char *line;
 	char outbuf[80];
-	int nftypes = -1;
 	game initgame;
 	struct hashtable fighters, bombers;
 	bool dmg_cleared = true;
@@ -106,25 +105,11 @@ int main(int argc, char **argv)
 			fprintf(stderr, "Unexpected EOF\n");
 			return 3;
 		}
-		if (!strncmp(line, "FTypes:", 7))
-		{
-			if (sscanf(line+7, "%d", &nftypes) != 1)
-			{
-				fprintf(stderr, "bad nftypes '%s'\n", line+7);
-				return 2;
-			}
-		}
 		if (!strncmp(line, "History:", 8))
 		{
 			free(line);
 			break;
 		}
-	}
-
-	if (nftypes < 0)
-	{
-		fprintf(stderr, "Expected nftypes but never got it\n");
-		return 4;
 	}
 
 	while(!feof(stdin))
