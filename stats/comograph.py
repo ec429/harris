@@ -6,7 +6,7 @@ manager (Debian: apt-get install python-matplotlib)
 """
 
 import sys
-import hhist, como
+import como
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
