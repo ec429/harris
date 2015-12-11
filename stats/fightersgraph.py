@@ -6,15 +6,14 @@ manager (Debian: apt-get install python-matplotlib)
 """
 
 import sys
-import hsave, hdata, fighters
+import hdata, fighters
 from extra_data import Fighters as extra
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 	showtotal = '--nototal' not in sys.argv
 	legend = '--nolegend' not in sys.argv
-	save = hsave.Save.parse(sys.stdin)
-	data = fighters.extract_fighters(save)
+	data = fighters.extract_fighters(sys.stdin)
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 	cols = ['0.6','0.4','r','y','m','g','y','b']
