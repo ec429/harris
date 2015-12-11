@@ -6,15 +6,14 @@ manager (Debian: apt-get install python-matplotlib)
 """
 
 import sys
-import hsave, hdata, fighterkill
+import hdata, fighterkill
 from extra_data import Fighters as extra
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 	showtotal = '--nototal' not in sys.argv
 	legend = '--nolegend' not in sys.argv
-	save = hsave.Save.parse(sys.stdin)
-	data = fighterkill.extract_kills(save)
+	data = fighterkill.extract_kills(sys.stdin)
 	monthly = {}
 	month = min(data.keys())
 	last = max(data.keys())
