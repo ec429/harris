@@ -58,8 +58,8 @@ def stratified_losstype(f, after=None, before=None):
 	rcount = [[0 for i in hdata.Bombers] for j in hdata.Targets]
 	lcount = [[0 for i in hdata.Bombers] for j in hdata.Targets]
 	for d in records:
-		if after and d[0] < after: continue
-		if before and d[0] >= before: continue
+		if after and d < after: continue
+		if before and d >= before: continue
 		for key in records[d]:
 			r, l = records[d][key]
 			typ, targ = key
