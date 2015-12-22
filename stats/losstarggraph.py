@@ -11,8 +11,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 	opts, args = losstarg.parse_args(sys.argv)
-	save = hsave.Save.parse(sys.stdin)
-	loss, data = losstarg.extract_losstarg(save, opts)
+	loss, data = losstarg.extract_losstarg(sys.stdin, opts)
 	bars = reversed(zip(hdata.Targets, data))
 	fbars = [bar for bar in bars if bar[1][2] is not None]
 	mr = float(max([bar[1][1] for bar in fbars]))

@@ -2,7 +2,7 @@
 """losstarg - loss rates by target"""
 
 import sys, operator
-import hhist, hsave
+import hhist, hdata, losstype
 import optparse
 
 def parse_args(argv):
@@ -15,27 +15,22 @@ def parse_args(argv):
 	opts.before = hhist.date.parse(opts.before) if opts.before else None
 	return opts, args
 
-def extract_losstarg(save, opts):
-	rcount = [0 for i in xrange(save.ntargets)]
+def extract_losstarg(f, opts):
+	records = losstype.extract_raids(f)
+	rcount = [0 for i in hdata.Targets]
 	lcount = list(rcount)
-	days = sorted(hhist.group_by_date(save.history))
-	for d in days:
-		if opts.after and d[0]<opts.after: continue
-		if opts.before and d[0]>=opts.before: continue
-		raiding = {}
-		for h in d[1]:
-			if h['class'] == 'A':
-				if h['data']['type']['fb'] == 'B':
-					if opts.type is not None and h['data']['type']['ti'] != opts.type: continue
-					if h['data']['etyp'] == 'RA':
-						rcount[h['data']['data']['target']] += 1
-						raiding[h['data']['acid']] = h['data']['data']['target']
-					elif h['data']['etyp'] == 'CR':
-						lcount[raiding[h['data']['acid']]] += 1
+	for d in records:
+		if opts.after and d<opts.after: continue
+		if opts.before and d>=opts.before: continue
+		for key in records[d]:
+			typ, targ = key
+			r, l = records[d][key]
+			if opts.type is not None and typ != opts.type: continue
+			rcount[targ] += r
+			lcount[targ] += l
 	return (sum(lcount)*100/float(sum(rcount)) if sum(rcount) else None, [(l, r, l*100/float(r) if r else None) for l, r in zip(lcount, rcount)])
 
 if __name__ == '__main__':
-	opts, args = losstarg.parse_args(sys.argv)
-	save = hsave.Save.parse(sys.stdin)
-	losstarg = extract_losstarg(save, opts)
+	opts, args = parse_args(sys.argv)
+	losstarg = extract_losstarg(sys.stdin, opts)
 	print losstarg
