@@ -6,7 +6,7 @@ manager (Debian: apt-get install python-matplotlib)
 """
 
 import sys
-import hsave, hdata, hhist, losstype
+import hdata, hhist, losstype
 from extra_data import Bombers as extra
 import optparse
 import matplotlib.pyplot as plt
@@ -22,17 +22,16 @@ if __name__ == '__main__':
 	opts, args = parse_args(sys.argv)
 	before = hhist.date.parse(opts.before) if opts.before else None
 	after = hhist.date.parse(opts.after) if opts.after else None
-	save = hsave.Save.parse(sys.stdin)
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 	if opts.stratify:
-		loss, data = losstype.stratified_losstype(save, after, before)
+		loss, data = losstype.stratified_losstype(sys.stdin, after, before)
 		bars = reversed(zip(hdata.Bombers, data))
 		fbars = [bar for bar in bars if bar[1][2] is not None]
 		ax.vlines(loss[3], 0, len(fbars)+1, color='0.75')
 		x = [bar[1][3] for bar in fbars]
 	else:
-		loss, data = losstype.extract_losstype(save, after, before)
+		loss, data = losstype.extract_losstype(sys.stdin, after, before)
 		bars = reversed(zip(hdata.Bombers, data))
 		fbars = [bar for bar in bars if bar[1][2] is not None]
 		x = [bar[1][2] for bar in fbars]

@@ -31,8 +31,9 @@ int hashtable_create(struct hashtable *tbl, unsigned int hbytes);
 void hashtable_insert(struct hashtable *tbl, struct hlist *item);
 void hashtable_remove(struct hashtable *tbl, struct hlist *item);
 struct hlist *hashtable_lookup(struct hashtable *tbl, uint64_t hash);
+void hashtable_wipe(struct hashtable *tbl);
 
 #define FOR_ALL_HASH_BUCKETS(_tbl, _bucket, _bi) \
-	for ((_bucket) = (_tbl)->buckets[0]; !(_bi >> ((_tbl)->hbytes << 3)); (_bucket) = (_tbl)->buckets[++_bi])
+	for (_bi = 0, (_bucket) = (_tbl)->buckets[0]; !(_bi >> ((_tbl)->hbytes << 3)); (_bucket) = (_tbl)->buckets[++_bi])
 #define FOR_ALL_BUCKET_ITEMS(_bucket, _item) \
 	for ((_item) = (_bucket); (_item); (_item) = (_item)->next)

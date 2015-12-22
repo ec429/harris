@@ -63,3 +63,27 @@ struct hlist *hashtable_lookup(struct hashtable *tbl, uint64_t hash)
 		;
 	return item;
 }
+
+void hashtable_wipe(struct hashtable *tbl)
+{
+	struct hlist *bucket, *head, *next;
+	unsigned int bi;
+
+	FOR_ALL_HASH_BUCKETS(tbl, bucket, bi)
+	{
+		for(head = bucket; head; head = next)
+		{
+			if (head)
+			{
+				next = head->next;
+				head->prev = head->next = (struct hlist *)LIST_POISON;
+			}
+			else
+			{
+				next = NULL;
+			}
+			free(head);
+		}
+		tbl->buckets[bi] = NULL;
+	}
+}
