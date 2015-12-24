@@ -17,6 +17,7 @@ class ExcessData(BadHistLine): pass
 class OutOfOrder(Exception): pass
 
 class date(object):
+	monthdays=[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 	def __init__(self, day, month, year):
 		self.day = day
 		self.month = month
@@ -38,12 +39,11 @@ class date(object):
 	def copy(self):
 		return date(self.day, self.month, self.year)
 	def next(self):
-		monthdays=[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 		next = self.copy()
 		next.day += 1
 		assert next.year % 100 # if we encounter century years, we have bigger problems than just leap years
 		ly = 1 if next.month == 2 and not next.year % 4 else 0
-		if next.day > monthdays[next.month-1]+ly:
+		if next.day > self.monthdays[next.month-1]+ly:
 			next.day = 1
 			next.month += 1
 			if next.month > 12:
@@ -58,6 +58,19 @@ class date(object):
 			next.month = 1
 			next.year += 1
 		return next
+	def prev(self):
+		prev = self.copy()
+		prev.day -= 1
+		if prev.day < 1:
+			prev.month -= 1
+			prev.day = self.monthdays[prev.month-1]
+			if prev.month == 2 and not prev.year % 4: # Feb 29th
+				assert prev.year % 100 # if we encounter century years, we have bigger problems than just leap years
+				prev.day += 1
+			if prev.month < 1:
+				prev.year -= 1
+				prev.month = 12
+		return prev
 	def ordinal(self):
 		return datetime.date(self.year, self.month, self.day).toordinal()
 
