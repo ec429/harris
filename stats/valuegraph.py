@@ -6,7 +6,7 @@ manager (Debian: apt-get install python-matplotlib)
 """
 
 import sys
-import hsave, hdata, value
+import hdata, value
 from extra_data import Bombers as extra
 import matplotlib.pyplot as plt
 
@@ -14,8 +14,7 @@ if __name__ == '__main__':
 	showtotal = '--nototal' not in sys.argv
 	legend = '--nolegend' not in sys.argv
 	projected = '--project' in sys.argv
-	save = hsave.Save.parse(sys.stdin)
-	data = value.extract_value(save)
+	data = value.extract_value(sys.stdin)
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 	dates = [datum['date'].ordinal() for datum in data]
