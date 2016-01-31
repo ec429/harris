@@ -103,7 +103,7 @@ handle_crews.o: ui.h globals.h bits.h render.h
 
 mods.o: ui.h globals.h bits.h render.h
 
-globals.o: ui.h
+globals.o: ui.h events.h run_raid.h
 
 hist_record.o: bits.h date.h
 
