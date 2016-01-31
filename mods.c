@@ -28,6 +28,9 @@ int apply_mod(unsigned int m)
 		case BSTAT_CAPWT:
 			types[bt].capwt=mods[m].v.i;
 			return(0);
+		case BSTAT_CAPBULK:
+			types[bt].capbulk=mods[m].v.i;
+			return(0);
 		case BSTAT_SVP:
 			types[bt].svp=mods[m].v.i;
 			return(0);
@@ -47,6 +50,14 @@ int apply_mod(unsigned int m)
 			for(unsigned int c=0;c<MAX_CREW;c++)
 				types[bt].crew[c]=mods[m].v.crew[c];
 			return(0);
+		case BSTAT_LOADS:
+			if(mods[m].v.i<NBOMBLOADS)
+			{
+				types[bt].load[mods[m].v.i]=true;
+				return(0);
+			}
+			fprintf(stderr, "ignoring excessive bombload ID %d\n", mods[m].v.i);
+			return(1);
 		case BSTAT_FLAGS:
 			switch(mods[m].v.f)
 			{

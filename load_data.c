@@ -361,6 +361,8 @@ int load_mods(void)
 					this.s=BSTAT_ALT;
 				else if(!strcmp(statname, "capwt"))
 					this.s=BSTAT_CAPWT;
+				else if(!strcmp(statname, "capbulk"))
+					this.s=BSTAT_CAPBULK;
 				else if(!strcmp(statname, "svp"))
 					this.s=BSTAT_SVP;
 				else if(!strcmp(statname, "defn"))
@@ -373,6 +375,8 @@ int load_mods(void)
 					this.s=BSTAT_RANGE;
 				else if(!strcmp(statname, "crew"))
 					this.s=BSTAT_CREW;
+				else if(!strcmp(statname, "loads"))
+					this.s=BSTAT_LOADS;
 				else if(!strcmp(statname, "flags"))
 					this.s=BSTAT_FLAGS;
 				else
@@ -406,6 +410,24 @@ int load_mods(void)
 				else if(this.s==BSTAT_CREW)
 				{
 					if(parse_crew(newval, this.v.crew))
+					{
+						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
+						return(1);
+					}
+				}
+				else if(this.s==BSTAT_LOADS)
+				{
+					unsigned int i;
+					for(i=0;i<NBOMBLOADS;i++)
+					{
+						if(!strncmp(newval, bombloads[i].name, 2))
+							break;
+					}
+					if(i<NBOMBLOADS)
+					{
+						this.v.i=i;
+					}
+					else
 					{
 						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
 						return(1);
