@@ -89,6 +89,7 @@ int genroute(unsigned int from[2], unsigned int ti, unsigned int route[8][2], co
 			}
 			for(unsigned int f=0;f<nflaks;f++)
 			{
+				if(!flaks[f].mapped) continue;
 				if(!datewithin(state->now, flaks[f].entry, flaks[f].exit)) continue;
 				double d, lambda;
 				linedist(try[l+1][1]-try[l][1],
