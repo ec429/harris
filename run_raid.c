@@ -1781,7 +1781,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									{
 										unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 										hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
-										double dmg=min(he/(rother*100.0), state->dmg[l]);
+										double dmg=min(he/(rother*60.0), state->dmg[l]);
 										cidam+=dmg*(targs[l].berlin?2.0:1.0);
 										state->dmg[l]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
