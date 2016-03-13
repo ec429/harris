@@ -55,6 +55,8 @@ extern SDL_Surface *weather_overlay, *target_overlay, *flak_overlay, *route_over
 
 extern SDL_Surface *tick, *cross;
 
+extern SDL_Surface *intelscreenbtn[3];
+
 extern bool lorw[128][128];
 extern unsigned char tnav[128][128];
 extern unsigned int nregions;

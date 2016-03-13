@@ -33,7 +33,7 @@ atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
-atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_fintel, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff;
+atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
@@ -443,17 +443,42 @@ int control_create(void)
 			}
 		}
 	}
-	GB_fintel=atg_create_element_button("Intel: Enemy Fighters", (atg_colour){127, 159, 223, ATG_ALPHA_OPAQUE}, (atg_colour){63, 31, 31, ATG_ALPHA_OPAQUE});
-	if(!GB_fintel)
+	atg_element *intelbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!intelbox)
 	{
-		fprintf(stderr, "atg_create_element_button failed\n");
+		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	GB_fintel->w=159;
-	if(atg_ebox_pack(GB_bt, GB_fintel))
+	intelbox->w=239;
+	if(atg_ebox_pack(GB_bt, intelbox))
 	{
 		perror("atg_ebox_pack");
 		return(1);
+	}
+	atg_element *intellbl=atg_create_element_label("Intel:", 24, (atg_colour){127, 159, 223, ATG_ALPHA_OPAQUE});
+	if(!intellbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(intelbox, intellbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int i=0;i<3;i++)
+	{
+		GB_intel[i]=atg_create_element_button_image(intelscreenbtn[i], (atg_colour){127, 159, 223, ATG_ALPHA_OPAQUE}, (atg_colour){63, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!GB_intel[i])
+		{
+			fprintf(stderr, "atg_create_element_button_image failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(intelbox, GB_intel[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	GB_hcrews=atg_create_element_button("Crews & Training", (atg_colour){127, 223, 159, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 63, ATG_ALPHA_OPAQUE});
 	if(!GB_hcrews)
@@ -1548,10 +1573,20 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							atg_flip(canvas);
 							return(SCRN_RUNRAID);
 						}
-						else if(trigger.e==GB_fintel)
+						else if(trigger.e==GB_intel[0])
+						{
+							intel_caller=SCRN_CONTROL;
+							return(SCRN_INTELBMB);
+						}
+						else if(trigger.e==GB_intel[1])
 						{
 							intel_caller=SCRN_CONTROL;
 							return(SCRN_INTELFTR);
+						}
+						else if(trigger.e==GB_intel[2])
+						{
+							intel_caller=SCRN_CONTROL;
+							return(SCRN_INTELTRG);
 						}
 						else if(trigger.e==GB_hcrews)
 						{

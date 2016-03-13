@@ -66,6 +66,8 @@ SDL_Surface *fullbtn=NULL;
 SDL_Surface *exitbtn=NULL;
 SDL_Surface *tick=NULL, *cross=NULL;
 
+SDL_Surface *intelscreenbtn[3];
+
 SDL_Surface *grey_overlay=NULL, *yellow_overlay=NULL;
 SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *route_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
 

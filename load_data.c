@@ -1341,6 +1341,21 @@ int load_images(void)
 		fprintf(stderr, "Cross icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(intelscreenbtn[0]=IMG_Load("art/intels/bombers.png")))
+	{
+		fprintf(stderr, "Intel Bombers icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(intelscreenbtn[1]=IMG_Load("art/intels/fighters.png")))
+	{
+		fprintf(stderr, "Intel Fighters icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(intelscreenbtn[2]=IMG_Load("art/intels/targets.png")))
+	{
+		fprintf(stderr, "Intel Targets icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(!(navpic[n]=IMG_Load(navpicfn[n])))

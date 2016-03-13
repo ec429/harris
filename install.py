@@ -56,6 +56,11 @@ manifest = {
 					'pff.png',
 					'student.png',
 				]},
+			'intels': {'.':[
+					'bombers.png',
+					'fighters.png',
+					'targets.png',
+				]},
 			'large': {
 					'bombers': {'.':[
 							'blenheim-side.png',
