@@ -181,6 +181,14 @@ int set_init_state(game *state)
 	state->hist.nents=0;
 	state->hist.nalloc=0;
 	state->hist.ents=NULL;
+
+	for(unsigned int i=0;i<2;i++)
+	{
+		state->tfav[i]=T_CLASSES;
+		state->tfd[i]=0;
+		state->ifav[i]=I_CLASSES;
+		state->ifd[i]=0;
+	}
 	
 	if(!(dij=malloc(ntargs*sizeof(int *))))
 	{

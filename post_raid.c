@@ -70,6 +70,42 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	state->cshr*=.96;
 	state->cash+=state->cshr;
 	ca_append(&state->hist, state->now, (harris_time){11, 20}, state->cshr, state->cash);
+	// Choose new [dis]favoured targets
+	for(unsigned int i=0;i<2;i++)
+	{
+		if(!state->tfd[i]--)
+		{
+			bool have=false;
+			state->tfd[i]=7+irandu(14);
+			state->tfav[i]=irandu(T_CLASSES);
+			if(state->tfav[i]!=state->tfav[1-i])
+				for(unsigned int j=0;j<ntargs;j++)
+				{
+					if(targs[j].class!=state->tfav[i]) continue;
+					if(!datewithin(state->now, targs[j].entry, targs[j].exit)) continue;
+					have=true;
+					break;
+				}
+			if(!have)
+				state->tfav[i]=T_CLASSES;
+		}
+		if(!state->ifd[i]--)
+		{
+			bool have=false;
+			state->ifd[i]=14+irandu(28);
+			state->ifav[i]=irandu(I_CLASSES);
+			if(state->ifav[i]!=state->ifav[1-i])
+				for(unsigned int j=0;j<ntargs;j++)
+				{
+					if(targs[j].iclass!=state->ifav[i]) continue;
+					if(!datewithin(state->now, targs[j].entry, targs[j].exit)) continue;
+					have=true;
+					break;
+				}
+			if(!have)
+				state->ifav[i]=I_CLASSES;
+		}
+	}
 	// Apply any mods
 	for(unsigned int m=0;m<nmods;m++)
 		if(!diffdate(tomorrow, mods[m].d))

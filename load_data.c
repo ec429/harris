@@ -1468,6 +1468,11 @@ int load_images(void)
 		fprintf(stderr, "IClass Mixed icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(ttype_nothing=IMG_Load("art/tclass/nothing.png")))
+	{
+		fprintf(stderr, "TClass/IClass Nothing icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	
 	grey_overlay=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!grey_overlay)

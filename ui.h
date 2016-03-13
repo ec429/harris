@@ -95,6 +95,7 @@ void handle_crews_free(void);
 
 extern screen_id intel_caller;
 extern SDL_Surface *ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED+1];
+extern SDL_Surface *ttype_nothing;
 
 void update_navbtn(game state, atg_element *(*GB_navbtn)[NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay);
 void message_box(atg_canvas *canvas, const char *titletext, const char *bodytext, const char *signtext);

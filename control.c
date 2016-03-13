@@ -38,7 +38,7 @@ atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
-SDL_Surface *GB_moonimg;
+SDL_Surface *GB_moonimg, *GB_tfav[2], *GB_ifav[2];
 int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0, filter_student=0;
 atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite, *GB_fi_student;
 
@@ -634,6 +634,70 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	for(unsigned int i=0;i<2;i++)
+	{
+		atg_element *favbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+		if(!favbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		favbox->w=239;
+		if(atg_ebox_pack(GB_bt, favbox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *favlbl=atg_create_element_label(i?"  Ignore:":"Priority:", 12, (atg_colour){255, 255, 191, ATG_ALPHA_OPAQUE});
+		if(!favlbl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(favbox, favlbl))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		GB_tfav[i]=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 11, 11, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+		if(!GB_tfav[i])
+		{
+			fprintf(stderr, "tfav[%d]: SDL_CreateRGBSurface: %s\n", i,SDL_GetError());
+			return(1);
+		}
+		atg_element *tfav=atg_create_element_image(GB_tfav[i]);
+		if(!tfav)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		tfav->w=12;
+		tfav->cache=false;
+		if(atg_ebox_pack(favbox, tfav))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		GB_ifav[i]=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 11, 11, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+		if(!GB_ifav[i])
+		{
+			fprintf(stderr, "ifav[%d]: SDL_CreateRGBSurface: %s\n", i,SDL_GetError());
+			return(1);
+		}
+		atg_element *ifav=atg_create_element_image(GB_ifav[i]);
+		if(!ifav)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		ifav->w=12;
+		ifav->cache=false;
+		if(atg_ebox_pack(favbox, ifav))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
 	atg_element *GB_msglbl=atg_create_element_label("Messages:", 12, (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE});
 	if(!GB_msglbl)
 	{
@@ -1124,6 +1188,23 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	snprintf(GB_budget_label, 32, "Budget: £%u/day", state->cshr);
 	snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state->confid+0.5));
 	snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state->morale+0.5));
+	for(unsigned int i=0;i<2;i++)
+	{
+		SDL_Surface *src;
+		SDL_Rect all={0, 0, 11, 11};
+		SDL_FillRect(GB_tfav[i], &all, SDL_MapRGB(GB_tfav[i]->format, 95, 95, 103));
+		if(state->tfav[i]<T_CLASSES)
+			src=ttype_icons[state->tfav[i]];
+		else
+			src=ttype_nothing;
+		SDL_BlitSurface(src, &all, GB_tfav[i], &all);
+		SDL_FillRect(GB_ifav[i], &all, SDL_MapRGB(GB_ifav[i]->format, 95, 95, 103));
+		if(state->ifav[i]<I_CLASSES)
+			src=ttype_icons[TCLASS_INDUSTRY+state->ifav[i]];
+		else
+			src=ttype_nothing;
+		SDL_BlitSurface(src, &all, GB_ifav[i], &all);
+	}
 	double moonphase=pom(state->now);
 	drawmoon(GB_moonimg, moonphase);
 	for(unsigned int j=0;j<state->nbombers;j++)
