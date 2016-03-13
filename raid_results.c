@@ -291,16 +291,20 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		atg_ebox_empty(raid_results_box);
 		create_trow();
 		create_typerow(dj);
-		double ssf=1;
+		double ssf=1, bsf=1;
 		if(state->tfav[0]==TCLASS_SHIPPING)
 			ssf*=1.2;
 		if(state->tfav[1]==TCLASS_SHIPPING)
 			ssf*=0.8;
+		if(state->tfav[0]==TCLASS_BRIDGE)
+			bsf*=1.2;
+		if(state->tfav[1]==TCLASS_BRIDGE)
+			bsf*=0.8;
 		state->cshr+=scoreTb*  80e-4;
 		state->cshr+=scoreTl*   6e-4;
 		state->cshr+=scoreTm*  12e-4;
 		state->cshr+=Ts*      600   *ssf;
-		state->cshr+=bridge* 2000e-2;
+		state->cshr+=bridge* 2000e-2*bsf;
 		double par=0.2+((state->now.year-1939)*0.125);
 		state->confid+=(N/(double)D-par)*(1.0+log2(D)/2.0)*0.6;
 		state->confid+=Ts*0.15;
