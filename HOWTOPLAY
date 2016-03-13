@@ -123,6 +123,7 @@ Ship sunk         £600   £15000
 Bridge destroyed £2000   £50000
 In the above table, the extra column headed "Total" gives the (approximate) total payout, based on the formula for the sum of a geometric progression.  Since the common ratio is 0.96, this is (1/1-0.96) = 25 times the value in the "Per day" column.
 The budget is also increased by £2/day for each percentage point of Confidence, and £1/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£300 * 25 =) £7500/day.
+The Air Ministry will from time to time indicate a stronger interest in targets of a given type or industry; these will be shown by the 'Priority' icons (on the left, just below Morale).  Budget contributions from attacks on priority targets are 20% higher.  Conversely, some target types or industries may be deemed inconsequential and indicated by the 'Ignore' icons; the pay-off for attacking these is 20% lower.  Note that the Air Ministry frequently changes its mind about its priorities; target type priorities will last around two weeks, while industry priorities will last about a month.
 
 Reference
 ~~~~~~~~~
