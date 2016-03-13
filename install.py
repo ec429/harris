@@ -113,6 +113,7 @@ manifest = {
 					'shipping.png',
 					'steel.png',
 					'uboot.png',
+					'nothing.png',
 				]},
 			'.':['cross.png',
 				'exit.png',
