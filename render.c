@@ -148,6 +148,7 @@ SDL_Surface *render_flak(date now)
 	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	for(unsigned int i=0;i<nflaks;i++)
 	{
+		if(!flaks[i].mapped) continue;
 		if(!datewithin(now, flaks[i].entry, flaks[i].exit)) continue;
 		bool rad=!datebefore(now, flaks[i].radar);
 		unsigned int x=flaks[i].lon, y=flaks[i].lat, str=flaks[i].strength;

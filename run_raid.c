@@ -486,6 +486,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				state->bombers[k].navlon=0;
 				state->bombers[k].driftlat=0;
 				state->bombers[k].driftlon=0;
+				state->bombers[k].flakreport=-1;
 				double askill=0; // Airmanship
 				for(unsigned int l=0;l<MAX_CREW;l++)
 				{
@@ -1026,6 +1027,9 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
 							double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
 							double preccap=160.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+							// We have been fired at by this flak, so we know it exists
+							if(!flaks[i].mapped)
+								state->bombers[k].flakreport=i;
 							if(rad) preccap=min(preccap, window?960.0:480.0);
 							if(brandp(flaks[i].strength*flakscale/min((12+flaks[i].shots++)*40.0, preccap)))
 							{
@@ -1899,7 +1903,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				i--;
 				continue;
 			}
-			else if(state->bombers[i].damage>50)
+			int fr=state->bombers[i].flakreport;
+			if(fr>=0&&fr<(int)nflaks)
+				flaks[fr].mapped=true;
+			if(state->bombers[i].damage>50)
 			{
 				fa_append(&state->hist, state->now, (harris_time){11, 00}, state->bombers[i].id, false, type, 1);
 				state->bombers[i].failed=true; // mark as u/s

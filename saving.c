@@ -44,6 +44,8 @@ int loadgame(const char *fn, game *state)
 	state->weather.seed=0;
 	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++) // default everything to medium
 		state->difficulty[i]=1;
+	for(unsigned int i=0;i<nflaks;i++) // all flaksites are unmapped if not saved
+		flaks[i].mapped=false;
 	while(!feof(fs))
 	{
 		char *line=fgetl(fs);
@@ -506,6 +508,51 @@ int loadgame(const char *fn, game *state)
 				}
 			}
 		}
+		else if(strcmp(tag, "Flaks")==0)
+		{
+			unsigned int snflaks;
+			f=sscanf(dat, "%u\n", &snflaks);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(snflaks!=nflaks)
+			{
+				fprintf(stderr, "2 Value mismatch: different nflaks value\n");
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<nflaks;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j;
+					unsigned int flags;
+					f=sscanf(line, "Site %u:%u\n", &j, &flags);
+					if(f!=2)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", j, i, tag);
+						e|=4;
+						break;
+					}
+					flaks[i].mapped=flags&1;
+				}
+			}
+		}
 		else if(strcmp(tag, "Targets init")==0)
 		{
 			double dmg,flk,heat,flam;
@@ -806,6 +853,12 @@ int savegame(const char *fn, game state)
 		if(state.fighters[i].radar)
 			flags |= 1;
 		fprintf(fs, "Type %u:%u,%u,%s\n", state.fighters[i].type, state.fighters[i].base, flags, p_id);
+	}
+	fprintf(fs, "Flaks:%u\n", nflaks);
+	for(unsigned int i=0;i<nflaks;i++)
+	{
+		unsigned int flags=(flaks[i].mapped?1:0);
+		fprintf(fs, "Site %u:%u\n", i, flags);
 	}
 	fprintf(fs, "Targets:%u\n", ntargs);
 	for(unsigned int i=0;i<ntargs;i++)

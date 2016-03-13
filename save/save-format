@@ -38,6 +38,10 @@ for(i=0;i<nfighters;i++)
 		"Type %u:%u,%u,NOID\n", fighter[i].type, fighter[i].base, fighter[i].radar
 	or
 		"Type %u:%u,%u,%s\n", fighter[i].type, fighter[i].base, fighter[i].radar, pacid(fighter[i].id)
+"Flaks:%u\n", nflaks // should be a constant
+optional // else assume flags=0 for all sites
+	for(i=0;i<nflaks;i++)
+		"Site %u:%u\n", i, flags // flag 1 is flaks[i].mapped; no others defined
 either
 {
 	"Targets:%hhu\n", ntargs // should be a constant

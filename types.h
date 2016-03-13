@@ -242,6 +242,7 @@ typedef struct
 	//STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
 	unsigned int strength, lat, lon;
 	date entry, radar, exit;
+	bool mapped; /* Have we learned of this flaksite's existence? */
 	/* for Himmelbett fighter control */
 	unsigned int heat; // number of bombers in the vicinity
 	signed int ftr; // index of fighter under this radar's control (-1 for none)
@@ -283,6 +284,7 @@ typedef struct
 	bool fix; // have a navaid fix?  (controls whether to drop skymarker)
 	unsigned int startt; // take-off time
 	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
+	int flakreport; // first unmapped flaksite we encountered
 }
 ac_bomber;
 
