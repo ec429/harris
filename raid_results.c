@@ -237,6 +237,18 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 			{
 				dj[j]+=dij[i][j];
 				nj[j]+=nij[i][j];
+				double sf=1;
+				if(targs[i].class==state->tfav[0])
+					sf*=1.2;
+				if(targs[i].class==state->tfav[1])
+					sf*=0.8;
+				if(targs[i].iclass==state->ifav[0])
+					sf*=1.2;
+				if(targs[i].iclass==state->ifav[1])
+					sf*=0.8;
+				if(targs[i].berlin) sf*=2;
+				if(targs[i].class==TCLASS_INDUSTRY) sf*=2;
+				if(targs[i].iclass==ICLASS_UBOOT) sf*=1.2;
 				switch(targs[i].class)
 				{
 					case TCLASS_CITY:
@@ -245,10 +257,6 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 					case TCLASS_BRIDGE:
 					case TCLASS_INDUSTRY:
 						tbj[j]+=tij[i][j];
-						unsigned int sf=1;
-						if(targs[i].berlin) sf*=2;
-						if(targs[i].class==TCLASS_INDUSTRY) sf*=2;
-						if(targs[i].iclass==ICLASS_UBOOT) sf*=1.2;
 						if(canscore[i]) scoretbj+=tij[i][j]*sf;
 					break;
 					case TCLASS_LEAFLET:
@@ -260,7 +268,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 					break;
 					case TCLASS_MINING:
 						tmj[j]+=tij[i][j];
-						if(canscore[i]) scoretmj+=tij[i][j];
+						if(canscore[i]) scoretmj+=tij[i][j]*sf;
 					break;
 					default: // shouldn't ever get here
 						fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
@@ -283,10 +291,15 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		atg_ebox_empty(raid_results_box);
 		create_trow();
 		create_typerow(dj);
+		double ssf=1;
+		if(state->tfav[0]==TCLASS_SHIPPING)
+			ssf*=1.2;
+		if(state->tfav[1]==TCLASS_SHIPPING)
+			ssf*=0.8;
 		state->cshr+=scoreTb*  80e-4;
 		state->cshr+=scoreTl*   6e-4;
 		state->cshr+=scoreTm*  12e-4;
-		state->cshr+=Ts*      600   ;
+		state->cshr+=Ts*      600   *ssf;
 		state->cshr+=bridge* 2000e-2;
 		double par=0.2+((state->now.year-1939)*0.125);
 		state->confid+=(N/(double)D-par)*(1.0+log2(D)/2.0)*0.6;
