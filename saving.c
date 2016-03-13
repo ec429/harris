@@ -153,6 +153,24 @@ int loadgame(const char *fn, game *state)
 				e|=1;
 			}
 		}
+		else if(strcmp(tag, "TPrio")==0)
+		{
+			f=sscanf(dat, "%u,%u,%u,%u\n", &state->tfav[0], &state->tfd[0], &state->tfav[1], &state->tfd[1]);
+			if(f!=4)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+		}
+		else if(strcmp(tag, "IPrio")==0)
+		{
+			f=sscanf(dat, "%u,%u,%u,%u\n", &state->ifav[0], &state->ifd[0], &state->ifav[1], &state->ifd[1]);
+			if(f!=4)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+		}
 		else if(strcmp(tag, "Types")==0)
 		{
 			unsigned int sntypes;
@@ -816,6 +834,9 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Confid:"FLOAT"\n", CAST_FLOAT state.confid);
 	fprintf(fs, "Morale:"FLOAT"\n", CAST_FLOAT state.morale);
 	fprintf(fs, "Budget:%u+%u\n", state.cash, state.cshr);
+	fprintf(fs, "TPrio:%u,%u,%u,%u\n", state.tfav[0], state.tfd[0], state.tfav[1], state.tfd[1]);
+	fprintf(fs, "IPrio:%u,%u,%u,%u\n", state.ifav[0], state.ifd[0], state.ifav[1], state.ifd[1]);
+
 	fprintf(fs, "Types:%u\n", ntypes);
 	for(unsigned int i=0;i<ntypes;i++)
 		if(state.btypes[i])

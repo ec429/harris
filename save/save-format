@@ -12,6 +12,8 @@ possibly-multiple-times
 "Confid:%la\n", confid
 "Morale:%la\n", morale
 "Budget:%u+%u\n", cash, cshr
+"TPrio:%u,%u,%u,%u\n", tfav[0], tfd[0], tfav[1], tfd[1]
+"IPrio:%u,%u,%u,%u\n", ifav[0], ifd[0], ifav[1], ifd[1]
 "Types:%u\n", ntypes // should be a constant, but might change between versions/modpacks; if so, will need some code that's aware of old versions
 for(i=0;i<ntypes;i++)
 	if(state.btypes[i])
