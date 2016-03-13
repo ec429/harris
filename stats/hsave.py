@@ -175,6 +175,10 @@ class Save(object):
 			self.nfighters = int(rest)
 			self.fighters = []
 			return self.Fighters, False
+		if tag == 'Flaks':
+			self.nflaks = int(rest)
+			self.flaks = []
+			return self.Flaks, False
 		if tag == 'Targets':
 			self.ntargets = int(rest)
 			self.targets = []
@@ -248,6 +252,13 @@ class Save(object):
 			self.fighters.append({'type':int(typ), 'radar':flags&1, 'id':int(acid, 16)})
 			return len(self.fighters) == self.nfighters
 		raise UnrecognisedSubtag('Fighters', tag, rest)
+	def Flaks(self, tag, rest):
+		if tag.startswith('Site '):
+			site = int(tag[5:])
+			flags = int(rest)
+			self.flaks.append({'site':site, 'mapped':flags&1})
+			return len(self.flaks) == self.nflaks
+		raise UnrecognisedSubtag('Flaks', tag, rest)
 	def Targets(self, tag, rest):
 		if tag.startswith('Targ '):
 			targ = int(tag[5:])
