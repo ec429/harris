@@ -139,6 +139,10 @@ class Save(object):
 		if tag == 'Budget':
 			self.cash, self.cshr = map(int, rest.split('+', 1))
 			return None, False
+		if tag == 'TPrio': # not much point reading these
+			return None, False
+		if tag == 'IPrio':
+			return None, False
 		if tag == 'Types':
 			self.ntypes = int(rest)
 			self.prio = [0]*self.ntypes
