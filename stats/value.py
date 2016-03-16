@@ -29,6 +29,8 @@ def extract_value(f):
 			if len(bcounts) != len(hdata.Bombers) and key != '$':
 				raise Exception("Bad bcounts[%s] at %r, len(%r) != %d" % (key, current, bcounts, len(hdata.Bombers)))
 			crecord[key] = map(int, bcounts)
+	if crecord and current is not None:
+		records[current] = crecord
 	broughton = hdata.Events.find('id', 'BROUGHTON')
 	wlng = hdata.Bombers.find('name', 'Wellington')
 	if broughton and first > broughton['date']:
