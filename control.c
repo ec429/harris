@@ -2188,4 +2188,7 @@ void game_preinit(game *state)
 	}
 	if(stripped)
 		fprintf(stderr, "preinit: stripped %u bombers (deselected types)\n", stripped);
+	// map all currently-existing flaksites
+	for(unsigned int i=0;i<nflaks;i++)
+		flaks[i].mapped=datewithin(state->now, flaks[i].entry, flaks[i].exit);
 }
