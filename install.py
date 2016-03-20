@@ -96,6 +96,13 @@ manifest = {
 					'oboe.png',
 					'g-h.png',
 				]},
+			'overlays': {'.':[
+					'cities.png',
+					'flak.png',
+					'routes.png',
+					'targets.png',
+					'weather.png',
+				]},
 			'tclass': {'.':[
 					'aircraft.png',
 					'airfield.png',

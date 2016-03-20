@@ -32,6 +32,7 @@ extern game state;
 atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
+atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff;
 atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
@@ -833,6 +834,54 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *overbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if (!overbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	overbox->w=256;
+	if(atg_ebox_pack(GB_middle, overbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *overlbl=atg_create_element_label("Overlays: ", 12, (atg_colour){223, 223, 215, ATG_ALPHA_OPAQUE});
+	if (!overlbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(overbox, overlbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int i=0;i<NUM_OVERLAYS;i++)
+	{
+		GB_overlay[i]=atg_create_element_toggle_empty(overlays[i].selected, (atg_colour){223, 223, 215, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+		if(!GB_overlay[i])
+		{
+			fprintf(stderr, "atg_create_element_toggle_empty failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(overbox, GB_overlay[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *icon=atg_create_element_image(overlays[i].icon);
+		if(!icon)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(GB_overlay[i], icon))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
 	if(!(GB_raid_label=malloc(48)))
 	{
 		perror("malloc");
@@ -1313,21 +1362,24 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	map_img->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 	SDL_FreeSurface(flak_overlay);
 	flak_overlay=render_flak(state->now);
-	SDL_BlitSurface(flak_overlay, NULL, map_img->data, NULL);
+	SDL_FreeSurface(city_overlay);
+	city_overlay=render_cities();
 	SDL_FreeSurface(target_overlay);
 	target_overlay=render_targets(state->now);
-	SDL_BlitSurface(target_overlay, NULL, map_img->data, NULL);
 	SDL_FreeSurface(weather_overlay);
 	weather_overlay=render_weather(state->weather);
-	SDL_BlitSurface(weather_overlay, NULL, map_img->data, NULL);
 	SDL_FreeSurface(xhair_overlay);
 	xhair_overlay=render_xhairs(state);
-	SDL_BlitSurface(xhair_overlay, NULL, map_img->data, NULL);
 	SDL_FreeSurface(seltarg_overlay);
 	int seltarg=-1;
 	int routegrab=-1;
 	seltarg_overlay=render_seltarg(seltarg);
-	SDL_BlitSurface(seltarg_overlay, NULL, map_img->data, NULL);
+	for(unsigned int i=0;i<NUM_OVERLAYS;i++)
+	{
+		atg_event e;
+		if(atg_value_event(GB_overlay[i], &e)==0 && e.type==ATG_EV_TOGGLE)
+			overlays[i].selected=e.event.toggle.state;
+	}
 	update_raidbox(state, seltarg);
 	bool rfsh=true;
 	while(1)
@@ -1391,17 +1443,25 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			}
 			SDL_FreeSurface(map_img->data);
 			map_img->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
-			SDL_BlitSurface(flak_overlay, NULL, map_img->data, NULL);
-			SDL_BlitSurface(target_overlay, NULL, map_img->data, NULL);
-			SDL_BlitSurface(weather_overlay, NULL, map_img->data, NULL);
+			if (overlays[OVERLAY_CITY].selected)
+				SDL_BlitSurface(city_overlay, NULL, map_img->data, NULL);
+			if (overlays[OVERLAY_FLAK].selected)
+				SDL_BlitSurface(flak_overlay, NULL, map_img->data, NULL);
+			if (overlays[OVERLAY_TARGET].selected)
+				SDL_BlitSurface(target_overlay, NULL, map_img->data, NULL);
+			if (overlays[OVERLAY_WEATHER].selected)
+				SDL_BlitSurface(weather_overlay, NULL, map_img->data, NULL);
+			if (overlays[OVERLAY_ROUTE].selected)
+			{
+				route_overlay=render_current_route(state, seltarg);
+				SDL_BlitSurface(route_overlay, NULL, map_img->data, NULL);
+			}
 			SDL_FreeSurface(xhair_overlay);
 			xhair_overlay=render_xhairs(state);
 			SDL_BlitSurface(xhair_overlay, NULL, map_img->data, NULL);
 			SDL_FreeSurface(seltarg_overlay);
 			seltarg_overlay=render_seltarg(seltarg);
 			SDL_BlitSurface(seltarg_overlay, NULL, map_img->data, NULL);
-			route_overlay=render_current_route(state, seltarg);
-			SDL_BlitSurface(route_overlay, NULL, map_img->data, NULL);
 			atg_flip(canvas);
 			rfsh=false;
 		}
@@ -1689,6 +1749,25 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							}
 					}
 				break;
+				case ATG_EV_TOGGLE:;
+					atg_ev_toggle toggle=e.event.toggle;
+					if(toggle.e)
+					{
+						unsigned int i;
+						for(i=0;i<NUM_OVERLAYS;i++)
+						{
+							if(toggle.e==GB_overlay[i])
+							{
+								overlays[i].selected=toggle.state;
+								break;
+							}
+						}
+						if(i==NUM_OVERLAYS)
+						{
+							fprintf(stderr, "Clicked on an unknown toggle\n");
+						}
+					}
+				break;
 				case ATG_EV_VALUE:;
 					atg_ev_value value=e.event.value;
 					if(value.e)
@@ -1703,7 +1782,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					}
 				break;
 				default:
-					fprintf(stderr, "e.type %d\n", e.type);
+					fprintf(stderr, "Received unknown event, e.type %d\n", e.type);
 				break;
 			}
 		}

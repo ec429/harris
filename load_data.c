@@ -1388,6 +1388,14 @@ int load_images(void)
 			return(1);
 		}
 	}
+	for(unsigned int i=0;i<NUM_OVERLAYS;i++)
+	{
+		if(!(overlays[i].icon=IMG_Load(overlays[i].ifn)))
+		{
+			fprintf(stderr, "Map overlay icon %s: IMG_Load: %s\n", overlays[i].ifn, IMG_GetError());
+			return(1);
+		}
+	}
 	if(!(ttype_icons[TCLASS_CITY]=IMG_Load("art/tclass/city.png")))
 	{
 		fprintf(stderr, "TClass City icon: IMG_Load: %s\n", IMG_GetError());

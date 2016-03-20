@@ -412,3 +412,21 @@ struct region
 	enum {REGSTAT_FRIENDLY, REGSTAT_NEUTRAL, REGSTAT_ENEMY, REG_STATUSES} status;
 	bool water;
 };
+
+enum overlay_type
+{
+	OVERLAY_CITY,
+	OVERLAY_FLAK,
+	OVERLAY_TARGET,
+	OVERLAY_WEATHER,
+	OVERLAY_ROUTE,
+
+	NUM_OVERLAYS
+};
+
+struct overlay
+{
+	const char *ifn;
+	SDL_Surface *icon;
+	bool selected;
+};

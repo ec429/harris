@@ -34,6 +34,14 @@ struct bombloadinfo bombloads[NBOMBLOADS]=
 	[BL_HALFHALF]={.name="Hh", .fn="art/bombloads/halfandhalf.png"},
 };
 
+struct overlay overlays[NUM_OVERLAYS] = {
+	[OVERLAY_CITY] = {.ifn="art/overlays/cities.png", .selected=true},
+	[OVERLAY_FLAK] = {.ifn="art/overlays/flak.png", .selected=true},
+	[OVERLAY_TARGET] = {.ifn="art/overlays/targets.png", .selected=true},
+	[OVERLAY_WEATHER] = {.ifn="art/overlays/weather.png", .selected=true},
+	[OVERLAY_ROUTE] = {.ifn="art/overlays/routes.png", .selected=true},
+};
+
 unsigned int ntypes=0;
 bombertype *types=NULL;
 bombertype *rawtypes=NULL;
@@ -69,7 +77,7 @@ SDL_Surface *tick=NULL, *cross=NULL;
 SDL_Surface *intelscreenbtn[3];
 
 SDL_Surface *grey_overlay=NULL, *yellow_overlay=NULL;
-SDL_Surface *weather_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *route_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
+SDL_Surface *weather_overlay=NULL, *city_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *route_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
 
 bool lorw[128][128]; // TRUE for water
 unsigned char tnav[128][128]; // Recognisability of terrain.  High for rivers, even higher for coastline

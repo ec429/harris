@@ -119,6 +119,8 @@ SDL_Surface *render_targets(date now)
 		{
 			case TCLASS_CITY:
 			case TCLASS_LEAFLET:
+				// nothing; they're in render_cities (and we do nothing for LEAFLET anyway)
+			break;
 			case TCLASS_AIRFIELD:
 			case TCLASS_ROAD:
 			case TCLASS_BRIDGE:
@@ -133,6 +135,23 @@ SDL_Surface *render_targets(date now)
 				fprintf(stderr, "render_targets: Warning: bad targs[%d].class = %d\n", i, targs[i].class);
 			break;
 		}
+	}
+	return(rv);
+}
+
+SDL_Surface *render_cities(void)
+{
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
+	{
+		fprintf(stderr, "render_targets: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
+	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	for(unsigned int i=0;i<ntargs;i++)
+	{
+		if(targs[i].class!=TCLASS_CITY) continue;
+		SDL_gfxBlitRGBA(targs[i].picture, NULL, rv, &(SDL_Rect){.x=targs[i].lon-targs[i].picture->w/2, .y=targs[i].lat-targs[i].picture->h/2});
 	}
 	return(rv);
 }
