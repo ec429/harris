@@ -696,6 +696,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		weather_overlay=render_weather(state->weather);
 		SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
+		sun_overlay=render_sun(convert_ht(maketime(0)));
 		while(inair)
 		{
 			t++;
@@ -1710,6 +1711,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_FreeSurface(with_weather);
 		SDL_FreeSurface(ac_overlay);
 		SDL_FreeSurface(with_ac);
+		SDL_FreeSurface(sun_overlay);
 		// incorporate the results, and clear the raids ready for next cycle
 		for(unsigned int i=0;i<ntargs;i++)
 		{

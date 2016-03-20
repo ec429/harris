@@ -40,6 +40,7 @@ atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
+char *GB_suntimes[2];
 SDL_Surface *GB_moonimg, *GB_tfav[2], *GB_ifav[2];
 int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0, filter_student=0;
 atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite, *GB_fi_student;
@@ -883,6 +884,72 @@ int control_create(void)
 			return(1);
 		}
 	}
+	atg_element *sunbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!sunbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	sunbox->w=256;
+	if(atg_ebox_pack(GB_middle, sunbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *riselbl=atg_create_element_label("Sunrise: ", 12, (atg_colour){223, 223, 0, ATG_ALPHA_OPAQUE});
+	if (!riselbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(sunbox, riselbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(GB_suntimes[0]=malloc(6)))
+	{
+		perror("malloc");
+		return(1);
+	}
+	atg_element *risetime=atg_create_element_label_nocopy(GB_suntimes[0], 12, (atg_colour){223, 223, 0, ATG_ALPHA_OPAQUE});
+	if(!risetime)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(sunbox, risetime))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *setlbl=atg_create_element_label(" set: ", 12, (atg_colour){223, 223, 0, ATG_ALPHA_OPAQUE});
+	if (!setlbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(sunbox, setlbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(GB_suntimes[1]=malloc(6)))
+	{
+		perror("malloc");
+		return(1);
+	}
+	atg_element *settime=atg_create_element_label_nocopy(GB_suntimes[1], 12, (atg_colour){223, 223, 0, ATG_ALPHA_OPAQUE});
+	if(!settime)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(sunbox, settime))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	if(!(GB_raid_label=malloc(48)))
 	{
 		perror("malloc");
@@ -1373,9 +1440,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	xhair_overlay=render_xhairs(state);
 	SDL_FreeSurface(seltarg_overlay);
 	sun_precalc(state->now, &todays_delta, &todays_eqn);
-	SDL_FreeSurface(sun_overlay);
-	double showtime=convert_ht(TM(3,0));
-	sun_overlay=render_sun(showtime);
+	snprintf(GB_suntimes[0], 6, "--:--");
 	int seltarg=-1;
 	int routegrab=-1;
 	seltarg_overlay=render_seltarg(seltarg);
@@ -1456,7 +1521,6 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 				SDL_BlitSurface(target_overlay, NULL, map_img->data, NULL);
 			if (overlays[OVERLAY_WEATHER].selected)
 				SDL_BlitSurface(weather_overlay, NULL, map_img->data, NULL);
-			SDL_BlitSurface(sun_overlay, NULL, map_img->data, NULL);
 			if (overlays[OVERLAY_ROUTE].selected)
 			{
 				route_overlay=render_current_route(state, seltarg);
@@ -1491,18 +1555,33 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						case SDL_MOUSEBUTTONUP:
 							routegrab=-1;
 						break;
-						case SDL_MOUSEMOTION:
+						case SDL_MOUSEMOTION:;
+							SDL_MouseMotionEvent me=s.motion;
 							if(routegrab>=0)
 							{
-								SDL_MouseMotionEvent me=s.motion;
 								int newx=targs[seltarg].route[routegrab][1]+me.xrel;
 								clamp(newx, 0, 256);
 								targs[seltarg].route[routegrab][1]=newx;
 								int newy=targs[seltarg].route[routegrab][0]+me.yrel;
 								clamp(newy, 0, 256);
 								targs[seltarg].route[routegrab][0]=newy;
-								rfsh=true;
 							}
+							int mapx=me.x-239, mapy=me.y;
+							if(mapx>=0&&mapx<256&&mapy>=0&&mapy<256)
+							{
+								double coords[2], rise, set;
+								project_coords(mapy, mapx, coords);
+								sun_calc(coords, todays_delta, todays_eqn, &rise, &set);
+								harris_time rise_time=convert_ha(rise), set_time=convert_ha(set);
+								snprintf(GB_suntimes[0], 6, "%02d:%02d", rise_time.hour, rise_time.minute);
+								snprintf(GB_suntimes[1], 6, "%02d:%02d", set_time.hour, set_time.minute);
+							}
+							else
+							{
+								snprintf(GB_suntimes[0], 6, "--:--");
+								snprintf(GB_suntimes[1], 6, "--:--");
+							}
+							rfsh=true;
 						break;
 						case SDL_VIDEORESIZE:
 							rfsh=true;
