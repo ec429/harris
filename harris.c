@@ -50,8 +50,7 @@
 
 /* TODO
 	Seasonal effects on weather
-	Toggle overlays on map display (incl. add new overlays for GEE, OBOE, GH range; perhaps also ability to show weather map as isobars/isotherms instead of cloudmap)
-	Make Flak only be known to you after you've encountered it
+	More overlays for map display (incl. add new overlays for GEE, OBOE, GH range; perhaps also ability to show weather map as isobars/isotherms instead of cloudmap)
 	Implement the remaining Navaids (just Gee-H now)
 	Implement window-control (for diversions)
 	Event effects on fighters (New radars, RCM, etc.)

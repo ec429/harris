@@ -52,6 +52,11 @@ As the months and years pass, new types of bomber are developed, and older ones 
 Because the Government wishes to encourage the development of new aircraft types, for the first four months of any new type's life, you will be forced to buy them at least at LOW priority, though you can set the priority higher than this if you wish.  This will be denoted by a green 'N' to the right of the priority indicator.
 Also, when a new type enters service, you will receive a flight of 15 bombers of that type, which are not paid for out of your budget.
 
+Sun and Moon
+~~~~~~~~~~~~
+The phase of the moon is shown in the top left of the control center, next to the date.  During the full moon, your bombers will navigate more accurately, but will be at greater risk from flak and fighters, as compared to the new moon.
+Sun rise and set times vary with location; when the cursor is hovered over the map, the times for that location are shown.  When the sun is up, its bright light will have a similar but much stronger effect to that of moonlight; it's generally very dangerous to be caught over enemy territory in daylight.  During the summer, the nights are shorter, limiting the distance your raids can safely penetrate.
+
 Flak
 ~~~~
 Anti-aircraft defences, or 'Flak' (from the German 'Fliegerabwehrkanone' - anti-aircraft cannon) are one of the threats to your bombers' survival.  Flak takes two forms: flak batteries positioned to cover the approaches to Germany, and defences around the targets themselves.  The strength of a target's flak defences are indicated by the grey bar against the target's name in the target list (the blue bar indicates how damaged the target is, excluding shipping targets).  Flak batteries are marked on the map with purple dots.  A few are a brighter pink colour; this denotes that the flak is controlled by radar, making it much more accurate and deadly.  These radars can also control individual fighter aircraft (in so-called 'Himmelbett' fighting), which will be covered in the next section.  Of course, the Germans aren't so considerate as to tell you where their flak batteries are; you will only know of a given flak site after a bomber has flown near it and lived to tell the tale.
