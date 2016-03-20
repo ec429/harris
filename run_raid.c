@@ -696,7 +696,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		weather_overlay=render_weather(state->weather);
 		SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
-		sun_overlay=render_sun(convert_ht(maketime(0)));
+		sun_overlay=render_sun(convert_ht(maketime(t)));
 		while(inair)
 		{
 			t++;
@@ -711,6 +711,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 				SDL_BlitSurface(route_overlay, NULL, with_weather, NULL);
 				it++;
+			}
+			if(!(t&7))
+			{
+				SDL_FreeSurface(sun_overlay);
+				sun_overlay=render_sun(convert_ht(now));
 			}
 			if(tameboar)
 			{
@@ -954,6 +959,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							break;
 						}
 					}
+					// solar illumination adds to moonillum
+					double illum=moonillum+pget(sun_overlay, state->bombers[k].lon, state->bombers[k].lat).r/32.0;
 					for(unsigned int i=0;i<ntargs;i++)
 					{
 						if(!datewithin(state->now, targs[i].entry, targs[i].exit)) continue;
@@ -988,7 +995,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						{
 							unsigned int x=targs[i].lon/2, y=targs[i].lat/2;
 							double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
-							double preccap=100.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+							double preccap=100.0/(5.0*(illum+.3)/(double)(8+max(4-wea, 0)));
 							if(brandp(state->flk[i]*flakscale/min((9+targs[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
@@ -1030,7 +1037,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						{
 							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
 							double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
-							double preccap=160.0/(5.0*(moonillum+.3)/(double)(8+max(4-wea, 0)));
+							double preccap=160.0/(5.0*(illum+.3)/(double)(8+max(4-wea, 0)));
 							// We have been fired at by this flak, so we know it exists
 							if(!flaks[i].mapped)
 								state->bombers[k].flakreport=i;
@@ -1084,7 +1091,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						unsigned int x=state->fighters[j].lon/2, y=state->fighters[j].lat/2;
 						double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
 						bool heavy=types[state->bombers[k].type].heavy;
-						double seerange=(airad?(heavy?1.9:1.2):((heavy?5.0:2.1)*(moonillum+.3)/(double)(8+max(4-wea, 0))))*d_fsr;
+						double seerange=(airad?(heavy?1.9:1.2):((heavy?5.0:2.1)*(illum+.3)/(double)(8+max(4-wea, 0))))*d_fsr;
 						if(xyr(state->bombers[k].lon-state->fighters[j].lon, state->bombers[k].lat-state->fighters[j].lat, seerange))
 						{
 							double findp=airad?0.7:0.8/(double)(8+max(4-wea, 0));
@@ -1117,7 +1124,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
 						wea=max(wea, h*0.08*((80+bac->skill)/120.0)-12);
 					}
-					double navp=types[type].accu*0.05*(sqrt(moonillum)*.8+.5)/(double)(8+max(16-wea, 8));
+					double navp=types[type].accu*0.05*(sqrt(illum)*.8+.5)/(double)(8+max(16-wea, 8));
 					if(home&&(state->bombers[k].lon<64)) navp=1;
 					bool b=brandp(navp);
 					state->bombers[k].fix=b;
@@ -1332,6 +1339,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							y=state->fighters[j].lat;
 						double tx=state->bombers[k].lon,
 							ty=state->bombers[k].lat;
+						double illum=moonillum+pget(sun_overlay, state->bombers[k].lon, state->bombers[k].lat).r/32.0;
 						double d=hypot(x-tx, y-ty);
 						if(d)
 						{
@@ -1369,7 +1377,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							}
 						}
 						double mlskill=nl?slskill/nl:0;
-						if(d<(airad?0.4:radcon?0.34:0.25)*(.7*moonillum+.6))
+						if(d<(airad?0.4:radcon?0.34:0.25)*(.7*illum+.6))
 						{
 							if(brandp(ftypes[ft].mnv*(2.7+loadness(state->bombers[k]))/(200.0+pskill+mlskill*3)))
 							{
@@ -1400,7 +1408,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							if(brandp(0.35))
 								state->fighters[j].k=-1;
 						}
-						if(d<(ftypes[ft].night?0.3:0.2)*(.8*moonillum+.6)) // easier to spot nightfighters as they're bigger
+						if(d<(ftypes[ft].night?0.3:0.2)*(.8*illum+.6)) // easier to spot nightfighters as they're bigger
 						{
 							double rgskill=0;
 							if(ng)
@@ -1699,11 +1707,6 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			SDL_BlitSurface(with_weather, NULL, with_ac, NULL);
 			SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
 			SDL_BlitSurface(with_ac, NULL, map_img->data, NULL);
-			if((t&7)==1)
-			{
-				SDL_FreeSurface(sun_overlay);
-				sun_overlay=render_sun(convert_ht(now));
-			}
 			SDL_BlitSurface(sun_overlay, NULL, map_img->data, NULL);
 			atg_flip(canvas);
 		}

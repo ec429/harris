@@ -56,7 +56,7 @@ SDL_Surface *render_sun(double showtime)
 			sun_calc(coords, todays_delta, todays_eqn, &rise, &set);
 			double morning=(showtime-rise)*12.0/M_PI, evening=(set-showtime)*12.0/M_PI;
 			double sunny=max(morning, evening);
-			Uint8 cl=min(max(floor((sunny+1.5)*2.0)*32.0, 0), 96);
+			Uint8 cl=min(max(floor((sunny+1.5)*128.0), 0), 256);
 			pset(rv, x, y, (atg_colour){cl, cl, 0, 64});
 		}
 	}
