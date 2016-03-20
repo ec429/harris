@@ -87,13 +87,13 @@ void sun_calc(double coords[2], double delta, double eqn, double *rise, double *
 // Convert an hour-angle into a time
 harris_time convert_ha(double ha)
 {
-	double hours=fmod(12.0 + ha*12.0/M_PI, 24.0);
+	double hours=fmod(13.0 + ha*12.0/M_PI, 24.0);
 	return((harris_time){.hour=floor(hours), .minute=floor(fmod(hours*60, 60))});
 }
 
 // Convert a time into an hour-angle
 double convert_ht(harris_time t)
 {
-	double hours=fmod(t.hour+(t.minute/60.0)+12.0, 24.0);
+	double hours=fmod(t.hour+(t.minute/60.0)+11.0, 24.0);
 	return(hours*M_PI/12.0);
 }
