@@ -17,6 +17,7 @@
 #include "widgets.h"
 #include "date.h"
 #include "bits.h"
+#include "almanack.h"
 #include "history.h"
 #include "render.h"
 #include "routing.h"
@@ -1371,6 +1372,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	SDL_FreeSurface(xhair_overlay);
 	xhair_overlay=render_xhairs(state);
 	SDL_FreeSurface(seltarg_overlay);
+	sun_precalc(state->now, &todays_delta, &todays_eqn);
+	SDL_FreeSurface(sun_overlay);
+	double showtime=convert_ht(TM(3,0));
+	sun_overlay=render_sun(showtime);
 	int seltarg=-1;
 	int routegrab=-1;
 	seltarg_overlay=render_seltarg(seltarg);
@@ -1451,6 +1456,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 				SDL_BlitSurface(target_overlay, NULL, map_img->data, NULL);
 			if (overlays[OVERLAY_WEATHER].selected)
 				SDL_BlitSurface(weather_overlay, NULL, map_img->data, NULL);
+			SDL_BlitSurface(sun_overlay, NULL, map_img->data, NULL);
 			if (overlays[OVERLAY_ROUTE].selected)
 			{
 				route_overlay=render_current_route(state, seltarg);

@@ -13,6 +13,7 @@
 #include "ui.h"
 #include "globals.h"
 #include "date.h"
+#include "almanack.h"
 #include "history.h"
 #include "render.h"
 #include "routing.h"
@@ -652,6 +653,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		flak_overlay=render_flak(state->now);
 		SDL_BlitSurface(flak_overlay, NULL, with_flak_and_target, NULL);
 		SDL_FreeSurface(target_overlay);
+		city_overlay=render_cities();
+		SDL_BlitSurface(city_overlay, NULL, with_flak_and_target, NULL);
 		target_overlay=render_targets(state->now);
 		SDL_BlitSurface(target_overlay, NULL, with_flak_and_target, NULL);
 		with_weather=SDL_ConvertSurface(with_flak_and_target, with_flak_and_target->format, with_flak_and_target->flags);
@@ -1695,6 +1698,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			SDL_BlitSurface(with_weather, NULL, with_ac, NULL);
 			SDL_BlitSurface(ac_overlay, NULL, with_ac, NULL);
 			SDL_BlitSurface(with_ac, NULL, map_img->data, NULL);
+			if((t&7)==1)
+			{
+				SDL_FreeSurface(sun_overlay);
+				sun_overlay=render_sun(convert_ht(now));
+			}
+			SDL_BlitSurface(sun_overlay, NULL, map_img->data, NULL);
 			atg_flip(canvas);
 		}
 		SDL_FreeSurface(with_flak_and_target);

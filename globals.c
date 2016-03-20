@@ -16,6 +16,8 @@ const char * const navpicfn[NNAVAIDS]={"art/navaids/gee.png", "art/navaids/h2s.p
 unsigned int navevent[NNAVAIDS]={EVENT_GEE, EVENT_H2S, EVENT_OBOE, EVENT_GH};
 unsigned int navprod[NNAVAIDS]={3, 7, 22, 12}; // 10/productionrate; later 25/productionrate
 
+double todays_delta, todays_eqn; // values for the almanack
+
 date event[NEVENTS];
 char *evtext[NEVENTS];
 
@@ -77,7 +79,7 @@ SDL_Surface *tick=NULL, *cross=NULL;
 SDL_Surface *intelscreenbtn[3];
 
 SDL_Surface *grey_overlay=NULL, *yellow_overlay=NULL;
-SDL_Surface *weather_overlay=NULL, *city_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *route_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
+SDL_Surface *weather_overlay=NULL, *sun_overlay=NULL, *city_overlay=NULL, *target_overlay=NULL, *flak_overlay=NULL, *route_overlay=NULL, *xhair_overlay=NULL, *seltarg_overlay=NULL;
 
 bool lorw[128][128]; // TRUE for water
 unsigned char tnav[128][128]; // Recognisability of terrain.  High for rivers, even higher for coastline
