@@ -79,7 +79,7 @@ void sun_precalc(date d, double *delta, double *eqn)
 void sun_calc(double coords[2], double delta, double eqn, double *rise, double *set)
 {
 	double ha=hour_angle(coords[0], delta);
-	double noon=coords[1]*M_PI/180.0-eqn*M_PI*2.0;
+	double noon=-coords[1]*M_PI/180.0-eqn*M_PI*2.0;
 	if(rise) *rise=fmod(noon-ha+M_PI*2.0, M_PI*2.0);
 	if(set) *set=fmod(noon+ha+M_PI*2.0, M_PI*2.0);
 }
