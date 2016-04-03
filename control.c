@@ -1310,8 +1310,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		SDL_Surface *src;
 		SDL_Rect all={0, 0, 11, 11};
 		SDL_FillRect(GB_tfav[i], &all, SDL_MapRGB(GB_tfav[i]->format, 95, 95, 103));
-		if(state->tfav[i]<T_CLASSES)
+		if(state->tfav[i]<TCLASS_INDUSTRY)
 			src=ttype_icons[state->tfav[i]];
+		else if(state->tfav[i]==TCLASS_INDUSTRY)
+			src=ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED];
 		else
 			src=ttype_nothing;
 		SDL_BlitSurface(src, &all, GB_tfav[i], &all);
