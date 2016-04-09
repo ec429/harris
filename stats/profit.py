@@ -11,7 +11,7 @@ class NoLastHI(EventMatchupError): pass
 class LastHIMismatch(EventMatchupError): pass
 class NoLastRA(EventMatchupError): pass
 
-def daily_profit(d, bombers, targets, start, stop, typ=None): # updates bombers, targets
+def daily_profit(d, bombers, targets, start, stop, typ=None, targ_id=None): # updates bombers, targets
 	lasthi = None
 	if stop:
 		return
@@ -68,7 +68,8 @@ def daily_profit(d, bombers, targets, start, stop, typ=None): # updates bombers,
 							f *= 1.2
 						if targets[ti][0]: # not 100% accurate but close enough
 							if start and (typ is None or bombers[acid][0] == typ):
-								bombers[acid][1] += h['data']['data']['bombs'] * f
+								if targ_id is None or rti == targ_id:
+									bombers[acid][1] += h['data']['data']['bombs'] * f
 								targets[rti][1] += h['data']['data']['bombs'] * f
 		elif h['class'] == 'T':
 			ti = h['data']['target']
@@ -82,7 +83,8 @@ def daily_profit(d, bombers, targets, start, stop, typ=None): # updates bombers,
 					raise NoLastRA(h)
 				rti = ra[acid]
 				if start and (typ is None or bombers[lasthi[1]][0] == typ):
-					bombers[lasthi[1]][1] += 15000
+					if targ_id is None or rti == targ_id:
+						bombers[lasthi[1]][1] += 15000
 					targets[rti][1] += 15000
 			elif h['data']['etyp'] == 'DM':
 				targets[ti][0]=h['data']['data']['cdmg']
@@ -95,25 +97,33 @@ def daily_profit(d, bombers, targets, start, stop, typ=None): # updates bombers,
 						raise NoLastRA(h)
 					rti = ra[acid]
 					if start and (typ is None or bombers[lasthi[1]][0] == typ):
-						bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
+						if targ_id is None or rti == targ_id:
+							bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
 						targets[rti][1] += 500*h['data']['data']['ddmg']
 
-def extract_profit(save, before=None, after=None):
+def extract_profit(save, before=None, after=None, targ_id=None):
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
 	targets = [[t['dmg'], 0, {i:0 for i in xrange(save.ntypes)}] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
-		daily_profit(d, bombers, targets, d[0]>=after if after else True, d[0]>=before if before else False)
+		daily_profit(d, bombers, targets, d[0]>=after if after else True, d[0]>=before if before else False, targ_id=targ_id)
 	bombers = {i:bombers[i] for i in bombers if bombers[i][3]}
 	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
 	deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
 	dead = {i: (len(deadresults[i]), sum(v[1] for v in deadresults[i].itervalues())) for i in results}
-	return {i: {'full':full[i], 'fullr':full[i][1]/full[i][0] if full[i][0] else 0,
-				'dead':dead[i], 'deadr':dead[i][1]/dead[i][0] if dead[i][0] else 0,
-				'opti':full[i][1]/dead[i][0] if dead[i][0] else 0}
-			for i in results
-			if save.prio[i] is not None or full[i][0]}
+	if targ_id is None:
+		return {i: {'full':full[i], 'fullr':full[i][1]/full[i][0] if full[i][0] else 0,
+					'dead':dead[i], 'deadr':dead[i][1]/dead[i][0] if dead[i][0] else 0,
+					'opti':full[i][1]/dead[i][0] if dead[i][0] else 0}
+				for i in results
+				if save.prio[i] is not None or full[i][0]}
+	else:
+		return {i: {'full':full[i], 'fullr':full[i][1]/full[i][0] if full[i][0] else 0,
+					'dead':dead[i], 'deadr':dead[i][1]/targets[targ_id][2][i] if targets[targ_id][2][i] else 0,
+					'opti':full[i][1]/targets[targ_id][2][i] if targets[targ_id][2][i] else 0}
+				for i in results
+				if save.prio[i] is not None or full[i][0]}
 
 def extract_targ_profit(save, before=None, after=None, typ=None):
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
@@ -131,6 +141,7 @@ def parse_args(argv):
 	x.add_option('-b', '--before', type='string')
 	x.add_option('-t', '--by-target', action='store_true')
 	x.add_option('--type', type='string')
+	x.add_option('--targ', type='string')
 	opts, args = x.parse_args()
 	if opts.type:
 		if not opts.by_target:
@@ -142,6 +153,14 @@ def parse_args(argv):
 				opts.type=int(opts.type)
 			except ValueError:
 				x.error("No such type", opts.type)
+	if opts.targ:
+		try:
+			opts.targ=[t['name'] for t in hdata.Targets].index(opts.targ)
+		except ValueError:
+			try:
+				opts.targ=int(opts.targ)
+			except ValueError:
+				x.error("No such targ", opts.targ)
 	return opts, args
 
 if __name__ == '__main__':
@@ -162,7 +181,7 @@ if __name__ == '__main__':
 				ratio = '--'
 			print "%s: %9d / %9d = %s" % (name, gain, loss, ratio)
 	else:
-		profit = extract_profit(save, before, after)
+		profit = extract_profit(save, before, after, targ_id=opts.targ)
 		for i in profit:
 			name = extra_data.Bombers[hdata.Bombers[i]['name']]['short']
 			full = "(%d) = %g" % (profit[i]['full'][0], profit[i]['fullr'])
