@@ -411,7 +411,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 	state->roe.idtar=datebefore(state->now, event[EVENT_CIV]);
 	double moonphase=pom(state->now);
 	double moonillum=foldpom(moonphase);
-	double flakscale=state->gprod[ICLASS_ARM]/(GET_DC(state,FLAK)*10000.0);
+	double flakscale=state->gprod[ICLASS_ARM]/(GET_DC(state,FLAK)*12000.0);
 	unsigned int rcity=GET_DC(state,RCITY),
 	             rindus=GET_DC(state,RINDUS),
 	             rship=GET_DC(state,RSHIP),

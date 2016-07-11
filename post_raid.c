@@ -533,7 +533,7 @@ void produce(int targ, game *state, double amount)
 		case ICLASS_UBOOT:
 		break;
 		case ICLASS_ARM:
-			amount=min(amount, state->gprod[ICLASS_STEEL]);
+			amount=min(amount, state->gprod[ICLASS_STEEL]*1.2);
 			state->gprod[ICLASS_STEEL]-=amount;
 		break;
 		case ICLASS_AC:
