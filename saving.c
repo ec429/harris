@@ -93,7 +93,7 @@ int loadgame(const char *fn, game *state)
 			}
 			if(dcl!=DIFFICULTY_CLASSES)
 			{
-				fprintf(stderr, "2 Value mismatch: different DClasses value\n");
+				fprintf(stderr, "2 Value mismatch: different DClasses value (%u!=%u)\n", dcl, DIFFICULTY_CLASSES);
 				e|=2;
 			}
 		}
@@ -182,7 +182,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(sntypes!=ntypes)
 			{
-				fprintf(stderr, "2 Value mismatch: different ntypes value\n");
+				fprintf(stderr, "2 Value mismatch: different ntypes value (%u!=%u)\n", sntypes, ntypes);
 				e|=2;
 			}
 			else
@@ -238,7 +238,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(snnav!=NNAVAIDS)
 			{
-				fprintf(stderr, "2 Value mismatch: different nnav value\n");
+				fprintf(stderr, "2 Value mismatch: different nnav value (%u!=%u)\n", snnav, NNAVAIDS);
 				e|=2;
 			}
 			else
@@ -410,7 +410,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(snclass!=ICLASS_MIXED)
 			{
-				fprintf(stderr, "2 Value mismatch: different iclasses value\n");
+				fprintf(stderr, "2 Value mismatch: different iclasses value (%u!=%u)\n", snclass, ICLASS_MIXED);
 				e|=2;
 			}
 			else
@@ -458,7 +458,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(snftypes!=nftypes)
 			{
-				fprintf(stderr, "2 Value mismatch: different nftypes value\n");
+				fprintf(stderr, "2 Value mismatch: different nftypes value (%u!=%u)\n", snftypes, nftypes);
 				e|=2;
 			}
 		}
@@ -473,7 +473,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(snfbases!=nfbases)
 			{
-				fprintf(stderr, "2 Value mismatch: different nfbases value\n");
+				fprintf(stderr, "2 Value mismatch: different nfbases value (%u!=%u)\n", snfbases, nfbases);
 				e|=2;
 			}
 		}
@@ -537,7 +537,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(snflaks!=nflaks)
 			{
-				fprintf(stderr, "2 Value mismatch: different nflaks value\n");
+				fprintf(stderr, "2 Value mismatch: different nflaks value (%u!=%u)\n", snflaks, nflaks);
 				e|=2;
 			}
 			else
@@ -600,7 +600,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(sntargs!=ntargs)
 			{
-				fprintf(stderr, "2 Value mismatch: different ntargs value\n");
+				fprintf(stderr, "2 Value mismatch: different ntargs value (%u!=%u)\n", sntargs, ntargs);
 				e|=2;
 			}
 			else
@@ -723,7 +723,7 @@ int loadgame(const char *fn, game *state)
 			}
 			else if(snmsgs > MAXMSGS)
 			{
-				fprintf(stderr, "2 Value mismatch: too many messages\n");
+				fprintf(stderr, "2 Value mismatch: too many messages (%u>%u)\n", snmsgs, MAXMSGS);
 				e|=2;
 			}
 			else
