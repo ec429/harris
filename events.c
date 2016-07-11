@@ -9,7 +9,7 @@
 
 	#include "events.h"
 	
-const char *event_names[74]={
+const char *event_names[75]={
 	"NORWAY",
 	"CIV",
 	"BARGE",
@@ -34,6 +34,7 @@ const char *event_names[74]={
 	"ALLGEE",
 	"H2S",
 	"GH",
+	"MOD_TWINGUN",
 	"MOD_SSTANK",
 	"MOD_SSTEND",
 	"MOD_RELEASE",

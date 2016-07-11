@@ -12,10 +12,12 @@
 # So please keep this whole file in date order.
 
 # Description            A/c name    stat    old     new   DD-MM-YYYY
+Twin guns in turret     :Blenheim   :defn :     28:     27:11-01-1940
+Extra dorsal guns       :Hampden    :defn :     24:     23:11-01-1940
 Self-sealing tank       :Whitley    :defn :     32:     30:06-02-1940
 Self-sealing tank       :Wellington :defn :     15:     14:29-02-1940
-Self-sealing tank       :Hampden    :defn :     24:     23:21-03-1940
-Self-sealing tank       :Blenheim   :defn :     28:     26:04-05-1940
+Self-sealing tank       :Hampden    :defn :     23:     22:21-03-1940
+Self-sealing tank       :Blenheim   :defn :     27:     25:04-05-1940
 Electric bomb release   :Whitley    :accu :     32:     34:10-08-1940
 Crew rationalisation    :Stirling   :crew :PPNWEGG:PNBWEGG:18-04-1941
 Crew rationalisation    :Manchester :crew :PPNBWGG:PNBWEGG:22-04-1941
