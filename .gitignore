@@ -3,5 +3,6 @@ save/*.sav
 *.o
 *.pyc
 events.h
+events.c
 mysav
 dat/cities/composed.pnm

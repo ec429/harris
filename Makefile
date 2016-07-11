@@ -36,7 +36,7 @@ clean:
 	-rm harris harris.o $(OBJS) $(SAVES)
 
 realclean: clean
-	-rm events.h
+	-rm events.h events.c
 
 include stats/Makefile
 

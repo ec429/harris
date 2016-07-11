@@ -8,17 +8,17 @@ assert len(sys.argv) == 2, sys.argv
 
 if sys.argv[1] == 'h':
 	print """/*
-		harris - a strategy game
-		Copyright (C) 2012-2013 Edward Cree
+	harris - a strategy game
+	Copyright (C) 2012-2013 Edward Cree
 
-		licensed under GPLv3+ - see top of harris.c for details
-	
-		events: maps event names to ids
-	*/
+	licensed under GPLv3+ - see top of harris.c for details
 
-	#ifndef HAVE_EVENTS_H
-	#define HAVE_EVENTS_H
-	"""
+	events: maps event names to ids
+*/
+
+#ifndef HAVE_EVENTS_H
+#define HAVE_EVENTS_H
+"""
 
 	for i,e in enumerate(Events):
 		print "#define EVENT_%s %d" % (e['id'], i)
@@ -32,16 +32,16 @@ if sys.argv[1] == 'h':
 else:
 	assert sys.argv[1] == 'c', sys.argv
 	print """/*
-		harris - a strategy game
-		Copyright (C) 2012-2013 Edward Cree
+	harris - a strategy game
+	Copyright (C) 2012-2013 Edward Cree
 
-		licensed under GPLv3+ - see top of harris.c for details
-	
-		events: maps event names to ids
-	*/
+	licensed under GPLv3+ - see top of harris.c for details
 
-	#include "events.h"
-	"""
+	events: maps event names to ids
+*/
+
+#include "events.h"
+"""
 
 	print "const char *event_names[%d]={" % len(Events)
 	for e in Events:
