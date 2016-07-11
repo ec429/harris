@@ -69,8 +69,10 @@ Dresden:              16: 9:32:130:238:14-02-1942:          :CITY,RAIL,FLAMMABLE
 Magdeburg:            15: 8:25:105:208:14-02-1942:          :CITY
 Schweinfurt:          24:14:16:152:189:14-02-1942:          :CITY
 Kassel:               11: 7:14:127:178:14-02-1942:          :CITY
+Bielefeld:            12: 6:12:110:166:14-02-1942:10-04-1945:CITY
 Mainz:                 9: 5: 9:154:161:14-02-1942:          :CITY,RAIL
 Mannheim:              8: 6:10:165:166:15-12-1940:          :CITY,FLAMMABLE
+Saarbrücken:          11: 6:11:169:143:14-02-1942:20-03-1945:CITY,STEEL
 Wilhelmshaven:        10: 9:14: 71:159:14-02-1942:          :CITY,UBOOT
 Lübeck:               12: 8:18: 66:197:14-02-1942:          :CITY,FLAMMABLE
 Rostock:              13: 6:16: 60:211:14-02-1942:          :CITY,UBOOT
@@ -94,11 +96,16 @@ Stuttgart Leaflets:    3: 4:20:180:175:          :14-02-1942:LEAFLET,@Stuttgart
 Aalborg Airfield:     13:16:18:  1:183:18-04-1940:27-04-1940:AIRFIELD
 Waalhaven Airfield:   10:15:20:113:109:10-05-1940:15-05-1940:AIRFIELD
 Maastrichtweg Bridge:  8:18:14:135:125:11-05-1940:14-05-1940:BRIDGE
+Tongres Bridge:        6:14:10:136:123:12-05-1940:15-05-1940:BRIDGE
+Gembloux:              5:10: 6:141:112:16-05-1940:19-05-1940:ROAD
 Breda road junction:   6: 8: 7:118:114:14-05-1940:28-05-1940:ROAD
+Bapaume-Arras road:    5:11: 7:154: 87:19-05-1940:22-05-1940:ROAD
 Sedan bridge:          9:12: 9:162:116:14-05-1940:17-05-1940:BRIDGE
 Le Cateau road junction:8:14:6:152: 96:17-05-1940:21-05-1940:ROAD
 Soesterberg Airfield: 12:16:15:105:120:20-05-1940:14-02-1942:AIRFIELD
 Wesel road bridge:     8:16:10:115:139:10-05-1940:14-05-1940:BRIDGE
+Calais Area:           9:12:12:137: 78:23-05-1940:26-05-1940:ROAD
+Near Dunkirk:         12:12:12:134: 82:26-05-1940:04-06-1940:ROAD
 
 # Specific industrial targets (CIV-ABD)
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
@@ -131,10 +138,12 @@ Junkers, Dessau:      14: 8:12:109:217:15-05-1940:14-02-1942:INDUSTRY,AC,@Magdeb
 Stuttgart U-boat Works:9: 6:12:180:174:17-05-1940:14-02-1942:INDUSTRY,UBOOT,@Stuttgart
 VKF Schweinfurt:      18:11: 9:152:189:19-05-1940:14-02-1942:INDUSTRY,BB,@Schweinfurt
 Henschel Tank Works:  13: 7:11:128:178:16-05-1940:14-02-1942:INDUSTRY,ARM,@Kassel
+MAN, Nuremberg:       15: 5:12:166:203:29-05-1940:14-02-1942:INDUSTRY,ARM,@Nuremberg
 Munich Railyards:     11:15:21:192:208:15-05-1940:14-02-1942:INDUSTRY,RAIL,@Munich
 Siemens, Munich:      16: 9:15:194:207:18-05-1940:14-02-1942:INDUSTRY,RADAR,@Munich
 Hamm Railyards:       10: 5:18:117:154:19-05-1940:14-02-1942:INDUSTRY,RAIL,@Hamm
 Duisburg Ironworks:   17: 5:26:122:141:16-05-1940:14-02-1942:INDUSTRY,STEEL,@Duisburg
+Paderborn Tank Works: 15: 6:10:115:169:02-06-1940:14-02-1942:INDUSTRY,ARM,@Bielefeld
 Hanover Bauwerke:     10: 6:14:101:182:18-05-1940:14-02-1942:INDUSTRY,ARM,@Hanover
 Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:14-02-1942:INDUSTRY,UBOOT,@Wilhelmshaven
 

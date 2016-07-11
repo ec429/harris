@@ -15,7 +15,7 @@ OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o savi
 INCLUDES := $(OBJS:.o=.h) types.h globals.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
-all: harris.exe $(SAVES) dat/targets dat/cities/Lubeck.pbm dat/cities/Peenemunde.pbm
+all: harris.exe $(SAVES) dat/targets dat/cities/Saarbrucken.pbm dat/cities/Lubeck.pbm dat/cities/Peenemunde.pbm
 
 harris.exe: harris.o $(OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $(SDL) harris.o -o $@
@@ -37,6 +37,9 @@ dat/targets: FORCE
 
 dat/locations: FORCE
 	sed -i dat/locations -e 's/ö/o/g' -e 's/ü/u/g' -e 's/è/e/g'
+
+dat/cities/Saarbrucken.pbm: dat/cities/Saarbrücken.pbm
+	cp dat/cities/Saarbrücken.pbm dat/cities/Saarbrucken.pbm
 
 dat/cities/Lubeck.pbm: dat/cities/Lübeck.pbm
 	cp dat/cities/Lübeck.pbm dat/cities/Lubeck.pbm
