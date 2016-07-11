@@ -84,25 +84,25 @@ Fighters:181
 *15*Type 5:5,0,NOID
 Targets:109
 #Mannheim
-Targ 53:45,30,0,48
+Targ 54:45,30,0,48
 #München-Gladbach
-Targ 73:64,80,0,40
+Targ 80:64,80,0,40
 #Dusseldorf Steel Mill
-Targ 76:40,60,0,40
+Targ 83:40,60,0,40
 #Krupps, Essen
-Targ 77:86,100,0,40
+Targ 84:86,100,0,40
 #Hamburg Oil Refinery
-Targ 79:78,80,0,40
+Targ 86:78,80,0,40
 #Hamm Railyards
-Targ 99:60,56,0,40
+Targ 107:60,56,0,40
 #Duisburg Ironworks
-Targ 100:50,75,0,40
+Targ 108:50,75,0,40
 #Heligoland Minelaying
-Targ 103:60,100,0,40
+Targ 112:60,100,0,40
 #Biscay Minelaying
-Targ 104:48,100,0,40
+Targ 113:48,100,0,40
 #!LAST! Baltic Minelaying
-Targ 108:92,100,0,40
+Targ 117:92,100,0,40
 Weather rand:2282901
 Messages:1
 14-02-1942:ORDERS

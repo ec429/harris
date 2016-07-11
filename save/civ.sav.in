@@ -76,9 +76,9 @@ Fighters:183
 *20*Type 3:5,0,NOID
 Targets:109
 #Heligoland Minelaying
-Targ 103:92,100,0,40
+Targ 112:92,100,0,40
 #!LAST! Baltic Minelaying
-Targ 108:98,100,0,40
+Targ 117:98,100,0,40
 Weather rand:327019
 Messages:1
 15-05-1940:ORDERS
