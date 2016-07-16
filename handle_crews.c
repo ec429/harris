@@ -16,6 +16,8 @@
 #include "render.h"
 
 #define HCTBL_BG_COLOUR	(atg_colour){23, 23, 31, ATG_ALPHA_OPAQUE}
+#define HC_SKILL_HHEIGHT	12
+#define HC_SKILL_FHEIGHT	(HC_SKILL_HHEIGHT * 2)
 
 atg_element *handle_crews_box;
 
@@ -175,7 +177,7 @@ int handle_crews_create(void)
 				perror("atg_ebox_pack");
 				return(1);
 			}
-			HC_skill[i][status]=SDL_CreateRGBSurface(SDL_HWSURFACE, 101, 17, 32,  0xff000000, 0xff0000, 0xff00, 0xff);
+			HC_skill[i][status]=SDL_CreateRGBSurface(SDL_HWSURFACE, 101, HC_SKILL_FHEIGHT, 32,  0xff000000, 0xff0000, 0xff00, 0xff);
 			if(!HC_skill[i][status])
 			{
 				fprintf(stderr, "HC_skill[][]=SDL_CreateRGBSurface: %s\n", SDL_GetError());
@@ -207,7 +209,7 @@ int handle_crews_create(void)
 					return(1);
 				}
 				unsigned int sta=status?1:0;
-				HC_tops[i][sta]=SDL_CreateRGBSurface(SDL_HWSURFACE, 31, 17, 32,  0xff000000, 0xff0000, 0xff00, 0xff);
+				HC_tops[i][sta]=SDL_CreateRGBSurface(SDL_HWSURFACE, 31, HC_SKILL_FHEIGHT, 32,  0xff000000, 0xff0000, 0xff00, 0xff);
 				if(!HC_tops[i][sta])
 				{
 					fprintf(stderr, "HC_tops[][]=SDL_CreateRGBSurface: %s\n", SDL_GetError());
@@ -395,9 +397,9 @@ void update_crews(game *state)
 				break;
 			}
 			SDL_FillRect(HC_skill[i][j], &(SDL_Rect){0, 0, HC_skill[i][j]->w, HC_skill[i][j]->h}, SDL_MapRGB(HC_skill[i][j]->format, 7, 7, 15));
-			line(HC_skill[i][j], 50, 0, 50, 16, (atg_colour){23, 23, 23, ATG_ALPHA_OPAQUE});
-			line(HC_skill[i][j], 25, 0, 25, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
-			line(HC_skill[i][j], 75, 0, 75, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
+			line(HC_skill[i][j], 50, 0, 50, HC_SKILL_FHEIGHT, (atg_colour){23, 23, 23, ATG_ALPHA_OPAQUE});
+			line(HC_skill[i][j], 25, 0, 25, HC_SKILL_FHEIGHT, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
+			line(HC_skill[i][j], 75, 0, 75, HC_SKILL_FHEIGHT, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
 			if(j<2)
 				SDL_FillRect(HC_tops[i][j], &(SDL_Rect){0, 0, HC_tops[i][j]->w, HC_tops[i][j]->h}, SDL_MapRGB(HC_tops[i][j]->format, 7, 7, 15));
 			if(count[i][j])
@@ -405,20 +407,20 @@ void update_crews(game *state)
 				{
 					double frac=dens[i][j][k]/(double)mxd;
 					unsigned int br=63+ceil(frac*192);
-					line(HC_skill[i][j], k, 8-ceil(frac*8), k, 8+ceil(frac*8), (atg_colour){br, br, br, ATG_ALPHA_OPAQUE});
+					line(HC_skill[i][j], k, HC_SKILL_HHEIGHT-ceil(frac*HC_SKILL_HHEIGHT), k, HC_SKILL_HHEIGHT+ceil(frac*HC_SKILL_HHEIGHT), (atg_colour){br, br, br, ATG_ALPHA_OPAQUE});
 				}
 			if(j<2 && count[i][j*2])
 			{
 				unsigned int mxt=0;
 				for(unsigned int k=0;k<31;k++)
 					mxt=max(tops[i][j][k], mxt);
-				line(HC_tops[i][j], 10, 0, 10, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
-				line(HC_tops[i][j], 20, 0, 20, 16, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
+				line(HC_tops[i][j], 10, 0, 10, HC_SKILL_FHEIGHT, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
+				line(HC_tops[i][j], 20, 0, 20, HC_SKILL_FHEIGHT, (atg_colour){15, 15, 23, ATG_ALPHA_OPAQUE});
 				for(unsigned int k=0;k<31;k++)
 				{
 					double frac=tops[i][j][k]/(double)mxt;
 					unsigned int br=63+ceil(frac*63);
-					line(HC_tops[i][j], k, 8-ceil(frac*8), k, 8+ceil(frac*8), (atg_colour){br, 7, 15, ATG_ALPHA_OPAQUE});
+					line(HC_tops[i][j], k, HC_SKILL_HHEIGHT-ceil(frac*HC_SKILL_HHEIGHT), k, HC_SKILL_HHEIGHT+ceil(frac*HC_SKILL_HHEIGHT), (atg_colour){br, 7, 15, ATG_ALPHA_OPAQUE});
 				}
 			}
 		}
