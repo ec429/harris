@@ -227,6 +227,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		// Raid Results table
 		unsigned int dj[ntypes], nj[ntypes], tbj[ntypes], tlj[ntypes], tsj[ntypes], tmj[ntypes], lj[ntypes];
 		unsigned int D=0, N=0, Tb=0, Tl=0, Ts=0, Tm=0, L=0;
+		double confD=0, confN=0;
 		unsigned int scoreTb=0, scoreTl=0, scoreTm=0;
 		unsigned int ntcols=0;
 		for(unsigned int j=0;j<ntypes;j++)
@@ -247,6 +248,8 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 				if(targs[i].iclass==state->ifav[1])
 					sf*=0.8;
 				if(targs[i].berlin) sf*=2;
+				confD+=dij[i][j]*sf;
+				confN+=nij[i][j]*sf;
 				if(targs[i].class==TCLASS_INDUSTRY) sf*=2;
 				if(targs[i].iclass==ICLASS_UBOOT) sf*=1.2;
 				switch(targs[i].class)
@@ -261,7 +264,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 					break;
 					case TCLASS_LEAFLET:
 						tlj[j]+=tij[i][j];
-						if(canscore[i]) scoretlj+=tij[i][j]*(targs[i].berlin?2:1);
+						if(canscore[i]) scoretlj+=tij[i][j]*sf;
 					break;
 					case TCLASS_SHIPPING:
 						tsj[j]+=tij[i][j];
@@ -306,13 +309,13 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		state->cshr+=Ts*      600   *ssf;
 		state->cshr+=bridge* 2000e-2*bsf;
 		double par=0.2+((state->now.year-1939)*0.125);
-		state->confid+=(N/(double)D-par)*(1.0+log2(D)/2.0)*0.6;
+		state->confid+=(confN/(double)D-par)*(1.0+log2(confD)/2.0)*0.6;
 		state->confid+=Ts*0.15;
 		state->confid+=cidam*0.08;
 		state->confid=min(max(state->confid, 0), 100);
 		co_append(&state->hist, state->now, (harris_time){11, 05}, state->confid);
 		state->morale+=(1.75-L*100.0/(double)D)/5.0;
-		if((L==0)&&(D>5)) state->morale+=0.3;
+		if((L==0)&&(D>15)) state->morale+=0.3;
 		if(D>=100) state->morale+=0.2;
 		if(D>=1000) state->morale+=1.0;
 		state->morale=min(max(state->morale, 0), 100);

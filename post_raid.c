@@ -69,6 +69,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	state->cshr+=state->morale;
 	state->cshr*=.96;
 	state->cash+=state->cshr;
+	state->confid*=.98;
 	ca_append(&state->hist, state->now, (harris_time){11, 20}, state->cshr, state->cash);
 	// Choose new [dis]favoured targets
 	for(unsigned int i=0;i<2;i++)
