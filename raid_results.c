@@ -229,6 +229,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		unsigned int D=0, N=0, Tb=0, Tl=0, Ts=0, Tm=0, L=0;
 		double confD=0, confN=0;
 		unsigned int scoreTb=0, scoreTl=0, scoreTm=0;
+		double scoreTs=0;
 		unsigned int ntcols=0;
 		for(unsigned int j=0;j<ntypes;j++)
 		{
@@ -248,17 +249,18 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 				if(targs[i].iclass==state->ifav[1])
 					sf*=0.8;
 				if(targs[i].berlin) sf*=2;
+				if(targs[i].iclass==ICLASS_UBOOT) sf*=1.2;
 				confD+=dij[i][j]*sf;
 				confN+=nij[i][j]*sf;
-				if(targs[i].class==TCLASS_INDUSTRY) sf*=2;
-				if(targs[i].iclass==ICLASS_UBOOT) sf*=1.2;
 				switch(targs[i].class)
 				{
-					case TCLASS_CITY:
 					case TCLASS_AIRFIELD:
 					case TCLASS_ROAD:
 					case TCLASS_BRIDGE:
+						sf*=1.5;
 					case TCLASS_INDUSTRY:
+						sf*=2;
+					case TCLASS_CITY:
 						tbj[j]+=tij[i][j];
 						if(canscore[i]) scoretbj+=tij[i][j]*sf;
 					break;
@@ -268,6 +270,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 					break;
 					case TCLASS_SHIPPING:
 						tsj[j]+=tij[i][j];
+						scoreTs+=tij[i][j]*sf;
 					break;
 					case TCLASS_MINING:
 						tmj[j]+=tij[i][j];
@@ -294,11 +297,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		atg_ebox_empty(raid_results_box);
 		create_trow();
 		create_typerow(dj);
-		double ssf=1, bsf=1;
-		if(state->tfav[0]==TCLASS_SHIPPING)
-			ssf*=1.2;
-		if(state->tfav[1]==TCLASS_SHIPPING)
-			ssf*=0.8;
+		double bsf=1;
 		if(state->tfav[0]==TCLASS_BRIDGE)
 			bsf*=1.2;
 		if(state->tfav[1]==TCLASS_BRIDGE)
@@ -306,7 +305,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		state->cshr+=scoreTb*  80e-4;
 		state->cshr+=scoreTl*   6e-4;
 		state->cshr+=scoreTm*  12e-4;
-		state->cshr+=Ts*      600   *ssf;
+		state->cshr+=scoreTs* 600;
 		state->cshr+=bridge* 2000e-2*bsf;
 		double par=0.2+((state->now.year-1939)*0.125);
 		state->confid+=(confN/(double)D-par)*(1.0+log2(confD)/2.0)*0.6;

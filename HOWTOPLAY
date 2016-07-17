@@ -121,13 +121,19 @@ Budget
 ~~~~~~
 The budget decreases by 4% each day, and is increased by successful raids as follows:
 Item            Per day   Total
-10,000lb bombs     £80    £2000  Note: This is doubled for 'specific industrial targets', and doubled for Berlin.  It is 20% higher for the U-boat industry.  Bombs dropped on shipping are not counted here, but bridges are.
-10,000 leaflets     £6     £150  Note: This is doubled for Berlin
+10,000lb bombs     £80    £2000  Note: Bombs dropped on shipping are not counted here, but those dropped on bridges are.
+10,000 leaflets     £6     £150
 10,000lb mines     £12     £300
 Ship sunk         £600   £15000
-Bridge destroyed £2000   £50000
+Bridge destroyed £2000   £50000  Note: multipliers are not applied.
 In the above table, the extra column headed "Total" gives the (approximate) total payout, based on the formula for the sum of a geometric progression.  Since the common ratio is 0.96, this is (1/1-0.96) = 25 times the value in the "Per day" column.
-The budget is also increased by £2/day for each percentage point of Confidence, and £1/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£300 * 25 =) £7500/day.
+Multipliers:
+Berlin			x2 (Includes the city itself, Berlin Leaflets, and any industrial target in Berlin)
+Specific industrial	x2 (Targets of class "Industry")
+Tactical target		x3 (Targets of class "Airfield", "Bridge" or "Road junction")
+U-boat industry		x1.2 (Kiel Dockyards; cities Bremen, Kiel, Wilhelmshaven and Rostock; industries of class "U-boats/Shipyards")
+These multipliers stack, so for instance a U-boat factory in Berlin will be x4.8 (Berlin * Specific industrial target * U-boat industry = 2 * 2 * 1.2).
+The budget is also increased by £2/day for each percentage point of Confidence, and £1/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£300 * 25 =) £7500/day (except that Confidence will erode over time).
 The Air Ministry will from time to time indicate a stronger interest in targets of a given type or industry; these will be shown by the 'Priority' icons (on the left, just below Morale).  Budget contributions from attacks on priority targets are 20% higher.  Conversely, some target types or industries may be deemed inconsequential and indicated by the 'Ignore' icons; the pay-off for attacking these is 20% lower.  Note that the Air Ministry frequently changes its mind about its priorities; target type priorities will last around two weeks, while industry priorities will last about a month.
 
 Reference
