@@ -132,9 +132,12 @@ Berlin			x2 (Includes the city itself, Berlin Leaflets, and any industrial targe
 Specific industrial	x2 (Targets of class "Industry")
 Tactical target		x3 (Targets of class "Airfield", "Bridge" or "Road junction")
 U-boat industry		x1.2 (Kiel Dockyards; cities Bremen, Kiel, Wilhelmshaven and Rostock; industries of class "U-boats/Shipyards")
+Priority target class	x1.2
+Priority industry	x1.2
+Ignored class/industry	x0.8
 These multipliers stack, so for instance a U-boat factory in Berlin will be x4.8 (Berlin * Specific industrial target * U-boat industry = 2 * 2 * 1.2).
 The budget is also increased by £2/day for each percentage point of Confidence, and £1/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£300 * 25 =) £7500/day (except that Confidence will erode over time).
-The Air Ministry will from time to time indicate a stronger interest in targets of a given type or industry; these will be shown by the 'Priority' icons (on the left, just below Morale).  Budget contributions from attacks on priority targets are 20% higher.  Conversely, some target types or industries may be deemed inconsequential and indicated by the 'Ignore' icons; the pay-off for attacking these is 20% lower.  Note that the Air Ministry frequently changes its mind about its priorities; target type priorities will last around two weeks, while industry priorities will last about a month.
+The Air Ministry will from time to time indicate a stronger interest in targets of a given type or industry; these will be shown by the 'Priority' icons (on the left, just below Morale).  Conversely, some target types or industries may be deemed inconsequential and indicated by the 'Ignore' icons.  These priorities affect the budget contributions as shown above in the Multipliers table; they also affect a raid's effect on Confidence.  Note that the Air Ministry frequently changes its mind about its priorities; target type priorities will last around two weeks, while industry priorities will last about a month.
 
 Reference
 ~~~~~~~~~
