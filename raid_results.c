@@ -307,10 +307,10 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		state->cshr+=scoreTm*  12e-4;
 		state->cshr+=scoreTs* 600;
 		state->cshr+=bridge* 2000e-2*bsf;
-		double par=0.2+((state->now.year-1939)*0.125);
-		state->confid+=(confN/(double)D-par)*(1.0+log2(confD)/2.0)*0.6;
-		state->confid+=Ts*0.15;
-		state->confid+=cidam*0.08;
+		double par=0.2+((state->now.year-1939)*0.12);
+		state->confid+=(confN/(double)D-par)*(1.0+log2(confD)/2.0)*0.8;
+		state->confid+=Ts*0.2;
+		state->confid+=cidam*0.1;
 		state->confid=min(max(state->confid, 0), 100);
 		state->morale+=(1.75-L*100.0/(double)D)/5.0;
 		if((L==0)&&(D>15)) state->morale+=0.3;
