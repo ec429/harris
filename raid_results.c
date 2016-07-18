@@ -312,13 +312,11 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		state->confid+=Ts*0.15;
 		state->confid+=cidam*0.08;
 		state->confid=min(max(state->confid, 0), 100);
-		co_append(&state->hist, state->now, (harris_time){11, 05}, state->confid);
 		state->morale+=(1.75-L*100.0/(double)D)/5.0;
 		if((L==0)&&(D>15)) state->morale+=0.3;
 		if(D>=100) state->morale+=0.2;
 		if(D>=1000) state->morale+=1.0;
 		state->morale=min(max(state->morale, 0), 100);
-		mo_append(&state->hist, state->now, (harris_time){11, 05}, state->morale);
 		unsigned int ntrows=0;
 		for(unsigned int i=0;i<ntargs;i++)
 		{

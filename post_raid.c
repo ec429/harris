@@ -33,6 +33,8 @@ int post_raid_create(void)
 
 screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *state)
 {
+	co_append(&state->hist, state->now, (harris_time){11, 05}, state->confid);
+	mo_append(&state->hist, state->now, (harris_time){11, 05}, state->morale);
 	for(unsigned int i=0;i<state->nbombers;i++)
 	{
 		unsigned int type=state->bombers[i].type;
