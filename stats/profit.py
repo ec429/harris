@@ -53,11 +53,11 @@ def daily_profit(d, bombers, targets, start, stop, typ=None, targ_id=None): # up
 						elif 'LEAFLET' in targ['flags']:
 							f = 0.015
 						elif 'AIRFIELD' in targ['flags']:
-							f = 0.2
+							f = 0.6
 						elif 'BRIDGE' in targ['flags']:
-							f = 0.2
+							f = 0.6
 						elif 'ROAD' in targ['flags']:
-							f = 0.2
+							f = 0.6
 						elif 'INDUSTRY' in targ['flags']:
 							f = 0.4
 						else:
@@ -83,9 +83,12 @@ def daily_profit(d, bombers, targets, start, stop, typ=None, targ_id=None): # up
 					raise NoLastRA(h)
 				rti = ra[acid]
 				if start and (typ is None or bombers[lasthi[1]][0] == typ):
+					sf = 1.0
+					if 'UBOOT' in targ['flags']:
+						sf *= 1.2
 					if targ_id is None or rti == targ_id:
-						bombers[lasthi[1]][1] += 15000
-					targets[rti][1] += 15000
+						bombers[lasthi[1]][1] += 15000 * sf
+					targets[rti][1] += 15000 * sf
 			elif h['data']['etyp'] == 'DM':
 				targets[ti][0]=h['data']['data']['cdmg']
 				if 'BRIDGE' in targ['flags']:
