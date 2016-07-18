@@ -30,6 +30,8 @@ def extract_raids(f):
 			raids = int(raids)
 			losses = int(losses)
 			crecord[typ, targ] = (raids, losses)
+	if current:
+		records[current] = crecord
 	return records
 
 def extract_losstype(f, after=None, before=None):
