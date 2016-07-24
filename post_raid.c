@@ -513,6 +513,17 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		{
 			if(msgadd(canvas, state, state->now, event_names[ev], evtext[ev]))
 				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
+			if(ev==EVENT_UBOAT)
+			{
+				/* Prioritise U-Boat targets */
+				state->ifav[0]=ICLASS_UBOOT;
+				state->ifd[0]=24;
+				if(state->ifav[1]==ICLASS_UBOOT)
+				{
+					state->ifav[1]=0;
+					state->ifd[1]=1;
+				}
+			}
 		}
 	}
 	return(SCRN_CONTROL);
