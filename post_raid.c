@@ -19,6 +19,8 @@
 #include "rand.h"
 #include "control.h"
 
+void force_tprio(game *state, enum t_class cls, unsigned int days);
+void force_iprio(game *state, enum i_class cls, unsigned int days);
 void produce(int targ, game *state, double amount);
 void refill_students(game *state);
 void train_students(game *state);
@@ -515,20 +517,47 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		{
 			if(msgadd(canvas, state, state->now, event_names[ev], evtext[ev]))
 				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
-			if(ev==EVENT_UBOAT)
-			{
-				/* Prioritise U-Boat targets */
-				state->ifav[0]=ICLASS_UBOOT;
-				state->ifd[0]=24;
-				if(state->ifav[1]==ICLASS_UBOOT)
-				{
-					state->ifav[1]=0;
-					state->ifd[1]=1;
-				}
-			}
+			if(ev==EVENT_UBOAT) /* Prioritise U-Boat targets */
+				force_iprio(state, ICLASS_UBOOT, 24);
 		}
 	}
 	return(SCRN_CONTROL);
+}
+
+void force_tprio(game *state, enum t_class cls, unsigned int days)
+{
+	if(state->tfav[0]==cls)
+	{
+		state->tfd[0]=max(state->tfd[0], days);
+	}
+	else
+	{
+		state->tfav[0]=cls;
+		state->tfd[0]=days;
+		if(state->tfav[1]==cls)
+		{
+			state->tfav[1]=0;
+			state->tfd[1]=0;
+		}
+	}
+}
+
+void force_iprio(game *state, enum i_class cls, unsigned int days)
+{
+	if(state->ifav[0]==cls)
+	{
+		state->ifd[0]=max(state->ifd[0], days);
+	}
+	else
+	{
+		state->ifav[0]=cls;
+		state->ifd[0]=days;
+		if(state->ifav[1]==cls)
+		{
+			state->ifav[1]=0;
+			state->ifd[1]=0;
+		}
+	}
 }
 
 void post_raid_free(void)
