@@ -86,6 +86,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				{
 					if(targs[j].class!=state->tfav[i]) continue;
 					if(!datewithin(state->now, targs[j].entry, targs[j].exit)) continue;
+					if(!state->dmg[j]) continue;
 					have=true;
 					break;
 				}
@@ -102,6 +103,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				{
 					if(targs[j].iclass!=state->ifav[i]) continue;
 					if(!datewithin(state->now, targs[j].entry, targs[j].exit)) continue;
+					if(!state->dmg[j]) continue;
 					have=true;
 					break;
 				}
