@@ -519,11 +519,16 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
 			if(ev==EVENT_UBOAT) /* Prioritise U-Boat targets */
 				force_iprio(state, ICLASS_UBOOT, 24);
+			else if(ev==EVENT_MANNHEIM) /* Prioritise cities */
+				force_tprio(state, TCLASS_CITY, 7);
+			else if(ev==EVENT_NORWAY||ev==EVENT_BARGE) /* don't Ignore shipping */
+				force_tprio(state, TCLASS_SHIPPING, 0);
 		}
 	}
 	return(SCRN_CONTROL);
 }
 
+/* For these two functions, days==0 just means "ensure it's not Ignore" */
 void force_tprio(game *state, enum t_class cls, unsigned int days)
 {
 	if(state->tfav[0]==cls)
@@ -532,8 +537,11 @@ void force_tprio(game *state, enum t_class cls, unsigned int days)
 	}
 	else
 	{
-		state->tfav[0]=cls;
-		state->tfd[0]=days;
+		if(days)
+		{
+			state->tfav[0]=cls;
+			state->tfd[0]=days;
+		}
 		if(state->tfav[1]==cls)
 		{
 			state->tfav[1]=0;
@@ -550,8 +558,11 @@ void force_iprio(game *state, enum i_class cls, unsigned int days)
 	}
 	else
 	{
-		state->ifav[0]=cls;
-		state->ifd[0]=days;
+		if(days)
+		{
+			state->ifav[0]=cls;
+			state->ifd[0]=days;
+		}
 		if(state->ifav[1]==cls)
 		{
 			state->ifav[1]=0;
