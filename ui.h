@@ -12,12 +12,12 @@
 #define GAME_BG_COLOUR	(atg_colour){31, 31, 15, ATG_ALPHA_OPAQUE}
 
 #define default_w		800
-#define default_h		720
+#define default_h		800
 
 #define RS_cell_w		112
 #define RS_firstcol_w	128
 #define RS_cell_h		56
-#define RS_lastrow_h	100
+#define RS_lastrow_h	94
 
 typedef enum
 {
