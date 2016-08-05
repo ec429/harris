@@ -151,7 +151,15 @@ def misc_parse(text):
 		iclass, gprod, dprod = text.split(' ', 2)
 		if ' ' in dprod: raise ExcessData('M', 'GP', dprod.split(' ', 1)[1])
 		return {'iclass':int(iclass), 'gprod':float.fromhex(gprod), 'dprod':float.fromhex(dprod)}
-	parsers = {'CA':cash_parse, 'CO':confid_parse, 'MO':morale_parse, 'GP':gprod_parse}
+	def tprio_parse(text):
+		tclass, ignore = text.split(' ', 1)
+		if ' ' in ignore: raise ExcessData('M', 'TP', ignore.split(' ', 1)[1])
+		return {'tclass':int(tclass), 'ignore':bool(int(ignore))}
+	def iprio_parse(text):
+		iclass, ignore = text.split(' ', 1)
+		if ' ' in ignore: raise ExcessData('M', 'IP', ignore.split(' ', 1)[1])
+		return {'iclass':int(iclass), 'ignore':bool(int(ignore))}
+	parsers = {'CA':cash_parse, 'CO':confid_parse, 'MO':morale_parse, 'GP':gprod_parse, 'TP': tprio_parse, 'IP': iprio_parse}
 	etyp, rest = text.split(' ', 1)
 	return {'etyp':etyp,
 			'text':rest,
