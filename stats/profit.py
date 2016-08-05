@@ -11,10 +11,15 @@ class NoLastHI(EventMatchupError): pass
 class LastHIMismatch(EventMatchupError): pass
 class NoLastRA(EventMatchupError): pass
 
+london = hdata.Events.find('id', 'LONDON')
+if london is None:
+	raise Exception("No event LONDON found")
+
 def daily_profit(d, bombers, targets, start, stop, typ=None, targ_id=None): # updates bombers, targets
 	lasthi = None
 	if stop:
 		return
+	berlin = (d >= london['date'])
 	ra = {}
 	for h in d[1]:
 		if h['class'] == 'A':
@@ -63,7 +68,8 @@ def daily_profit(d, bombers, targets, start, stop, typ=None, targ_id=None): # up
 						else:
 							raise TargetClassUnrecognised(targ['flags'])
 						if 'BERLIN' in targ['flags']:
-							f *= 2
+							if 'LEAFLET' in targ['flags'] or berlin:
+								f *= 2
 						if 'UBOOT' in targ['flags']:
 							f *= 1.2
 						if targets[ti][0]: # not 100% accurate but close enough
