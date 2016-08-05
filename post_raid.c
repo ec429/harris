@@ -94,6 +94,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				}
 			if(!have)
 				state->tfav[i]=T_CLASSES;
+			tp_append(&state->hist, state->now, (harris_time){11, 22}, state->tfav[i], i);
 		}
 		if(!state->ifd[i]--)
 		{
@@ -111,6 +112,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				}
 			if(!have)
 				state->ifav[i]=I_CLASSES;
+			ip_append(&state->hist, state->now, (harris_time){11, 22}, state->ifav[i], i);
 		}
 	}
 	// Apply any mods

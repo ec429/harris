@@ -282,6 +282,20 @@ int gp_append(history *hist, date d, harris_time t, unsigned int iclass, double 
 	return(evm_append(hist, d, t, buf));
 }
 
+int tp_append(history *hist, date d, harris_time t, enum t_class cls, bool ignore)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "TP %u %u", cls, ignore?1:0);
+	return(evm_append(hist, d, t, buf));
+}
+
+int ip_append(history *hist, date d, harris_time t, enum i_class cls, bool ignore)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "IP %u %u", cls, ignore?1:0);
+	return(evm_append(hist, d, t, buf));
+}
+
 int evc_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, const char *ev)
 {
 	char buf[HIST_LINE];
