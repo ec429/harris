@@ -13,6 +13,7 @@
 #include "ui.h"
 #include "globals.h"
 #include "bits.h"
+#include "date.h"
 #include "history.h"
 #include "run_raid.h"
 #include "weather.h"
@@ -231,6 +232,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		unsigned int scoreTb=0, scoreTl=0, scoreTm=0;
 		double scoreTs=0;
 		unsigned int ntcols=0;
+		bool berlin=!datebefore(state->now, event[EVENT_LONDON]);
 		for(unsigned int j=0;j<ntypes;j++)
 		{
 			dj[j]=nj[j]=tbj[j]=tlj[j]=tsj[j]=tmj[j]=lj[j]=0;
@@ -248,7 +250,7 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 					sf*=1.2;
 				if(targs[i].iclass==state->ifav[1])
 					sf*=0.8;
-				if(targs[i].berlin) sf*=2;
+				if(targs[i].berlin&&(berlin||targs[i].class==TCLASS_LEAFLET)) sf*=2;
 				if(targs[i].iclass==ICLASS_UBOOT) sf*=1.2;
 				confD+=dij[i][j]*sf;
 				confN+=nij[i][j]*sf;

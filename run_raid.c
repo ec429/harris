@@ -448,7 +448,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		bool stream=!datebefore(state->now, event[EVENT_GEE]),
 		     moonshine=!datebefore(state->now, event[EVENT_MOONSHINE]),
 		     window=!datebefore(state->now, event[EVENT_WINDOW]),
-		     wairad= datewithin(state->now, event[EVENT_WINDOW], event[EVENT_L_SN]);
+		     wairad= datewithin(state->now, event[EVENT_WINDOW], event[EVENT_L_SN]),
+		     berlin=!datebefore(state->now, event[EVENT_LONDON]);
 		unsigned int it=0, startt=9999;
 		for(unsigned int i=0;i<ntargs;i++)
 		{
@@ -1778,7 +1779,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 									hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
 									double dmg=min(he/(rindus*600.0), state->dmg[l]);
-									cidam+=dmg*(targs[l].berlin?2.0:1.0);
+									cidam+=dmg*((berlin&&targs[l].berlin)?2.0:1.0);
 									state->dmg[l]-=dmg;
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
 									nij[l][type]++;
@@ -1800,7 +1801,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										unsigned int he=state->bombers[k].b_hc+state->bombers[k].b_gp;
 										hi_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->bombers[k].id, false, type, l, he);
 										double dmg=min(he/(rother*60.0), state->dmg[l]);
-										cidam+=dmg*(targs[l].berlin?2.0:1.0);
+										cidam+=dmg*((berlin&&targs[l].berlin)?2.0:1.0);
 										state->dmg[l]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
 										nij[l][type]++;

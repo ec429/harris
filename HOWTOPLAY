@@ -128,7 +128,7 @@ Ship sunk         £600   £15000
 Bridge destroyed £2000   £50000  Note: multipliers are not applied.
 In the above table, the extra column headed "Total" gives the (approximate) total payout, based on the formula for the sum of a geometric progression.  Since the common ratio is 0.96, this is (1/1-0.96) = 25 times the value in the "Per day" column.
 Multipliers:
-Berlin			x2 (Includes the city itself, Berlin Leaflets, and any industrial target in Berlin)
+Berlin			x2 (Includes the city itself, Berlin Leaflets, and (after EVENT_LONDON) any industrial target in Berlin)
 Specific industrial	x2 (Targets of class "Industry")
 Tactical target		x3 (Targets of class "Airfield", "Bridge" or "Road junction")
 U-boat industry		x1.2 (Kiel Dockyards; cities Bremen, Kiel, Wilhelmshaven and Rostock; industries of class "U-boats/Shipyards")
