@@ -427,16 +427,29 @@ void update_intel_bombers(const game *state)
 {
 	for(unsigned int i=0;i<ntypes;i++)
 	{
-		IB_types[i]->hidden=datebefore(state->now, types[i].entry)||!state->btypes[i];
+		if(intel_caller==SCRN_SETPGAME)
+			IB_types[i]->hidden=types[i].extra;
+		else if(intel_caller==SCRN_SETPTYPS)
+			IB_types[i]->hidden=false;
+		else
+			IB_types[i]->hidden=datebefore(state->now, types[i].entry)||!state->btypes[i];
 		atg_box *nb=IB_namebox[i]->elemdata;
 		if(nb)
 		{
-			if(i==IB_i)
-				nb->bgcolour=(atg_colour){47, 47, 63, ATG_ALPHA_OPAQUE};
-			else if(!datebefore(state->now, types[i].exit))
+			if(!datebefore(state->now, types[i].exit))
 				nb->bgcolour=(atg_colour){15, 15, 63, ATG_ALPHA_OPAQUE};
+			else if(datebefore(state->now, types[i].entry))
+				nb->bgcolour=(atg_colour){47, 47, 15, ATG_ALPHA_OPAQUE};
 			else
 				nb->bgcolour=(atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE};
+			if(!state->btypes[i])
+				nb->bgcolour.r+=16;
+			if(i==IB_i)
+			{
+				nb->bgcolour.r+=16;
+				nb->bgcolour.g+=16;
+				nb->bgcolour.b+=16;
+			}
 		}
 	}
 	atg_image *si=IB_side_image->elemdata;
