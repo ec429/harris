@@ -165,8 +165,23 @@ struct gprod_record
 	double gprod, dprod;
 };
 
+// <tpri-ev>::= TP <tclass:int> <ignore:int> # really a bool
+struct tprio_record
+{
+	enum t_class tclass;
+	bool ignore;
+};
+
+// <ipri-ev>::= IP <iclass:int> <ignore:int> # really a bool
+struct iprio_record
+{
+	enum i_class iclass;
+	bool ignore;
+};
+
 /* <data>   ::= ... | M <misc-ev>
- * <misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev>
+ * <misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> | <prio-ev>
+ * <prio-ev>::= <tpri-ev> | <ipri-ev>
  */
 enum miscev_type
 {
@@ -174,6 +189,8 @@ enum miscev_type
 	ME_CONFID,
 	ME_MORALE,
 	ME_GPROD,
+	ME_TPRIO,
+	ME_IPRIO,
 
 	MISCEV_TYPES
 };
@@ -186,6 +203,8 @@ struct misc_record
 		struct confid_record confid;
 		struct morale_record morale;
 		struct gprod_record gprod;
+		struct tprio_record tprio;
+		struct iprio_record iprio;
 	};
 };
 

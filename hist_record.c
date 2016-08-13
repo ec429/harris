@@ -394,7 +394,63 @@ int parse_gprod(struct gprod_record *rec)
 	return 0;
 }
 
-/* <misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> */
+/* <tpri-ev>::= TP <tclass:int> <ignore:int> # really a bool */
+int parse_tprio(struct tprio_record *rec)
+{
+	char *word;
+	int ignore;
+
+	WORD_OR_ERR("tclass");
+	if (sscanf(word, "%u", &rec->tclass) != 1)
+	{
+		fprintf(stderr, "bad tclass '%s'\n", word);
+		return 2;
+	}
+	if (rec->tclass < 0 || rec->tclass > T_CLASSES)
+	{
+		fprintf(stderr, "bad tclass '%d', expected 0 to %d\n", rec->tclass, T_CLASSES);
+		return 2;
+	}
+	WORD_OR_ERR("ignore");
+	if (sscanf(word, "%u", &ignore) != 1)
+	{
+		fprintf(stderr, "bad ignore '%s'\n", word);
+		return 2;
+	}
+	rec->ignore = (ignore != 0);
+	return 0;
+}
+
+/* <ipri-ev>::= IP <iclass:int> <ignore:int> # really a bool */
+int parse_iprio(struct iprio_record *rec)
+{
+	char *word;
+	int ignore;
+
+	WORD_OR_ERR("iclass");
+	if (sscanf(word, "%u", &rec->iclass) != 1)
+	{
+		fprintf(stderr, "bad iclass '%s'\n", word);
+		return 2;
+	}
+	if (rec->iclass < 0 || rec->iclass > I_CLASSES)
+	{
+		fprintf(stderr, "bad tclass '%d', expected 0 to %d\n", rec->iclass, I_CLASSES);
+		return 2;
+	}
+	WORD_OR_ERR("ignore");
+	if (sscanf(word, "%u", &ignore) != 1)
+	{
+		fprintf(stderr, "bad ignore '%s'\n", word);
+		return 2;
+	}
+	rec->ignore = (ignore != 0);
+	return 0;
+}
+
+/* <misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> | <prio-ev> 
+ * <prio-ev>::= <tpri-ev> | <ipri-ev>
+ */
 int parse_misc(struct misc_record *rec)
 {
 	char *word;
@@ -419,6 +475,16 @@ int parse_misc(struct misc_record *rec)
 	{
 		rec->type = ME_GPROD;
 		return parse_gprod(&rec->gprod);
+	}
+	if (!strcmp(word, "TP"))
+	{
+		rec->type = ME_TPRIO;
+		return parse_tprio(&rec->tprio);
+	}
+	if (!strcmp(word, "IP"))
+	{
+		rec->type = ME_IPRIO;
+		return parse_iprio(&rec->iprio);
 	}
 	fprintf(stderr, "Unrecognised M-event class '%s'\n", word);
 	return 2;
