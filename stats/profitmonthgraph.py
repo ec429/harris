@@ -30,6 +30,7 @@ if __name__ == '__main__':
 	month = save.history[0]['date']
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
 	targets = [[t['dmg'], 0, dict((i,0) for i in xrange(save.ntypes))] for t in save.init.targets]
+	classes = [[profit.tcls,profit.tcls], [profit.icls,profit.icls]]
 	history = sorted(hhist.group_by_date(save.history))
 	i = 0
 	while month <= save.history[-1]['date']:
@@ -44,7 +45,7 @@ if __name__ == '__main__':
 				continue
 			if history[i][0] < d:
 				raise hhist.OutOfOrder(d, history[i][0])
-			profit.daily_profit(history[i], bombers, targets, True, False)
+			profit.daily_profit(history[i], bombers, targets, classes, True, False)
 			bombers = {i:bombers[i] for i in bombers if bombers[i][3]}
 			d = d.next()
 			i += 1

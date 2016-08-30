@@ -30,11 +30,12 @@ if __name__ == '__main__':
 	save = hsave.Save.parse(sys.stdin)
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
 	targets = [[t['dmg'], 0, dict((i,0) for i in xrange(save.ntypes))] for t in save.init.targets]
+	classes = [[profit.tcls,profit.tcls], [profit.icls,profit.icls]]
 	costs = {b['i']:b['cost'] for b in hdata.Bombers}
 	days = sorted(hhist.group_by_date(save.history))
 	data = []
 	for d in days:
-		profit.daily_profit(d, bombers, targets, d[0]>=after if after else True, False)
+		profit.daily_profit(d, bombers, targets, classes, d[0]>=after if after else True, False)
 		bombers = {i:bombers[i] for i in bombers if bombers[i][3]}
 		results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 		results[None] = {k:v for k,v in bombers.iteritems()}

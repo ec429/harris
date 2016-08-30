@@ -15,7 +15,10 @@ london = hdata.Events.find('id', 'LONDON')
 if london is None:
 	raise Exception("No event LONDON found")
 
-def daily_profit(d, bombers, targets, start, stop, typ=None, targ_id=None): # updates bombers, targets
+tcls = len(hdata.T_CLASSES)
+icls = len(hdata.I_CLASSES)
+
+def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=None): # updates bombers, targets
 	lasthi = None
 	if stop:
 		return
@@ -72,6 +75,21 @@ def daily_profit(d, bombers, targets, start, stop, typ=None, targ_id=None): # up
 								f *= 2
 						if 'UBOOT' in targ['flags']:
 							f *= 1.2
+						for ign in xrange(2):
+							tp = classes[ign][0]
+							if tp < tcls:
+								if hdata.T_CLASSES[tp] in targ['flags']:
+									if ign:
+										f *= 0.8
+									else:
+										f *= 1.2
+							ip = classes[ign][1]
+							if ip < icls:
+								if hdata.I_CLASSES[ip] in targ['flags']:
+									if ign:
+										f *= 0.8
+									else:
+										f *= 1.2
 						if targets[ti][0]: # not 100% accurate but close enough
 							if start and (typ is None or bombers[acid][0] == typ):
 								if targ_id is None or rti == targ_id:
@@ -109,13 +127,19 @@ def daily_profit(d, bombers, targets, start, stop, typ=None, targ_id=None): # up
 						if targ_id is None or rti == targ_id:
 							bombers[lasthi[1]][1] += 500*h['data']['data']['ddmg']
 						targets[rti][1] += 500*h['data']['data']['ddmg']
+		elif h['class'] == 'M':
+			if h['data']['etyp'] == 'TP':
+				classes[0][h['data']['data']['ignore']] = h['data']['data']['tclass']
+			elif h['data']['etyp'] == 'IP':
+				classes[1][h['data']['data']['ignore']] = h['data']['data']['iclass']
 
 def extract_profit(save, before=None, after=None, targ_id=None):
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
 	targets = [[t['dmg'], 0, {i:0 for i in xrange(save.ntypes)}] for t in save.init.targets]
+	classes = [[tcls,tcls], [icls,icls]]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
-		daily_profit(d, bombers, targets, d[0]>=after if after else True, d[0]>=before if before else False, targ_id=targ_id)
+		daily_profit(d, bombers, targets, classes, d[0]>=after if after else True, d[0]>=before if before else False, targ_id=targ_id)
 	bombers = {i:bombers[i] for i in bombers if bombers[i][3]}
 	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
 	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
@@ -138,8 +162,9 @@ def extract_targ_profit(save, before=None, after=None, typ=None):
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
 	targets = [[t['dmg'], 0, dict((i,0) for i in xrange(save.ntypes))] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
+	classes = [[tcls,tcls], [icls,icls]]
 	for d in days:
-		daily_profit(d, bombers, targets, d[0]>=after if after else True, d[0]>=before if before else False, typ=typ)
+		daily_profit(d, bombers, targets, classes, d[0]>=after if after else True, d[0]>=before if before else False, typ=typ)
 	gains, losses = zip(*targets)[1:]
 	lossvalue = [sum(l*hdata.Bombers[i]['cost'] for i,l in loss.items()) for loss in losses]
 	return {i: {'gain': gains[i], 'loss': losses[i], 'cost': lossvalue[i]} for i in xrange(save.init.ntargets)}
@@ -151,6 +176,7 @@ def parse_args(argv):
 	x.add_option('-t', '--by-target', action='store_true')
 	x.add_option('--type', type='string')
 	x.add_option('--targ', type='string')
+	x.add_option('--file', type='string')
 	opts, args = x.parse_args()
 	if opts.type:
 		if not opts.by_target:
@@ -176,7 +202,10 @@ if __name__ == '__main__':
 	opts, args = parse_args(sys.argv)
 	before = hhist.date.parse(opts.before) if opts.before else None
 	after = hhist.date.parse(opts.after) if opts.after else None
-	save = hsave.Save.parse(sys.stdin)
+	f = sys.stdin
+	if opts.file:
+		f = open(opts.file, 'r')
+	save = hsave.Save.parse(f)
 	if opts.by_target:
 		profit = extract_targ_profit(save, before, after, typ=opts.type)
 		for i in profit:

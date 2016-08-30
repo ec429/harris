@@ -133,6 +133,9 @@ Ftrbases = Table([('lat', parse_int),
 				  ])
 Ftrbases.read(open('dat/ftrbases'))
 
+T_CLASSES = ['CITY', 'SHIPPING', 'MINING', 'LEAFLET', 'AIRFIELD', 'BRIDGE', 'ROAD', 'INDUSTRY']
+I_CLASSES = ['BB', 'OIL', 'RAIL', 'UBOOT', 'ARM', 'STEEL', 'AC', 'RADAR']
+
 # Targets: NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS[,Flags]
 Targets = Table([('name', parse_string),
 				 ('prod', parse_int),
