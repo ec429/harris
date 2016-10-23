@@ -908,7 +908,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										state->flam[ta]=min(state->flam[ta]+state->bombers[k].b_hc/5000.0, 100); // HC (cookies) increase target flammability
 										double maybe_dmg=(he*1.2+state->bombers[k].b_in*(targs[ta].flammable?2.4:1.5)*state->flam[ta]/40.0)/(targs[ta].psiz*rcity*1000.0);
 										double dmg=min(state->dmg[ta], maybe_dmg);
-										cidam+=dmg*(targs[ta].berlin?2.0:1.0);
+										cidam+=dmg*(targs[ta].berlin?2.0:1.0)*2.0;
 										state->dmg[ta]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(t), ta, dmg, state->dmg[ta]);
 										targs[ta].fires+=state->bombers[k].b_in*(state->flam[ta]/40.0)/1500+state->bombers[k].b_ti/30;
