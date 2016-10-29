@@ -21,7 +21,7 @@ SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
 SDLFLAGS := `sdl-config --cflags`
 
 harris:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) harris.o -o $@ $(SDL)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(OBJS) harris.o -o $@ $(LDFLAGS) $(LIBS) $(SDL)
 
 install:
 	install -d $(BINIDIR) $(DATIDIR)
