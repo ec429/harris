@@ -41,7 +41,7 @@ realclean: clean
 include stats/Makefile
 
 harris: harris.o $(OBJS)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) harris.o -o $@ $(SDL)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) $(OBJS) harris.o -o $@ $(LDFLAGS) $(LIBS) $(SDL)
 
 harris.o: harris.c $(INCLUDES)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
