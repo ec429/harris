@@ -13,8 +13,8 @@ LDFLAGS := -Llib/ -Wl,-rpath -Wl,lib
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
 SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS) handle_crews.o
-OBJS := weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o $(SCREEN_OBJS)
-INCLUDES := $(OBJS:.o=.h) types.h globals.h version.h
+OBJS := globals.o weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o mods.o almanack.o $(SCREEN_OBJS)
+INCLUDES := $(OBJS:.o=.h) types.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
