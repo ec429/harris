@@ -19,12 +19,14 @@ def daily_total(d, bombers, start, stop): # updates bombers
 					del bombers[acid]
 				elif h['data']['etyp'] == 'RA':
 					if acid not in bombers:
-						print 'Warning: un-inited bomber %08x'%acid
+						ostr = 'Warning: un-inited bomber %08x'%acid
+						print(ostr)
 						bombers[acid] = False
 					totals[int(bombers[acid])] += 1
 				elif h['data']['etyp'] == 'PF':
 					if acid not in bombers:
-						print 'Warning: un-inited bomber %08x'%acid
+						ostr = 'Warning: un-inited bomber %08x'%acid
+						print(ostr)
 					bombers[acid] = True
 	return totals
 
@@ -55,8 +57,11 @@ if __name__ == '__main__':
 		m,p = totals[d]
 		if m or p:
 			if pff and d < pff['date']:
-				print '%s: %d'%(d,m)
+				ostr = '%s: %d'%(d,m)
+				print(ostr)
 				if p:
-					print '(Unexpected PFF: %s)'%p
+					ostr = '(Unexpected PFF: %s)'%p
+					print(ostr)
 			else:
-				print '%s: %d (%d main force, %d PFF)'%(d,m+p,m,p)
+				ostr = '%s: %d (%d main force, %d PFF)'%(d,m+p,m,p)
+				print(ostr)

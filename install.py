@@ -207,7 +207,8 @@ def install_file(opts, f, dir):
 	if not os.access(dd, os.F_OK):
 		os.makedirs(dd)
 	cmd = ' '.join(('install', '-m644', quote(os.path.join(pd, f)), quote(dd)))
-	print "install.py:", cmd
+	ostr = "install.py: %s"%cmd
+	print(ostr)
 	rc = os.system(cmd)
 	if rc:
 		raise Exception('Command', cmd, 'failed rc =', rc)

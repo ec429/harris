@@ -41,4 +41,5 @@ if __name__ == '__main__':
 	kills = extract_kills(sys.stdin)
 	by_type = [(hdata.Fighters[i]['name'], sum([d['kills'][i] for d in kills.values()]), sum([d['losses'][i] for d in kills.values()])) for i in xrange(len(hdata.Fighters))]
 	for b in by_type:
-		print "%s: kills=%d losses=%d"%b
+		ostr = "%s: kills=%d losses=%d"%b
+		print(ostr)

@@ -46,7 +46,8 @@ def extract_value(f):
 		for i,b in enumerate(hdata.Bombers):
 			if b['exit'] and d == b['exit'].next():
 				if bcount[i]:
-					print 'Warning: %d leftover %s' % (bcount[i], b['name'])
+					ostr = 'Warning: %d leftover %s' % (bcount[i], b['name'])
+					print(ostr)
 					bcount[i] = 0 # force it to 0
 		bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
 		built = records[d]['+']
@@ -68,4 +69,5 @@ def extract_value(f):
 if __name__ == '__main__':
 	value = extract_value(sys.stdin)
 	for row in value:
-		print '%s: %s; %7d+%6d/ => %8d (%+7d)'%(row['date'], ','.join('%3d'%b for b in row['bombers']), row['cash'], row['cshr'], row['project'], row.get('deltap', 0))
+		ostr = '%s: %s; %7d+%6d/ => %8d (%+7d)'%(row['date'], ','.join('%3d'%b for b in row['bombers']), row['cash'], row['cshr'], row['project'], row.get('deltap', 0))
+		print(ostr)

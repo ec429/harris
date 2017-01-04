@@ -26,4 +26,5 @@ if __name__ == '__main__':
 	entries = hhist.import_from_save(sys.stdin)
 	prodloss = extract_prodloss(entries)
 	for d in sorted(prodloss):
-		print '%s: %s' % (d, prodloss[d])
+		ostr = '%s: %s' % (d, prodloss[d])
+		print(ostr)

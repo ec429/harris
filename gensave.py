@@ -14,7 +14,10 @@ def multiply(line):
 def genids(line, i):
 	if line.endswith(',NOID\n'):
 		z = '_'.join((salt, str(i), line))
-		ha = zlib.crc32(z) & 0xffffffff
+		if sys.version_info.major > 2:
+			ha = zlib.crc32(bytes(z, encoding='utf-8')) & 0xffffffff
+		else:
+			ha = zlib.crc32(z) & 0xffffffff
 		h = hex(ha)[2:].rstrip('L')
 		return '%s,%s\n' % (line[:-6], h.zfill(8))
 	else:
@@ -42,7 +45,10 @@ def gencrews(line, i):
 	assi = int(words[4])
 	acid = words[5]
 	z = '_'.join((salt, str(i), line))
-	ha = zlib.crc32(z) & 0xffffffff
+	if sys.version_info.major > 2:
+		ha = zlib.crc32(bytes(z, encoding='utf-8')) & 0xffffffff
+	else:
+		ha = zlib.crc32(z) & 0xffffffff
 	random.seed(ha)
 	skill = poisson(ms)
 	lrate = poisson(ml)

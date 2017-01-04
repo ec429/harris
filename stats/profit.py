@@ -32,7 +32,8 @@ def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=No
 					bombers[acid]=[int(h['data']['type']['ti']), 0, True, True]
 				else:
 					if acid not in bombers:
-						print 'Warning: un-inited bomber %08x'%acid
+						ostr = 'Warning: un-inited bomber %08x'%acid
+						print(ostr)
 					elif h['data']['etyp'] in ['CR', 'OB']:
 						bombers[acid][2] = False
 						if not start:
@@ -217,7 +218,8 @@ if __name__ == '__main__':
 			else:
 				if not gain: continue
 				ratio = '--'
-			print "%s: %9d / %9d = %s" % (name, gain, loss, ratio)
+			ostr = "%s: %9d / %9d = %s" % (name, gain, loss, ratio)
+			print(ostr)
 	else:
 		profit = extract_profit(save, before, after, targ_id=opts.targ)
 		for i in profit:
@@ -225,4 +227,5 @@ if __name__ == '__main__':
 			full = "(%d) = %g" % (profit[i]['full'][0], profit[i]['fullr'])
 			dead = "(%d) = %g" % (profit[i]['dead'][0], profit[i]['deadr'])
 			opti = "%g" % (profit[i]['opti'])
-			print "%s: all%s, dead%s, optimistic %s, cost %d" % (name, full, dead, opti, hdata.Bombers[i]['cost'])
+			ostr = "%s: all%s, dead%s, optimistic %s, cost %d" % (name, full, dead, opti, hdata.Bombers[i]['cost'])
+			print(ostr)

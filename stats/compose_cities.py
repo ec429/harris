@@ -74,9 +74,9 @@ if len(sys.argv) > 2:
 	cx = int(sys.argv[1])
 	cy = int(sys.argv[2])
 
-print "P3"
-print "256 256"
-print "15"
+print("P3")
+print("256 256")
+print("15")
 for y in xrange(256):
 	for x in xrange(256):
 		if citymap[y][x]<0:
@@ -96,4 +96,5 @@ for y in xrange(256):
 				return [max(v-br, 0) for v in l]
 			[r, g, b] = mark(d, [r, g, b], 5)
 			[r, g, b] = mark(d, [r, g, b], 20)
-		print "%d %d %d" %(r, g, b)
+		ostr = "%d %d %d" %(r, g, b)
+		print(ostr)
