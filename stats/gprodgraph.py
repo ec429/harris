@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """gprodgraph - graph of German production
 
 Requires matplotlib, see http://matplotlib.org or search your package

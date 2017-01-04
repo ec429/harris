@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """fightersgraph - graph of enemy fighter force
 
 Requires matplotlib, see http://matplotlib.org or search your package

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """value - total value tracking"""
 
 import sys

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """losstarg - loss rates by target"""
 
 import sys, operator

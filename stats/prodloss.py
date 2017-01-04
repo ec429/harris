@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """prodloss - production and loss figures"""
 
 import sys

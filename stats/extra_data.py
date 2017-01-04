@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """extra_data - additional data on Harris entities, for the stats
 
 This module currently provides the following data:

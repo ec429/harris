@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """losstarggraph - graph of loss rates by target
 
 Requires matplotlib, see http://matplotlib.org or search your package

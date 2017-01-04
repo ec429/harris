@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """profitgraph - graph of effectiveness by type
 
 Requires matplotlib, see http://matplotlib.org or search your package

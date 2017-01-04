@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """comograph - graph of confid & morale
 
 Requires matplotlib, see http://matplotlib.org or search your package

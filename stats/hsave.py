@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """hsave - Harris savefiles
 
 The hsave module reads Harris savefiles, including initfiles

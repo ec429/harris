@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """hdata - Harris game data
 
 The hdata module provides access to the Harris game data from the files

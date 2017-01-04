@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """como - confid & morale tracking"""
 
 import sys

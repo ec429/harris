@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """losstype - loss rates by type"""
 
 import sys

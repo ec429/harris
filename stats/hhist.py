@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """hhist - Harris history parsing
 
 The hhist module provides support for parsing Harris history events and

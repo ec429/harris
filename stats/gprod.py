@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """gprod - German production tracking"""
 
 import sys

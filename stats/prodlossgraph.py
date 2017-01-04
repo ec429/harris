@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """prodlossgraph - graph of production & losses
 
 Requires matplotlib, see http://matplotlib.org or search your package

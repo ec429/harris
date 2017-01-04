@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """profit - effectiveness tracking"""
 
 import sys

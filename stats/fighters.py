@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """fighters - enemy fighter force tracking"""
 
 import sys
