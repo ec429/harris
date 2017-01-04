@@ -33,4 +33,4 @@ def extract_losstarg(f, opts):
 if __name__ == '__main__':
 	opts, args = parse_args(sys.argv)
 	losstarg = extract_losstarg(sys.stdin, opts)
-	print losstarg
+	print(losstarg)

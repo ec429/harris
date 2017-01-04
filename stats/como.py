@@ -48,4 +48,5 @@ def extract_como(f):
 if __name__ == '__main__':
 	como = extract_como(sys.stdin)
 	for cm in como:
-		print '%s: confid=%d morale=%d' % (cm['date'], cm['confid'], cm['morale'])
+		ostr = '%s: confid=%d morale=%d' % (cm['date'], cm['confid'], cm['morale'])
+		print(ostr)

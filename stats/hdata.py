@@ -60,6 +60,8 @@ class Table(object):
 		return None
 
 def parse_string(text):
+	if sys.version_info.major > 2:
+		return text.strip()
 	return unicode(text.strip(), encoding='utf8')
 parse_int = int
 def parse_date(text):
@@ -159,23 +161,30 @@ Locations.read(open('dat/locations'))
 
 if __name__ == "__main__":
 	if '--bombers' in sys.argv or '--all' in sys.argv:
-		print '%d bombers' % len(Bombers)
-		print Bombers
+		ostr = '%d bombers' % len(Bombers)
+		print(ostr)
+		print(Bombers)
 	if '--events' in sys.argv or '--all' in sys.argv:
-		print '%d events' % len(Events)
-		print Events
+		ostr = '%d events' % len(Events)
+		print(ostr)
+		print(Events)
 	if '--fighters' in sys.argv or '--all' in sys.argv:
-		print '%d fighters' % len(Fighters)
-		print Fighters
+		ostr = '%d fighters' % len(Fighters)
+		print(ostr)
+		print(Fighters)
 	if '--flaksites' in sys.argv or '--all' in sys.argv:
-		print '%d flaksites' % len(Flak)
-		print Flak
+		ostr = '%d flaksites' % len(Flak)
+		print(ostr)
+		print(Flak)
 	if '--ftrbases' in sys.argv or '--all' in sys.argv:
-		print '%d ftrbases' % len(Ftrbases)
-		print Ftrbases
+		ostr = '%d ftrbases' % len(Ftrbases)
+		print(ostr)
+		print(Ftrbases)
 	if '--locations' in sys.argv or '--all' in sys.argv:
-		print '%d locations' % len(Locations)
-		print Locations
+		ostr = '%d locations' % len(Locations)
+		print(ostr)
+		print(Locations)
 	if '--targets' in sys.argv or '--all' in sys.argv:
-		print '%d targets' % len(Targets)
-		print Targets
+		ostr = '%d targets' % len(Targets)
+		print(ostr)
+		print(Targets)

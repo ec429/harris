@@ -63,7 +63,8 @@ if __name__ == "__main__":
             sys.stderr.write("Save file is too old (version %s)\n"%ver)
             sys.stderr.write("  Supported: %s\n"%(', '.join(sorted(changes))))
             sys.exit(1)
-        print 'HARR:%s'%opts.tover
+        ostr = 'HARR:%s'%opts.tover
+        print(ostr)
         # prepare: accumulate changes
         cbe = {} # changes by entity, ent => {oldindex => newindex}
         for ent in entities:
@@ -112,17 +113,19 @@ if __name__ == "__main__":
                     acid, bft, data = data.split(' ', 2)
                     if bft[0] == 'B':
                         typ = int(bft[1:])
-                        print ' '.join((date, time, klass, acid, 'B%d'%cbe['type'][typ], data))
+                        ostr = ' '.join((date, time, klass, acid, 'B%d'%cbe['type'][typ], data))
+                        print(ostr)
                         continue
                 ch -= 1
             borf = popntag('Type', line)
             if borf:
                 if cb: # Type <btype>:<failed>,<navs>,<pff>,<acid> // bomber
                     typ = int(borf[0])
-                    print 'Type %d:%s'%(cbe['type'][typ], borf[1])
+                    ostr = 'Type %d:%s'%(cbe['type'][typ], borf[1])
+                    print(ostr)
                     cb -= 1
                 elif cf: # Type <ftype>:<base>,<radar>,<acid> // fighter
-                    print line
+                    print(line)
                     cf -= 1
                 else: # neither bomber nor fighter expected
                     raise Exception("Unexpected 'Type' tag in line", line)
@@ -132,29 +135,36 @@ if __name__ == "__main__":
             elif cf:
                 raise Exception("Expected fighter ('Type' tag) but got line", line)
             if line.startswith('DClasses:'):
-                print 'DClasses:%d'%newc['dclass']
+                ostr = 'DClasses:%d'%newc['dclass']
+                print(ostr)
                 continue
             diff = poptag('Difficulty', line)
             if diff:
                 klass, level = map(int, diff)
-                print 'Difficulty:%d,%d'%(cbe['dclass'][klass], level)
+                ostr = 'Difficulty:%d,%d'%(cbe['dclass'][klass], level)
+                print(ostr)
                 continue
             if line.startswith('Types:'):
-                print 'Types:%d'%newc['type']
+                ostr = 'Types:%d'%newc['type']
+                print(ostr)
                 continue
             prio = popntag('Prio', line)
             if prio:
                 typ = int(prio[0])
                 for i in range(cbe['type'][typ-1]+1 if typ else 0, cbe['type'][typ]):
-                    print 'NoType %d'%i
-                print 'Prio %d:%s'%(cbe['type'][typ], prio[1])
+                    ostr = 'NoType %d'%i
+                    print(ostr)
+                ostr = 'Prio %d:%s'%(cbe['type'][typ], prio[1])
+                print(ostr)
                 continue
             notype = popntag('NoType', line)
             if notype:
                 typ = int(notype[0])
                 for i in range(cbe['type'][typ-1]+1 if typ else 0, cbe['type'][typ]):
-                    print 'NoType %d:'%i
-                print 'NoType %d:'%cbe['type'][typ]
+                    ostr = 'NoType %d:'%i
+                    print(ostr)
+                ostr = 'NoType %d:'%cbe['type'][typ]
+                print(ostr)
                 continue
             nbombers = poptag('Bombers', line)
             if nbombers:
@@ -165,4 +175,4 @@ if __name__ == "__main__":
             history = poptag('History', line)
             if history:
                 ch = int(history[0])
-            print line
+            print(line)

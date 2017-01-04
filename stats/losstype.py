@@ -91,7 +91,8 @@ def parse_args(argv):
 
 if __name__ == '__main__':
 	def tbl_row(n, s, l, p):
-		print "%s: %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5))
+		ostr = "%s: %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5))
+		print(ostr)
 	def tbl_nrow(n, s, l, p):
 		tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ")
 	opts, args = parse_args(sys.argv)
@@ -100,7 +101,8 @@ if __name__ == '__main__':
 	if opts.stratify:
 		overall, losstype = stratified_losstype(sys.stdin, after, before)
 		def tbl_row(n, s, l, p, q):
-			print "%s: %s %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5), q.rjust(5))
+			ostr = "%s: %s %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5), q.rjust(5))
+			print(ostr)
 		def tbl_nrow(n, s, l, p, q):
 			tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ", "%5.2f"%q if q is not None else "  -  ")
 		tbl_row("NAME", "Sorties", "Losses", "Loss%", "Strat%")
@@ -112,7 +114,8 @@ if __name__ == '__main__':
 	else:
 		overall, losstype = extract_losstype(sys.stdin, after, before)
 		def tbl_row(n, s, l, p):
-			print "%s: %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5))
+			ostr = "%s: %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5))
+			print(ostr)
 		def tbl_nrow(n, s, l, p):
 			tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ")
 		tbl_row("NAME", "Sorties", "Losses", "Loss%")

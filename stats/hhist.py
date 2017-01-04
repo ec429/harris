@@ -266,4 +266,5 @@ def import_from_save(f, crew_hist=False):
 
 if __name__ == '__main__':
 	entries = import_from_save(sys.stdin)
-	print 'Imported %d entries' % len(entries)
+	ostr = 'Imported %d entries' % len(entries)
+	print(ostr)

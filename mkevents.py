@@ -7,7 +7,7 @@ from hdata import Events
 assert len(sys.argv) == 2, sys.argv
 
 if sys.argv[1] == 'h':
-	print """/*
+	print("""/*
 	harris - a strategy game
 	Copyright (C) 2012-2013 Edward Cree
 
@@ -18,20 +18,23 @@ if sys.argv[1] == 'h':
 
 #ifndef HAVE_EVENTS_H
 #define HAVE_EVENTS_H
-"""
+""")
 
 	for i,e in enumerate(Events):
-		print "#define EVENT_%s %d" % (e['id'], i)
+		ostr = "#define EVENT_%s %d" % (e['id'], i)
+		print(ostr)
 
-	print "#define NEVENTS %d" % len(Events)
-	print
-	print "extern const char *event_names[%d];" % len(Events)
-
-	print
-	print "#endif /* HAVE_EVENTS_H */"
+	ostr = "#define NEVENTS %d" % len(Events)
+	print(ostr)
+	print("")
+	ostr = "extern const char *event_names[%d];" % len(Events)
+	print(ostr)
+	print("")
+	ostr = "#endif /* HAVE_EVENTS_H */"
+	print(ostr)
 else:
 	assert sys.argv[1] == 'c', sys.argv
-	print """/*
+	print("""/*
 	harris - a strategy game
 	Copyright (C) 2012-2013 Edward Cree
 
@@ -41,9 +44,11 @@ else:
 */
 
 #include "events.h"
-"""
+""")
 
-	print "const char *event_names[%d]={" % len(Events)
+	ostr = "const char *event_names[%d]={" % len(Events)
+	print(ostr)
 	for e in Events:
-		print '\t"%s",' % e['id']
-	print "};"
+		ostr = '\t"%s",' % e['id']
+		print(ostr)
+	print("};")

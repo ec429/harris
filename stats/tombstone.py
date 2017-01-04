@@ -24,13 +24,14 @@ if __name__ == '__main__':
 	entries = hhist.import_from_save(sys.stdin, crew_hist=True)
 	tombstone, pw, ex = count_losses(entries)
 	if not tombstone:
-		print 'No losses have yet been incurred!'
+		print('No losses have yet been incurred!')
 	else:
 		if tombstone == 1:
-			print '1 airman has been Killed In Action'
+			print('1 airman has been Killed In Action')
 		else:
-			print '%d airmen have been Killed In Action' % tombstone
-		print r'''
+			ostr = '%d airmen have been Killed In Action' % tombstone
+			print(ostr)
+		print(r'''
       ----
      /    \
     /      \
@@ -41,10 +42,12 @@ if __name__ == '__main__':
    |  THEM  |
  \ | \ ,   /| o
 -|/-\|-|--\|-\|/
-'''
+''')
 	if pw or ex:
-		print
+		print("")
 	if pw:
-		print '(PoW count: %d)' % pw
+		ostr = '(PoW count: %d)' % pw
+		print(ostr)
 	if ex:
-		print '(esc count: %d)' % ex
+		ostr = '(esc count: %d)' % ex
+		print(ostr)

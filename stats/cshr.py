@@ -24,4 +24,5 @@ def extract_cshr(f):
 if __name__ == '__main__':
 	cshr = extract_cshr(sys.stdin)
 	for c in sorted(cshr):
-		print '%s: cshr=%d' % (c, cshr[c])
+		ostr = '%s: cshr=%d' % (c, cshr[c])
+		print(ostr)
