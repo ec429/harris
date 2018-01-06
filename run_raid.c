@@ -602,7 +602,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									state->bombers[k].b_hc=(cap/4000)*4000;
 									break;
 								}
-								// else fallthrough to BL_ILLUM
+								// else fallthrough
 							case BL_ILLUM:
 								while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
 								{
@@ -623,7 +623,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									state->bombers[k].b_hc=(cap/4000)*4000;
 									break;
 								}
-								// else fallthrough to BL_ABNORMAL
+								// else fallthrough
 							case BL_ABNORMAL:
 							default:
 								state->bombers[k].b_gp=cap;

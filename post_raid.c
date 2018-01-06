@@ -279,17 +279,13 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		switch(state->crews[i].status)
 		{
 			case CSTATUS_ESCAPEE:
-				if(--state->crews[i].assignment<=0)
-				{
-					state->crews[i].status=CSTATUS_CREWMAN;
-					st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
-					state->crews[i].assignment=-1;
-					// fall through to CREWMAN handling for end-of-tour check (in case we were shot down after bombing)
-				}
-				else
-				{
+				if(--state->crews[i].assignment>0)
 					break;
-				}
+				state->crews[i].status=CSTATUS_CREWMAN;
+				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
+				state->crews[i].assignment=-1;
+				// fall through
+				// to CREWMAN handling for end-of-tour check (in case we were shot down after bombing)
 			case CSTATUS_CREWMAN:
 				if(state->crews[i].tour_ops>=30)
 				{

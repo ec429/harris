@@ -260,8 +260,10 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 					case TCLASS_ROAD:
 					case TCLASS_BRIDGE:
 						sf*=1.5;
+						// fall through
 					case TCLASS_INDUSTRY:
 						sf*=2;
+						// fall through
 					case TCLASS_CITY:
 						tbj[j]+=tij[i][j];
 						if(canscore[i]) scoretbj+=tij[i][j]*sf;
