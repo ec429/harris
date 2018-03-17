@@ -1,0 +1,45 @@
+# Format: dsv
+# TECH:MO:YEAR:REQ,REQ+MONTHS;ALTREQ
+# MOnth and YEAR are the earliest the TECH may be available for research.
+# Also at least one set of REQuirements must be met, with the necessary MONTHS having passed since each tech was completed.
+# Beware: tech names must be prefix-free, to avoid spurious matches (strncmp)
+# tech 0 ("start") is auto-researched at start of game
+
+#TECH:MO:YEAR:REQS
+start: 0:   0:
+RLE1 : 0:   0:
+RLE2 : 0:   0:RLE1
+RLE3 : 0:   0:RLE2
+RBC1 : 0:   0:RLE3+18
+RBC2 : 0:   0:RBC1
+RRE1 : 7:1940:
+RRE2 : 0:   0:RRE1
+RCR1 : 9:1941:RRE2+6
+RCR2 : 0:   0:RCR1
+AEH  : 0:   0:RLE3
+ALANC: 0:   0:AEH+2
+AMosq: 9:1940:
+ASB  : 0:   0:RLE3
+AH1  : 9:1940:RLE3
+ASSt : 0:   0:AEH+12,RBC2
+ASW  : 0:   0:
+DBBB : 0:   0:AMosq+12
+D2SM : 7:1942:AMosq
+ALU  : 1:1943:ALANC,D2SM+4
+AVW  : 0:   0:D2SM+6
+DGL  : 0:   0:ALANC+18
+DHU  : 0:   0:AH1+6
+AH3  : 0:   0:DHU+8
+DAI  : 0:   0:
+DSST : 0:   0:
+DVR  : 0:   0:AEH+8
+DEN  : 0:   0:RRE2
+DGH  : 0:   0:DEN+18
+DW   : 0:   0:RCR2+4
+DH2S : 0:   0:RCR2
+DFP  : 0:   0:DH2S+12
+DBS  : 5:1941:
+TFE  : 0:   0:RLE3+6
+TNN  :11:1940:
+TP   : 0:   0:AEH+2;AH1+2;ASB+2
+TBA  : 0:   0:DBS,DH2S+10

@@ -11,65 +11,74 @@
 
 #include "globals.h"
 
-int apply_mod(unsigned int m)
+int apply_mod(const game *state, unsigned int b)
 {
-	unsigned int bt=mods[m].bt;
-	switch(mods[m].s)
+	unsigned int bt=btechs[b].bt;
+	switch(btechs[b].s)
 	{
 		case BSTAT_COST:
-			types[bt].cost=mods[m].v.i;
+			types[bt].cost=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_SPEED:
-			types[bt].speed=mods[m].v.i;
+			types[bt].speed=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_ALT:
-			types[bt].alt=mods[m].v.i;
+			types[bt].alt=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_CAPWT:
-			types[bt].capwt=mods[m].v.i;
+			types[bt].capwt=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_CAPBULK:
-			types[bt].capbulk=mods[m].v.i;
+			types[bt].capbulk=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_SVP:
-			types[bt].svp=mods[m].v.i;
+			types[bt].svp=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_DEFN:
-			types[bt].defn=mods[m].v.i;
+			types[bt].defn=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_FAIL:
-			types[bt].fail=mods[m].v.i;
+			types[bt].fail=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_ACCU:
-			types[bt].accu=mods[m].v.i;
+			types[bt].accu=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_RANGE:
-			types[bt].range=mods[m].v.i;
+			types[bt].range=btechs[bt].delta.i;
 			return(0);
 		case BSTAT_CREW:
 			for(unsigned int c=0;c<MAX_CREW;c++)
-				types[bt].crew[c]=mods[m].v.crew[c];
+				types[bt].crew[c]=btechs[bt].delta.crew[c];
 			return(0);
 		case BSTAT_LOADS:
-			if(mods[m].v.i<NBOMBLOADS)
+			if(btechs[bt].delta.i<NBOMBLOADS)
 			{
-				types[bt].load[mods[m].v.i]=true;
+				types[bt].load[btechs[bt].delta.i]=true;
 				return(0);
 			}
-			fprintf(stderr, "ignoring excessive bombload ID %d\n", mods[m].v.i);
+			fprintf(stderr, "ignoring excessive bombload ID %d\n", btechs[bt].delta.i);
 			return(1);
 		case BSTAT_FLAGS:
-			switch(mods[m].v.f)
+			switch(btechs[bt].delta.f)
 			{
 				case BFLAG_OVLTANK:
 					types[bt].ovltank=true;
 					return(0);
 				default:
-					fprintf(stderr, "ignoring unsupported flag %d\n", mods[m].v.f);
+					fprintf(stderr, "ignoring unsupported flag %d\n", btechs[bt].delta.f);
 					return(1);
 			}
+		case BSTAT_EXIST:
+			types[bt].exist=true;
+			types[bt].novelty=state->now;
+			if((types[bt].novelty.month+=4)>12)
+			{
+				types[bt].novelty.month-=12;
+				types[bt].novelty.year++;
+			}
+			return(0);
 		default:
-			fprintf(stderr, "ignoring unsupported stat %d\n", mods[m].s);
+			fprintf(stderr, "ignoring unsupported stat %d\n", btechs[bt].s);
 			return(1);
 	}
 }

@@ -47,8 +47,12 @@ struct overlay overlays[NUM_OVERLAYS] = {
 unsigned int ntypes=0;
 bombertype *types=NULL;
 bombertype *rawtypes=NULL;
-unsigned int nmods=0;
-bmod *mods=NULL;
+unsigned int ntechs=0;
+tech *techs=NULL;
+unsigned int nbtechs=0;
+btech *btechs=NULL;
+unsigned int netechs=0;
+etech *etechs=NULL;
 unsigned int nftypes=0;
 fightertype *ftypes=NULL;
 unsigned int nfbases=0;
@@ -183,6 +187,8 @@ int set_init_state(game *state)
 			}
 		}
 	}
+	for(unsigned int t=0;t<ntechs;t++)
+		techs[t].unlocked=(date){9999, 99, 99};
 	clear_raids(state);
 	state->roe.idtar=true;
 	for(unsigned int i=0;i<MAXMSGS;i++)

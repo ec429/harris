@@ -810,9 +810,6 @@ int loadgame(const char *fn, game *state)
 		filter_nav[n]=0;
 	for(unsigned int i=0;i<ntypes;i++)
 		types[i]=rawtypes[i];
-	for(unsigned int m=0;m<nmods;m++)
-		if(!datebefore(state->now, mods[m].d))
-			apply_mod(m);
 	return(0);
 }
 

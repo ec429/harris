@@ -2,8 +2,7 @@
 # DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
 # Description is not used in-game (except in debugging messages)
 # ACNAME should match NAME from dat/bombers
-# Stat is one of cost, speed, alt, capwt, (capbulk), svp, defn, fail, accu, range, crew, (loads), flags
-#   (bracketed stats are not currently supported)
+# Stat is one of cost, speed, alt, capwt, capbulk, svp, defn, fail, accu, range, crew, loads, flags
 # old is ignored by game
 # new is the new value of the stat (or, for flags, the flag to set)
 

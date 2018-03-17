@@ -183,10 +183,13 @@ The armament of the Bristol Blenheims is being improved: the single Vickers 'K' 
  replaced with a pair of .303 Brownings.
 The Handley Page Hampden is getting a similar treatment, with twin 'K' guns in the rear dorsal position.
 
-==MOD_SSTANK==
+==MOD_FOURGUN==
+Your force of Vickers Wellingtons are now being modified to mount new four-gun rear turrets.
+
+==MOD_SSTANK1==
 
 A new self-sealing fuel tank has been developed to reduce the loss rate of bombers.  The first units have been
- installed in your Whitleys; bombers of other types will be modified as production permits.
+ installed in your %s aircraft; bombers of other types will be modified as production permits.
 
 ==MOD_SSTEND==
 
@@ -214,7 +217,7 @@ As the shadow factory at Broughton is now fully operational, Vickers Wellingtons
 
 ==MOD_BEAMGUNS==
 
-As night bombers are rarely attacked from abeam, the beam guns have been removed from all your Handley Page
+As night bombers are rarely attacked broadside-on, the beam guns have been removed from all your Handley Page
  Halifaxes.  This reduces their weight and thus helps improve their somewhat sluggish performance.
 
 ==MOD_DERATE==
@@ -223,6 +226,14 @@ We have been unable to devote sufficient resources to make the Rolls-Royce Vultu
  it has been decided to de-rate the engine, reducing its maximum power but hopefully extending its working life.
 Your Avro Manchesters, powered by this engine, will now only carry 9,000lb of bombs, at a lower maximum speed,
  but should manage greater serviceability, and fewer losses through mechanical failure.
+
+==MOD_VULTURE==
+
+The redesigned, more reliable Rolls-Royce Vulture engines are now being fitted to your Avro Manchesters.  This
+ should allow improved serviceability levels and reduced losses, without having to reduce performance by
+ de-rating the engines.
+While the modifications are not perfect (failure rates are still above average), it is hoped that the resulting
+ aircraft will at least be usable for practical military purposes.
 
 ==MOD_EXACTOR==
 
@@ -249,9 +260,9 @@ It has been found that the Halifax exhaust shrouds severely hamper the performan
  reducing reliability, they decrease the aircraft's speed, ceiling and range.  Consequently, they have been
  removed.
 
-==MOD_XIV==
+==MOD_XIV1==
 
-The new Mark XIV Computing Bomb Sight, now being installed in your Lancaster bombers, should considerably
+The new Mark XIV Computing Bomb Sight, now being installed in your %s bombers, should considerably
  increase bombing accuracy.  Your other heavy bombers will be similarly equipped as production permits.
 
 ==MOD_OVLTANK==

@@ -122,17 +122,27 @@ inline unsigned int rrtime(harris_time t)
 }
 
 const unsigned int monthdays[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-date nextday(date when)
+#define days_in_month(_d)	(monthdays[(_d).month-1]+((((_d).month==2)&&!((_d).year%4))?1:0))
+date normalise(date d)
 {
-	date d=when;
-	if(++d.day>monthdays[d.month-1]+(((d.month==2)&&!(d.year%4))?1:0))
+	while(d.month>12)
 	{
-		d.day=1;
+		d.month-=12;
+		d.year++;
+	}
+	while(d.day>days_in_month(d))
+	{
+		d.day-=days_in_month(d);
 		if(++d.month>12)
 		{
-			d.month=1;
+			d.month-=12;
 			d.year++;
 		}
 	}
 	return(d);
+}
+date nextday(date when)
+{
+	when.day++;
+	return normalise(when);
 }

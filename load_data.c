@@ -29,6 +29,14 @@
 #define zn	"%zn"
 #endif
 
+enum cclass parse_one_crew(char src)
+{
+	for(unsigned int cp=0;cp<CREW_CLASSES;cp++)
+		if(src==cclasses[cp].letter)
+			return cp;
+	return CCLASS_NONE;
+}
+
 int parse_crew(const char *src, enum cclass dst[MAX_CREW])
 {
 	const char *in=src;
@@ -41,25 +49,20 @@ int parse_crew(const char *src, enum cclass dst[MAX_CREW])
 		if(!c) break;
 		if(ci<MAX_CREW)
 		{
-			for(unsigned int cp=0;cp<CREW_CLASSES;cp++)
-				if(c==cclasses[cp].letter)
-				{
-					if(!ci&&cp!=CCLASS_P) // game assumes first crewman is always P
-					{
-						fprintf(stderr, "Malformed crewspec `%s'\n", src);
-						fprintf(stderr, "  first CREW member `%c' not `P'\n", c);
-						return(1);
-					}
-					dst[ci++]=cp;
-					c=0;
-					break;
-				}
-			if(c)
+			unsigned int cp=parse_one_crew(c);
+			if(cp==CCLASS_NONE)
 			{
 				fprintf(stderr, "Malformed crewspec `%s'\n", src);
 				fprintf(stderr, "  bad CREW member `%c'\n", c);
 				return(1);
 			}
+			if(!ci&&cp!=CCLASS_P) // game assumes first crewman is always P
+			{
+				fprintf(stderr, "Malformed crewspec `%s'\n", src);
+				fprintf(stderr, "  first CREW member `%c' not `P'\n", c);
+				return(1);
+			}
+			dst[ci++]=cp;
 		}
 		else
 		{
@@ -82,9 +85,9 @@ int load_data(void)
 		fprintf(stderr, "Failed to load bombers, rc=%d\n", rc);
 		return(rc);
 	}
-	if((rc=load_mods()))
+	if((rc=load_tech_data()))
 	{
-		fprintf(stderr, "Failed to load mods, rc=%d\n", rc);
+		fprintf(stderr, "Failed to load tech data, rc=%d\n", rc);
 		return(rc);
 	}
 	if((rc=load_fighters()))
@@ -296,123 +299,247 @@ int load_bombers(void)
 	return(0);
 }
 
-int load_mods(void)
+int load_tech_data(void)
 {
-	FILE *modfp=fopen("dat/mods", "r");
-	if(!modfp)
+	int rc;
+
+	if((rc=load_techs()))
 	{
-		fprintf(stderr, "Failed to open data file `mods'!\n");
+		fprintf(stderr, "Failed to load techs, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_btechs()))
+	{
+		fprintf(stderr, "Failed to load btechs, rc=%d\n", rc);
+		return(rc);
+	}
+	return(0);
+}
+
+int load_techs(void)
+{
+	FILE *techfp = fopen("dat/tech", "r");
+	if(!techfp)
+	{
+		fprintf(stderr, "Failed to open data file `tech'!\n");
 		return(1);
 	}
 	else
 	{
-		char *modfile=slurp(modfp);
-		fclose(modfp);
-		char *next=modfile?strtok(modfile, "\n"):NULL;
+		char *techfile=slurp(techfp);
+		fclose(techfp);
+		char *next=techfile?strtok(techfile, "\n"):NULL;
 		while(next)
 		{
 			if(*next&&(*next!='#'))
 			{
-				bmod this;
-				// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
+				tech this;
+				// TECH:MO:YEAR:REQ,REQ+MONTHS;ALTREQ
 				char *colon=strchr(next, ':');
 				if(!colon)
 				{
-					fprintf(stderr, "Missing : in `mods' line %s\n", next);
+					fprintf(stderr, "Missing : in `tech' line %s\n", next);
 					return(1);
 				}
-				*colon++=0;
-				this.desc=strdup(next);
-				char *acname=colon;
-				colon=strchr(colon, ':');
+				size_t nlen=strcspn(next, ": ");
+				this.name=strndup(next, nlen);
+				ssize_t db;
+				int e;
+				if((e=sscanf(colon+1, "%u:%u:"zn, &this.month, &this.year, &db))!=2)
+				{
+					fprintf(stderr, "Malformed `tech' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
+				}
+				char *ptr=colon+1+db;
+				for(unsigned int group=0;group<MAX_TREQ_GROUPS;group++)
+				{
+					unsigned int glen=strcspn(ptr, ";");
+					char *rptr=ptr;
+					for(unsigned int req=0;req<MAX_TREQS;req++)
+					{
+						unsigned int rlen=strcspn(rptr, ",;");
+						this.req[group][req].te=-1;
+						this.req[group][req].months=0;
+						if(!rlen)
+							continue;
+						unsigned int tlen=strcspn(rptr, "+,;");
+						if(tlen<rlen)
+							if(sscanf(rptr+tlen+1, "%u", &this.req[group][req].months)!=1)
+							{
+								fprintf(stderr, "Malformed `tech' line `%s'\n", next);
+								fprintf(stderr, "  bad req `%*s'\n", rlen, rptr);
+								return(1);
+							}
+						for(unsigned int tech=0;tech<ntechs;tech++)
+						{
+							if(strncmp(rptr, techs[tech].name, tlen)==0)
+							{
+								this.req[group][req].te=tech;
+								break;
+							}
+						}
+						if(this.req[group][req].te<0)
+						{
+							fprintf(stderr, "Unrecognised req in `tech' line `%s'\n", next);
+							fprintf(stderr, "  bad req `%*s' (tlen=%u)\n", rlen, rptr, tlen);
+							return(1);
+						}
+						rptr+=rlen;
+						if(*rptr)
+							rptr++;
+					}
+					ptr+=glen;
+					if(*ptr)
+						ptr++;
+				}
+				techs=(tech *)realloc(techs, (ntechs+1)*sizeof(tech));
+				techs[ntechs]=this;
+				ntechs++;
+			}
+			next=strtok(NULL, "\n");
+		}
+		free(techfile);
+		fprintf(stderr, "Loaded %u R&D techs\n", ntechs);
+	}
+	return(0);
+}
+
+int load_btechs(void)
+{
+	FILE *btechfp = fopen("dat/btech", "r");
+	if(!btechfp)
+	{
+		fprintf(stderr, "Failed to open data file `btech'!\n");
+		return(1);
+	}
+	else
+	{
+		char *btechfile=slurp(btechfp);
+		fclose(btechfp);
+		char *next=btechfile?strtok(btechfile, "\n"):NULL;
+		while(next)
+		{
+			if(*next&&(*next!='#'))
+			{
+				btech this;
+				// TECH:ACNAME:STAT:DELTA:MONTH:DAY:UNDOES:LINK
+				char *colon=strchr(next, ':');
 				if(!colon)
 				{
-					fprintf(stderr, "Missing : in `mods' line %s\n", next);
+					fprintf(stderr, "Missing : in `tech' line %s\n", next);
 					return(1);
 				}
-				char *space=colon;
-				*colon++=0;
-				while(space>acname && space[-1]==' ')
-					*--space=0;
-				for(this.bt=0;this.bt<ntypes;this.bt++)
-					if(!strcmp(acname, types[this.bt].name))
+				size_t nlen=strcspn(next, ": ");
+				for(this.te=0;this.te<ntechs;this.te++)
+				{
+					if(strncmp(next, techs[this.te].name, nlen)==0)
 						break;
+				}
+				if(this.te>=ntechs)
+				{
+					fprintf(stderr, "Unrecognised tech in `btech' line %s\n", next);
+					return(1);
+				}
+				char *ptr=colon+1;
+				size_t alen=strcspn(ptr, ": ");
+				for(this.bt=0;this.bt<ntypes;this.bt++)
+				{
+					if(strncmp(ptr, types[this.bt].name, alen)==0)
+						break;
+				}
 				if(this.bt>=ntypes)
 				{
-					fprintf(stderr, "No such bomber named %s\n", acname);
+					fprintf(stderr, "Unrecognised acname in `btech' line %s\n", next);
+					fprintf(stderr, "  Bad acname `%*s'\n", (int)alen, ptr);
 					return(1);
 				}
-				char *statname=colon;
-				colon=strchr(colon, ':');
-				if(!colon)
+				char *sptr=strchr(ptr, ':');
+				if(!sptr)
 				{
-					fprintf(stderr, "Missing : in `mods' line %s:%s:%s\n", next, acname, statname);
+					fprintf(stderr, "Missing : in `btech' line %s\n", next);
 					return(1);
 				}
-				space=colon;
-				*colon++=0;
-				while(space>acname && space[-1]==' ')
-					*--space=0;
-				if(!strcmp(statname, "cost"))
+				sptr++;
+				size_t snlen=strcspn(sptr, ": ");
+				if(!strncmp(sptr, "cost", snlen))
 					this.s=BSTAT_COST;
-				else if(!strcmp(statname, "speed"))
+				else if(!strncmp(sptr, "speed", snlen))
 					this.s=BSTAT_SPEED;
-				else if(!strcmp(statname, "alt"))
+				else if(!strncmp(sptr, "alt", snlen))
 					this.s=BSTAT_ALT;
-				else if(!strcmp(statname, "capwt"))
+				else if(!strncmp(sptr, "capwt", snlen))
 					this.s=BSTAT_CAPWT;
-				else if(!strcmp(statname, "capbulk"))
+				else if(!strncmp(sptr, "capbulk", snlen))
 					this.s=BSTAT_CAPBULK;
-				else if(!strcmp(statname, "svp"))
+				else if(!strncmp(sptr, "svp", snlen))
 					this.s=BSTAT_SVP;
-				else if(!strcmp(statname, "defn"))
+				else if(!strncmp(sptr, "defn", snlen))
 					this.s=BSTAT_DEFN;
-				else if(!strcmp(statname, "fail"))
+				else if(!strncmp(sptr, "fail", snlen))
 					this.s=BSTAT_FAIL;
-				else if(!strcmp(statname, "accu"))
+				else if(!strncmp(sptr, "accu", snlen))
 					this.s=BSTAT_ACCU;
-				else if(!strcmp(statname, "range"))
+				else if(!strncmp(sptr, "range", snlen))
 					this.s=BSTAT_RANGE;
-				else if(!strcmp(statname, "crew"))
+				else if(!strncmp(sptr, "crew", snlen))
 					this.s=BSTAT_CREW;
-				else if(!strcmp(statname, "loads"))
+				else if(!strncmp(sptr, "loads", snlen))
 					this.s=BSTAT_LOADS;
-				else if(!strcmp(statname, "flags"))
+				else if(!strncmp(sptr, "flags", snlen))
 					this.s=BSTAT_FLAGS;
+				else if(!strncmp(sptr, "exist", snlen))
+					this.s=BSTAT_EXIST;
 				else
 				{
-					fprintf(stderr, "No such statname %s\n", statname);
+					fprintf(stderr, "Unrecognised statname in `btech' line %s\n", next);
+					fprintf(stderr, "  Bad statname `%*s'\n", (int)snlen, sptr);
 					return(1);
 				}
-				colon=strchr(colon, ':');
-				if(!colon)
+				ptr=strchr(sptr, ':');
+				if(!ptr)
 				{
-					fprintf(stderr, "Missing : in `mods' line %s:%s:%s\n", next, acname, statname);
+					fprintf(stderr, "Missing : in `btech' line %s\n", next);
 					return(1);
 				}
-				*colon++=0;
-				char *newval=colon;
-				colon=strchr(colon, ':');
-				if(!colon)
-				{
-					fprintf(stderr, "Missing : in `mods' line %s:%s:%s\n", next, acname, statname);
-					return(1);
-				}
-				*colon++=0;
+				ptr++;
+				size_t dlen=strcspn(ptr, ":");
 				if(this.s<=BSTAT__NUMERIC)
 				{
-					if(sscanf(newval, "%u", &this.v.i)!=1)
+					if(sscanf(ptr, "%d", &this.delta.i)!=1)
 					{
-						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
+						fprintf(stderr, "Malformed delta in `btech' line %s\n", next);
+						fprintf(stderr, "  Bad delta `%*s'\n", (int)dlen, ptr);
 						return(1);
 					}
 				}
 				else if(this.s==BSTAT_CREW)
 				{
-					if(parse_crew(newval, this.v.crew))
+					this.delta.crew[0]=this.delta.crew[1]=CCLASS_NONE;
+					for(size_t ci=0;ci<dlen;ci++)
 					{
-						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
-						return(1);
+						bool rm=false;
+						char c=ptr[ci];
+						if(isspace(c)) continue;
+						if(islower(c))
+						{
+							rm=true;
+							c=toupper(c);
+						}
+						enum cclass cp=parse_one_crew(c);
+						if(cp==CCLASS_NONE)
+						{
+							fprintf(stderr, "Malformed delta in `btech' line %s\n", next);
+							fprintf(stderr, "  Bad crewletter `%c' in `%*s'\n", c, (int)dlen, ptr);
+							return(1);
+						}
+						if(this.delta.crew[rm?0:1]!=CCLASS_NONE)
+						{
+							fprintf(stderr, "Multiple %screw in `btech' line %s\n", rm?"-":"+", next);
+							fprintf(stderr, "  Bad delta `%*s'\n", (int)dlen, ptr);
+							return(1);
+						}
+						this.delta.crew[rm?0:1]=cp;
 					}
 				}
 				else if(this.s==BSTAT_LOADS)
@@ -420,45 +547,110 @@ int load_mods(void)
 					unsigned int i;
 					for(i=0;i<NBOMBLOADS;i++)
 					{
-						if(!strncmp(newval, bombloads[i].name, 2))
+						if(!strncmp(ptr, bombloads[i].name, 2))
 							break;
 					}
 					if(i<NBOMBLOADS)
 					{
-						this.v.i=i;
+						this.delta.i=i;
 					}
 					else
 					{
-						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
+						fprintf(stderr, "Malformed bombload in `btech' line %s\n", next);
+						fprintf(stderr, "  Bad delta `%*s'\n", (int)dlen, ptr);
 						return(1);
 					}
 				}
 				else if(this.s==BSTAT_FLAGS)
 				{
-					if(!strncmp(newval, "OVLTANK", 7))
+					if(!strncmp(ptr, "OVLTANK", 7))
 					{
-						this.v.f=BFLAG_OVLTANK;
+						this.delta.f=BFLAG_OVLTANK;
 					}
 					else
 					{
-						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
+						fprintf(stderr, "Malformed flag in `btech' line %s\n", next);
+						fprintf(stderr, "  Bad delta `%*s'\n", (int)dlen, ptr);
 						return(1);
 					}
 				}
-				else // can't happen
+				else if(this.s!=BSTAT_EXIST) // can't happen
 				{
-					fprintf(stderr, "Unhandled stat %s\n", statname);
+					fprintf(stderr, "Unhandled stat `%*s'\n", (int)snlen, sptr);
 					return(1);
 				}
-				this.d=readdate(colon, (date){9999, 99, 99});
-				mods=(bmod *)realloc(mods, (nmods+1)*sizeof(bmod));
-				mods[nmods]=this;
-				nmods++;
+				ptr+=dlen;
+				if(!*ptr)
+				{
+					fprintf(stderr, "Missing : in `btech' line %s\n", next);
+					return(1);
+				}
+				ptr++;
+				ssize_t db;
+				int e;
+				if((e=sscanf(ptr, "%u:%u:"zn, &this.month, &this.day, &db))!=2)
+				{
+					fprintf(stderr, "Malformed `btech' line `%s'\n", next);
+					fprintf(stderr, "  sscanf returned %d\n", e);
+					return(1);
+				}
+				ptr+=db;
+				size_t ulen=strcspn(ptr, ":");
+				if(ulen)
+				{
+					for(this.undo=0;this.undo<NEVENTS;this.undo++)
+					{
+						if(strncmp(ptr, event_names[this.undo], ulen)==0)
+							break;
+					}
+					if(!this.undo)
+					{
+						fprintf(stderr, "Bad undo event 0 in `btech' line %s\n", next);
+						fprintf(stderr, "  Event 0 is %s\n", event_names[0]);
+						return(1);
+					}
+					if(this.undo>=NEVENTS)
+					{
+						fprintf(stderr, "Unrecognised `undo' in `btech' line %s\n", next);
+						fprintf(stderr, "  Bad event `%*s'\n", (int)ulen, ptr);
+						return(1);
+					}
+				}
+				ptr+=ulen;
+				if(!*ptr)
+				{
+					fprintf(stderr, "Missing : in `btech' line %s\n", next);
+					return(1);
+				}
+				ptr++;
+				if(*ptr)
+				{
+					for(this.link=0;this.link<NEVENTS;this.link++)
+					{
+						if(strcmp(ptr, event_names[this.link])==0)
+							break;
+					}
+					if(!this.link)
+					{
+						fprintf(stderr, "Bad link event 0 in `btech' line %s\n", next);
+						fprintf(stderr, "  Event 0 is %s\n", event_names[0]);
+						return(1);
+					}
+					if(this.link>=NEVENTS)
+					{
+						fprintf(stderr, "Unrecognised `link' in `btech' line %s\n", next);
+						fprintf(stderr, "  Bad event `%s'\n", ptr);
+						return(1);
+					}
+				}
+				btechs=(btech *)realloc(btechs, (nbtechs+1)*sizeof(btech));
+				btechs[nbtechs]=this;
+				nbtechs++;
 			}
 			next=strtok(NULL, "\n");
 		}
-		free(modfile);
-		fprintf(stderr, "Loaded %u bomber mods\n", nmods);
+		free(btechfile);
+		fprintf(stderr, "Loaded %u bomber tech effects\n", nbtechs);
 	}
 	return(0);
 }

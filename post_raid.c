@@ -116,15 +116,28 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		}
 	}
 	// Apply any mods
-	for(unsigned int m=0;m<nmods;m++)
-		if(!diffdate(tomorrow, mods[m].d))
+	for(unsigned int e=0;e<nbtechs;e++) {
+		btech b=btechs[e];
+		tech t=techs[b.te];
+		if(t.unlocked.year>tomorrow.year)
+			continue;
+		date d=t.unlocked;
+		d.month+=t.unlocked.month;
+		if(d.month>12)
 		{
-			unsigned int bt=mods[m].bt;
-			if(apply_mod(m))
-				fprintf(stderr, "Failed to apply mod `%s' to %s %s\n", mods[m].desc, types[bt].manu, types[bt].name);
-			else
-				fprintf(stderr, "Applied mod `%s' to %s %s\n", mods[m].desc, types[bt].manu, types[bt].name);
+			d.month-=12;
+			d.year++;
 		}
+		d.day+=t.unlocked.day;
+		if(!diffdate(tomorrow, normalise(d)))
+		{
+			unsigned int bt=b.bt;
+			if(apply_mod(state, e))
+				fprintf(stderr, "Failed to apply mod `%s' to %s %s\n", t.name, types[bt].manu, types[bt].name);
+			else
+				fprintf(stderr, "Applied mod `%s' to %s %s\n", t.name, types[bt].manu, types[bt].name);
+		}
+	}
 	// Update bomber prodn caps
 	for(unsigned int i=0;i<ntypes;i++)
 	{

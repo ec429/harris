@@ -1,0 +1,25 @@
+# Format: dsv
+# TECH:EVENT:MONTH:DAY
+# MONTH and DAY are time to wait after tech unlocks before triggering EVENT
+
+#TECH:EVENT    :MO:DY
+RCR2 :SERRATE    : 5:15
+DEN  :OBOE       : 2:19
+DEN  :GEE        : 6: 4
+DEN  :ALLGEE     :15:21
+DGH  :GH         : 5:12
+DW   :WINDOW     : 2:23
+DH2S :H2S        : 4:25
+DFP  :FISHPOND   : 1: 1
+DBS  :MOD_XIV1   : 3:18
+DBS  :MOD_XIV2   : 5:26
+DBS  :MOD_XIVEND :10:06
+DBS  :MOD_TSIGHT :14:12
+DSST :MOD_SSTANK1: 1: 5
+DSST :MOD_SSTANK2: 1:28
+DSST :MOD_SSTANK3: 2:20
+DSST :MOD_SSTEND : 4: 3
+TP   :TP         : 3: 0
+TNN  :TN         : 3: 0
+TFE  :TE         : 3: 0
+TBA  :TB         : 3: 0

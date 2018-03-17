@@ -24,6 +24,7 @@ double foldpom(double pom); // returns illumination in [0,1]
 void drawmoon(SDL_Surface *s, double phase); // renders moon to image
 harris_time maketime(int t); // converts run_raid time to clock time
 unsigned int rrtime(harris_time t); // converts clock time to run_raid time
+date normalise(date d); // carry from days into months and months into years
 date nextday(date when); // computes the date 1 day after the given one
 #define TM(H,M)		(harris_time){.hour=(H), .minute=(M)}
 #define RRT(H,M)	rrtime(TM((H),(M)))

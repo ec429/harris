@@ -8,4 +8,5 @@
 	mods: bombertype modifications
 */
 
-int apply_mod(unsigned int m);
+#include "types.h"
+int apply_mod(const game *state, unsigned int b);

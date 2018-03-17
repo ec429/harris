@@ -1,0 +1,118 @@
+# Format: dsv
+# TECH:ACNAME:STAT:DELTA:MONTH:DAY:UNDOES:LINK
+# STAT is one of cost, speed, alt, capwt, capbulk, svp, defn, fail, accu, range, crew, loads, flags
+# or alternatively, "exist" for bomber introduction (in which case DELTA is empty)
+# if STAT is "crew", then DELTA consists of lower-case letters to remove and upper-case to add
+# MONTH and DAY are time to wait after tech unlocks before applying DELTA to STAT
+# if MONTH and DAY are zero, then special "priority order" rules are followed instead
+# (todo: find somewhere to store the delay times for those)
+# UNDOES, if nonempty, is the name of a mod to undo on this stat
+# LINK is the name for UNDOES to connect to, and triggers event messages (once only per event!)
+# Beware, event names for UNDOES must be prefix-free, to avoid spurious matches (strncmp)
+
+#TECH:ACNAME     :STAT :DELTA:MO:DY:UNDOES:LINK
+start:Whitley    :accu :    2:11: 7::MOD_RELEASE
+start:Elswick    :accu :    2:11: 7::MOD_RELEASE
+start:Wellington :cost :-4000:22:27::BROUGHTON
+
+DAI  :Blenheim   :defn :   -1: 2:10::MOD_TWINGUN
+DAI  :Hampden    :defn :   -1: 2:10::
+DAI  :Wellington :defn :   -1:11: 7::MOD_FOURGUN
+DAI  :Southampton:defn :   -1: 1:11::
+DAI  :Stirling   :speed:    4: 1:11::
+DAI  :Halifax I  :defn :   -1: 1:11::
+DAI  :Halifax III:defn :   -1: 1:11::
+DAI  :Lancaster X:defn :   -1: 1:11::
+
+DSST :Blenheim   :defn :   -2: 0: 0::
+DSST :Whitley    :defn :   -2: 0: 0::
+DSST :Hampden    :defn :   -1: 0: 0::
+DSST :Wellington :defn :   -1: 0: 0::
+DSST :Manchester :defn :   -2: 0: 0::
+DSST :Southampton:defn :   -2: 0: 0::
+DSST :Stirling   :defn :   -2: 0: 0::
+DSST :Elswick    :defn :   -2: 0: 0::
+DSST :Halifax I  :defn :   -2: 0: 0::
+DSST :Lancaster I:defn :   -2: 0: 0::
+DSST :Mosquito   :defn :   -1: 0: 0::
+DSST :Halifax III:defn :   -1: 0: 0::
+DSST :Windsor    :defn :   -1: 0: 0::
+DSST :Selkirk    :defn :   -2: 0: 0::
+DSST :Lancaster X:defn :   -2: 0: 0::
+
+DBS  :Blenheim   :accu :    6: 0: 0::
+DBS  :Whitley    :accu :    6: 0: 0::
+DBS  :Hampden    :accu :    8: 0: 0::
+DBS  :Wellington :accu :   12: 0: 0::MOD_TSIGHT
+DBS  :Manchester :accu :    9: 0: 0::
+DBS  :Southampton:accu :   12: 0: 0::
+DBS  :Stirling   :accu :    6: 0: 0::
+DBS  :Elswick    :accu :    5: 0: 0::
+DBS  :Halifax I  :accu :    6: 0: 0::
+DBS  :Lancaster I:accu :   12: 0: 0::
+DBS  :Halifax III:accu :    6: 0: 0::
+DBS  :Windsor    :accu :    6: 0: 0::
+DBS  :Selkirk    :accu :    8: 0: 0::
+DBS  :Lancaster X:accu :   11: 0: 0::
+
+AEH  :Manchester :exist:     : 2: 4::
+AEH  :Stirling   :exist:     : 4:15::
+AEH  :Manchester :crew :   pE: 7:21::MOD_CREWMANC
+AEH  :Stirling   :crew :   pB: 7:17::MOD_CREWSTIR
+AEH  :Manchester :speed:   -4:12:13::MOD_DERATE
+AEH  :Manchester :capwt:-1350:12:13::MOD_DERATE
+AEH  :Manchester :svp  :    2:12:13::MOD_DERATE
+AEH  :Manchester :fail :   -2:12:13::MOD_DERATE
+AEH  :Stirling   :svp  :    5:13:20::MOD_EXACTOR
+
+ALANC:Lancaster I:exist:     :13: 6::
+AMosq:Mosquito   :exist:     :15:11::
+
+ALU  :Lancaster X:exist:     : 5:12::
+ALU  :Lancaster I:speed:    4: 2: 0::MOD_PROP
+ALU  :Lancaster I:alt  :    5: 2: 0::MOD_PROP
+
+ASB  :Southampton:exist:     : 5:24::
+
+AH1  :Halifax I  :exist:     : 2:13::
+AH1  :Halifax I  :speed:    2: 6: 8::MOD_BEAMGUNS
+AH1  :Halifax I  :alt  :    2: 6: 8::MOD_BEAMGUNS
+AH1  :Halifax I  :speed:   -9: 9: 1::MOD_SHROUD
+AH1  :Halifax I  :alt  :  -18: 9: 1::MOD_SHROUD
+AH1  :Halifax I  :defn :   -2: 9: 1::MOD_SHROUD
+AH1  :Halifax I  :fail :    2: 9: 1::MOD_SHROUD
+AH1  :Halifax I  :range:  -15: 9: 1::MOD_SHROUD
+
+AH3  :Halifax III:exist:     : 5:27::
+ASSt :Selkirk    :exist:     : 6: 9::
+AVW  :Windsor    :exist:     : 3:25::
+ASW  :Elswick    :exist:     : 4:18::
+
+DBBB :Mosquito   :capwt: 2000: 3: 2::MOD_BBBAY
+DBBB :Mosquito   :capbulk:2000:3: 2::
+DBBB :Mosquito   :loads:Po   : 3: 2::
+DBBB :Mosquito   :loads:Hh   : 3: 2::
+
+D2SM :Mosquito   :speed:   15: 4:21::MOD_MERLIN
+D2SM :Mosquito   :alt  :   20: 4:21::
+D2SM :Mosquito   :range:   10: 4:21::
+
+DGL  :Lancaster I:defn :   -1: 1:17::MOD_GLODGE
+
+DHU  :Halifax I  :     :   -4: 2:14::MOD_RUDDER
+DHU  :Halifax I  :speed:    0: 4:11:MOD_SHROUD:MOD_NOSHROUD
+DHU  :Halifax I  :alt  :    0: 4:11:MOD_SHROUD:
+DHU  :Halifax I  :defn :    0: 4:11:MOD_SHROUD:
+DHU  :Halifax I  :fail :    0: 4:11:MOD_SHROUD:
+DHU  :Halifax I  :range:    0: 4:11:MOD_SHROUD:
+DHU  :Halifax I  :flags:OVLTANK:6:8::MOD_OVLTANK
+DHU  :Halifax I  :speed:    3: 9:20::MOD_NOSETRT
+DHU  :Halifax I  :range:    5: 9:20::
+DHU  :Halifax I  :crew :gB   : 9:20::
+
+DVR  :Manchester :speed:    0: 3:16:MOD_DERATE:MOD_VULTURE
+DVR  :Manchester :capwt:    0: 3:16:MOD_DERATE:
+DVR  :Manchester :svp  :    4: 3:16:MOD_DERATE:
+DVR  :Manchester :defn :   -1: 3:16::
+DVR  :Manchester :fail :   -6: 3:16:MOD_DERATE:
+DVR  :Manchester :accu :    1: 3:16::

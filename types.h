@@ -113,7 +113,7 @@ typedef struct
 	enum cclass crew[MAX_CREW];
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
-	bool noarm, pff, heavy, inc, extra, ovltank;
+	bool exist, noarm, pff, heavy, inc, extra, ovltank;
 	bool crewbg, crewwg;
 	unsigned int blat, blon;
 	SDL_Surface *picture, *side_image;
@@ -147,7 +147,8 @@ typedef enum
 	BSTAT__NUMERIC=BSTAT_RANGE,
 	BSTAT_CREW,
 	BSTAT_LOADS,
-	BSTAT_FLAGS
+	BSTAT_FLAGS,
+	BSTAT_EXIST
 }
 bstat;
 
@@ -159,20 +160,48 @@ bflag;
 
 typedef struct
 {
-	// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
-	char *desc;
-	unsigned int bt;
+	// TECH:ACNAME:STAT:DELTA:MONTH:DAY:UNDOES
+	unsigned int te, bt; // tech index, bombertype index
 	bstat s;
 	union
 	{
-		unsigned int i;
+		int i;
 		bflag f;
-		enum cclass crew[MAX_CREW];
-	}
-	v;
-	date d;
+		enum cclass crew[2]; // [0] is removed, [1] is added
+	} delta;
+	unsigned int month, day;
+	unsigned int undo, link; // event indices or 0 (which is EVENT_NORWAY, so we won't need it)
 }
-bmod;
+btech;
+
+typedef struct
+{
+	// TECH:EVENT:MONTH:DAY
+	unsigned int te, ev; // tech index, event index
+	unsigned int month, day;
+}
+etech;
+
+typedef struct
+{
+	int te; // tech index or -1
+	unsigned int months;
+}
+treq;
+
+#define MAX_TREQS	2 // max # of treqs per group
+#define MAX_TREQ_GROUPS	3 // max # of treq groups for a tech
+
+typedef struct
+{
+	// TECH:MO:YEAR:REQ,REQ+MONTHS;ALTREQ
+	char *name;
+	unsigned int year, month;
+	treq req[MAX_TREQ_GROUPS][MAX_TREQS];
+	date unlocked; // or 99-99-9999 if it hasn't been researched yet
+	char *text;
+}
+tech;
 
 typedef struct
 {
