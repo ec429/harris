@@ -159,11 +159,13 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 							switch(s.key.keysym.sym)
 							{
 								case SDLK_BACKSPACE:
-									if(SA_btext)
+									if(f->value)
 									{
-										size_t l=strlen(SA_btext);
+										size_t l=strlen(f->value);
 										if(l)
-											SA_btext[l-1]=0;
+											f->value[l-1]=0;
+										if(SA_btext)
+											snprintf(SA_btext, NAMEBUFLEN, "%s", f->value);
 									}
 								break;
 								case SDLK_RETURN:
@@ -183,12 +185,7 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 													(f->value=n)[l]=what;
 													n[l+1]=0;
 													if(SA_btext)
-													{
-														if(f->value)
-															snprintf(SA_btext, NAMEBUFLEN, "%s", f->value);
-														else
-															SA_btext[0]=0;
-													}
+														snprintf(SA_btext, NAMEBUFLEN, "%s", f->value);
 												}
 												else
 													perror("realloc");
@@ -201,12 +198,7 @@ screen_id save_game_screen(atg_canvas *canvas, game *state)
 													f->value[0]=what;
 													f->value[1]=0;
 													if(SA_btext)
-													{
-														if(f->value)
-															snprintf(SA_btext, NAMEBUFLEN, "%s", f->value);
-														else
-															SA_btext[0]=0;
-													}
+														snprintf(SA_btext, NAMEBUFLEN, "%s", f->value);
 												}
 												else
 													perror("malloc");
