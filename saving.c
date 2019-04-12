@@ -46,6 +46,8 @@ int loadgame(const char *fn, game *state)
 		state->difficulty[i]=1;
 	for(unsigned int i=0;i<nflaks;i++) // all flaksites are unmapped if not saved
 		flaks[i].mapped=false;
+	for(unsigned int i=0;i<NEVENTS;i++)
+		state->evented[i]=false;
 	while(!feof(fs))
 	{
 		char *line=fgetl(fs);
@@ -712,6 +714,22 @@ int loadgame(const char *fn, game *state)
 			else
 				state->weather.seed=seed;
 		}
+		else if(strcmp(tag, "Evented")==0)
+		{
+			unsigned int event;
+			f=sscanf(dat, "%u\n", &event);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(event>=NEVENTS)
+			{
+				fprintf(stderr, "32 Invalid value for event %u in tag \"%s\"\n", event, tag);
+				e|=32;
+			} else
+				state->evented[event]=true;
+		}
 		else if(strcmp(tag, "Messages")==0)
 		{
 			unsigned int snmsgs;
@@ -890,6 +908,11 @@ int savegame(const char *fn, game state)
 		for(unsigned int y=0;y<128;y++)
 			fprintf(fs, FLOAT","FLOAT",", CAST_FLOAT state.weather.p[x][y], CAST_FLOAT state.weather.t[x][y]);
 		fprintf(fs, "\n");
+	}
+	for(unsigned int i=0;i<NEVENTS;i++)
+	{
+		if (state.evented[i])
+			fprintf(fs, "Evented:%u\n", i);
 	}
 	unsigned int msgs=0;
 	for(unsigned int i=0;i<MAXMSGS;i++)

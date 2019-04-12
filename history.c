@@ -296,6 +296,13 @@ int ip_append(history *hist, date d, harris_time t, enum i_class cls, bool ignor
 	return(evm_append(hist, d, t, buf));
 }
 
+int pg_append(history *hist, date d, harris_time t, unsigned int event)
+{
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "PG %u", event);
+	return(evm_append(hist, d, t, buf));
+}
+
 int evc_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, const char *ev)
 {
 	char buf[HIST_LINE];

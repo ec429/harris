@@ -11,6 +11,7 @@
 #include <atg.h>
 #include "dclass.h"
 #include "crew.h"
+#include "events.h"
 
 #define NNAVAIDS	4
 #define MAXMSGS		8
@@ -362,6 +363,7 @@ typedef struct
 	unsigned int ncrews;
 	crewman *crews;
 	bool *btypes;
+	bool evented[NEVENTS];
 	int nap[NNAVAIDS];
 	unsigned int napb[NNAVAIDS];
 	w_state weather;

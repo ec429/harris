@@ -22,7 +22,7 @@
 <t-dmg>  ::= DM <delta-dmg:float> <current-dmg:float>
 <t-flk>  ::= FK <delta-flk:float> <current-flk:float>
 <t-ship> ::= SH
-<misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> | <prio-ev>
+<misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> | <prio-ev> | <prop-ev>
 <cash-ev>::= CA <delta-cash:int> <current-cash:int> # Only for Budget payments, as CT costs are known
 <conf-ev>::= CO <confid:float>
 <mora-ev>::= MO <morale:float>
@@ -30,6 +30,7 @@
 <prio-ev>::= <tpri-ev> | <ipri-ev>
 <tpri-ev>::= TP <tclass:int> <ignore:int> # really a bool
 <ipri-ev>::= IP <iclass:int> <ignore:int> # really a bool
+<prop-ev>::= PG <event:int>
 <crew-ev>::= <gen-ev> | <ski-ev> | <csta-ev> | <op-ev> | <deth-ev> | <escp-ev>
 <gen-ev> ::= GE <lrate:int> # generation of a new (student) crewman
 <ski-ev> ::= SK <skill:int> # reached a new integer-part of skill

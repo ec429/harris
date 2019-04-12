@@ -42,6 +42,7 @@ int mo_append(history *hist, date d, harris_time t, double morale); // Append a 
 int gp_append(history *hist, date d, harris_time t, unsigned int iclass, double gprod, double dprod); // Append a GP (GProd) event to the history
 int tp_append(history *hist, date d, harris_time t, enum t_class cls, bool ignore); // Append a TP (tclass priority) event to the history
 int ip_append(history *hist, date d, harris_time t, enum i_class cls, bool ignore); // Append an IP (tclass priority) event to the history
+int pg_append(history *hist, date d, harris_time t, unsigned int event); // Append a PG (propaganda) event to the history
 
 int evc_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, const char *ev); // Append a crewman event to the history
 int ge_append(history *hist, date d, harris_time t, cmid id, enum cclass cls, unsigned int lrate); // Append a GE (generated) event to the history

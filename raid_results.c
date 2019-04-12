@@ -220,6 +220,14 @@ static void create_typerow(unsigned int *dj)
 	}
 }
 
+static void push_event(atg_canvas *canvas, game *state, unsigned int event)
+{
+	if(msgadd(canvas, state, nextday(state->now), event_names[event], evtext[event]))
+		fprintf(stderr, "failed to msgadd event: %s\n", event_names[event]);
+	state->evented[event]=true;
+	pg_append(&state->hist, state->now, (harris_time){11, 2}, event);
+}
+
 screen_id raid_results_screen(atg_canvas *canvas, game *state)
 {
 	if(totalraids)
@@ -251,6 +259,11 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 				if(targs[i].iclass==state->ifav[1])
 					sf*=0.8;
 				if(targs[i].berlin&&(berlin||targs[i].class==TCLASS_LEAFLET)) sf*=2;
+				if(!state->evented[EVENT_BERLIN]&&targs[i].class!=TCLASS_LEAFLET&&targs[i].berlin&&tij[i][j]>0) {
+					state->cshr+=4000;
+					state->morale+=1.0;
+					push_event(canvas, state, EVENT_BERLIN);
+				}
 				if(targs[i].iclass==ICLASS_UBOOT) sf*=1.2;
 				confD+=dij[i][j]*sf;
 				confN+=nij[i][j]*sf;
@@ -311,6 +324,33 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		state->cshr+=scoreTm*  12e-4;
 		state->cshr+=scoreTs* 600;
 		state->cshr+=bridge* 2000e-2*bsf;
+		/* Check for destroyed targets, for propaganda events */
+		for(unsigned int i=0;i<ntargs;i++)
+		{
+			if(state->dmg[i])
+				continue;
+			switch(targs[i].class)
+			{
+				case TCLASS_INDUSTRY:
+					if(!state->evented[EVENT_DESTROYED])
+					{
+						state->cshr+=14400;
+						state->confid+=2.0;
+						push_event(canvas, state, EVENT_DESTROYED);
+					}
+					break;
+				case TCLASS_CITY:
+					if(!state->evented[EVENT_CITYDEST])
+					{
+						state->cshr+=48000;
+						state->confid+=5.0;
+						push_event(canvas, state, EVENT_CITYDEST);
+					}
+					break;
+				default:
+					break;
+			}
+		}
 		double par=0.2+((state->now.year-1939)*0.12);
 		state->confid+=(confN/(double)D-par)*(1.0+log2(confD)/2.0)*0.8;
 		state->confid+=Ts*0.2;
@@ -319,7 +359,19 @@ screen_id raid_results_screen(atg_canvas *canvas, game *state)
 		state->morale+=(1.75-L*100.0/(double)D)/5.0;
 		if((L==0)&&(D>15)) state->morale+=0.3;
 		if(D>=100) state->morale+=0.2;
-		if(D>=1000) state->morale+=1.0;
+		if(D>=1000)
+		{
+			if(!state->evented[EVENT_THOUSAND])
+			{
+				state->cshr+=30000;
+				state->morale+=3.8;
+				push_event(canvas, state, EVENT_THOUSAND);
+			}
+			else
+			{
+				state->morale+=0.2;
+			}
+		}
 		state->morale=min(max(state->morale, 0), 100);
 		unsigned int ntrows=0;
 		for(unsigned int i=0;i<ntargs;i++)
