@@ -48,6 +48,10 @@ int loadgame(const char *fn, game *state)
 		flaks[i].mapped=false;
 	for(unsigned int i=0;i<NEVENTS;i++)
 		state->evented[i]=false;
+	state->tfav[0]=state->tfav[1]=T_CLASSES;
+	state->tfd[0]=state->tfd[1]=0;
+	state->ifav[0]=state->ifav[1]=I_CLASSES;
+	state->ifd[0]=state->ifd[1]=0;
 	while(!feof(fs))
 	{
 		char *line=fgetl(fs);
