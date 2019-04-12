@@ -493,27 +493,26 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	}
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
 		gp_append(&state->hist, state->now, (harris_time){11, 55}, i, state->gprod[i], state->dprod[i]);
-	state->now=tomorrow;
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!state->btypes[i]) continue;
-		if(!diffdate(state->now, types[i].entry))
+		if(!diffdate(tomorrow, types[i].entry))
 		{
-			if(msgadd(canvas, state, state->now, types[i].name, types[i].newtext))
+			if(msgadd(canvas, state, tomorrow, types[i].name, types[i].newtext))
 				fprintf(stderr, "failed to msgadd newtype: %s\n", types[i].name);
 		}
 	}
 	for(unsigned int i=0;i<nftypes;i++)
-		if(!diffdate(state->now, ftypes[i].entry))
+		if(!diffdate(tomorrow, ftypes[i].entry))
 		{
-			if(msgadd(canvas, state, state->now, ftypes[i].name, ftypes[i].newtext))
+			if(msgadd(canvas, state, tomorrow, ftypes[i].name, ftypes[i].newtext))
 				fprintf(stderr, "failed to msgadd newftype: %s\n", ftypes[i].name);
 		}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{
-		if(!diffdate(state->now, event[ev]))
+		if(!diffdate(tomorrow, event[ev]))
 		{
-			if(msgadd(canvas, state, state->now, event_names[ev], evtext[ev]))
+			if(msgadd(canvas, state, tomorrow, event_names[ev], evtext[ev]))
 				fprintf(stderr, "failed to msgadd event: %s\n", event_names[ev]);
 			if(ev==EVENT_UBOAT) /* Prioritise U-Boat targets */
 				force_iprio(state, ICLASS_UBOOT, 24);
@@ -523,6 +522,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				force_tprio(state, TCLASS_SHIPPING, 0);
 		}
 	}
+	state->now=tomorrow;
 	return(SCRN_CONTROL);
 }
 
@@ -539,11 +539,13 @@ void force_tprio(game *state, enum t_class cls, unsigned int days)
 		{
 			state->tfav[0]=cls;
 			state->tfd[0]=days;
+			tp_append(&state->hist, state->now, (harris_time){11, 57}, state->tfav[0], 0);
 		}
 		if(state->tfav[1]==cls)
 		{
-			state->tfav[1]=0;
+			state->tfav[1]=T_CLASSES;
 			state->tfd[1]=0;
+			tp_append(&state->hist, state->now, (harris_time){11, 57}, state->tfav[1], 1);
 		}
 	}
 }
@@ -560,11 +562,13 @@ void force_iprio(game *state, enum i_class cls, unsigned int days)
 		{
 			state->ifav[0]=cls;
 			state->ifd[0]=days;
+			ip_append(&state->hist, state->now, (harris_time){11, 57}, state->ifav[0], 0);
 		}
 		if(state->ifav[1]==cls)
 		{
-			state->ifav[1]=0;
+			state->ifav[1]=I_CLASSES;
 			state->ifd[1]=0;
+			ip_append(&state->hist, state->now, (harris_time){11, 57}, state->ifav[1], 1);
 		}
 	}
 }
