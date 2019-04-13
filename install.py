@@ -55,6 +55,10 @@ manifest = {
 					'elite.png',
 					'pff.png',
 					'student.png',
+					'mk1.png',
+					'mk2.png',
+					'mk3.png',
+					'mk4.png',
 				]},
 			'intels': {'.':[
 					'bombers.png',
