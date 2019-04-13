@@ -20,6 +20,9 @@ atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box
 unsigned int IB_i, IB_showmark;
 char *IB_mark_buf;
 atg_element *IB_mark_box, *IB_mark_lbl, *IB_mark_prev, *IB_mark_noprev, *IB_mark_next, *IB_mark_nonext;
+atg_element *IB_breakdown_box, *IB_breakdown_row[MAX_MARKS];
+unsigned int IB_mark_count[MAX_MARKS][2];
+char *IB_mark_count_buf[MAX_MARKS];
 SDL_Surface *IB_blank;
 
 void update_intel_bombers(const game *state);
@@ -454,11 +457,88 @@ int intel_bombers_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(!(IB_breakdown_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	IB_breakdown_box->w=120;
+	if(atg_ebox_pack(main_box, IB_breakdown_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *breakdown_title=atg_create_element_label("Force breakdown:", 12, (atg_colour){0, 127, 255, ATG_ALPHA_OPAQUE});
+	if(!breakdown_title)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(IB_breakdown_box, breakdown_title))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int m=0;m<MAX_MARKS;m++)
+	{
+		if(!(IB_breakdown_row[m]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(IB_breakdown_box, IB_breakdown_row[m]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *icon=atg_create_element_image(markpic[m]);
+		if(!icon)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(IB_breakdown_row[m], icon))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(IB_mark_count_buf[m]=malloc(30)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		strcpy(IB_mark_count_buf[m], "n/a");
+		atg_element *force_lbl=atg_create_element_label_nocopy(IB_mark_count_buf[m], 12, (atg_colour){0, 115, 223, ATG_ALPHA_OPAQUE});
+		if(!force_lbl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(IB_breakdown_row[m], force_lbl))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
 	return(0);
+}
+
+void count_marks(const game *state)
+{
+	for(unsigned int m=0;m<MAX_MARKS;m++)
+		IB_mark_count[m][0]=IB_mark_count[m][1]=0;
+	for(unsigned int k=0;k<state->nbombers;k++)
+		if(state->bombers[k].type==IB_i)
+		{
+			if(!state->bombers[k].failed)
+				IB_mark_count[state->bombers[k].mark][0]++;
+			IB_mark_count[state->bombers[k].mark][1]++;
+		}
 }
 
 screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 {
+	count_marks(state);
 	atg_event e;
 	while(1)
 	{
@@ -495,6 +575,7 @@ screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 						{
 							IB_i=i;
 							IB_showmark=types[i].newmark;
+							count_marks(state);
 						}
 						else
 						{
@@ -621,12 +702,19 @@ void update_intel_bombers(const game *state)
 		IB_mark_lbl->hidden=false;
 		IB_mark_prev->hidden=!(IB_mark_noprev->hidden=IB_showmark);
 		IB_mark_next->hidden=!(IB_mark_nonext->hidden=IB_showmark<types[IB_i].newmark);
+		IB_breakdown_box->hidden=false;
+		for(unsigned int m=0;m<MAX_MARKS;m++)
+		{
+			IB_breakdown_row[m]->hidden=m>types[IB_i].newmark;
+			snprintf(IB_mark_count_buf[m], 30, "%s %u/%u", types[IB_i].markname[m], IB_mark_count[m][0], IB_mark_count[m][1]);
+		}
 	}
 	else
 	{
 		IB_mark_lbl->hidden=true;
 		IB_mark_prev->hidden=IB_mark_noprev->hidden=true;
 		IB_mark_next->hidden=IB_mark_nonext->hidden=true;
+		IB_breakdown_box->hidden=true;
 	}
 	atg_ebox_empty(IB_stat_box);
 	for(unsigned int i=0;i<NUM_STATS;i++)
