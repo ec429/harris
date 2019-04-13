@@ -71,6 +71,7 @@ SDL_Surface *navpic[NNAVAIDS];
 SDL_Surface *pffpic=NULL;
 SDL_Surface *elitepic=NULL;
 SDL_Surface *studentpic=NULL;
+SDL_Surface *markpic[4];
 SDL_Surface *resizebtn=NULL;
 SDL_Surface *fullbtn=NULL;
 SDL_Surface *exitbtn=NULL;

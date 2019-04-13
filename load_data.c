@@ -1408,6 +1408,16 @@ int load_images(void)
 		fprintf(stderr, "Student icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	for(unsigned int m=0;m<MAX_MARKS;m++)
+	{
+		char fn[80];
+		snprintf(fn, sizeof(fn), "art/filters/mk%u.png", m+1);
+		if(!(markpic[m]=IMG_Load(fn)))
+		{
+			fprintf(stderr, "Mark %u icon: IMG_Load: %s\n", m+1, IMG_GetError());
+			return(1);
+		}
+	}
 	for(unsigned int l=0;l<NBOMBLOADS;l++)
 	{
 		if(!(bombloads[l].pic=IMG_Load(bombloads[l].fn)))

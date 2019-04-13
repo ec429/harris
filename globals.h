@@ -52,7 +52,7 @@ extern flaksite *flaks;
 extern unsigned int nstarts;
 extern startpoint *starts;
 
-extern SDL_Surface *terrain, *location, *yellowhair, *nointelbtn, *intelbtn, *navpic[NNAVAIDS], *pffpic, *elitepic, *studentpic, *resizebtn, *fullbtn, *exitbtn;
+extern SDL_Surface *terrain, *location, *yellowhair, *nointelbtn, *intelbtn, *navpic[NNAVAIDS], *pffpic, *elitepic, *studentpic, *resizebtn, *fullbtn, *exitbtn, *markpic[4];
 
 extern SDL_Surface *grey_overlay, *yellow_overlay;
 extern SDL_Surface *weather_overlay, *sun_overlay, *city_overlay, *target_overlay, *flak_overlay, *route_overlay, *xhair_overlay, *seltarg_overlay;

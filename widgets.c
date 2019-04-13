@@ -164,6 +164,81 @@ void filter_switch_match_click_callback(struct atg_event_list *list, atg_element
 		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*u}});
 }
 
+SDL_Surface *bfilter_switch_render_callback(const struct atg_element *e);
+void bfilter_switch_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
+
+void bfilter_switch_free_callback(struct atg_element *e)
+{
+	atg_ebox_empty(e);
+	free(e->userdata);
+}
+
+atg_element *create_bfilter_switch(unsigned int count, atg_colour bgcolour, SDL_Surface **icon, bool *value)
+{
+	atg_element *rv=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, bgcolour);
+	unsigned int i;
+	if(!rv) return(NULL);
+	atg_element **btns=calloc(count, sizeof(atg_element *));
+	if(!btns)
+	{
+		atg_free_element(rv);
+		return(NULL);
+	}
+	rv->type="bfilter_switch";
+	for(i=0;i<count;i++)
+	{
+		btns[i]=atg_create_element_image(icon[i]);
+		if(!btns[i]) goto fail;
+		btns[i]->userdata=value+i;
+		btns[i]->render_callback=bfilter_switch_render_callback;
+		btns[i]->match_click_callback=bfilter_switch_match_click_callback;
+		if(atg_ebox_pack(rv, btns[i]))
+		{
+			atg_free_element(btns[i]);
+			goto fail;
+		}
+	}
+	rv->userdata=btns;
+	rv->free_callback=bfilter_switch_free_callback;
+	return(rv);
+fail:
+	atg_ebox_empty(rv);
+	free(btns);
+	atg_free_element(rv);
+	return(NULL);
+}
+
+SDL_Surface *bfilter_switch_render_callback(const struct atg_element *e)
+{
+	if(!e) return(NULL);
+	if(!e->userdata) return(NULL);
+	atg_image *i=e->elemdata;
+	if(!i) return(NULL);
+	SDL_Surface *rv=atg_resize_surface(i->data, e);
+	unsigned int w=rv->w, h=rv->h;
+	if(*(bool *)e->userdata)
+	{
+		SDL_FillRect(rv, &(SDL_Rect){(w>>1)-(w>>2), (h>>1)-1, (w>>1), 2}, SDL_MapRGB(rv->format, 0, 255, 0));
+		SDL_FillRect(rv, &(SDL_Rect){(w>>1)-1, (h>>1)-(h>>2), 2, (h>>1)}, SDL_MapRGB(rv->format, 0, 255, 0));
+	}
+	return(rv);
+}
+
+void bfilter_switch_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, __attribute__((unused)) unsigned int xoff, __attribute__((unused)) unsigned int yoff)
+{
+	bool *u=element->userdata;
+	if(!u) return;
+	switch(button.button)
+	{
+		case ATG_MB_LEFT:
+		case ATG_MB_RIGHT:
+			*u=!*u;
+		break;
+	}
+	atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*u}});
+}
+/**/
+
 SDL_Surface *load_selector_render_callback(const struct atg_element *e);
 void load_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
 

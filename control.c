@@ -44,6 +44,8 @@ char *GB_suntimes[2];
 SDL_Surface *GB_moonimg, *GB_tfav[2], *GB_ifav[2];
 int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0, filter_student=0;
 atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite, *GB_fi_student;
+bool filter_marks[MAX_MARKS];
+atg_element *GB_filter_marks;
 
 bool filter_apply(ac_bomber b);
 bool ensure_crewed(game *state, unsigned int i);
@@ -808,6 +810,16 @@ int control_create(void)
 		return(1);
 	}
 	if(atg_ebox_pack(GB_filters, GB_fi_student))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if (!(GB_filter_marks=create_bfilter_switch(MAX_MARKS, GAME_BG_COLOUR, markpic, filter_marks)))
+	{
+		fprintf(stderr, "create_bfilter_switch failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_filters, GB_filter_marks))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1909,6 +1921,10 @@ bool filter_apply(ac_bomber b)
 		if(filter_nav[n]>0&&!b.nav[n]) return(false);
 		if(filter_nav[n]<0&&b.nav[n]) return(false);
 	}
+	if(!filter_marks[b.mark])
+		for(unsigned int m=0;m<MAX_MARKS;m++)
+			if(filter_marks[m])
+				return(false);
 	return(true);
 }
 
