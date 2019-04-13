@@ -13,8 +13,11 @@
 /* Event classes start here */
 
 /* Aircraft events */
-// <ct-ev>  ::= CT
-// no data to store
+// <ct-ev>  ::= CT <mark:int> # older saves may be missing <mark>, in which case assume 0
+struct creat_record
+{
+	unsigned int mark;
+};
 
 // <nav-ev> ::= NA <navaid:int> # installation of a navaid (or, for fighters, radar)
 struct nav_record
@@ -89,7 +92,7 @@ struct ac_record
 	enum acev_type type;
 	union
 	{
-		/* no data for CT */
+		struct creat_record creat;
 		struct nav_record nav;
 		/* no data for PF */
 		struct raid_record raid;

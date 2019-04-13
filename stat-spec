@@ -7,7 +7,7 @@
 <b-or-f> ::= B | F
 <cclass> ::= P | N | B | E | W | G
 <a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev> | <obs-ev>
-<ct-ev>  ::= CT
+<ct-ev>  ::= CT <mark:int> # older saves may be missing <mark>, in which case assume 0
 <nav-ev> ::= NA <navaid:int> # installation of a navaid (or, for fighters, radar)
 <pff-ev> ::= PF # assignment to PFF - not reversible
 <raid-ev>::= RA <targ-id:int> <ra-crew>

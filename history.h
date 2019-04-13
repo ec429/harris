@@ -18,7 +18,7 @@ int hist_save(history hist, FILE *out); // Write history out to file
 int hist_load(FILE *in, size_t nents, history *hist); // Read history in from file.  Not a mirror of hist_save, since it doesn't read nents itself (this is for reasons related to how loadgame functions)
 
 int eva_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, const char *ev); // Append an aircraft event to the history
-int ct_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type); // Append a CT (constructed) event to the history
+int ct_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int mark); // Append a CT (constructed) event to the history
 int na_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int nid); // Append a NA (navaid) event to the history
 int pf_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type); // Append a PF (PFF assign) event to the history
 int ra_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int tid); // Append a RA (raid targ) event to the history

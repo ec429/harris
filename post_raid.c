@@ -141,14 +141,14 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					state->nbombers=n;
 					break;
 				}
-				(state->bombers=nb)[n]=(ac_bomber){.type=i, .failed=false, .id=rand_acid()};
+				(state->bombers=nb)[n]=(ac_bomber){.type=i, .failed=false, .id=rand_acid(), .mark=types[i].newmark};
 				for(unsigned int j=0;j<NNAVAIDS;j++)
 					nb[n].nav[j]=false;
 				for(unsigned int j=0;j<MAX_CREW;j++)
 					nb[n].crew[j]=-1;
 				if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[i].nav[NAV_GEE])
 					nb[n].nav[NAV_GEE]=true;
-				ct_append(&state->hist, state->now, (harris_time){11, 25}, state->bombers[n].id, false, state->bombers[n].type);
+				ct_append(&state->hist, state->now, (harris_time){11, 25}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
 			}
 		}
 		if(!datewithin(state->now, types[i].entry, types[i].exit)) continue;
@@ -203,7 +203,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		types[m].pcbuf-=cost;
 		types[m].pc+=cost/100;
 		types[m].pribuf-=8;
-		ct_append(&state->hist, state->now, (harris_time){11, 30}, state->bombers[n].id, false, state->bombers[n].type);
+		ct_append(&state->hist, state->now, (harris_time){11, 30}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
 	}
 	// install navaids
 	for(unsigned int n=0;n<NNAVAIDS;n++)
@@ -489,7 +489,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		while(!datewithin(state->now, fbases[base].entry, fbases[base].exit));
 		(state->fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0, .id=rand_acid()};
 		state->gprod[ICLASS_AC]-=ftypes[i].cost;
-		ct_append(&state->hist, state->now, (harris_time){11, 50}, state->fighters[n].id, true, i);
+		ct_append(&state->hist, state->now, (harris_time){11, 50}, state->fighters[n].id, true, i, 0 /* No fighter marks (yet?) */);
 	}
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
 		gp_append(&state->hist, state->now, (harris_time){11, 55}, i, state->gprod[i], state->dprod[i]);

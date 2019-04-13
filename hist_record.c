@@ -13,11 +13,34 @@
 #include "date.h"
 #include "saving.h"
 
+/* Get next word from line, if there is one */
+#define WORD()	(word = strtok(NULL, " "))
+
 /* Get next word from line, or complain we didn't get one */
-#define WORD_OR_ERR(_what)	if (!(word = strtok(NULL, " "))) { \
+#define WORD_OR_ERR(_what)	if (!WORD()) { \
 					fprintf(stderr, "Expected " _what ", got EOL\n"); \
 					return 1; \
 				}
+
+/* <ct-ev>  ::= CT <mark:int> # older saves may be missing <mark>, in which case assume 0 */
+int parse_creat(struct creat_record *rec)
+{
+	char *word;
+
+	if (WORD())
+	{
+		if (sscanf(word, "%u", &rec->mark) != 1)
+		{
+			fprintf(stderr, "bad navaid '%s'\n", word);
+			return 2;
+		}
+	}
+	else
+	{
+		rec->mark = 0;
+	}
+	return 0;
+}
 
 /* <nav-ev> ::= NA <navaid:int> # installation of a navaid (or, for fighters, radar) */
 int parse_nav(struct nav_record *rec)
@@ -193,7 +216,7 @@ int parse_ac(struct ac_record *rec)
 	if (!strcmp(word, "CT"))
 	{
 		rec->type = AE_CT;
-		return 0;
+		return parse_creat(&rec->creat);
 	}
 	if (!strcmp(word, "NA"))
 	{

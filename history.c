@@ -149,9 +149,11 @@ int eva_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned
 	return(ev_append(hist, d, t, buf));
 }
 
-int ct_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type)
+int ct_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int mark)
 {
-	return(eva_append(hist, d, t, id, ftr, type, "CT"));
+	char buf[HIST_LINE];
+	snprintf(buf, HIST_LINE, "CT %u", mark);
+	return(eva_append(hist, d, t, id, ftr, type, buf));
 }
 
 int na_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type, unsigned int nid)
