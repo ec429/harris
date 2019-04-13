@@ -28,8 +28,10 @@ NPrio 3:0,96
 Bombers:411
 *52*Type 0:0,0,0,NOID,0
 *50*Type 0:1,0,0,NOID,0
-*44*Type 1:0,0,0,NOID,0
-*28*Type 1:1,0,0,NOID,0
+*10*Type 1:0,0,0,NOID,0
+*7*Type 1:1,0,0,NOID,0
+*34*Type 1:0,0,0,NOID,1
+*21*Type 1:1,0,0,NOID,1
 *74*Type 2:0,0,0,NOID,0
 *40*Type 2:1,0,0,NOID,0
 *82*Type 3:0,0,0,NOID,0
