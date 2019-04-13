@@ -52,6 +52,12 @@ As the months and years pass, new types of bomber are developed, and older ones 
 Because the Government wishes to encourage the development of new aircraft types, for the first four months of any new type's life, you will be forced to buy them at least at LOW priority, though you can set the priority higher than this if you wish.  This will be denoted by a green 'N' to the right of the priority indicator.
 Also, when a new type enters service, you will receive a flight of 15 bombers of that type, which are not paid for out of your budget.
 
+Mods and Marks
+--------------
+Sometimes, a bomber manufacturer will devise an improvement to an aircraft type which is not a big enough change to make it an entirely new type.  These come in two forms: 'mods' (modifications) which are retrospectively applied to all aircraft of the type in service, and 'marks' which apply only to subsequent production.  You will generally receive a message when either happens.
+It is thus possible for your forces of a given type to consist of a mix of different marks.  For instance, if you start the game in 1939, your AW Whitleys are a mixture of Mk IV and Mk V aircraft.  You can get detailed information about marks in the Intel: Bombers screen; a 'Force breakdown' table will appear to the right of the picture, and a pair of arrow buttons allow you to inspect the stats of older marks.
+You can also filter by mark when assigning bombers to a raid; see the section "Filters" below for details.
+
 Sun and Moon
 ~~~~~~~~~~~~
 The phase of the moon is shown in the top left of the control center, next to the date.  During the full moon, your bombers will navigate more accurately, but will be at greater risk from flak and fighters, as compared to the new moon.
@@ -99,7 +105,9 @@ Window (known today as 'Chaff') is a radio countermeasure: thousands of strips o
 
 Filters
 ~~~~~~~
-Once navaids are available, it's possible to apply filters when adding bombers to, or removing them from, a raid.  These filters are controlled by a row of buttons (one per navaid, plus one for PFF) which can be set to '+' (only move bombers which HAVE this), blank (don't filter on this) or '-' (only move bombers which DON'T have this).  These filters allow more complicated raid planning, such as "Use only H₂S-equipped Pathfinders, but all the Main Force whether they have H₂S or not".
+Once navaids are available, it's possible to apply filters when adding bombers to, or removing them from, a raid.  These filters are controlled by a row of buttons (one per navaid) which can be set to '+' (only move bombers which HAVE this), blank (don't filter on this) or '-' (only move bombers which DON'T have this).
+There are also filters of this kind for PFF and Use student crews, as well as a set of two-position filters for Marks (see section "Mods and Marks" above).  If none of the Marks are selected, all will be allowed.
+These filters allow more complicated raid planning, such as "Use only H₂S-equipped Pathfinders, but all the Main Force whether they have H₂S or not".
 
 Bombloads
 ~~~~~~~~~
