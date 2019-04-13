@@ -299,6 +299,7 @@ screen_id setup_types_screen(atg_canvas *canvas, game *state)
 							{
 								intel_caller=SCRN_SETPTYPS;
 								IB_i=i;
+								IB_showmark=types[i].newmark;
 								return(SCRN_INTELBMB);
 							}
 						}

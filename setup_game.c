@@ -658,6 +658,7 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 						if(j<ntypes)
 						{
 							IB_i=j;
+							IB_showmark=types[j].newmark;
 							intel_caller=SCRN_SETPGAME;
 							return(SCRN_INTELBMB);
 						}

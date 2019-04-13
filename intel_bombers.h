@@ -10,4 +10,4 @@
 #include <atg.h>
 
 extern atg_element *intel_bombers_box;
-extern unsigned int IB_i;
+extern unsigned int IB_i, IB_showmark;

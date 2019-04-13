@@ -1733,6 +1733,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							if(c.e==GB_btint[i])
 							{
 								IB_i=i;
+								IB_showmark=types[i].newmark;
 								intel_caller=SCRN_CONTROL;
 								return(SCRN_INTELBMB);
 							}
