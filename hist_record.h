@@ -179,8 +179,14 @@ struct iprio_record
 	bool ignore;
 };
 
+// <prop-ev>::= PG <event:int>
+struct prop_record
+{
+	int event;
+};
+
 /* <data>   ::= ... | M <misc-ev>
- * <misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> | <prio-ev>
+ * <misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> | <prio-ev> | <prop-ev>
  * <prio-ev>::= <tpri-ev> | <ipri-ev>
  */
 enum miscev_type
@@ -191,6 +197,7 @@ enum miscev_type
 	ME_GPROD,
 	ME_TPRIO,
 	ME_IPRIO,
+	ME_PROP,
 
 	MISCEV_TYPES
 };
@@ -205,6 +212,7 @@ struct misc_record
 		struct gprod_record gprod;
 		struct tprio_record tprio;
 		struct iprio_record iprio;
+		struct prop_record prop;
 	};
 };
 

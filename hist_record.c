@@ -435,7 +435,7 @@ int parse_iprio(struct iprio_record *rec)
 	}
 	if (rec->iclass < 0 || rec->iclass > I_CLASSES)
 	{
-		fprintf(stderr, "bad tclass '%d', expected 0 to %d\n", rec->iclass, I_CLASSES);
+		fprintf(stderr, "bad iclass '%d', expected 0 to %d\n", rec->iclass, I_CLASSES);
 		return 2;
 	}
 	WORD_OR_ERR("ignore");
@@ -448,7 +448,26 @@ int parse_iprio(struct iprio_record *rec)
 	return 0;
 }
 
-/* <misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> | <prio-ev> 
+/* <prop-ev>::= PG <event:int> */
+int parse_prop(struct prop_record *rec)
+{
+	char *word;
+
+	WORD_OR_ERR("event");
+	if (sscanf(word, "%u", &rec->event) != 1)
+	{
+		fprintf(stderr, "bad event '%s'\n", word);
+		return 2;
+	}
+	if (rec->event < 0 || rec->event >= NEVENTS)
+	{
+		fprintf(stderr, "bad event '%d', expected 0 to %d\n", rec->event, NEVENTS);
+		return 2;
+	}
+	return 0;
+}
+
+/* <misc-ev>::= <cash-ev> | <conf-ev> | <mora-ev> | <gprd-ev> | <prio-ev> | <prop-ev>
  * <prio-ev>::= <tpri-ev> | <ipri-ev>
  */
 int parse_misc(struct misc_record *rec)
@@ -485,6 +504,11 @@ int parse_misc(struct misc_record *rec)
 	{
 		rec->type = ME_IPRIO;
 		return parse_iprio(&rec->iprio);
+	}
+	if (!strcmp(word, "PG"))
+	{
+		rec->type = ME_PROP;
+		return parse_prop(&rec->prop);
 	}
 	fprintf(stderr, "Unrecognised M-event class '%s'\n", word);
 	return 2;
