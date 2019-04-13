@@ -79,6 +79,10 @@ Bulged Bomb Bay         :Mosquito   :loads:       :Hh     :03-04-1943:
 Mk IX                   :Mosquito   :alt  :    300:    320:22-07-1943:1
 Mk IX                   :Mosquito   :range:    390:    400:22-07-1943:1
 Mk IX                   :Mosquito   :speed:    325:    340:22-07-1943:1
+Mk IIA                  :Southampton:speed:    230:    250:16-10-1943:1
+Mk IIA                  :Southampton:alt  :    220:    225:16-10-1943:1
+Mk IIA                  :Southampton:defn :     22:     20:16-10-1943:1
+Mk IIA                  :Southampton:cost :  33000:  35000:16-10-1943:1
 Paddleblade prop        :Lancaster I:speed:    232:    236:01-11-1943:
 Paddleblade prop        :Lancaster I:alt  :    225:    230:01-11-1943:
 Gransden Lodge          :Lancaster I:defn :     12:     11:18-02-1944:
