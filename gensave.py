@@ -12,11 +12,11 @@ def multiply(line):
 	return [line]
 
 def genids(line, i):
-	if line.endswith(',NOID\n'):
+	if ',NOID' in line:
 		z = '_'.join((salt, str(i), line))
 		ha = zlib.crc32(z) & 0xffffffff
 		h = hex(ha)[2:].rstrip('L')
-		return '%s,%s\n' % (line[:-6], h.zfill(8))
+		return line.replace('NOID', h.zfill(8))
 	else:
 		return line
 

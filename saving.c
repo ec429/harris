@@ -40,8 +40,10 @@ int loadgame(const char *fn, game *state)
 	}
 	unsigned int s_version[3]={0,0,0};
 	unsigned int version[3]={VER_MAJ,VER_MIN,VER_REV};
-	bool warned_pff=false, warned_acid=false;
+	bool warned_pff=false, warned_acid=false, warned_mark=false;
 	state->weather.seed=0;
+	for(unsigned int j=0;j<ntypes;j++)
+		types[j].newmark=0;
 	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++) // default everything to medium
 		state->difficulty[i]=1;
 	for(unsigned int i=0;i<nflaks;i++) // all flaksites are unmapped if not saved
@@ -302,9 +304,9 @@ int loadgame(const char *fn, game *state)
 						break;
 					}
 					unsigned int j;
-					unsigned int failed,nav,pff;
+					unsigned int failed,nav,pff,mark;
 					char p_id[9];
-					f=sscanf(line, "Type %u:%u,%u,%u,%8s\n", &j, &failed, &nav, &pff, p_id);
+					f=sscanf(line, "Type %u:%u,%u,%u,%8s,%u\n", &j, &failed, &nav, &pff, p_id, &mark);
 					// TODO: this is for oldsave compat and should probably be removed later
 					if(f==3)
 					{
@@ -320,7 +322,14 @@ int loadgame(const char *fn, game *state)
 						warned_acid=true;
 						pacid(rand_acid(), p_id);
 					}
-					if(f!=5)
+					if(f==5)
+					{
+						f=6;
+						if(!warned_mark) fprintf(stderr, "Warning: added missing 'mark' field in tag \"%s\"\n", tag);
+						warned_mark=true;
+						mark=0;
+					}
+					if(f!=6)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -332,7 +341,7 @@ int loadgame(const char *fn, game *state)
 						e|=4;
 						break;
 					}
-					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff};
+					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff, .mark=mark};
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						state->bombers[i].nav[n]=(nav>>n)&1;
 					for(unsigned int k=0;k<MAX_CREW;k++)
@@ -875,7 +884,7 @@ int savegame(const char *fn, game state)
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		pacid(state.bombers[i].id, p_id);
-		fprintf(fs, "Type %u:%u,%u,%u,%s\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id);
+		fprintf(fs, "Type %u:%u,%u,%u,%s,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id, state.bombers[i].mark);
 	}
 	fprintf(fs, "Crews:%u\n", state.ncrews);
 	for(unsigned int i=0;i<state.ncrews;i++)

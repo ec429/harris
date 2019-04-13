@@ -52,7 +52,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		}
 		if(state->bombers[i].failed)
 		{
-			if(brandp((types[type].svp/100.0)/2.0))
+			if(brandp((bstats(state->bombers[i]).svp/100.0)/2.0))
 			{
 				fa_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type, 0);
 				state->bombers[i].failed=false;
@@ -60,7 +60,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		}
 		else
 		{
-			if(brandp((1-types[type].svp/100.0)/2.4))
+			if(brandp((1-bstats(state->bombers[i]).svp/100.0)/2.4))
 			{
 				fa_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type, 1);
 				state->bombers[i].failed=true;
@@ -181,7 +181,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		}
 		if(!state->btypes[m]) // is possible, if m==0
 			break;
-		unsigned int cost=types[m].cost;
+		unsigned int cost=newstats(types[m]).cost;
 		if(cost>state->cash) break;
 		if(cost>types[m].pcbuf) break;
 		unsigned int n=state->nbombers++;
@@ -192,7 +192,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			state->nbombers=n;
 			break;
 		}
-		(state->bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid()};
+		(state->bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid(), .mark=types[m].newmark};
 		for(unsigned int j=0;j<NNAVAIDS;j++)
 			nb[n].nav[j]=false;
 		if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[m].nav[NAV_GEE])

@@ -17,6 +17,7 @@
 atg_element *intel_bombers_box;
 atg_element *IB_full, *IB_bombers_tab, *IB_fighters_tab, *IB_targets_tab, *IB_cont;
 atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box, *IB_crew_box;
+char markbuf[80];
 unsigned int IB_i;
 SDL_Surface *IB_blank;
 
@@ -39,6 +40,43 @@ enum b_stat_i
 	NUM_STATS
 };
 
+static unsigned int get_cost(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].cost;
+}
+static unsigned int get_speed(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].speed;
+}
+static unsigned int get_alt(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].alt;
+}
+static unsigned int get_capwt(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].capwt;
+}
+static unsigned int get_svp(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].svp;
+}
+static unsigned int get_defn(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].defn;
+}
+static unsigned int get_fail(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].fail;
+}
+static unsigned int get_accu(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].accu;
+}
+static unsigned int get_range(bombertype b, unsigned int mark __attribute__((unused)))
+{
+	return b.range;
+}
+
 struct b_stat_row
 {
 	const char *name;
@@ -47,20 +85,28 @@ struct b_stat_row
 	bool unit_first;
 	unsigned int bar_min, bar_max;
 	bool bar_rev; // reverse colours
-	size_t v_off;
+	unsigned int (*get_stat)(bombertype b, unsigned int mark);
 	int v_shift, v_scale; // shift is applied first
-}
-b_stat_rows[NUM_STATS]=
+} b_stat_rows[NUM_STATS]=
 {
-	[STAT_COST]   ={.name="Cost",           .unit="£",   .unit_first=true,  .bar_min=0,     .bar_max=50000, .v_off=offsetof(bombertype, cost ), .v_shift=0,   .v_scale=1,   .bar_rev=true },
-	[STAT_SPEED]  ={.name="Speed",          .unit="mph", .unit_first=false, .bar_min=120,   .bar_max=275,   .v_off=offsetof(bombertype, speed), .v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_CEILING]={.name="Ceiling",        .unit="ft",  .unit_first=false, .bar_min=16000, .bar_max=26000, .v_off=offsetof(bombertype, alt  ), .v_shift=0,   .v_scale=100, .bar_rev=false},
-	[STAT_LOAD]   ={.name="Max. Bombload",  .unit="lb",  .unit_first=false, .bar_min=0,     .bar_max=20000, .v_off=offsetof(bombertype, capwt), .v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_SV]     ={.name="Serviceability", .unit="%",   .unit_first=false, .bar_min=0,     .bar_max=100,   .v_off=offsetof(bombertype, svp  ), .v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_DE]     ={.name="Survivability",  .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=40,    .v_off=offsetof(bombertype, defn ), .v_shift=-40, .v_scale=-1,  .bar_rev=false},
-	[STAT_FA]     ={.name="Reliability",    .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=20,    .v_off=offsetof(bombertype, fail ), .v_shift=-20, .v_scale=-1,  .bar_rev=false},
-	[STAT_AC]     ={.name="Accuracy",       .unit=" ",   .unit_first=false, .bar_min=20,    .bar_max=80,    .v_off=offsetof(bombertype, accu ), .v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_RANGE]  ={.name="Max. Range",     .unit="mi",  .unit_first=false, .bar_min=450,   .bar_max=1200,  .v_off=offsetof(bombertype, range), .v_shift=0,   .v_scale=3,   .bar_rev=false},
+	[STAT_COST]   ={.name="Cost",           .unit="£",   .unit_first=true,  .bar_min=0,     .bar_max=50000, .get_stat=get_cost,
+			.v_shift=0,   .v_scale=1,   .bar_rev=true },
+	[STAT_SPEED]  ={.name="Speed",          .unit="mph", .unit_first=false, .bar_min=120,   .bar_max=275,   .get_stat=get_speed,
+			.v_shift=0,   .v_scale=1,   .bar_rev=false},
+	[STAT_CEILING]={.name="Ceiling",        .unit="ft",  .unit_first=false, .bar_min=16000, .bar_max=26000, .get_stat=get_alt,
+			.v_shift=0,   .v_scale=100, .bar_rev=false},
+	[STAT_LOAD]   ={.name="Max. Bombload",  .unit="lb",  .unit_first=false, .bar_min=0,     .bar_max=20000, .get_stat=get_capwt,
+			.v_shift=0,   .v_scale=1,   .bar_rev=false},
+	[STAT_SV]     ={.name="Serviceability", .unit="%",   .unit_first=false, .bar_min=0,     .bar_max=100,   .get_stat=get_svp,
+			.v_shift=0,   .v_scale=1,   .bar_rev=false},
+	[STAT_DE]     ={.name="Survivability",  .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=40,    .get_stat=get_defn,
+			.v_shift=-40, .v_scale=-1,  .bar_rev=false},
+	[STAT_FA]     ={.name="Reliability",    .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=20,    .get_stat=get_fail,
+			.v_shift=-20, .v_scale=-1,  .bar_rev=false},
+	[STAT_AC]     ={.name="Accuracy",       .unit=" ",   .unit_first=false, .bar_min=20,    .bar_max=80,    .get_stat=get_accu,
+			.v_shift=0,   .v_scale=1,   .bar_rev=false},
+	[STAT_RANGE]  ={.name="Max. Range",     .unit="mi",  .unit_first=false, .bar_min=450,   .bar_max=1200,  .get_stat=get_range,
+			.v_shift=0,   .v_scale=3,   .bar_rev=false},
 };
 
 int intel_bombers_create(void)
@@ -485,6 +531,35 @@ void update_intel_bombers(const game *state)
 		if(bodytext[x]=='\n') x++;
 	}
 	atg_ebox_empty(IB_stat_box);
+	atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){175, 191, 239, ATG_ALPHA_OPAQUE});
+	if(!row)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+	}
+	else if(atg_ebox_pack(IB_stat_box, row))
+	{
+		perror("atg_ebox_pack");
+		atg_free_element(row);
+	}
+	else
+	{
+		row->w=414;
+		row->h=12;
+		if(types[IB_i].markname[types[IB_i].newmark])
+		{
+			snprintf(markbuf, sizeof(markbuf), "Showing data for %s", types[IB_i].markname[types[IB_i].newmark]);
+			atg_element *m_name=atg_create_element_label(markbuf, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+			if(!m_name)
+			{
+				fprintf(stderr, "atg_create_element_label failed\n");
+			}
+			else if(atg_ebox_pack(row, m_name))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(m_name);
+			}
+		}
+	}
 	for(unsigned int i=0;i<NUM_STATS;i++)
 	{
 		atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
@@ -499,7 +574,7 @@ void update_intel_bombers(const game *state)
 			atg_free_element(row);
 			break;
 		}
-		int val=*(unsigned int *)((char *)&types[IB_i]+b_stat_rows[i].v_off);
+		int val=b_stat_rows[i].get_stat(types[IB_i], types[IB_i].newmark);
 		val=(val+b_stat_rows[i].v_shift)*b_stat_rows[i].v_scale;
 		atg_element *s_name=atg_create_element_label(b_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 		if(s_name)

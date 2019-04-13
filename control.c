@@ -1348,7 +1348,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		if(GB_btnew[i])
 			GB_btnew[i]->hidden=!datebefore(state->now, types[i].novelty);
 		if(GB_btp[i])
-			GB_btp[i]->hidden=(types[i].pribuf<8)||(state->cash<types[i].cost)||(types[i].pcbuf>=types[i].cost);
+			GB_btp[i]->hidden=(types[i].pribuf<8)||(state->cash<newstats(types[i]).cost)||(types[i].pcbuf>=newstats(types[i]).cost);
 		if(GB_btnum[i])
 		{
 			unsigned int svble=0,total=0;
@@ -2139,7 +2139,7 @@ int update_raidnums(const game *state, int seltarg)
 			}
 			else
 			{
-				unsigned int cap=types[i].capwt;
+				unsigned int cap=newstats(types[i]).capwt;
 				double dist;
 				if(stream)
 				{
@@ -2154,8 +2154,8 @@ int update_raidnums(const game *state, int seltarg)
 				{
 					dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.07;
 				}
-				unsigned int fuelt=types[i].range*0.6/(types[i].speed/450.0);
-				unsigned int estt=dist*1.1/(types[i].speed/450.0)+12;
+				unsigned int fuelt=types[i].range*0.6/(newstats(types[i]).speed/450.0);
+				unsigned int estt=dist*1.1/(newstats(types[i]).speed/450.0)+12;
 				if(!stream) estt+=36;
 				if(estt>fuelt)
 				{

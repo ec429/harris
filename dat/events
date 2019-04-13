@@ -75,6 +75,7 @@ MOD_BBBAY:03-04-1943
 MOD_MERLIN:22-07-1943
 MOD_PROP:01-11-1943
 MOD_GLODGE:18-02-1944
+STIRLING_III:08-01-1943
 
 #RCM
 # Boozer is a receiver for enemy radar emissions.  However, in a bomber stream a Boozer warning doesn't mean much

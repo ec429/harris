@@ -163,13 +163,15 @@ int load_bombers(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.cost, &this.speed, &this.alt, &this.capwt, &this.svp, &this.defn, &this.fail, &this.accu, &this.range, &this.blat, &this.blon, &db))!=13)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.mark[0].cost, &this.mark[0].speed, &this.mark[0].alt, &this.mark[0].capwt, &this.mark[0].svp, &this.mark[0].defn, &this.mark[0].fail, &this.mark[0].accu, &this.range, &this.blat, &this.blon, &db))!=13)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
 					return(1);
 				}
-				this.capbulk=this.capwt;
+				this.mark[0].capbulk=this.mark[0].capwt;
+				for(unsigned int m=1;m<MAX_MARKS;m++)
+					this.mark[m]=this.mark[0];
 				size_t nlen=strlen(this.name)+1;
 				this.name=realloc(this.name, nlen);
 				this.entry=readdate(next+db, (date){0, 0, 0});
@@ -314,14 +316,17 @@ int load_mods(void)
 			if(*next&&(*next!='#'))
 			{
 				bmod this;
-				// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
+				// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY:[MARK]
 				char *colon=strchr(next, ':');
 				if(!colon)
 				{
 					fprintf(stderr, "Missing : in `mods' line %s\n", next);
 					return(1);
 				}
+				char *space=colon-1;
 				*colon++=0;
+				while (*space==' ')
+					*space--=0;
 				this.desc=strdup(next);
 				char *acname=colon;
 				colon=strchr(colon, ':');
@@ -330,7 +335,7 @@ int load_mods(void)
 					fprintf(stderr, "Missing : in `mods' line %s\n", next);
 					return(1);
 				}
-				char *space=colon;
+				space=colon;
 				*colon++=0;
 				while(space>acname && space[-1]==' ')
 					*--space=0;
@@ -379,6 +384,8 @@ int load_mods(void)
 					this.s=BSTAT_LOADS;
 				else if(!strcmp(statname, "flags"))
 					this.s=BSTAT_FLAGS;
+				else if(!strcmp(statname, "nil"))
+					this.s=NUM_BSTATS;
 				else
 				{
 					fprintf(stderr, "No such statname %s\n", statname);
@@ -445,12 +452,33 @@ int load_mods(void)
 						return(1);
 					}
 				}
-				else // can't happen
+				else if(this.s!=NUM_BSTATS) // can't happen
 				{
 					fprintf(stderr, "Unhandled stat %s\n", statname);
 					return(1);
 				}
-				this.d=readdate(colon, (date){9999, 99, 99});
+				char *moddate=colon;
+				colon=strchr(colon, ':');
+				if(!colon)
+				{
+					fprintf(stderr, "Missing : in `mods' line %s:%s:%s\n", next, acname, statname);
+					return(1);
+				}
+				*colon++=0;
+				this.d=readdate(moddate, (date){9999, 99, 99});
+				if(!*colon)
+				{
+					this.mark=0;
+				}
+				else if(sscanf(colon, "%u", &this.mark)!=1)
+				{
+					fprintf(stderr, "Malformed mark %s (stat %s)\n", colon, statname);
+					return(1);
+				}
+				else if(!types[this.bt].markname[this.mark])
+				{
+					rawtypes[this.bt].markname[this.mark]=this.desc;
+				}
 				mods=(bmod *)realloc(mods, (nmods+1)*sizeof(bmod));
 				mods[nmods]=this;
 				nmods++;

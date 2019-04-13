@@ -476,7 +476,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					dist+=d;
 					if(l<4) outward+=d;
 				}
-				unsigned int cap=types[type].capwt;
+				unsigned int cap=bstats(state->bombers[k]).capwt;
 				state->bombers[k].bombed=false;
 				state->bombers[k].crashed=false;
 				state->bombers[k].landed=false;
@@ -502,14 +502,14 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						askill=max(askill, get_crew(state, k, l)->skill*.5);
 					}
 				}
-				state->bombers[k].speed=(types[type].speed+askill/20.0-2.0)/450.0;
+				state->bombers[k].speed=(bstats(state->bombers[k]).speed+askill/20.0-2.0)/450.0;
 				if(stream)
 				{
 					// aim for Zero Hour 01:00 plus up to 10 minutes
 					// PFF should arrive at Zero minus 6, and be finished by Zero minus 2
 					// Zero Hour is t=840, and a minute is two t-steps
 					int tt=state->bombers[k].pff?(state->raids[i].zerohour-12+irandu(8)):(state->raids[i].zerohour+irandu(20));
-					int st=tt-(outward/state->bombers[k].speed)-3;
+					int st=tt-(outward/bstats(state->bombers[k]).speed)-3;
 					if(state->bombers[k].pff) st-=3;
 					if(st<0)
 					{
@@ -523,8 +523,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				startt=min(startt, state->bombers[k].startt);
 				ra_append(&state->hist, state->now, maketime(state->bombers[k].startt), state->bombers[k].id, false, state->bombers[k].type, i);
 				double eff=0.98+askill/1e3; // engineer fuel factor
-				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6*eff/(double)state->bombers[k].speed;
-				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)state->bombers[k].speed+12;
+				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6*eff/(double)bstats(state->bombers[k]).speed;
+				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)bstats(state->bombers[k]).speed+12;
 				if(!stream) eta+=36;
 				if(eta>state->bombers[k].fuelt)
 				{
@@ -539,7 +539,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				state->bombers[k].b_in=0;
 				state->bombers[k].b_ti=0;
 				state->bombers[k].b_le=0;
-				unsigned int bulk=types[type].capbulk;
+				unsigned int bulk=bstats(state->bombers[k]).capbulk;
 				bool inext=true;
 				switch(targs[i].class)
 				{
@@ -553,7 +553,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								if(cap>=4000) // cookie + gp+in mix
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
-									while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
+									while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
 									{
 										if(inext)
 											transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
@@ -564,7 +564,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 								else // can't take a cookie, so just gp+in mix (but more gp than BL_USUAL)
 								{
-									while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
+									while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
 									{
 										if(inext)
 											transfer(min(bulk/1.5, 300), cap, state->bombers[k].b_in);
@@ -575,15 +575,15 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 							break;
 							case BL_USUAL:
-								if(types[type].load[BL_PLUMDUFF]&&types[type].capwt>=10000&&cap>4000) // cookie + incendiaries
+								if(types[type].load[BL_PLUMDUFF]&&bstats(state->bombers[k]).capwt>=10000&&cap>4000) // cookie + incendiaries
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
-									bulk=types[type].capbulk-loadbulk(state->bombers[k]);
+									bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k]);
 									state->bombers[k].b_in=min(cap, bulk/1.5);
 								}
 								else // gp+in mix
 								{
-									while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
+									while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
 									{
 										if(inext)
 											transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
@@ -604,7 +604,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 								// else fallthrough
 							case BL_ILLUM:
-								while(cap&&(bulk=types[type].capbulk-loadbulk(state->bombers[k])))
+								while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
 								{
 									if(inext)
 										transfer(min(bulk/2.0, 250), cap, state->bombers[k].b_ti);
@@ -614,7 +614,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 							break;
 							case BL_PPLUS: // LanX, up to 12,000lb cookie; LanI, up to 8,000lb cookie
-								transfer(min(types[type].capwt/5333, cap/4000)*4000, cap, state->bombers[k].b_hc);
+								transfer(min(bstats(state->bombers[k]).capwt/5333, cap/4000)*4000, cap, state->bombers[k].b_hc);
 								state->bombers[k].b_gp=cap;
 							break;
 							case BL_PONLY:
@@ -776,7 +776,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							askill=max(askill, get_crew(state, k, l)->skill*.5);
 						}
 					}
-					if(brandp(types[type].fail/(50.0*min(240.0, 48.0+t-state->bombers[k].startt))+state->bombers[k].damage/2400.0))
+					if(brandp(bstats(state->bombers[k]).fail/(50.0*min(240.0, 48.0+t-state->bombers[k].startt))+state->bombers[k].damage/2400.0))
 					{
 						// E practise
 						for(unsigned int l=1;l<MAX_CREW;l++)
@@ -788,7 +788,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								state->bombers[k].ld.ds=DS_MECH;
 							fa_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, 1);
 							state->bombers[k].failed=true;
-							if(brandp((1.0+state->bombers[k].damage/50.0)/(240.0-types[type].fail*5.0)))
+							if(brandp((1.0+state->bombers[k].damage/50.0)/(240.0-bstats(state->bombers[k]).fail*5.0)))
 							{
 								cr_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type);
 								state->bombers[k].crashed=true;
@@ -802,7 +802,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					while((stage<8)&&(t>RRT(7,0)||!(state->bombers[k].route[stage][0]||state->bombers[k].route[stage][1])))
 						stage=++state->bombers[k].routestage;
 					bool home=(state->bombers[k].failed&&!state->bombers[k].bombed)||(stage>=8);
-					double altitude=types[type].alt+(irandu(askill)-10)/10.0;
+					double altitude=bstats(state->bombers[k]).alt+(irandu(askill)-10)/10.0;
 					if((stage==4)&&state->bombers[k].nav[NAV_OBOE]&&xyr(state->bombers[k].lon-oboe.lon, state->bombers[k].lat-oboe.lat, 50+altitude*.3)) // OBOE
 					{
 						if(oboe.k==-1)
@@ -1000,11 +1000,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							if(brandp(state->flk[i]*flakscale/min((9+targs[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
-								if(brandp(types[type].defn/800.0))
+								if(brandp(bstats(state->bombers[k]).defn/800.0))
 									ddmg=100;
 								else
 								{
-									ddmg=irandu(types[type].defn)/5.0;
+									ddmg=irandu(bstats(state->bombers[k]).defn)/5.0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
 										if(types[type].crew[l]==CCLASS_E)
@@ -1026,7 +1026,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						if((x>=0)&&(y>=0)&&(x<128)&&(y<128))
 							water=lorw[x][y];
 						if(dd<(water?8*8:30*30))
-							targs[i].threat+=sqrt(targs[i].prod*types[type].capbulk/5000/(6.0+max(dd, 0.25)));
+							targs[i].threat+=sqrt(targs[i].prod*newstats(types[type]).capbulk/5000/(6.0+max(dd, 0.25)));
 					}
 					for(unsigned int i=0;i<nflaks;i++)
 					{
@@ -1046,11 +1046,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							if(brandp(flaks[i].strength*flakscale/min((12+flaks[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
-								if(brandp(types[type].defn/1000.0))
+								if(brandp(bstats(state->bombers[k]).defn/1000.0))
 									ddmg=100;
 								else
 								{
-									ddmg=irandu(types[type].defn)/10.0;
+									ddmg=irandu(bstats(state->bombers[k]).defn)/10.0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
 										if(types[type].crew[l]==CCLASS_E)
@@ -1100,7 +1100,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								state->fighters[j].k=k;
 						}
 					}
-					double navacc=3.0/(types[type].accu+get_crew(state, k, 0)->skill/10.0-4.0);
+					double navacc=3.0/(bstats(state->bombers[k]).accu+get_crew(state, k, 0)->skill/10.0-4.0);
 					double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
 					state->bombers[k].driftlon=state->bombers[k].driftlon*.98+ex;
 					state->bombers[k].driftlat=state->bombers[k].driftlat*.98+ey;
@@ -1112,7 +1112,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					clamp(state->bombers[k].lat, 0, 256);
 					state->bombers[k].navlon-=state->bombers[k].driftlon;
 					state->bombers[k].navlat-=state->bombers[k].driftlat;
-					if(state->bombers[k].nav[NAV_GEE]&&xyr(state->bombers[k].lon-gee.lon, state->bombers[k].lat-gee.lat, datebefore(state->now, event[EVENT_GEEJAM])?56+(types[type].alt*.3):gee.jrange))
+					if(state->bombers[k].nav[NAV_GEE]&&xyr(state->bombers[k].lon-gee.lon, state->bombers[k].lat-gee.lat, datebefore(state->now, event[EVENT_GEEJAM])?56+(bstats(state->bombers[k]).alt*.3):gee.jrange))
 					{
 						double geeacc=100.0/(nskill+200.0);
 						state->bombers[k].navlon=(state->bombers[k].navlon>0?1:-1)*min(fabs(state->bombers[k].navlon), geeacc);
@@ -1125,7 +1125,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
 						wea=max(wea, h*0.08*((80+bac->skill)/120.0)-12);
 					}
-					double navp=types[type].accu*0.05*(sqrt(illum)*.8+.5)/(double)(8+max(16-wea, 8));
+					double navp=bstats(state->bombers[k]).accu*0.05*(sqrt(illum)*.8+.5)/(double)(8+max(16-wea, 8));
 					if(home&&(state->bombers[k].lon<64)) navp=1;
 					bool b=brandp(navp);
 					state->bombers[k].fix=b;
@@ -1211,8 +1211,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							boxy=floor((state->bombers[k].lat-40)/10.0);
 						if(0<=boxx&&boxx<16&&0<=boxy&&boxy<16)
 						{
-							unsigned int type=state->bombers[k].type;
-							unsigned int size=types[type].capbulk/1000; // how big a signal on Freya ground radar
+							unsigned int size=bstats(state->bombers[k]).capbulk/1000; // how big a signal on Freya ground radar
 							// TODO: extra WINDOW (will need UI support in raid planning)
 							size*=irandu(3);
 							boxes[boxx][boxy]+=size;
@@ -1382,7 +1381,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						{
 							if(brandp(ftypes[ft].mnv*(2.7+loadness(state->bombers[k]))/(200.0+pskill+mlskill*3)))
 							{
-								unsigned int dmg=irandu(ftypes[ft].arm)*types[bt].defn/30.0;
+								unsigned int dmg=irandu(ftypes[ft].arm)*bstats(state->bombers[k]).defn/30.0;
 								double sdc=0;
 								// Damage control; also E practise (even if dmg==0)
 								for(unsigned int l=1;l<MAX_CREW;l++)
@@ -1414,7 +1413,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							double rgskill=0;
 							if(ng)
 								rgskill=gskill[irandu(ng)];
-							if(!types[bt].noarm&&(brandp(rgskill*0.008/types[bt].defn)))
+							if(!types[bt].noarm&&(brandp(rgskill*0.008/bstats(state->bombers[k]).defn)))
 							{
 								unsigned int dmg=irandu(20);
 								state->fighters[j].damage+=dmg;

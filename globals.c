@@ -187,7 +187,7 @@ int set_init_state(game *state)
 	state->roe.idtar=true;
 	for(unsigned int i=0;i<MAXMSGS;i++)
 		state->msg[i]=NULL;
-	
+
 	state->hist.nents=0;
 	state->hist.nalloc=0;
 	state->hist.ents=NULL;

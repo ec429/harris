@@ -93,11 +93,8 @@ struct bombloadinfo
 
 #define MAX_CREW	7
 
-typedef struct
+struct bomberstats
 {
-	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
-	char * manu;
-	char * name;
 	unsigned int cost;
 	unsigned int speed;
 	unsigned int alt;
@@ -107,15 +104,26 @@ typedef struct
 	unsigned int defn;
 	unsigned int fail;
 	unsigned int accu;
+};
+
+#define MAX_MARKS	4
+
+typedef struct
+{
+	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
+	char * manu;
+	char * name;
+	struct bomberstats mark[MAX_MARKS];
+	char *markname[MAX_MARKS];
 	unsigned int range;
-	date entry;
-	date novelty;
-	date exit;
 	enum cclass crew[MAX_CREW];
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
-	bool noarm, pff, heavy, inc, extra, ovltank;
 	bool crewbg, crewwg;
+	bool noarm, pff, heavy, inc, extra, ovltank;
+	date entry;
+	date novelty;
+	date exit;
 	unsigned int blat, blon;
 	SDL_Surface *picture, *side_image;
 	char *text, *newtext;
@@ -128,10 +136,10 @@ typedef struct
 	atg_element *prio_selector;
 	unsigned int pc;
 	unsigned int pcbuf;
+	unsigned int newmark;
 }
 bombertype;
-
-#define fuelcap(t)	types[t].range*180.0/(double)(types[t].speed)
+#define newstats(t)	((t).mark[(t).newmark])
 
 typedef enum
 {
@@ -148,7 +156,8 @@ typedef enum
 	BSTAT__NUMERIC=BSTAT_RANGE,
 	BSTAT_CREW,
 	BSTAT_LOADS,
-	BSTAT_FLAGS
+	BSTAT_FLAGS,
+	NUM_BSTATS
 }
 bstat;
 
@@ -160,7 +169,7 @@ bflag;
 
 typedef struct
 {
-	// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
+	// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY:[MARK]
 	char *desc;
 	unsigned int bt;
 	bstat s;
@@ -172,6 +181,7 @@ typedef struct
 	}
 	v;
 	date d;
+	unsigned int mark;
 }
 bmod;
 
@@ -275,6 +285,7 @@ typedef struct
 	unsigned int routestage; // 8 means "passed route[7], heading for base"
 	bool nav[NNAVAIDS];
 	bool pff; // a/c is assigned to the PFF
+	unsigned int mark;
 	unsigned int b_hc, b_gp, b_in, b_ti, b_le; // bombload carried: high capacity explosive, general purpose high explosive or mines, incendiaries, target indicator flares, leaflets
 	bool bombed;
 	bool crashed;
@@ -293,7 +304,9 @@ ac_bomber;
 
 #define loadweight(b)	((b).b_hc+(b).b_gp+(b).b_in+(b).b_ti+(b).b_le/20)
 #define loadbulk(b)	((b).b_hc+(b).b_gp+(b).b_in*1.5+(b).b_ti*2+(b).b_le/3)
-#define loadness(b)	((((b).bombed?0:loadweight(b))/(double)(types[(b).type].capwt)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap((b).type)))
+#define bstats(b)	(types[(b).type].mark[(b).mark])
+#define fuelcap(b)	(types[(b).type].range*180.0/(double)(bstats(b).speed))
+#define loadness(b)	((((b).bombed?0:loadweight(b))/(double)(bstats(b).capwt)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap(b)))
 
 typedef struct
 {

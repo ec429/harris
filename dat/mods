@@ -1,61 +1,84 @@
 # Format: dsv
-# DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY
-# Description is not used in-game (except in debugging messages)
+# DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY:[MARK]
+# Description is not used in-game except for MARK and in debugging messages
 # ACNAME should match NAME from dat/bombers
-# Stat is one of cost, speed, alt, capwt, (capbulk), svp, defn, fail, accu, range, crew, (loads), flags
+# Stat is one of cost, speed, alt, capwt, (capbulk), svp, defn, fail, accu, range, crew, (loads), flags, nil
 #   (bracketed stats are not currently supported)
+#   nil is used with MARK to set the name of mark 0; it sets no stat
 # old is ignored by game
 # new is the new value of the stat (or, for flags, the flag to set)
+# MARK indicates this only affects new-build aircraft (only supports a limited selection of stats)
 
 # WARNING: mods which touch the same stat on the same type MUST be in date order!
 #  (The game does not check for this!)
 # So please keep this whole file in date order.
 
 # Description            A/c name    stat    old     new   DD-MM-YYYY
-Twin guns in turret     :Blenheim   :defn :     28:     27:11-01-1940
-Extra dorsal guns       :Hampden    :defn :     24:     23:11-01-1940
-Self-sealing tank       :Whitley    :defn :     32:     30:06-02-1940
-Self-sealing tank       :Wellington :defn :     15:     14:29-02-1940
-Self-sealing tank       :Hampden    :defn :     23:     22:21-03-1940
-Self-sealing tank       :Blenheim   :defn :     27:     25:04-05-1940
-Electric bomb release   :Whitley    :accu :     32:     34:10-08-1940
-Crew rationalisation    :Stirling   :crew :PPNWEGG:PNBWEGG:18-04-1941
-Crew rationalisation    :Manchester :crew :PPNBWGG:PNBWEGG:22-04-1941
-Broughton shadow factory:Wellington :cost :  12000:   8000:30-07-1941
-Remove beam guns        :Halifax I  :speed:    225:    227:09-09-1941
-Remove beam guns        :Halifax I  :alt  :    200:    202:09-09-1941
-Engine derating         :Manchester :fail :     16:     14:14-09-1941
-Engine derating         :Manchester :speed:    210:    206:14-09-1941
-Engine derating         :Manchester :capwt:  10350:   9000:14-09-1941
-Engine derating         :Manchester :svp  :     64:     66:14-09-1941
-Exactor priming         :Stirling   :svp  :     40:     45:21-10-1941
-Exhaust shrouds         :Halifax I  :defn :     22:     20:02-12-1941
-Exhaust shrouds         :Halifax I  :fail :      6:      8:02-12-1941
-Exhaust shrouds         :Halifax I  :speed:    227:    216:02-12-1941
-Exhaust shrouds         :Halifax I  :alt  :    202:    184:02-12-1941
-Exhaust shrouds         :Halifax I  :range:    335:    320:02-12-1941
-Bulbous rudder          :Halifax I  :defn :     20:     16:15-01-1942
-Remove exhaust shrouds  :Halifax I  :defn :     16:     18:12-03-1942
-Remove exhaust shrouds  :Halifax I  :fail :      8:      6:12-03-1942
-Remove exhaust shrouds  :Halifax I  :speed:    216:    227:12-03-1942
-Remove exhaust shrouds  :Halifax I  :alt  :    184:    202:12-03-1942
-Remove exhaust shrouds  :Halifax I  :range:    320:    335:12-03-1942
-Type XIV Bomb Sight     :Lancaster I:accu :     60:     72:19-04-1942
-Overload tanks          :Halifax I  :flags:       :OVLTANK:09-05-1942
-Type XIV Bomb Sight     :Halifax I  :accu :     62:     68:27-06-1942
-Remove nose turret      :Halifax I  :speed:    227:    230:21-08-1942
-Remove nose turret      :Halifax I  :range:    335:    340:21-08-1942
-Remove nose turret      :Halifax I  :crew :PNWEGGG:PNBWEGG:21-08-1942
-Type XIV Bomb Sight     :Southampton:accu :     50:     62:14-10-1942
-Type XIV Bomb Sight     :Stirling   :accu :     50:     56:07-11-1942
-T-1 Bomb Sight          :Wellington :accu :     40:     52:13-03-1943
-Bulged Bomb Bay         :Mosquito   :capwt:   2000:   4000:03-04-1943
-Bulged Bomb Bay         :Mosquito   :capbulk: 2000:   4000:03-04-1943
-Bulged Bomb Bay         :Mosquito   :loads:       :Po     :03-04-1943
-Bulged Bomb Bay         :Mosquito   :loads:       :Hh     :03-04-1943
-Two-stage Merlin        :Mosquito   :alt  :    300:    320:22-07-1943
-Two-stage Merlin        :Mosquito   :range:    390:    400:22-07-1943
-Two-stage Merlin        :Mosquito   :speed:    325:    340:22-07-1943
-Paddleblade prop        :Lancaster I:speed:    232:    236:01-11-1943
-Paddleblade prop        :Lancaster I:alt  :    225:    230:01-11-1943
-Gransden Lodge          :Lancaster I:defn :     12:     11:18-02-1944
+Mk IV                   :Blenheim   :nil  :       :       :00-00-0000:0
+Mk IV                   :Whitley    :nil  :       :       :00-00-0000:0
+Mk I                    :Hampden    :nil  :       :       :00-00-0000:0
+Mk Ia                   :Wellington :nil  :       :       :00-00-0000:0
+Mk I                    :Manchester :nil  :       :       :00-00-0000:0
+Mk I                    :Southampton:nil  :       :       :00-00-0000:0
+Mk I                    :Stirling   :nil  :       :       :00-00-0000:0
+Mk I                    :Elswick    :nil  :       :       :00-00-0000:0
+Mk IV                   :Mosquito   :nil  :       :       :00-00-0000:0
+Mk I                    :Windsor    :nil  :       :       :00-00-0000:0
+Mk I                    :Selkirk    :nil  :       :       :00-00-0000:0
+Mk V                    :Whitley    :speed:    165:    170:00-00-0000:1
+Twin guns in turret     :Blenheim   :defn :     28:     27:11-01-1940:
+Extra dorsal guns       :Hampden    :defn :     24:     23:11-01-1940:
+Self-sealing tank       :Whitley    :defn :     32:     30:06-02-1940:
+Self-sealing tank       :Wellington :defn :     16:     15:29-02-1940:
+Self-sealing tank       :Hampden    :defn :     23:     22:21-03-1940:
+Mk Ic                   :Wellington :defn :     15:     14:02-04-1940:1
+Mk Ic                   :Wellington :speed:    185:    190:02-04-1940:1
+Self-sealing tank       :Blenheim   :defn :     27:     25:04-05-1940:
+Electric bomb release   :Whitley    :accu :     32:     34:10-08-1940:
+Crew rationalisation    :Stirling   :crew :PPNWEGG:PNBWEGG:18-04-1941:
+Crew rationalisation    :Manchester :crew :PPNBWGG:PNBWEGG:22-04-1941:
+Mk III                  :Wellington :speed:    190:    200:17-06-1941:2
+Mk III                  :Wellington :alt  :    180:    185:17-06-1941:2
+Mk III                  :Wellington :defn :     14:     13:17-06-1941:2
+Broughton shadow factory:Wellington :cost :  12000:   8000:30-07-1941:
+Remove beam guns        :Halifax I  :speed:    225:    227:09-09-1941:
+Remove beam guns        :Halifax I  :alt  :    200:    202:09-09-1941:
+Engine derating         :Manchester :fail :     16:     14:14-09-1941:
+Engine derating         :Manchester :speed:    210:    206:14-09-1941:
+Engine derating         :Manchester :capwt:  10350:   9000:14-09-1941:
+Engine derating         :Manchester :svp  :     64:     66:14-09-1941:
+Exactor priming         :Stirling   :svp  :     40:     45:21-10-1941:
+Exhaust shrouds         :Halifax I  :defn :     22:     20:02-12-1941:
+Exhaust shrouds         :Halifax I  :fail :      6:      8:02-12-1941:
+Exhaust shrouds         :Halifax I  :speed:    227:    216:02-12-1941:
+Exhaust shrouds         :Halifax I  :alt  :    202:    184:02-12-1941:
+Exhaust shrouds         :Halifax I  :range:    335:    320:02-12-1941:
+Bulbous rudder          :Halifax I  :defn :     20:     16:15-01-1942:
+Remove exhaust shrouds  :Halifax I  :defn :     16:     18:12-03-1942:
+Remove exhaust shrouds  :Halifax I  :fail :      8:      6:12-03-1942:
+Remove exhaust shrouds  :Halifax I  :speed:    216:    227:12-03-1942:
+Remove exhaust shrouds  :Halifax I  :alt  :    184:    202:12-03-1942:
+Remove exhaust shrouds  :Halifax I  :range:    320:    335:12-03-1942:
+Type XIV Bomb Sight     :Lancaster I:accu :     60:     72:19-04-1942:
+Overload tanks          :Halifax I  :flags:       :OVLTANK:09-05-1942:
+Type XIV Bomb Sight     :Halifax I  :accu :     62:     68:27-06-1942:
+Remove nose turret      :Halifax I  :speed:    227:    230:21-08-1942:
+Remove nose turret      :Halifax I  :range:    335:    340:21-08-1942:
+Remove nose turret      :Halifax I  :crew :PNWEGGG:PNBWEGG:21-08-1942:
+Type XIV Bomb Sight     :Southampton:accu :     50:     62:14-10-1942:
+Type XIV Bomb Sight     :Stirling   :accu :     50:     56:07-11-1942:
+Mk III                  :Stirling   :speed:    200:    205:08-01-1943:1
+Mk III                  :Stirling   :alt  :    175:    185:08-01-1943:1
+Mk III                  :Stirling   :svp  :     45:     55:08-01-1943:1
+Mk III                  :Stirling   :defn :     18:     17:08-01-1943:1
+T-1 Bomb Sight          :Wellington :accu :     40:     52:13-03-1943:
+Bulged Bomb Bay         :Mosquito   :capwt:   2000:   4000:03-04-1943:
+Bulged Bomb Bay         :Mosquito   :capbulk: 2000:   4000:03-04-1943:
+Bulged Bomb Bay         :Mosquito   :loads:       :Po     :03-04-1943:
+Bulged Bomb Bay         :Mosquito   :loads:       :Hh     :03-04-1943:
+Two-stage Merlin        :Mosquito   :alt  :    300:    320:22-07-1943:
+Two-stage Merlin        :Mosquito   :range:    390:    400:22-07-1943:
+Two-stage Merlin        :Mosquito   :speed:    325:    340:22-07-1943:
+Paddleblade prop        :Lancaster I:speed:    232:    236:01-11-1943:
+Paddleblade prop        :Lancaster I:alt  :    225:    230:01-11-1943:
+Gransden Lodge          :Lancaster I:defn :     12:     11:18-02-1944:

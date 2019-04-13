@@ -37,7 +37,7 @@
 Bristol:Blenheim:            5000:198:205: 1200:55:28: 6:60:190:96:61:          :10-01-1941:PNG    :Ab
 Armstrong-Whitworth:Whitley: 8000:165:176: 7000:70:32: 9:32:320:81:45:          :18-06-1941:PNBWG  :GEE,H2S,Ab
 Handley Page:Hampden:       10000:202:190: 4000:65:24: 8:48:265:63:40:          :02-11-1941:PNWG   :GEE,Ab
-Vickers:Wellington:         12000:190:180: 4500:85:15: 2:40:311:87:39:          :21-10-1943:PNWGGG :GEE,H2S,Ab,Pd,Us,Ar
+Vickers:Wellington:         12000:185:180: 4500:85:16: 2:40:311:87:39:          :21-10-1943:PNWGGG :GEE,H2S,Ab,Pd,Us,Ar
 # while Manc's Sv may seem high, remember that its high Fa brings this right down in practice
 Avro:Manchester:            20000:210:185:10350:64:24:16:55:325:81:45:05-11-1940:26-06-1942:PPNBWGG:GEE,H2S,OBOE,CREWBG,HEAVY,Ab,Pd,Us,Ar
 Supermarine:Southampton:    33000:230:220:16000:64:22: 6:50:265:96:61:25-12-1940:17-11-1943:PNBWGG :GEE,H2S,HEAVY,EXTRA,Ab,Pd,Us,Ar
