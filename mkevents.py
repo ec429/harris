@@ -28,6 +28,8 @@ if sys.argv[1] == 'h':
 	print "extern const char *event_names[%d];" % len(Events)
 
 	print
+	print "int find_event(const char *name);"
+	print
 	print "#endif /* HAVE_EVENTS_H */"
 else:
 	assert sys.argv[1] == 'c', sys.argv
@@ -41,9 +43,22 @@ else:
 */
 
 #include "events.h"
+#include <string.h>
 """
 
 	print "const char *event_names[%d]={" % len(Events)
 	for e in Events:
 		print '\t"%s",' % e['id']
 	print "};"
+	print """
+int find_event(const char *name)
+{
+	int i;
+
+	for(i=0;i<NEVENTS;i++)
+		if(!strcmp(name, event_names[i]))
+			break;
+	if(i<NEVENTS)
+		return i;
+	return -1;
+}"""

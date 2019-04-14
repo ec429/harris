@@ -730,18 +730,34 @@ int loadgame(const char *fn, game *state)
 		else if(strcmp(tag, "Evented")==0)
 		{
 			unsigned int event;
-			f=sscanf(dat, "%u\n", &event);
-			if(f!=1)
+			if(!strncmp(dat, "EVENT_", 6))
 			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
+				char *nl=strchr(dat, '\n');
+				if(nl) *nl=0;
+				int ev=find_event(dat+6);
+				if(ev<0)
+				{
+					fprintf(stderr, "32 Invalid value for event \"%s\" in tag \"%s\"\n", dat, tag);
+					e|=32;
+				}
+				else
+					state->evented[ev]=true;
 			}
-			else if(event>=NEVENTS)
+			else
 			{
-				fprintf(stderr, "32 Invalid value for event %u in tag \"%s\"\n", event, tag);
-				e|=32;
-			} else
-				state->evented[event]=true;
+				f=sscanf(dat, "%u\n", &event);
+				if(f!=1)
+				{
+					fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+					e|=1;
+				}
+				else if(event>=NEVENTS)
+				{
+					fprintf(stderr, "32 Invalid value for event %u in tag \"%s\"\n", event, tag);
+					e|=32;
+				} else
+					state->evented[event]=true;
+			}
 		}
 		else if(strcmp(tag, "Messages")==0)
 		{
@@ -925,7 +941,7 @@ int savegame(const char *fn, game state)
 	for(unsigned int i=0;i<NEVENTS;i++)
 	{
 		if (state.evented[i])
-			fprintf(fs, "Evented:%u\n", i);
+			fprintf(fs, "Evented:EVENT_%s\n", event_names[i]);
 	}
 	unsigned int msgs=0;
 	for(unsigned int i=0;i<MAXMSGS;i++)

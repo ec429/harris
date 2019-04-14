@@ -73,7 +73,7 @@ or
 }
 for(i=0;i<NEVENTS;i++)
 	if(evented[i])
-		"Evented:%u\n", i
+		"Evented:EVENT_%s\n", event_names[i]
 "Messages:%u\n", nmsgs
 for(i=0;i<nmsgs;i++)
 	"%s\n.\n", msg[i]
