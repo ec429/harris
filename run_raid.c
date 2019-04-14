@@ -509,7 +509,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					// PFF should arrive at Zero minus 6, and be finished by Zero minus 2
 					// Zero Hour is t=840, and a minute is two t-steps
 					int tt=state->bombers[k].pff?(state->raids[i].zerohour-12+irandu(8)):(state->raids[i].zerohour+irandu(20));
-					int st=tt-(outward/bstats(state->bombers[k]).speed)-3;
+					int st=tt-(outward/state->bombers[k].speed)-3;
 					if(state->bombers[k].pff) st-=3;
 					if(st<0)
 					{
@@ -523,8 +523,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				startt=min(startt, state->bombers[k].startt);
 				ra_append(&state->hist, state->now, maketime(state->bombers[k].startt), state->bombers[k].id, false, state->bombers[k].type, i);
 				double eff=0.98+askill/1e3; // engineer fuel factor
-				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6*eff/(double)bstats(state->bombers[k]).speed;
-				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)bstats(state->bombers[k]).speed+12;
+				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6*eff/(double)state->bombers[k].speed;
+				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)state->bombers[k].speed+12;
 				if(!stream) eta+=36;
 				if(eta>state->bombers[k].fuelt)
 				{
