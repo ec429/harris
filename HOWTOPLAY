@@ -9,6 +9,8 @@ Contents
 * Object of the game
 * Targets
 * Bombers
+ - Mods and Marks
+* Sun and Moon
 * Flak
 * Fighters
 * Navaids
@@ -147,6 +149,11 @@ Ignored class/industry	x0.8
 These multipliers stack, so for instance a U-boat factory in Berlin will be x4.8 (Berlin * Specific industrial target * U-boat industry = 2 * 2 * 1.2).
 The budget is also increased by £2/day for each percentage point of Confidence, and £1/day for each percentage point of Morale.  Thus if both are maxed out, and no operations are being mounted, the budget will stabilise at (£300 * 25 =) £7500/day (except that Confidence will erode over time).
 The Air Ministry will from time to time indicate a stronger interest in targets of a given type or industry; these will be shown by the 'Priority' icons (on the left, just below Morale).  Conversely, some target types or industries may be deemed inconsequential and indicated by the 'Ignore' icons.  These priorities affect the budget contributions as shown above in the Multipliers table; they also affect a raid's effect on Confidence.  Note that the Air Ministry frequently changes its mind about its priorities; target type priorities will last around two weeks, while industry priorities will last about a month.
+There are also certain achievements which, owing to their propaganda value, will increase Confidence, Morale, and/or your budget the first time they are performed:
+* First bombs to fall on Berlin: +1 Morale, +£4000/day budget.
+* First Industry target completely destroyed: +2 Confidence, +£14400/day budget.
+* First City completely destroyed: +5 Confidence, +£48000/day budget.
+* First thousand-bomber raid: +4 Morale, +£30000/day budget.
 
 Reference
 ~~~~~~~~~
@@ -158,7 +165,10 @@ The files are:
  dat/fighters - details of fighter types (stats, dates)
  dat/flak     - details of flak sites (location, strength, dates, etc.)
  dat/ftrbases - details of fighter bases (location, dates)
+ dat/intel    - flavour text describing targets
+ dat/locations- used to describe locations of events (e.g. aircraft kills)
  dat/mods     - changes to bomber stats at various points in time
+ dat/starts   - descriptive text for the startpoint saves
  dat/targets  - details of targets (location, dates, target class, size, etc.)
  dat/texts    - text content of messages to display on events, new a/c types, etc.
 Note that changes to most of these files will break save-compatibility if the number of records is changed.
