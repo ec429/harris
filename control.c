@@ -1923,6 +1923,8 @@ bool filter_apply(ac_bomber b)
 bool ensure_crewed(game *state, unsigned int i)
 {
 	unsigned int type=state->bombers[i].type;
+	bool heavy=types[type].heavy;
+	bool lanc=types[type].pff&&!types[type].noarm;
 	bool ok=true;
 	memset(shortof, 0, sizeof(shortof));
 	for(unsigned int j=0;j<MAX_CREW;j++)
@@ -1940,6 +1942,7 @@ bool ensure_crewed(game *state, unsigned int i)
 		}
 		if(state->bombers[i].crew[j]<0)
 		{
+			int best=-1;
 			// 1. Look for an available CREWMAN
 			// either unassigned, or assigned to a bomber who's not on a raid (yet)
 			for(unsigned int k=0;k<state->ncrews;k++)
@@ -1948,33 +1951,67 @@ bool ensure_crewed(game *state, unsigned int i)
 					{
 						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
 						if(state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15))) continue;
-						if(state->crews[k].assignment<0)
+						if(best<0 ||
+							   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
+								   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :
+							    heavy ? (state->crews[k].heavy > state->crews[best].heavy ||
+								     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
+							    state->crews[k].heavy < state->crews[best].heavy))
 						{
-							state->crews[k].assignment=i;
-							state->bombers[i].crew[j]=k;
-							break;
-						}
-						else if(state->bombers[state->crews[k].assignment].landed)
-						{
-							unsigned int l=state->crews[k].assignment, m;
-							if(l==i) continue; // don't steal from ourselves
-							if(state->bombers[l].pff&&!state->bombers[i].pff) continue; // don't pull out of PFF either
-							for(m=0;m<MAX_CREW;m++)
-								if(state->bombers[l].crew[m]==(int)k)
-								{
-									state->bombers[l].crew[m]=-1;
-									break;
-								}
-							if(m==MAX_CREW) // XXX should never happen
+							if(state->crews[k].assignment<0)
 							{
-								fprintf(stderr, "Warning: crew linkage error b%u c%u\n", l, k);
-								continue;
+								best=k;
+								if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
+								   heavy ? (state->crews[k].lanc <= 0.0 && state->crews[k].heavy >= 100.0) :
+								   state->crews[k].heavy <= 0.0)
+									break; /* won't improve on this */
 							}
-							state->crews[k].assignment=i;
-							state->bombers[i].crew[j]=k;
-							break;
+							else if(state->bombers[state->crews[k].assignment].landed)
+							{
+								unsigned int l=state->crews[k].assignment;
+								if(l==i) continue; // don't steal from ourselves
+								if(state->bombers[l].pff&&!state->bombers[i].pff) continue; // don't pull out of PFF either
+								if(best<0 ||
+								   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
+									   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :
+								    heavy ? (state->crews[k].heavy > state->crews[best].heavy ||
+									     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
+								    state->crews[k].heavy < state->crews[best].heavy))
+								{
+									best=k;
+									if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
+									   heavy ? (state->crews[k].lanc <= 0.0 && state->crews[k].heavy >= 100.0) :
+									   state->crews[k].heavy <= 0.0)
+										break; /* won't improve on this */
+								}
+							}
 						}
 					}
+			if(best>=0)
+			{
+				if(state->crews[best].assignment<0)
+				{
+					state->crews[best].assignment=i;
+					state->bombers[i].crew[j]=best;
+				}
+				else
+				{
+					unsigned int l=state->crews[best].assignment, m;
+					for(m=0;m<MAX_CREW;m++)
+						if(state->bombers[l].crew[m]==(int)best)
+						{
+							state->bombers[l].crew[m]=-1;
+							break;
+						}
+					if(m==MAX_CREW) // XXX should never happen
+					{
+						fprintf(stderr, "Warning: crew linkage error b%u c%u\n", l, best);
+						continue;
+					}
+					state->crews[best].assignment=i;
+					state->bombers[i].crew[j]=best;
+				}
+			}
 		}
 		if(state->bombers[i].crew[j]<0)
 		{
