@@ -306,6 +306,23 @@ crewman *get_crew(const game *state, unsigned int i, unsigned int j)
 	return(state->crews+state->bombers[i].crew[j]);
 }
 
+double crewman_skill(const crewman *c, unsigned int type)
+{
+	double skill=c->skill;
+	if(types[type].heavy)
+		skill*=0.2+c->heavy/80.0;
+	/* For LFS purposes, we define "Lancaster" as any type with PFF and not NOARM flags */
+	if(types[type].pff&&!types[type].noarm)
+		skill*=0.2+c->lanc/80.0;
+	return skill;
+}
+
+double get_skill(const game *state, unsigned int i, unsigned int j)
+{
+	const crewman *c=get_crew(state, i, j);
+	return crewman_skill(c, state->bombers[i].type);
+}
+
 #define practise(_c, _v)	do { \
 	double _new = min((_c).skill * (1 - (_v)/100.0) + (_v) * (_c).lrate / 100.0, 100.0); \
 	if(floor(_new) > floor((_c).skill)) \
@@ -494,12 +511,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				{
 					if(types[type].crew[l]==CCLASS_E)
 					{
-						askill=get_crew(state, k, l)->skill;
+						askill=get_skill(state, k, l);
 						break;
 					}
 					else if(types[type].crew[l]==CCLASS_P)
 					{
-						askill=max(askill, get_crew(state, k, l)->skill*.5);
+						askill=max(askill, get_skill(state, k, l)*.5);
 					}
 				}
 				state->bombers[k].speed=(bstats(state->bombers[k]).speed+askill/20.0-2.0)/450.0;
@@ -753,15 +770,15 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					{
 						if(types[type].crew[l]==CCLASS_E)
 						{
-							sdc+=(askill=get_crew(state, k, l)->skill);
+							sdc+=(askill=get_skill(state, k, l));
 						}
 						else if(types[type].crew[l]==CCLASS_W)
 						{
-							sdc+=get_crew(state, k, l)->skill;
+							sdc+=get_skill(state, k, l);
 						}
 						else if(types[type].crew[l]==CCLASS_N)
 						{
-							nskill=get_crew(state, k, l)->skill;
+							nskill=get_skill(state, k, l);
 							if(!bac)
 								bac=get_crew(state, k, l);
 						}
@@ -773,7 +790,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						{
 							// we assume P are always before E in crew order
 							// thus we get "max of Pskill*.5" if there are no E, otherwise we get Eskill.
-							askill=max(askill, get_crew(state, k, l)->skill*.5);
+							askill=max(askill, get_skill(state, k, l)*.5);
 						}
 					}
 					if(brandp(bstats(state->bombers[k]).fail/(50.0*min(240.0, 48.0+t-state->bombers[k].startt))+state->bombers[k].damage/2400.0))
@@ -877,7 +894,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							double bskill=0;
 							if(bac)
 							{
-								bskill=bac->skill;
+								bskill=crewman_skill(bac, state->bombers[k].type);
 								if(bac->class!=CCLASS_B)
 									bskill*=0.75;
 							}
@@ -1100,7 +1117,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								state->fighters[j].k=k;
 						}
 					}
-					double navacc=3.0/(bstats(state->bombers[k]).accu+get_crew(state, k, 0)->skill/10.0-4.0);
+					double navacc=3.0/(bstats(state->bombers[k]).accu+get_skill(state, k, 0)/10.0-4.0);
 					double ex=drandu(navacc)-(navacc/2), ey=drandu(navacc)-(navacc/2);
 					state->bombers[k].driftlon=state->bombers[k].driftlon*.98+ex;
 					state->bombers[k].driftlat=state->bombers[k].driftlat*.98+ey;
@@ -1123,7 +1140,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					if(state->bombers[k].nav[NAV_H2S]&&bac) // TODO: restrict usage after NAXOS
 					{
 						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
-						wea=max(wea, h*0.08*((80+bac->skill)/120.0)-12);
+						wea=max(wea, h*0.08*((80+crewman_skill(bac, state->bombers[k].type))/120.0)-12);
 					}
 					double navp=bstats(state->bombers[k]).accu*0.05*(sqrt(illum)*.8+.5)/(double)(8+max(16-wea, 8));
 					if(home&&(state->bombers[k].lon<64)) navp=1;
@@ -1134,7 +1151,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						unsigned char h=((x<128)&&(y<128))?tnav[x][y]:0;
 						double ns;
 						if(bac)
-							ns=(nskill*3+bac->skill)/4.0;
+							ns=(nskill*3+crewman_skill(bac, state->bombers[k].type))/4.0;
 						else // can't happen
 							ns=nskill;
 						double cf=min((700.0+state->bombers[k].lon-h*0.6)/(840.0+ns*4.0), 0.96);
@@ -1349,30 +1366,30 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							state->fighters[j].lon+=cx*spd;
 							state->fighters[j].lat+=cy*spd;
 						}
-						double pskill=get_crew(state, k, 0)->skill;
+						double pskill=get_skill(state, k, 0);
 						double slskill=0, gskill[3]={0, 0, 0}; // we assume no-one has more than 3 Gs.  If they do, we ignore the excess.
 						unsigned int ng=0, nl=0;
 						for(unsigned int l=1;l<MAX_CREW;l++)
 						{
 							if(types[bt].crew[l]==CCLASS_P)
-								pskill=max(pskill, get_crew(state, k, l)->skill);
+								pskill=max(pskill, get_skill(state, k, l));
 							else if((types[bt].crew[l]==CCLASS_G)||(types[bt].crew[l]==CCLASS_W&&types[bt].crewwg))
 							{
 								if(ng<3)
-									gskill[ng++]=get_crew(state, k, l)->skill;
-								slskill+=get_crew(state, k, l)->skill;
+									gskill[ng++]=get_skill(state, k, l);
+								slskill+=get_skill(state, k, l);
 								nl++;
 							}
 							else if(types[bt].crew[l]==CCLASS_B&&types[bt].crewbg)
 							{
 								if(ng<3)
-									gskill[ng++]=get_crew(state, k, l)->skill*0.75;
-								slskill+=get_crew(state, k, l)->skill*0.75;
+									gskill[ng++]=get_skill(state, k, l)*0.75;
+								slskill+=get_skill(state, k, l)*0.75;
 								nl++;
 							}
 							else if(types[bt].crew[l]==CCLASS_W)
 							{
-								slskill+=get_crew(state, k, l)->skill;
+								slskill+=get_skill(state, k, l);
 								nl++;
 							}
 						}
@@ -1388,12 +1405,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								{
 									if(types[bt].crew[l]==CCLASS_E)
 									{
-										sdc+=get_crew(state, k, l)->skill;
+										sdc+=get_skill(state, k, l);
 										practise(*get_crew(state, k, l), 0.5);
 									}
 									else if(types[bt].crew[l]==CCLASS_W)
 									{
-										sdc+=get_crew(state, k, l)->skill;
+										sdc+=get_skill(state, k, l);
 									}
 								}
 								while(dmg&&brandp(sdc/(sdc+100.0)))
@@ -1742,6 +1759,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							unsigned int m=state->bombers[k].crew[l];
 							state->crews[m].tour_ops++;
 							op_append(&state->hist, state->now, maketime(state->bombers[k].bt), state->crews[m].id, state->crews[m].class, state->crews[m].tour_ops);
+							/* HCU and LFS equivalent experience */
+							if(types[type].heavy)
+								state->crews[m].heavy=min(state->crews[m].heavy+10.0, 100.0);
+							if(types[type].pff&&!types[type].noarm)
+								state->crews[m].lanc=min(state->crews[m].lanc+25.0, 100.0);
 						}
 					}
 				bool leaf=state->bombers[k].b_le;
@@ -1906,7 +1928,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				{
 					if(types[type].crew[j]==CCLASS_W)
 					{
-						wskill=get_crew(state, i, j)->skill;
+						wskill=get_skill(state, i, j);
 						break;
 					}
 				}

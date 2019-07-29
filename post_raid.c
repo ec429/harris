@@ -726,8 +726,12 @@ void train_students(game *state)
 				}
 			break;
 			case TPIPE_HCU:
+				state->crews[i].heavy=min(state->crews[i].heavy+100.0/max_dwell[TPIPE_HCU], 100.0);
+				if(0/* assigned a/c is lanc */)
+					state->crews[i].lanc=min(state->crews[i].lanc+100.0/max_dwell[TPIPE_HCU], 100.0);
 			break;
 			case TPIPE_LFS:
+				state->crews[i].lanc=min(state->crews[i].lanc+100.0/max_dwell[TPIPE_LFS], 100.0);
 			break;
 			default:
 				fprintf(stderr, "Warning: student pipe error %d\n", stage);

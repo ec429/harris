@@ -429,18 +429,24 @@ int loadgame(const char *fn, game *state)
 					}
 					char status[11];
 					char class;
-					double skill;
+					double skill, heavy, lanc;
 					unsigned int lrate, tops, ft;
 					int assi;
 					char p_id[17];
-					f=sscanf(line, "%10s %c:%la,%u,%u,%u,%d,%16s\n", status, &class, &skill, &lrate, &tops, &ft, &assi, p_id);
-					if(f!=8)
+					f=sscanf(line, "%10s %c:%la,%la,%la,%u,%u,%u,%d,%16s\n", status, &class, &skill, &heavy, &lanc, &lrate, &tops, &ft, &assi, p_id);
+					if(f!=10)
 					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-						e|=1;
-						break;
+						heavy=0;
+						lanc=0;
+						f=sscanf(line, "%10s %c:%la,%u,%u,%u,%d,%16s\n", status, &class, &skill, &lrate, &tops, &ft, &assi, p_id);
+						if(f!=8)
+						{
+							fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+							e|=1;
+							break;
+						}
 					}
-					state->crews[i]=(crewman){.skill=skill, .lrate=lrate, .tour_ops=tops, .full_tours=ft, .assignment=assi};
+					state->crews[i]=(crewman){.skill=skill, .heavy=heavy, .lanc=lanc, .lrate=lrate, .tour_ops=tops, .full_tours=ft, .assignment=assi};
 					if((state->crews[i].class=lookup_crew_letter(class))==CCLASS_NONE)
 					{
 						fprintf(stderr, "32 Invalid value '%c' for crew class in tag \"%s\"\n", class, tag);
@@ -969,7 +975,7 @@ int savegame(const char *fn, game state)
 	for(unsigned int i=0;i<state.ncrews;i++)
 	{
 		pcmid(state.crews[i].id, p_id);
-		fprintf(fs, "%s %c:%la,%u,%u,%u,%d,%s\n", cstatuses[state.crews[i].status], cclasses[state.crews[i].class].letter, state.crews[i].skill, state.crews[i].lrate, state.crews[i].tour_ops, state.crews[i].full_tours, state.crews[i].assignment, p_id);
+		fprintf(fs, "%s %c:%la,%la,%la,%u,%u,%u,%d,%s\n", cstatuses[state.crews[i].status], cclasses[state.crews[i].class].letter, state.crews[i].skill, state.crews[i].heavy, state.crews[i].lanc, state.crews[i].lrate, state.crews[i].tour_ops, state.crews[i].full_tours, state.crews[i].assignment, p_id);
 	}
 	fprintf(fs, "GProd:%u\n", ICLASS_MIXED);
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)

@@ -354,6 +354,8 @@ typedef struct
 	enum cclass class;
 	enum cstatus status;
 	double skill;
+	double heavy;
+	double lanc;
 	unsigned int lrate;
 	unsigned int tour_ops;
 	/* meaning depends on status
