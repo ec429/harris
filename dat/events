@@ -44,6 +44,10 @@ VE:08-05-1945
 #Pathfinder Force formed
 PFF:15-08-1942
 
+#Training system
+HCU:20-08-1941
+LFS:30-06-1943
+
 #Navaids
 OBOE:20-11-1941
 # GEE also triggers bomberstream tactics

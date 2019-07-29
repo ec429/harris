@@ -649,7 +649,7 @@ void refill_students(game *state)
 		pool/=GET_DC(state, TPOOL);
 		if(scount<pool)
 		{
-			unsigned int add=min(pool-scount, max(pool/24, 1));
+			unsigned int add=min(pool-scount, max((pool-scount)/16, 1));
 			unsigned int nc=state->ncrews+add;
 			crewman *new=realloc(state->crews, nc*sizeof(crewman));
 			if(!new)
@@ -661,7 +661,7 @@ void refill_students(game *state)
 			state->crews=new;
 			for(unsigned int j=state->ncrews;j<nc;j++)
 			{
-				state->crews[j]=(crewman){.id=rand_cmid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .lrate=60+irandu(60), .tour_ops=0, .assignment=1};
+				state->crews[j]=(crewman){.id=rand_cmid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .lrate=60+irandu(60), .tour_ops=0, .training=TPIPE_OTU, .assignment=1};
 				ge_append(&state->hist, state->now, (harris_time){11, 43}, state->crews[j].id, i, state->crews[j].lrate);
 			}
 			state->ncrews=nc;
@@ -687,8 +687,32 @@ void train_students(game *state)
 {
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
-		if(state->crews[i].status==CSTATUS_STUDENT)
-			if(state->crews[i].assignment)
+		enum tpipe stage;
+
+		if(state->crews[i].status!=CSTATUS_STUDENT)
+			continue;
+		if(!state->crews[i].assignment)
+			continue;
+		stage=state->crews[i].training;
+		if((int)++state->crews[i].tour_ops>state->tpipe[stage].dwell)
+		{
+			state->crews[i].tour_ops=0;
+			if(stage+1<TPIPE__MAX && state->tpipe[stage+1].dwell > 0 && brandp(state->tpipe[stage].cont/100.0))
+			{
+				state->crews[i].training=++stage;
+			}
+			else
+			{
+				state->crews[i].full_tours=0;
+				state->crews[i].status=CSTATUS_CREWMAN;
+				state->crews[i].assignment=-1;
+				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
+				continue;
+			}
+		}
+		switch(stage)
+		{
+			case TPIPE_OTU:
 				if((state->crews[i].skill<1)||brandp(5.0/pow(state->crews[i].skill, 1.5)))
 				{
 					double new=min(state->crews[i].skill+irandu(state->crews[i].lrate)/50.0, 100.0);
@@ -696,5 +720,14 @@ void train_students(game *state)
 						sk_append(&state->hist, state->now, (harris_time){11, 43}, state->crews[i].id, state->crews[i].class, new);
 					state->crews[i].skill=new;
 				}
+			break;
+			case TPIPE_HCU:
+			break;
+			case TPIPE_LFS:
+			break;
+			default:
+				fprintf(stderr, "Warning: student pipe error %d\n", stage);
+			break;
+		}
 	}
 }

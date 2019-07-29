@@ -42,6 +42,10 @@ Bombers:901
 *53*Type 9:1,1,0,NOID,0
 *51*Type 10:0,5,1,NOID,0
 *14*Type 10:1,5,1,NOID,0
+TPipe:3
+TStage 0:70,95
+TStage 1:30,40
+TStage 2:10,0
 Crews:6050
 *200*CG Crewman P:45,120,29,1,-1,NOID
 *150*CG Instructor P:50,120,179,1,-1,NOID

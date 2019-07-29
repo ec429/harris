@@ -26,9 +26,12 @@ for(i=0;i<NNAVAIDS;i++)
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u,%u,%s,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id), bomber[i].mark
+"TPipe:%u\n", TPIPE__MAX
+for(i=0;i<TPIPE__MAX,i++)
+	"TStage %u:%d,%u\n", i, tpipe[i].dwell, tpipe[i].cont
 "Crews:%u\n", ncrews
 for(i=0;i<ncrews;i++)
-	"%s %c:%la,%u,%u,%u,%s\n", cstatuses[crews[i].status], cclasses[crews[i].class].letter, crews[i].skill, crews[i].lrate, crews[i].tour_ops, crews[i].full_tours, pacid(crews[i].id)
+	"%s %c:%la,%u,%u,%u,%u,%s\n", cstatuses[crews[i].status], cclasses[crews[i].class].letter, crews[i].skill, crews[i].lrate, crews[i].tour_ops, crews[i].full_tours, crews[i].assignment, pacid(crews[i].id)
 "GProd:%u\n", iclasses // should be a constant
 for(i=0;i<iclasses;i++)
 	"IClass %u:%la\n", i, gprod[i]

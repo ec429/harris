@@ -54,6 +54,10 @@ int loadgame(const char *fn, game *state)
 	state->tfd[0]=state->tfd[1]=0;
 	state->ifav[0]=state->ifav[1]=I_CLASSES;
 	state->ifd[0]=state->ifd[1]=0;
+	// supply default tpipe settings for old games.  Assume they're early, so want OTU-only settings.
+	state->tpipe[TPIPE_OTU] = (struct tpipe_settings){.dwell = 80, .cont = 0};
+	state->tpipe[TPIPE_HCU] = (struct tpipe_settings){.dwell = -1, .cont = 0};
+	state->tpipe[TPIPE_LFS] = (struct tpipe_settings){.dwell = -1, .cont = 0};
 	while(!feof(fs))
 	{
 		char *line=fgetl(fs);
@@ -352,6 +356,52 @@ int loadgame(const char *fn, game *state)
 						e|=32;
 						break;
 					}
+				}
+			}
+		}
+		else if(strcmp(tag, "TPipe")==0)
+		{
+			unsigned int sntp;
+			f=sscanf(dat, "%u\n", &sntp);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(sntp!=TPIPE__MAX)
+			{
+				fprintf(stderr, "2 Value mismatch: different ntpipe value (%u!=%u)\n", sntp, TPIPE__MAX);
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<TPIPE__MAX;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j, cont;
+					int dwell;
+					f=sscanf(line, "TStage %u:%d,%u\n", &j, &dwell, &cont);
+					if(f!=3)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+					state->tpipe[j].dwell=dwell;
+					state->tpipe[j].cont=cont;
 				}
 			}
 		}
@@ -860,6 +910,17 @@ int loadgame(const char *fn, game *state)
 	for(unsigned int m=0;m<nmods;m++)
 		if(!datebefore(state->now, mods[m].d))
 			apply_mod(m);
+	/* compat for pre-tpipe games */
+	if(!datebefore(state->now, event[EVENT_HCU]) && state->tpipe[TPIPE_HCU].dwell == -1)
+	{
+		state->tpipe[TPIPE_OTU].cont=50;
+		state->tpipe[TPIPE_HCU].dwell=30;
+	}
+	if(!datebefore(state->now, event[EVENT_LFS]) && state->tpipe[TPIPE_LFS].dwell == -1)
+	{
+		state->tpipe[TPIPE_HCU].cont=50;
+		state->tpipe[TPIPE_LFS].dwell=10;
+	}
 	return(0);
 }
 

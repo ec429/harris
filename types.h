@@ -340,6 +340,14 @@ typedef struct
 }
 raid;
 
+enum tpipe
+{
+	TPIPE_OTU,
+	TPIPE_HCU,
+	TPIPE_LFS,
+	TPIPE__MAX
+};
+
 typedef struct
 {
 	cmid id;
@@ -350,11 +358,14 @@ typedef struct
 	unsigned int tour_ops;
 	/* meaning depends on status
 		CREWMAN: number of ops completed this tour.  After 30, become INSTRUC
-		STUDENT: currently not used
+		STUDENT: number of days of current course completed
 		INSTRUC: number of days spent instructing.  After 180, become CREWMAN
 		ESCAPEE: as CREWMAN.  On safe return, become CREWMAN again
 	*/
-	unsigned int full_tours; // always the count of complete CREWMAN tours
+	union {
+		enum tpipe training; // for STUDENT, which training stage we're at
+		unsigned int full_tours; // otherwise, the count of complete CREWMAN tours
+	};
 	int assignment;
 	/* meaning depends on status
 		CREWMAN: bomber index (or -1)
@@ -397,6 +408,12 @@ typedef struct
 	unsigned int tfd[2];
 	enum i_class ifav[2];
 	unsigned int ifd[2];
+	struct tpipe_settings
+	{
+		int dwell; // course duration, in days
+		unsigned char cont; // % who continue to next stage
+	}
+	tpipe[TPIPE__MAX];
 }
 game;
 
