@@ -1094,6 +1094,14 @@ int load_texts(void)
 					evtext[event]=strdup(next);
 				}
 				else if(!strcmp(item, "beginning")); // pass
+				else if(!strcmp(item, "INTEL_BT"))
+					tpipe_bt_desc=strdup(next);
+				else if(!strcmp(item, "INTEL_OTU"))
+					tpipe_descs[TPIPE_OTU]=strdup(next);
+				else if(!strcmp(item, "INTEL_HCU"))
+					tpipe_descs[TPIPE_HCU]=strdup(next);
+				else if(!strcmp(item, "INTEL_LFS"))
+					tpipe_descs[TPIPE_LFS]=strdup(next);
 				else
 				{
 					unsigned int i;

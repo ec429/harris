@@ -962,6 +962,9 @@ int savegame(const char *fn, game state)
 		pacid(state.bombers[i].id, p_id);
 		fprintf(fs, "Type %u:%u,%u,%u,%s,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id, state.bombers[i].mark);
 	}
+	fprintf(fs, "TPipe:%u\n", TPIPE__MAX);
+	for(enum tpipe i=0;i<TPIPE__MAX;i++)
+		fprintf(fs, "TStage %u:%d,%u\n", i, state.tpipe[i].dwell, state.tpipe[i].cont);
 	fprintf(fs, "Crews:%u\n", state.ncrews);
 	for(unsigned int i=0;i<state.ncrews;i++)
 	{

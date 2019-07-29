@@ -34,6 +34,11 @@ extern struct bombloadinfo bombloads[NBOMBLOADS];
 
 extern struct overlay overlays[NUM_OVERLAYS];
 
+extern const char *tpipe_names[TPIPE__MAX];
+extern unsigned int max_dwell[TPIPE__MAX];
+extern char *tpipe_descs[TPIPE__MAX];
+extern char *tpipe_bt_desc;
+
 extern unsigned int ntypes;
 extern bombertype *types;
 extern bombertype *rawtypes;

@@ -27,7 +27,7 @@ for(i=0;i<NNAVAIDS;i++)
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u,%u,%s,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id), bomber[i].mark
 "TPipe:%u\n", TPIPE__MAX
-for(i=0;i<TPIPE__MAX,i++)
+for(i=0;i<TPIPE__MAX;i++)
 	"TStage %u:%d,%u\n", i, tpipe[i].dwell, tpipe[i].cont
 "Crews:%u\n", ncrews
 for(i=0;i<ncrews;i++)

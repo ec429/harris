@@ -18,6 +18,7 @@
 #define HCTBL_BG_COLOUR	(atg_colour){23, 23, 31, ATG_ALPHA_OPAQUE}
 #define HC_SKILL_HHEIGHT	12
 #define HC_SKILL_FHEIGHT	(HC_SKILL_HHEIGHT * 2)
+#define HC_TP_BG_COLOUR	(atg_colour){23, 23, 63, ATG_ALPHA_OPAQUE}
 
 atg_element *handle_crews_box;
 
@@ -25,6 +26,9 @@ atg_element *HC_cont, *HC_full;
 char *HC_count[CREW_CLASSES][SHOW_STATUSES];
 SDL_Surface *HC_skill[CREW_CLASSES][SHOW_STATUSES];
 SDL_Surface *HC_tops[CREW_CLASSES][2];
+atg_element *HC_tp_BT, *HC_tp_box[TPIPE__MAX], *HC_tp_btn[TPIPE__MAX], *HC_tp_dwell[TPIPE__MAX], *HC_tp_cont[TPIPE_LFS];
+atg_element *HC_tp_text_box;
+char *HC_tp_count[CREW_CLASSES];
 
 void update_crews(game *state);
 
@@ -265,15 +269,373 @@ int handle_crews_create(void)
 			return(1);
 		}
 	}
+	atg_element *shim2=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!shim2)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim2->h=24;
+	if(atg_ebox_pack(handle_crews_box, shim2))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *tpipe_header=atg_create_element_label("Training pipeline", 12, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
+	if(!tpipe_header)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(handle_crews_box, tpipe_header))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *tp_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!tp_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(handle_crews_box, tp_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HC_tp_BT=atg_create_element_button("BT", (atg_colour){223, 223, 31, ATG_ALPHA_OPAQUE}, HC_TP_BG_COLOUR)))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(tp_box, HC_tp_BT))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	
+	for(enum tpipe stage=0;stage<TPIPE__MAX;stage++)
+	{
+		if(!(HC_tp_box[stage]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR)))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(tp_box, HC_tp_box[stage]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *arrow=atg_create_element_label("→", 16, (atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE});
+		if(!arrow)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HC_tp_box[stage], arrow))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *st_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, HC_TP_BG_COLOUR);
+		if(!st_box)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HC_tp_box[stage], st_box))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(HC_tp_btn[stage]=atg_create_element_button(tpipe_names[stage], (atg_colour){223, 223, 31, ATG_ALPHA_OPAQUE}, HC_TP_BG_COLOUR)))
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(st_box, HC_tp_btn[stage]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *dwell_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, HC_TP_BG_COLOUR);
+		if(!dwell_box)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(st_box, dwell_box))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *dwell_lbl=atg_create_element_label("Days: ", 8, (atg_colour){191, 191, 191, ATG_ALPHA_OPAQUE});
+		if(!dwell_lbl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(dwell_box, dwell_lbl))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(HC_tp_dwell[stage]=atg_create_element_spinner(0, 0, max_dwell[stage], 1, 0, "%03u", (atg_colour){191, 191, 191, ATG_ALPHA_OPAQUE}, HC_TP_BG_COLOUR)))
+		{
+			fprintf(stderr, "atg_create_element_spinner failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(dwell_box, HC_tp_dwell[stage]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(stage>=TPIPE_LFS)
+			continue;
+		atg_element *cont_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, HC_TP_BG_COLOUR);
+		if(!cont_box)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(st_box, cont_box))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *cont_lbl=atg_create_element_label("Cont: ", 8, (atg_colour){191, 191, 191, ATG_ALPHA_OPAQUE});
+		if(!cont_lbl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(cont_box, cont_lbl))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(HC_tp_cont[stage]=atg_create_element_spinner(0, 0, 100, 2, 0, "%03u%%", (atg_colour){191, 191, 191, ATG_ALPHA_OPAQUE}, HC_TP_BG_COLOUR)))
+		{
+			fprintf(stderr, "atg_create_element_spinner failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(cont_box, HC_tp_cont[stage]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	atg_element *shim3=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!shim3)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim3->h=16;
+	if(atg_ebox_pack(handle_crews_box, shim3))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *sel_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!sel_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(handle_crews_box, sel_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *tp_data_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, HC_TP_BG_COLOUR);
+	if (!tp_data_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(sel_box, tp_data_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *tp_data_header=atg_create_element_label("Position", 12, (atg_colour){223, 223, 31, ATG_ALPHA_OPAQUE});
+	if(!tp_data_header)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(tp_data_box, tp_data_header))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(enum cclass i=0;i<CREW_CLASSES;i++)
+	{
+		atg_element *tp_data_row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, HC_TP_BG_COLOUR);
+		if (!tp_data_row)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(tp_data_box, tp_data_row))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *pos=atg_create_element_label(cclasses[i].name, 10, (atg_colour){207, 207, 31, ATG_ALPHA_OPAQUE});
+		if(!pos)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		pos->w=68;
+		pos->h=16;
+		if(atg_ebox_pack(tp_data_row, pos))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(HC_tp_count[i]=malloc(32)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		strcpy(HC_tp_count[i], "count");
+		atg_element *count=atg_create_element_label_nocopy(HC_tp_count[i], 10, (atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE});
+		if(!count)
+		{
+			fprintf(stderr, "atg_create_element_label_nocopy failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(tp_data_row, count))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	atg_element *text_guard=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!text_guard)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	text_guard->w=414;
+	if(atg_ebox_pack(sel_box, text_guard))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *text_shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!text_shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	text_shim->w=2;
+	text_shim->h=8;
+	if(atg_ebox_pack(text_guard, text_shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HC_tp_text_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	HC_tp_text_box->w=410;
+	if(atg_ebox_pack(text_guard, HC_tp_text_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	return(0);
 }
 
-screen_id handle_crews_screen(atg_canvas *canvas, __attribute__((unused)) game *state)
+void update_selstage(unsigned int *counts, enum tpipe stage)
+{
+	atg_ebox_empty(HC_tp_text_box);
+	const char *bodytext=stage>=TPIPE__MAX ? tpipe_bt_desc : tpipe_descs[stage];
+	size_t x=0;
+	while(bodytext && bodytext[x])
+	{
+		size_t l=strcspn(bodytext+x, "\n");
+		if(!l) break;
+		char *t=strndup(bodytext+x, l);
+		atg_element *r=atg_create_element_label(t, 10, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+		free(t);
+		if(!r)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			break;
+		}
+		if(atg_ebox_pack(HC_tp_text_box, r))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(r);
+			break;
+		}
+		x+=l;
+		if(bodytext[x]=='\n') x++;
+	}
+	for(enum cclass i=0;i<CREW_CLASSES;i++)
+	{
+		if(stage<TPIPE__MAX)
+			snprintf(HC_tp_count[i], 32, "%4u", counts[i]);
+		else
+			snprintf(HC_tp_count[i], 32, "+%3u", counts[i]);
+	}
+}
+
+screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
+	enum tpipe selstage=TPIPE__MAX;
+	unsigned int counts[TPIPE__MAX+2][CREW_CLASSES]={0};
+	for(unsigned int i=0;i<state->ncrews;i++)
+	{
+		if(state->crews[i].status == CSTATUS_INSTRUC)
+		{
+			enum cclass j=state->crews[i].class;
+			counts[TPIPE__MAX+1][j]+=cclasses[j].pupils;
+			if(cclasses[j].extra_pupil != CCLASS_NONE)
+				counts[TPIPE__MAX+1][j]++;
+		}
+		if(state->crews[i].status != CSTATUS_STUDENT)
+			continue;
+		counts[state->crews[i].training][state->crews[i].class]++;
+	}
+	for(enum cclass j=0;j<CREW_CLASSES;j++)
+	{
+		unsigned int scount=0;
+		for(enum tpipe stage=0;stage<TPIPE__MAX;stage++)
+			scount+=counts[stage][j];
+		unsigned int pool=(counts[TPIPE__MAX+1][j]+cclasses[j].initpool)/GET_DC(state, TPOOL);
+		if(scount<pool)
+			counts[TPIPE__MAX][j]=min(pool-scount, max((pool-scount)/16, 1));
+	}
+
+	for(enum tpipe stage=0; stage<TPIPE__MAX; stage++)
+	{
+		if((HC_tp_box[stage]->hidden=state->tpipe[stage].dwell<0))
+			continue;
+		atg_spinner *s;
+		if(HC_tp_dwell[stage])
+		{
+			s=HC_tp_dwell[stage]->elemdata;
+			s->value=state->tpipe[stage].dwell;
+		}
+		if(stage<TPIPE_LFS && HC_tp_cont[stage])
+		{
+			s=HC_tp_cont[stage]->elemdata;
+			s->value=state->tpipe[stage].cont;
+		}
+	}
 
 	while(1)
 	{
+		update_selstage(counts[selstage], selstage);
 		update_crews(state);
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
@@ -302,16 +664,32 @@ screen_id handle_crews_screen(atg_canvas *canvas, __attribute__((unused)) game *
 				break;
 				case ATG_EV_TRIGGER:;
 					atg_ev_trigger trigger=e.event.trigger;
+					enum tpipe stage;
 					if(trigger.e==HC_cont)
-					{
 						return(SCRN_CONTROL);
-					}
-					else if(!trigger.e)
+					if(trigger.e==HC_tp_BT)
 					{
-						// internal error
+						selstage=TPIPE__MAX;
+						break;
 					}
-					else
-						fprintf(stderr, "Clicked on unknown button!\n");
+					for(stage=0;stage<TPIPE__MAX;stage++)
+						if(trigger.e==HC_tp_btn[stage])
+						{
+							selstage=stage;
+							break;
+						}
+					if(stage<TPIPE__MAX)
+						break;
+					fprintf(stderr, "Clicked on unknown button!\n");
+				break;
+				case ATG_EV_VALUE:
+					for(enum tpipe stage=0;stage<TPIPE__MAX;stage++)
+					{
+						if(e.event.value.e==HC_tp_dwell[stage])
+							state->tpipe[stage].dwell=e.event.value.value;
+						if(stage<TPIPE_LFS && e.event.value.e==HC_tp_cont[stage])
+							state->tpipe[stage].cont=e.event.value.value;
+					}
 				break;
 				default:
 				break;

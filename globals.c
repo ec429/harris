@@ -44,6 +44,20 @@ struct overlay overlays[NUM_OVERLAYS] = {
 	[OVERLAY_ROUTE] = {.ifn="art/overlays/routes.png", .selected=true},
 };
 
+const char *tpipe_names[TPIPE__MAX] = {
+	[TPIPE_OTU] = "OTU",
+	[TPIPE_HCU] = "HCU",
+	[TPIPE_LFS] = "LFS",
+};
+
+unsigned int max_dwell[TPIPE__MAX] = {
+	[TPIPE_OTU] = 160,
+	[TPIPE_HCU] = 30,
+	[TPIPE_LFS] = 10,
+};
+char *tpipe_descs[TPIPE__MAX]={0};
+char *tpipe_bt_desc=NULL;
+
 unsigned int ntypes=0;
 bombertype *types=NULL;
 bombertype *rawtypes=NULL;
