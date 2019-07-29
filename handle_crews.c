@@ -28,7 +28,7 @@ SDL_Surface *HC_skill[CREW_CLASSES][SHOW_STATUSES];
 SDL_Surface *HC_tops[CREW_CLASSES][2];
 atg_element *HC_tp_BT, *HC_tp_box[TPIPE__MAX], *HC_tp_btn[TPIPE__MAX], *HC_tp_dwell[TPIPE__MAX], *HC_tp_cont[TPIPE_LFS];
 atg_element *HC_tp_text_box;
-char *HC_tp_count[CREW_CLASSES];
+char *HC_tp_count[CREW_CLASSES], *HC_tp_ecount[CREW_CLASSES];
 
 void update_crews(game *state);
 
@@ -513,6 +513,23 @@ int handle_crews_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		if(!(HC_tp_ecount[i]=malloc(32)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		strcpy(HC_tp_ecount[i], "ecount");
+		atg_element *ecount=atg_create_element_label_nocopy(HC_tp_ecount[i], 10, (atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE});
+		if(!ecount)
+		{
+			fprintf(stderr, "atg_create_element_label_nocopy failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(tp_data_row, ecount))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	atg_element *text_guard=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
 	if(!text_guard)
@@ -553,7 +570,7 @@ int handle_crews_create(void)
 	return(0);
 }
 
-void update_selstage(unsigned int *counts, enum tpipe stage)
+void update_selstage(unsigned int *counts, unsigned int *ecounts, enum tpipe stage)
 {
 	atg_ebox_empty(HC_tp_text_box);
 	const char *bodytext=stage>=TPIPE__MAX ? tpipe_bt_desc : tpipe_descs[stage];
@@ -584,7 +601,22 @@ void update_selstage(unsigned int *counts, enum tpipe stage)
 		if(stage<TPIPE__MAX)
 			snprintf(HC_tp_count[i], 32, "%4u", counts[i]);
 		else
-			snprintf(HC_tp_count[i], 32, "+%3u", counts[i]);
+			snprintf(HC_tp_count[i], 32, "    ");
+		snprintf(HC_tp_ecount[i], 32, "-%3u", ecounts[i]);
+	}
+}
+
+void recalc_ecounts(game *state, unsigned int *ecounts, enum tpipe stage)
+{
+	memset(ecounts, 0, sizeof(unsigned int[CREW_CLASSES]));
+	for(unsigned int i=0;i<state->ncrews;i++)
+	{
+		if(state->crews[i].status != CSTATUS_STUDENT)
+			continue;
+		if(state->crews[i].training != stage)
+			continue;
+		if((int)state->crews[i].tour_ops+1>=state->tpipe[stage].dwell)
+			ecounts[state->crews[i].class]++;
 	}
 }
 
@@ -592,28 +624,31 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
 	enum tpipe selstage=TPIPE__MAX;
-	unsigned int counts[TPIPE__MAX+2][CREW_CLASSES]={0};
+	unsigned int counts[TPIPE__MAX+1][CREW_CLASSES]={0};
+	unsigned int ecounts[TPIPE__MAX+1][CREW_CLASSES]={0};
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
 		if(state->crews[i].status == CSTATUS_INSTRUC)
 		{
 			enum cclass j=state->crews[i].class;
-			counts[TPIPE__MAX+1][j]+=cclasses[j].pupils;
+			counts[TPIPE__MAX][j]+=cclasses[j].pupils;
 			if(cclasses[j].extra_pupil != CCLASS_NONE)
-				counts[TPIPE__MAX+1][j]++;
+				counts[TPIPE__MAX][cclasses[j].extra_pupil]++;
 		}
 		if(state->crews[i].status != CSTATUS_STUDENT)
 			continue;
 		counts[state->crews[i].training][state->crews[i].class]++;
+		if((int)state->crews[i].tour_ops+1>=state->tpipe[state->crews[i].training].dwell)
+			ecounts[state->crews[i].training][state->crews[i].class]++;
 	}
 	for(enum cclass j=0;j<CREW_CLASSES;j++)
 	{
 		unsigned int scount=0;
 		for(enum tpipe stage=0;stage<TPIPE__MAX;stage++)
 			scount+=counts[stage][j];
-		unsigned int pool=(counts[TPIPE__MAX+1][j]+cclasses[j].initpool)/GET_DC(state, TPOOL);
+		unsigned int pool=(counts[TPIPE__MAX][j]+cclasses[j].initpool)/GET_DC(state, TPOOL);
 		if(scount<pool)
-			counts[TPIPE__MAX][j]=min(pool-scount, max((pool-scount)/16, 1));
+			ecounts[TPIPE__MAX][j]=min(pool-scount, max((pool-scount)/16, 1));
 	}
 
 	for(enum tpipe stage=0; stage<TPIPE__MAX; stage++)
@@ -635,7 +670,7 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 
 	while(1)
 	{
-		update_selstage(counts[selstage], selstage);
+		update_selstage(counts[selstage], ecounts[selstage], selstage);
 		update_crews(state);
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
@@ -685,10 +720,14 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 				case ATG_EV_VALUE:
 					for(enum tpipe stage=0;stage<TPIPE__MAX;stage++)
 					{
-						if(e.event.value.e==HC_tp_dwell[stage])
+						if(e.event.value.e==HC_tp_dwell[stage]) {
 							state->tpipe[stage].dwell=e.event.value.value;
-						if(stage<TPIPE_LFS && e.event.value.e==HC_tp_cont[stage])
+							recalc_ecounts(state, ecounts[stage], stage);
+						}
+						if(stage<TPIPE_LFS && e.event.value.e==HC_tp_cont[stage]) {
 							state->tpipe[stage].cont=e.event.value.value;
+							recalc_ecounts(state, ecounts[stage], stage);
+						}
 					}
 				break;
 				default:

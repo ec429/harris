@@ -520,6 +520,10 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				force_tprio(state, TCLASS_CITY, 7);
 			else if(ev==EVENT_NORWAY||ev==EVENT_BARGE) /* don't Ignore shipping */
 				force_tprio(state, TCLASS_SHIPPING, 0);
+			else if(ev==EVENT_HCU) /* enable the HCU */
+				state->tpipe[TPIPE_HCU].dwell=30;
+			else if(ev==EVENT_LFS) /* enable the LFS */
+				state->tpipe[TPIPE_LFS].dwell=10;
 		}
 	}
 	state->now=tomorrow;
