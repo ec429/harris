@@ -42,8 +42,8 @@ char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 char *GB_suntimes[2];
 SDL_Surface *GB_moonimg, *GB_tfav[2], *GB_ifav[2];
-int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0, filter_student=0;
-atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite, *GB_fi_student;
+int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0;
+atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite;
 bool filter_marks[MAX_MARKS];
 atg_element *GB_filter_marks;
 
@@ -800,16 +800,6 @@ int control_create(void)
 		return(1);
 	}
 	if(atg_ebox_pack(GB_filters, GB_fi_elite))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	if(!(GB_fi_student=create_filter_switch(studentpic, &filter_student)))
-	{
-		fprintf(stderr, "create_filter_switch failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(GB_filters, GB_fi_student))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1943,13 +1933,12 @@ bool ensure_crewed(game *state, unsigned int i)
 		// 0. Deassign current crewman if unsuitable
 		if(k>=0 && ((state->crews[k].skill*filter_elite<50*filter_elite) || // 'elite' filter
 		            (state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15))) || // PFF requirements
-		            ((filter_student==1)&&CREWOPS(k)) || // 'student' filter
 		            state->crews[k].class!=types[type].crew[j])) // cclass changed under us
 		{
 			state->crews[k].assignment=-1;
 			state->bombers[i].crew[j]=-1;
 		}
-		if((state->bombers[i].crew[j]<0)&&(filter_student!=1))
+		if(state->bombers[i].crew[j]<0)
 		{
 			// 1. Look for an available CREWMAN
 			// either unassigned, or assigned to a bomber who's not on a raid (yet)
@@ -1987,25 +1976,9 @@ bool ensure_crewed(game *state, unsigned int i)
 						}
 					}
 		}
-		if((state->bombers[i].crew[j]<0)&&(filter_student!=-1)&&!state->bombers[i].pff) // never promote STUDENTs to PFF, that's silly
-		{
-			// 2. Look for a matching STUDENT and promote them to CREWMAN
-			for(unsigned int k=0;k<state->ncrews;k++)
-				if(state->crews[k].class==types[type].crew[j])
-					if(state->crews[k].status==CSTATUS_STUDENT)
-					{
-						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
-						state->crews[k].status=CSTATUS_CREWMAN;
-						st_append(&state->hist, state->now, (harris_time){12, 00}, state->crews[k].id, state->crews[k].class, state->crews[k].status);
-						state->crews[k].tour_ops=0;
-						state->crews[k].assignment=i;
-						state->bombers[i].crew[j]=k;
-						break;
-					}
-		}
 		if(state->bombers[i].crew[j]<0)
 		{
-			// 3. Give up, and don't allow assigning this bomber to any raid
+			// 2. Give up, and don't allow assigning this bomber to any raid
 			shortof[types[type].crew[j]]=true;
 			ok=false;
 		}

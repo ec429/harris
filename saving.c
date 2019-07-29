@@ -902,7 +902,6 @@ int loadgame(const char *fn, game *state)
 	}
 	filter_pff=0;
 	filter_elite=0;
-	filter_student=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		filter_nav[n]=0;
 	for(unsigned int i=0;i<ntypes;i++)
