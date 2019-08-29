@@ -26,16 +26,16 @@ NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
 Bombers:406
-*43*Type 0:0,0,0,NOID,0
-*80*Type 0:1,0,0,NOID,0
-*43*Type 1:0,0,0,NOID,0
-*61*Type 1:1,0,0,NOID,0
-*16*Type 1:0,0,0,NOID,1
-*7*Type 1:1,0,0,NOID,1
-*42*Type 2:0,0,0,NOID,0
-*41*Type 2:1,0,0,NOID,0
-*50*Type 3:0,0,0,NOID,0
-*23*Type 3:1,0,0,NOID,0
+*43*Type 0:0,0,0,NOID,0,0
+*80*Type 0:1,0,0,NOID,0,0
+*43*Type 1:0,0,0,NOID,0,0
+*61*Type 1:1,0,0,NOID,0,0
+*16*Type 1:0,0,0,NOID,1,0
+*7*Type 1:1,0,0,NOID,1,0
+*42*Type 2:0,0,0,NOID,0,0
+*41*Type 2:1,0,0,NOID,0,0
+*50*Type 3:0,0,0,NOID,0,0
+*23*Type 3:1,0,0,NOID,0,0
 Crews:2090
 *500*CG Crewman P:30,120,0,0,-1,NOID
 *440*CG Crewman N:40,120,0,0,-1,NOID

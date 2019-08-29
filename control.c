@@ -36,7 +36,7 @@ atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff;
-atg_element *GB_ttl, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
+atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
@@ -48,6 +48,7 @@ bool filter_marks[MAX_MARKS];
 atg_element *GB_filter_marks;
 
 bool filter_apply(ac_bomber b);
+void clear_crew(game *state, unsigned int i);
 bool ensure_crewed(game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 int update_raidnums(const game *state, int seltarg);
@@ -1289,6 +1290,17 @@ int control_create(void)
 			return(1);
 		}
 	}
+	if(!(GB_train=atg_create_element_label("Training unit", 10, (atg_colour){239, 239, 159, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	GB_train->clickable=true;
+	if(atg_ebox_pack(GB_tt, GB_train))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	return(0);
 }
 
@@ -1622,8 +1634,91 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										update_navbtn(*state, GB_navbtn, j, n, grey_overlay, yellow_overlay);
 								}
 							}
-							if(seltarg>=0)
-							{
+							switch(seltarg) {
+							case -1:
+								break;
+							case -2:
+								if(c.e==GB_btpic[i])
+								{
+									unsigned int amount, count=0;
+									switch(b)
+									{
+										case ATG_MB_RIGHT:
+										case ATG_MB_SCROLLDN:
+											amount=1;
+										break;
+										case ATG_MB_MIDDLE:
+											amount=-1;
+										break;
+										case ATG_MB_LEFT:
+											if(m&KMOD_CTRL)
+											{
+												amount=-1;
+												break;
+											}
+											/* else fallthrough */
+										case ATG_MB_SCROLLUP:
+										default:
+											amount=10;
+									}
+									for(unsigned int j=0;j<state->nbombers;j++)
+									{
+										if(state->bombers[j].type!=i) continue;
+										if(state->bombers[j].train)
+										{
+											count++;
+											continue;
+										}
+										if(!amount) continue;
+										if(!state->bombers[j].landed) continue;
+										if(!filter_apply(state->bombers[j])) continue;
+										clear_crew(state, j);
+										amount--;
+										count++;
+										state->bombers[j].train=true;
+									}
+									if(GB_raidnum[i])
+										snprintf(GB_raidnum[i], 32, "%u", count);
+								}
+								if(c.e==GB_rbpic[i])
+								{
+									unsigned int amount, count=0;
+									switch(b)
+									{
+										case ATG_MB_RIGHT:
+										case ATG_MB_SCROLLDN:
+											amount=1;
+										break;
+										case ATG_MB_MIDDLE:
+											amount=-1;
+										break;
+										case ATG_MB_LEFT:
+											if(m&KMOD_CTRL)
+											{
+												amount=-1;
+												break;
+											}
+											/* else fallthrough */
+										case ATG_MB_SCROLLUP:
+										default:
+											amount=10;
+									}
+									for(unsigned int k=0;k<state->nbombers;k++)
+									{
+										if(state->bombers[k].type!=i) continue;
+										if(!state->bombers[k].train) continue;
+										count++;
+										if(!amount) continue;
+										if(!filter_apply(state->bombers[k])) continue;
+										state->bombers[k].train=false;
+										amount--;
+										count--;
+									}
+									if(GB_raidnum[i])
+										snprintf(GB_raidnum[i], 32, "%u", count);
+								}
+								break;
+							default:
 								if(c.e==GB_btpic[i])
 								{
 									double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
@@ -1656,6 +1751,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										for(unsigned int j=0;j<state->nbombers;j++)
 										{
 											if(state->bombers[j].type!=i) continue;
+											if(state->bombers[j].train) continue;
 											if(state->bombers[j].failed) continue;
 											if(!state->bombers[j].landed) continue;
 											if(!filter_apply(state->bombers[j])) continue;
@@ -1731,6 +1827,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										snprintf(GB_raidnum[i], 32, "%u", count);
 									}
 								}
+								break;
 							}
 							if(c.e==GB_btint[i])
 							{
@@ -1743,6 +1840,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						if(c.e==GB_ttl)
 						{
 							seltarg=-1;
+							update_raidbox(state, seltarg);
+						}
+						if(c.e==GB_train)
+						{
+							seltarg=-2;
 							update_raidbox(state, seltarg);
 						}
 						for(unsigned int i=0;i<ntargs;i++)
@@ -1916,6 +2018,22 @@ bool filter_apply(ac_bomber b)
 			if(filter_marks[m])
 				return(false);
 	return(true);
+}
+
+void clear_crew(game *state, unsigned int i)
+{
+	unsigned int type=state->bombers[i].type;
+	for(unsigned int j=0;j<MAX_CREW;j++)
+	{
+		if(types[type].crew[j]==CCLASS_NONE)
+			continue;
+		int k=state->bombers[i].crew[j];
+		if(k>=0)
+		{
+			state->crews[k].assignment=-1;
+			state->bombers[i].crew[j]=-1;
+		}
+	}
 }
 
 #define CREWOPS(k)	(state->crews[(k)].tour_ops + 30 * state->crews[(k)].full_tours) // TODO second tours should only be 20 ops
@@ -2093,10 +2211,17 @@ int update_raidbox(const game *state, int seltarg)
 {
 	if(GB_raid_label)
 	{
-		if(seltarg>=0)
-			snprintf(GB_raid_label, 48, "Raid on %s", targs[seltarg].name);
-		else
+		switch(seltarg) {
+		case -1:
 			snprintf(GB_raid_label, 48, "Select a Target");
+			break;
+		case -2:
+			snprintf(GB_raid_label, 48, "A/c on training units");
+			break;
+		default:
+			snprintf(GB_raid_label, 48, "Raid on %s", targs[seltarg].name);
+			break;
+		}
 	}
 	if(GB_zhbox)
 	{
@@ -2151,14 +2276,23 @@ int update_raidnums(const game *state, int seltarg)
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		unsigned int count=0;
-		if(seltarg>=0)
+		switch(seltarg) {
+		case -1:
+			break;
+		case -2:
+			for(unsigned int k=0;k<state->nbombers;k++)
+				if(state->bombers[k].type==i && state->bombers[k].train) count++;
+			break;
+		default:
 			for(unsigned int k=0;k<state->raids[seltarg].nbombers;k++)
 				if(state->bombers[state->raids[seltarg].bombers[k]].type==i) count++;
+			break;
+		}
 		if(GB_raidnum[i])
 			snprintf(GB_raidnum[i], 32, "%u", count);
 		if(GB_rbrow[i])
 			GB_rbrow[i]->hidden=!count||(GB_btrow[i]?GB_btrow[i]->hidden:true);
-		if(count&&GB_estcap[i])
+		if(seltarg>=0&&count&&GB_estcap[i])
 		{
 			if(targs[seltarg].class==TCLASS_LEAFLET)
 			{

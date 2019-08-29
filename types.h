@@ -270,11 +270,20 @@ typedef struct
 }
 dmgsrc;
 
+enum tpipe
+{
+	TPIPE_OTU,
+	TPIPE_HCU,
+	TPIPE_LFS,
+	TPIPE__MAX
+};
+
 typedef struct
 {
 	acid id;
 	unsigned int type;
 	int crew[MAX_CREW]; // -1 for unassigned
+	bool train; // is this a/c assigned to a training unit?
 	unsigned int targ;
 	double lat, lon;
 	double navlat, navlon; // error in "believed position" relative to true position
@@ -339,14 +348,6 @@ typedef struct
 	bool routed;
 }
 raid;
-
-enum tpipe
-{
-	TPIPE_OTU,
-	TPIPE_HCU,
-	TPIPE_LFS,
-	TPIPE__MAX
-};
 
 typedef struct
 {

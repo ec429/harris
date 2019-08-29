@@ -25,7 +25,7 @@ for(i=0;i<NNAVAIDS;i++)
 	"Nprio %u:%d,%u\n", i, state.nap[i], state.napb[i]
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
-	"Type %u:%u,%u,%u,%s,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id), bomber[i].mark
+	"Type %u:%u,%u,%u,%s,%u,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id), bomber[i].mark, bomber[i].train
 "TPipe:%u\n", TPIPE__MAX
 for(i=0;i<TPIPE__MAX;i++)
 	"TStage %u:%d,%u\n", i, tpipe[i].dwell, tpipe[i].cont

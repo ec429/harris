@@ -40,7 +40,7 @@ int loadgame(const char *fn, game *state)
 	}
 	unsigned int s_version[3]={0,0,0};
 	unsigned int version[3]={VER_MAJ,VER_MIN,VER_REV};
-	bool warned_pff=false, warned_acid=false, warned_mark=false;
+	bool warned_pff=false, warned_acid=false, warned_mark=false, warned_train=false;
 	state->weather.seed=0;
 	for(unsigned int j=0;j<ntypes;j++)
 		types[j].newmark=0;
@@ -308,9 +308,9 @@ int loadgame(const char *fn, game *state)
 						break;
 					}
 					unsigned int j;
-					unsigned int failed,nav,pff,mark;
+					unsigned int failed,nav,pff,mark,train;
 					char p_id[9];
-					f=sscanf(line, "Type %u:%u,%u,%u,%8s,%u\n", &j, &failed, &nav, &pff, p_id, &mark);
+					f=sscanf(line, "Type %u:%u,%u,%u,%8s,%u,%u\n", &j, &failed, &nav, &pff, p_id, &mark, &train);
 					// TODO: this is for oldsave compat and should probably be removed later
 					if(f==3)
 					{
@@ -333,7 +333,14 @@ int loadgame(const char *fn, game *state)
 						warned_mark=true;
 						mark=0;
 					}
-					if(f!=6)
+					if(f==6)
+					{
+						f=7;
+						if(!warned_train) fprintf(stderr, "Warning: added missing 'train' field in tag \"%s\"\n", tag);
+						warned_train=true;
+						train=0;
+					}
+					if(f!=7)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -345,7 +352,7 @@ int loadgame(const char *fn, game *state)
 						e|=4;
 						break;
 					}
-					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff, .mark=mark};
+					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff, .mark=mark, .train=(bool)train};
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						state->bombers[i].nav[n]=(nav>>n)&1;
 					for(unsigned int k=0;k<MAX_CREW;k++)
@@ -966,7 +973,7 @@ int savegame(const char *fn, game state)
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		pacid(state.bombers[i].id, p_id);
-		fprintf(fs, "Type %u:%u,%u,%u,%s,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id, state.bombers[i].mark);
+		fprintf(fs, "Type %u:%u,%u,%u,%s,%u,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id, state.bombers[i].mark, state.bombers[i].train?1:0);
 	}
 	fprintf(fs, "TPipe:%u\n", TPIPE__MAX);
 	for(enum tpipe i=0;i<TPIPE__MAX;i++)
