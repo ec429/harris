@@ -1,4 +1,4 @@
-HARR:0.3.0
+HARR:0.4.0
 DATE:03-09-1939
 Difficulty:0,1
 Confid:40
@@ -28,8 +28,10 @@ NPrio 3:0,96
 Bombers:406
 *43*Type 0:0,0,0,NOID,0,0
 *80*Type 0:1,0,0,NOID,0,0
-*43*Type 1:0,0,0,NOID,0,0
-*61*Type 1:1,0,0,NOID,0,0
+*23*Type 1:0,0,0,NOID,0,0
+*31*Type 1:1,0,0,NOID,0,0
+*22*Type 1:0,0,0,NOID,0,1
+*28*Type 1:1,0,0,NOID,0,1
 *16*Type 1:0,0,0,NOID,1,0
 *7*Type 1:1,0,0,NOID,1,0
 *42*Type 2:0,0,0,NOID,0,0
