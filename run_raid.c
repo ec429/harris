@@ -269,7 +269,8 @@ void describe_crb(const game *state, unsigned int k)
 	}
 	const char *loc=describe_location(x, y);
 	describe_cr_helper((atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE}, types[b.type].picture, loc, reason, kpic);
-	fprintf(stderr, "%s %s crashed %s%s\n", types[b.type].manu, types[b.type].name, loc, reason);
+	bool marked=types[b.type].markname[0] != NULL;
+	fprintf(stderr, "%s %s%s%s crashed %s%s\n", types[b.type].manu, types[b.type].name, marked?" ":"", marked?types[b.type].markname[b.mark]:"", loc, reason);
 }
 
 void describe_crf(const game *state, unsigned int j)
