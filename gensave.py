@@ -47,10 +47,11 @@ def gencrews(line, i):
 	skill = poisson(ms)
 	lrate = poisson(ml)
 	tops = random.randint(0, tops)
+	# TODO support heavy & lanc skills in gencrew lines
 	if windows:
-		return "%s %c:%s,%u,%u,%u,%d,00000000%s"%(stat, cls, float_to_hex(skill), lrate, tops, ft, assi, acid)
+		return "%s %c:%s,0,0,%u,%u,%u,%d,00000000%s"%(stat, cls, float_to_hex(skill), lrate, tops, ft, assi, acid)
 	else:
-		return "%s %c:%u,%u,%u,%u,%d,00000000%s"%(stat, cls, skill, lrate, tops, ft, assi, acid)
+		return "%s %c:%u,0,0,%u,%u,%u,%d,00000000%s"%(stat, cls, skill, lrate, tops, ft, assi, acid)
 
 windows = '--windows' in sys.argv
 

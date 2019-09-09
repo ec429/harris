@@ -76,8 +76,8 @@ class date(object):
 
 def ac_parse(text):
 	def ct_parse(text):
-		if text: raise ExcessData('A', 'CT', text)
-		return {}
+		if ' ' in text: raise ExcessData('A', 'CT', text.split(' ', 1)[1])
+		return {'mark':int(text or '0')}
 	def nav_parse(text):
 		if ' ' in text: raise ExcessData('A', 'NA', text.split(' ', 1)[1])
 		return {'navaid':int(text)}
