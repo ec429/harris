@@ -1710,6 +1710,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										count++;
 										if(!amount) continue;
 										if(!filter_apply(state->bombers[k])) continue;
+										clear_crew(state, k);
 										state->bombers[k].train=false;
 										amount--;
 										count--;
@@ -2145,7 +2146,7 @@ bool ensure_crewed(game *state, unsigned int i)
 // This would be so much easier if everything was in linked-lists... ah well
 void fixup_crew_assignments(game *state, unsigned int i, bool kill, double wskill)
 {
-	for(unsigned int j=0;j<state->ncrews;j++)
+	for(unsigned int j=0;j<state->ncrews;j++) {
 		if(state->crews[j].status==CSTATUS_CREWMAN)
 		{
 			if(state->crews[j].assignment>(int)i)
@@ -2205,6 +2206,20 @@ void fixup_crew_assignments(game *state, unsigned int i, bool kill, double wskil
 					state->crews[j].assignment=-1;
 			}
 		}
+		else if(state->crews[j].status==CSTATUS_STUDENT)
+		{
+			if(state->crews[j].assignment>(int)i)
+			{
+				state->crews[j].assignment--;
+			}
+			else if(state->crews[j].assignment==(int)i)
+			{
+				if (kill) /* Currently can't happen */
+					fprintf(stderr, "Error: student killed (ignoring)\n");
+				state->crews[j].assignment=-1;
+			}
+		}
+	}
 }
 
 int update_raidbox(const game *state, int seltarg)

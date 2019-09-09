@@ -12,3 +12,4 @@
 #include "types.h"
 
 extern atg_element *handle_crews_box;
+extern enum tpipe selstage;

@@ -65,7 +65,7 @@ routing.o: rand.h globals.h events.h date.h geom.h
 
 history.o: bits.h date.h saving.h
 
-saving.o: bits.h control.h date.h globals.h events.h history.h mods.h rand.h version.h
+saving.o: bits.h control.h date.h globals.h events.h handle_crews.h history.h mods.h rand.h version.h
 
 render.o: bits.h almanack.h globals.h events.h date.h
 
@@ -99,7 +99,7 @@ intel_fighters.o: ui.h globals.h events.h bits.h date.h
 
 intel_targets.o: ui.h globals.h events.h bits.h date.h render.h
 
-handle_crews.o: ui.h globals.h bits.h render.h
+handle_crews.o: ui.h globals.h post_raid.h bits.h render.h
 
 mods.o: ui.h globals.h bits.h render.h
 

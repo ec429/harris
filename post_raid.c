@@ -18,11 +18,11 @@
 #include "mods.h"
 #include "rand.h"
 #include "control.h"
+#include "post_raid.h"
 
 void force_tprio(game *state, enum t_class cls, unsigned int days);
 void force_iprio(game *state, enum i_class cls, unsigned int days);
 void produce(int targ, game *state, double amount);
-void refill_students(game *state);
 void train_students(game *state);
 
 atg_element *post_raid_box;
@@ -272,7 +272,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	}
 	// train crews, and recruit more
 	train_students(state);
-	refill_students(state);
+	refill_students(state, true);
 	// crews go to instructors and vice-versa; escapees return home
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
@@ -628,32 +628,32 @@ void produce(int targ, game *state, double amount)
 	state->dprod[targs[targ].iclass]+=amount;
 }
 
-void refill_students(game *state)
+void refill_students(game *state, bool refill)
 {
+	unsigned int pool[CREW_CLASSES];
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
 	{
 		unsigned int scount=0;
-		unsigned int pool=cclasses[i].initpool;
+		pool[i]=cclasses[i].initpool;
 		for(unsigned int j=0;j<state->ncrews;j++)
 		{
 			if(state->crews[j].status==CSTATUS_STUDENT)
 			{
 				if(state->crews[j].class!=i) continue;
-				state->crews[j].assignment=1;
 				scount++;
 			}
 			else if(state->crews[j].status==CSTATUS_INSTRUC)
 			{
 				if(state->crews[j].class==i)
-					pool+=cclasses[i].pupils;
+					pool[i]+=cclasses[i].pupils;
 				else if(cclasses[state->crews[j].class].extra_pupil==i)
-					pool++;
+					pool[i]++;
 			}
 		}
-		pool/=GET_DC(state, TPOOL);
-		if(scount<pool)
+		pool[i]/=GET_DC(state, TPOOL);
+		if(refill && scount<pool[i])
 		{
-			unsigned int add=min(pool-scount, max((pool-scount)/16, 1));
+			unsigned int add=min(pool[i]-scount, max((pool[i]-scount)/16, 1));
 			unsigned int nc=state->ncrews+add;
 			crewman *new=realloc(state->crews, nc*sizeof(crewman));
 			if(!new)
@@ -665,24 +665,55 @@ void refill_students(game *state)
 			state->crews=new;
 			for(unsigned int j=state->ncrews;j<nc;j++)
 			{
-				state->crews[j]=(crewman){.id=rand_cmid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .lrate=60+irandu(60), .tour_ops=0, .training=TPIPE_OTU, .assignment=1};
+				state->crews[j]=(crewman){.id=rand_cmid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .lrate=60+irandu(60), .tour_ops=0, .training=TPIPE_OTU, .assignment=-1};
 				ge_append(&state->hist, state->now, (harris_time){11, 43}, state->crews[j].id, i, state->crews[j].lrate);
 			}
 			state->ncrews=nc;
 		}
-		else if(scount>pool)
-		{
-			for(unsigned int j=state->ncrews;j-->0;) // iterates [0,ncrews) in reverse
-				if(state->crews[j].status==CSTATUS_STUDENT)
-					if(state->crews[j].class==i)
-						if(state->crews[j].assignment)
-						{
-							state->crews[j].assignment=0;
-							if(--scount<=pool)
+	}
+	for(enum tpipe t=TPIPE__MAX;t-->0;) {
+		if (state->tpipe[t].dwell<0)
+			continue;
+		for(unsigned int k=0;k<state->nbombers;k++) {
+			if(!state->bombers[k].train)
+				continue;
+			unsigned int type=state->bombers[k].type;
+			switch(t) {
+			case TPIPE_LFS: /* Lancs (PFF and !noarm) only */
+				if(!(types[type].pff&&!types[type].noarm))
+					continue;
+				break;
+			case TPIPE_HCU: /* Any heavy */
+				if(!types[type].heavy)
+					continue;
+				break;
+			case TPIPE_OTU: /* Neither heavy nor PFF (i.e. no Mosquito) */
+				if(types[type].heavy||types[type].pff)
+					continue;
+				break;
+			default:
+				break;
+			}
+			for(unsigned int c=0;c<MAX_CREW;c++)
+			{
+				enum cclass i=types[type].crew[c];
+				if(i==CCLASS_NONE)
+					continue;
+				if(state->bombers[k].crew[c]>=0)
+					continue;
+				if(!pool[i])
+					continue;
+				for(unsigned int j=0;j<state->ncrews;j++)
+					if(state->crews[j].status==CSTATUS_STUDENT)
+						if(state->crews[j].class==i)
+							if(state->crews[j].assignment<0)
+							{
+								state->crews[j].assignment=k;
+								state->bombers[k].crew[c]=j;
+								pool[i]--;
 								break;
-						}
-			if(scount!=pool)
-				fprintf(stderr, "Warning: student pool error %u != %u\n", scount, pool);
+							}
+			}
 		}
 	}
 }
@@ -691,12 +722,14 @@ void train_students(game *state)
 {
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
+		unsigned int type;
 		enum tpipe stage;
 
 		if(state->crews[i].status!=CSTATUS_STUDENT)
 			continue;
-		if(!state->crews[i].assignment)
+		if(state->crews[i].assignment<0)
 			continue;
+		type=state->bombers[state->crews[i].assignment].type;
 		stage=state->crews[i].training;
 		if((int)++state->crews[i].tour_ops>=state->tpipe[stage].dwell)
 		{
@@ -727,7 +760,7 @@ void train_students(game *state)
 			break;
 			case TPIPE_HCU:
 				state->crews[i].heavy=min(state->crews[i].heavy+100.0/max_dwell[TPIPE_HCU], 100.0);
-				if(0/* assigned a/c is lanc */)
+				if(types[type].pff&&!types[type].noarm)
 					state->crews[i].lanc=min(state->crews[i].lanc+100.0/max_dwell[TPIPE_HCU], 100.0);
 			break;
 			case TPIPE_LFS:

@@ -12,6 +12,7 @@
 #include "handle_crews.h"
 #include "ui.h"
 #include "globals.h"
+#include "post_raid.h" /* for refill_students() */
 #include "bits.h"
 #include "render.h"
 
@@ -29,6 +30,7 @@ SDL_Surface *HC_tops[CREW_CLASSES][2];
 atg_element *HC_tp_BT, *HC_tp_box[TPIPE__MAX], *HC_tp_btn[TPIPE__MAX], *HC_tp_dwell[TPIPE__MAX], *HC_tp_cont[TPIPE_LFS];
 atg_element *HC_tp_text_box;
 char *HC_tp_count[CREW_CLASSES], *HC_tp_ecount[CREW_CLASSES];
+enum tpipe selstage=TPIPE__MAX;
 
 void update_crews(game *state);
 
@@ -570,7 +572,7 @@ int handle_crews_create(void)
 	return(0);
 }
 
-void update_selstage(unsigned int *counts, unsigned int *ecounts, enum tpipe stage)
+void update_selstage(unsigned int *counts, unsigned int *ecounts, unsigned int *acounts, enum tpipe stage)
 {
 	atg_ebox_empty(HC_tp_text_box);
 	const char *bodytext=stage>=TPIPE__MAX ? tpipe_bt_desc : tpipe_descs[stage];
@@ -599,22 +601,26 @@ void update_selstage(unsigned int *counts, unsigned int *ecounts, enum tpipe sta
 	for(enum cclass i=0;i<CREW_CLASSES;i++)
 	{
 		if(stage<TPIPE__MAX)
-			snprintf(HC_tp_count[i], 32, "%4u", counts[i]);
+			snprintf(HC_tp_count[i], 32, "%4u/%4u", acounts[i], counts[i]);
 		else
-			snprintf(HC_tp_count[i], 32, "    ");
+			snprintf(HC_tp_count[i], 32, "         ");
 		snprintf(HC_tp_ecount[i], 32, "-%3u", ecounts[i]);
 	}
 }
 
-void recalc_ecounts(game *state, unsigned int *ecounts, enum tpipe stage)
+void recalc_ecounts(game *state, unsigned int *ecounts, unsigned int *acounts, enum tpipe stage)
 {
 	memset(ecounts, 0, sizeof(unsigned int[CREW_CLASSES]));
+	memset(acounts, 0, sizeof(unsigned int[CREW_CLASSES]));
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
 		if(state->crews[i].status != CSTATUS_STUDENT)
 			continue;
 		if(state->crews[i].training != stage)
 			continue;
+		if(state->crews[i].assignment < 0)
+			continue;
+		acounts[state->crews[i].class]++;
 		if((int)state->crews[i].tour_ops+1>=state->tpipe[stage].dwell)
 			ecounts[state->crews[i].class]++;
 	}
@@ -622,9 +628,11 @@ void recalc_ecounts(game *state, unsigned int *ecounts, enum tpipe stage)
 
 screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 {
+	/* We might have been given more aircraft.  So fill 'em up with students. */
+	refill_students(state, false);
 	atg_event e;
-	enum tpipe selstage=TPIPE__MAX;
 	unsigned int counts[TPIPE__MAX+1][CREW_CLASSES]={0};
+	unsigned int acounts[TPIPE__MAX][CREW_CLASSES]={0};
 	unsigned int ecounts[TPIPE__MAX+1][CREW_CLASSES]={0};
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
@@ -638,6 +646,9 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 		if(state->crews[i].status != CSTATUS_STUDENT)
 			continue;
 		counts[state->crews[i].training][state->crews[i].class]++;
+		if(state->crews[i].assignment < 0)
+			continue;
+		acounts[state->crews[i].training][state->crews[i].class]++;
 		if((int)state->crews[i].tour_ops+1>=state->tpipe[state->crews[i].training].dwell)
 			ecounts[state->crews[i].training][state->crews[i].class]++;
 	}
@@ -670,7 +681,7 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 
 	while(1)
 	{
-		update_selstage(counts[selstage], ecounts[selstage], selstage);
+		update_selstage(counts[selstage], ecounts[selstage], acounts[selstage], selstage);
 		update_crews(state);
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
@@ -722,11 +733,11 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 					{
 						if(e.event.value.e==HC_tp_dwell[stage]) {
 							state->tpipe[stage].dwell=e.event.value.value;
-							recalc_ecounts(state, ecounts[stage], stage);
+							recalc_ecounts(state, ecounts[stage], acounts[stage], stage);
 						}
 						if(stage<TPIPE_LFS && e.event.value.e==HC_tp_cont[stage]) {
 							state->tpipe[stage].cont=e.event.value.value;
-							recalc_ecounts(state, ecounts[stage], stage);
+							recalc_ecounts(state, ecounts[stage], acounts[stage], stage);
 						}
 					}
 				break;

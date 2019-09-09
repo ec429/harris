@@ -14,6 +14,7 @@
 #include "control.h"
 #include "date.h"
 #include "globals.h"
+#include "handle_crews.h"
 #include "history.h"
 #include "mods.h"
 #include "rand.h"
@@ -917,6 +918,7 @@ int loadgame(const char *fn, game *state)
 	filter_elite=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		filter_nav[n]=0;
+	selstage=TPIPE__MAX;
 	for(unsigned int i=0;i<ntypes;i++)
 		types[i]=rawtypes[i];
 	for(unsigned int m=0;m<nmods;m++)
