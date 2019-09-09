@@ -633,7 +633,7 @@ void refill_students(game *state, bool refill)
 	unsigned int pool[CREW_CLASSES];
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
 	{
-		unsigned int scount=0;
+		unsigned int scount=0, acount=0;
 		pool[i]=cclasses[i].initpool;
 		for(unsigned int j=0;j<state->ncrews;j++)
 		{
@@ -641,6 +641,8 @@ void refill_students(game *state, bool refill)
 			{
 				if(state->crews[j].class!=i) continue;
 				scount++;
+				if(state->crews[j].assignment>=0)
+					acount++;
 			}
 			else if(state->crews[j].status==CSTATUS_INSTRUC)
 			{
@@ -670,6 +672,7 @@ void refill_students(game *state, bool refill)
 			}
 			state->ncrews=nc;
 		}
+		pool[i]-=acount;
 	}
 	for(enum tpipe t=TPIPE__MAX;t-->0;) {
 		if (state->tpipe[t].dwell<0)
@@ -740,9 +743,18 @@ void train_students(game *state)
 			}
 			else
 			{
+				unsigned int k=state->crews[i].assignment, c;
 				state->crews[i].full_tours=0;
 				state->crews[i].status=CSTATUS_CREWMAN;
 				state->crews[i].assignment=-1;
+				for(c=0;c<MAX_CREW;c++)
+					if(state->bombers[k].crew[c]==(int)i)
+					{
+						state->bombers[k].crew[c]=-1;
+						break;
+					}
+				if(c==MAX_CREW)
+					fprintf(stderr, "Warning: student assignment error (%u, %u)\n", k, i);
 				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 				continue;
 			}
