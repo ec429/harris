@@ -798,7 +798,7 @@ void update_crews(game *state)
 		}
 	}
 	for(unsigned int i=0;i<state->nbombers;i++)
-		if(!state->bombers[i].failed)
+		if(!state->bombers[i].train && !state->bombers[i].failed)
 			for(unsigned int j=0;j<MAX_CREW;j++)
 			{
 				enum cclass ct=types[state->bombers[i].type].crew[j];
