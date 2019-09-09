@@ -120,7 +120,7 @@ typedef struct
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
 	bool crewbg, crewwg;
-	bool noarm, pff, heavy, inc, extra, ovltank;
+	bool noarm, pff, heavy, inc, extra, ovltank, slowgrow;
 	date entry;
 	date novelty;
 	date exit;

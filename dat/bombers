@@ -11,7 +11,7 @@
 # A range of 230 will reach Hamburg, 315 for Berlin.  Soesterberg could be under 120, while Schillig roads are about 175.  Munich (from Yorkshire) is up to 330
 # Dates are entry and exit from service (null in either case means open-ended)
 # Navaids lists which navigational aids this bomber can carry (a big set won't fit in a small bomber)
-# Flags: NOARM,PFF,HEAVY,INC,OVLTANK,...
+# Flags: NOARM,PFF,HEAVY,INC,OVLTANK,SLOWGROW,...
 # Bombloads: Ab=Abnormal, Pp=Plumduff-plus, Pd=Plumduff, Po=Plumduff (cookie only), Us=Usual, Ar=Arson, Il=Illuminator, Hh=Half-and-half (alternate Il and Po)
 #	Pre-ABD, everyone uses Abnormal
 
@@ -44,7 +44,7 @@ Supermarine:Southampton:    33000:230:220:16000:64:22: 6:50:265:96:61:25-12-1940
 Short:Stirling:             25000:200:175:14000:40:18: 7:50:280:96:55:16-01-1941:08-07-1943:PPNWEGG:GEE,H2S,OBOE,CREWWG,HEAVY,Ab,Us,Ar
 Armstrong-Whitworth:Elswick:10000:186:202: 7500:65:30:10:40:330:81:45:13-02-1941:03-02-1943:PNBWG  :GEE,H2S,EXTRA,Ab,Us,Ar
 Handley Page:Halifax I:     28000:225:200:13000:80:22: 6:62:335:63:38:14-05-1941:31-03-1944:PNWEGGG:GEE,H2S,OBOE,GH,HEAVY,Ab,Us,Ar
-Avro:Lancaster I:           40000:232:225:14000:70:12: 4:60:350:84:44:07-02-1942:          :PNBWEGG:GEE,H2S,OBOE,GH,CREWBG,PFF,HEAVY,Ab,Pp,Pd,Us,Ar
+Avro:Lancaster I:           40000:232:225:14000:70:12: 4:60:350:84:44:07-02-1942:          :PNBWEGG:GEE,H2S,OBOE,GH,CREWBG,PFF,HEAVY,SLOWGROW,Ab,Pp,Pd,Us,Ar
 de Havilland:Mosquito:      15000:325:300: 2000:80: 4: 4:64:390:98:44:12-08-1942:          :PN     :GEE,OBOE,GH,NOARM,PFF,Ab,Il
 Handley Page:Halifax III:   30000:230:220:13500:90:14: 5:70:345:63:38:30-04-1943:          :PNBWEGG:GEE,H2S,OBOE,GH,CREWBG,HEAVY,INC,OVLTANK,Ab,Us,Ar
 Vickers:Windsor:            50000:260:270:15000:80: 8: 5:70:365:87:39:26-06-1943:          :PNBWEG :GEE,H2S,OBOE,GH,HEAVY,EXTRA,Ab,Pp,Pd,Us,Ar
