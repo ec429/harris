@@ -163,7 +163,7 @@ int load_bombers(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.mark[0].cost, &this.mark[0].speed, &this.mark[0].alt, &this.mark[0].capwt, &this.mark[0].svp, &this.mark[0].defn, &this.mark[0].fail, &this.mark[0].accu, &this.range, &this.blat, &this.blon, &db))!=13)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.mark[0].cost, &this.mark[0].speed, &this.mark[0].alt, &this.mark[0].capwt, &this.mark[0].svp, &this.mark[0].defn, &this.mark[0].fail, &this.mark[0].accu, &this.mark[0].range, &this.blat, &this.blon, &db))!=13)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);

@@ -51,7 +51,7 @@ int apply_mod(unsigned int m)
 				types[bt].mark[mark].accu=mods[m].v.i;
 				break;
 			case BSTAT_RANGE:
-				types[bt].range=mods[m].v.i;
+				types[bt].mark[mark].range=mods[m].v.i;
 				return(0);
 			case BSTAT_CREW:
 				for(unsigned int c=0;c<MAX_CREW;c++)

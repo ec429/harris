@@ -76,9 +76,9 @@ static unsigned int get_accu(bombertype b, unsigned int mark)
 {
 	return b.mark[mark].accu;
 }
-static unsigned int get_range(bombertype b, unsigned int mark __attribute__((unused)))
+static unsigned int get_range(bombertype b, unsigned int mark)
 {
-	return b.range;
+	return b.mark[mark].range;
 }
 
 struct b_stat_row

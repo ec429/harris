@@ -541,7 +541,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				startt=min(startt, state->bombers[k].startt);
 				ra_append(&state->hist, state->now, maketime(state->bombers[k].startt), state->bombers[k].id, false, state->bombers[k].type, i);
 				double eff=0.98+askill/1e3; // engineer fuel factor
-				state->bombers[k].fuelt=state->bombers[k].startt+types[type].range*0.6*eff/(double)state->bombers[k].speed;
+				state->bombers[k].fuelt=state->bombers[k].startt+bstats(state->bombers[k]).range*0.6*eff/(double)state->bombers[k].speed;
 				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)state->bombers[k].speed+12;
 				if(!stream) eta+=36;
 				if(eta>state->bombers[k].fuelt)

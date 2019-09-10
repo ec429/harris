@@ -1521,7 +1521,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						if(seltarg>=0)
 						{
 							double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
-							if(types[i].range<dist)
+							if(newstats(types[i]).range<dist)
 								SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
 						}
 					}
@@ -1723,8 +1723,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								if(c.e==GB_btpic[i])
 								{
 									double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
-									if(types[i].range<dist)
-										fprintf(stderr, "insufficient range: %u<%g\n", types[i].range, dist);
+									if(newstats(types[i]).range<dist)
+										fprintf(stderr, "insufficient range: %u<%g\n", newstats(types[i]).range, dist);
 									else
 									{
 										unsigned int amount;
@@ -2330,7 +2330,7 @@ int update_raidnums(const game *state, int seltarg)
 				{
 					dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.07;
 				}
-				unsigned int fuelt=types[i].range*0.6/(newstats(types[i]).speed/450.0);
+				unsigned int fuelt=newstats(types[i]).range*0.6/(newstats(types[i]).speed/450.0);
 				unsigned int estt=dist*1.1/(newstats(types[i]).speed/450.0)+12;
 				if(!stream) estt+=36;
 				if(estt>fuelt)

@@ -104,6 +104,7 @@ struct bomberstats
 	unsigned int defn;
 	unsigned int fail;
 	unsigned int accu;
+	unsigned int range;
 };
 
 #define MAX_MARKS	4
@@ -115,7 +116,6 @@ typedef struct
 	char * name;
 	struct bomberstats mark[MAX_MARKS];
 	char *markname[MAX_MARKS];
-	unsigned int range;
 	enum cclass crew[MAX_CREW];
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
@@ -314,7 +314,7 @@ ac_bomber;
 #define loadweight(b)	((b).b_hc+(b).b_gp+(b).b_in+(b).b_ti+(b).b_le/20)
 #define loadbulk(b)	((b).b_hc+(b).b_gp+(b).b_in*1.5+(b).b_ti*2+(b).b_le/3)
 #define bstats(b)	(types[(b).type].mark[(b).mark])
-#define fuelcap(b)	(types[(b).type].range*180.0/(double)(bstats(b).speed))
+#define fuelcap(b)	(bstats(b).range*180.0/(double)(bstats(b).speed))
 #define loadness(b)	((((b).bombed?0:loadweight(b))/(double)(bstats(b).capwt)+((int)(2*(b).fuelt)-(b).startt-t)/(double)fuelcap(b)))
 
 typedef struct
