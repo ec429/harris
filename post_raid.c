@@ -653,6 +653,8 @@ void refill_students(game *state, bool refill)
 			}
 		}
 		pool[i]/=GET_DC(state, TPOOL);
+		if(i==CCLASS_E&&datebefore(state->now, event[EVENT_FLT_ENG]))
+			pool[i]=0;
 		if(refill && scount<pool[i])
 		{
 			unsigned int add=min(pool[i]-scount, max((pool[i]-scount)/16, 1));
@@ -671,6 +673,10 @@ void refill_students(game *state, bool refill)
 				ge_append(&state->hist, state->now, (harris_time){11, 43}, state->crews[j].id, i, state->crews[j].lrate);
 			}
 			state->ncrews=nc;
+		}
+		if(pool[i]<acount) {
+			fprintf(stderr, "Warning: student pool error (class %c), %u<%u\n", cclasses[i].letter, pool[i], acount);
+			pool[i]=acount;
 		}
 		pool[i]-=acount;
 	}
@@ -730,10 +736,10 @@ void train_students(game *state)
 
 		if(state->crews[i].status!=CSTATUS_STUDENT)
 			continue;
-		if(state->crews[i].assignment<0)
-			continue;
 		type=state->bombers[state->crews[i].assignment].type;
 		stage=state->crews[i].training;
+		if(state->crews[i].assignment<0&&!(state->crews[i].class==CCLASS_E&&stage==TPIPE_OTU)) // engineers don't need an a/c for OTU-equivalent training
+			continue;
 		if((int)++state->crews[i].tour_ops>=state->tpipe[stage].dwell)
 		{
 			state->crews[i].tour_ops=0;

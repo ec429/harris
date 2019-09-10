@@ -12,6 +12,7 @@
 #include "handle_crews.h"
 #include "ui.h"
 #include "globals.h"
+#include "date.h"
 #include "post_raid.h" /* for refill_students() */
 #include "bits.h"
 #include "render.h"
@@ -805,6 +806,8 @@ void update_crews(game *state)
 				if(ct!=CCLASS_NONE)
 					need[ct]++;
 			}
+	if(datebefore(state->now, event[EVENT_FLT_ENG]))
+		pool[CCLASS_E]=0;
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
 		for(unsigned int j=0;j<SHOW_STATUSES;j++)
 		{
