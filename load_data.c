@@ -222,6 +222,7 @@ int load_bombers(void)
 				this.crewbg=strstr(nav, "CREWBG");
 				this.ovltank=strstr(nav, "OVLTANK");
 				this.slowgrow=strstr(nav, "SLOWGROW");
+				this.otub=strstr(nav, "OTUB");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
 				char pn[256];

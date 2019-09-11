@@ -706,8 +706,12 @@ void refill_students(game *state, bool refill)
 			for(unsigned int c=0;c<MAX_CREW;c++)
 			{
 				enum cclass i=types[type].crew[c];
-				if(i==CCLASS_NONE)
-					continue;
+				if(i==CCLASS_NONE) {
+					if(types[type].otub&&!datebefore(state->now, event[EVENT_OTUB]))
+						i=CCLASS_B;
+					else
+						continue;
+				}
 				if(state->bombers[k].crew[c]>=0)
 					continue;
 				if(!pool[i])
