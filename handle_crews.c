@@ -619,7 +619,7 @@ void recalc_ecounts(game *state, unsigned int *ecounts, unsigned int *acounts, e
 			continue;
 		if(state->crews[i].training != stage)
 			continue;
-		if(state->crews[i].assignment < 0)
+		if(state->crews[i].assignment < 0 && !(state->crews[i].class==CCLASS_E && stage==TPIPE_OTU))
 			continue;
 		acounts[state->crews[i].class]++;
 		if((int)state->crews[i].tour_ops+1>=state->tpipe[stage].dwell)
@@ -647,7 +647,7 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 		if(state->crews[i].status != CSTATUS_STUDENT)
 			continue;
 		counts[state->crews[i].training][state->crews[i].class]++;
-		if(state->crews[i].assignment < 0)
+		if(state->crews[i].assignment < 0 && !(state->crews[i].class==CCLASS_E && state->crews[i].training==TPIPE_OTU))
 			continue;
 		acounts[state->crews[i].training][state->crews[i].class]++;
 		if((int)state->crews[i].tour_ops+1>=state->tpipe[state->crews[i].training].dwell)
