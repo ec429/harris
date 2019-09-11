@@ -753,18 +753,20 @@ void train_students(game *state)
 			}
 			else
 			{
-				unsigned int k=state->crews[i].assignment, c;
+				int k=state->crews[i].assignment, c;
 				state->crews[i].full_tours=0;
 				state->crews[i].status=CSTATUS_CREWMAN;
 				state->crews[i].assignment=-1;
-				for(c=0;c<MAX_CREW;c++)
-					if(state->bombers[k].crew[c]==(int)i)
-					{
-						state->bombers[k].crew[c]=-1;
-						break;
-					}
-				if(c==MAX_CREW)
-					fprintf(stderr, "Warning: student assignment error (%u, %u)\n", k, i);
+				if(k>=0) { /* Might not be, if CCLASS_E */
+					for(c=0;c<MAX_CREW;c++)
+						if(state->bombers[k].crew[c]==(int)i)
+						{
+							state->bombers[k].crew[c]=-1;
+							break;
+						}
+					if(c==MAX_CREW)
+						fprintf(stderr, "Warning: student assignment error (%u, %u)\n", k, i);
+				}
 				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 				continue;
 			}
