@@ -32,6 +32,7 @@ class Save(object):
 		self.crew_hist = crew_hist
 		self.dclasses = None
 		self.difficulty = {}
+		self.evented = set()
 		stage = None
 		nosplit = False
 		for line in f:
@@ -196,6 +197,9 @@ class Save(object):
 			return self.Wstate, True
 		if tag == 'Weather rand':
 			return None, False
+		if tag == 'Evented':
+		    self.evented.add(rest)
+		    return None, False
 		if tag == 'Messages':
 			self.nmessages = int(rest)
 			self.messages = ['']
