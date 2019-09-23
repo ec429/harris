@@ -317,7 +317,7 @@ int load_mods(void)
 		{
 			if(*next&&(*next!='#'))
 			{
-				bmod this;
+				bmod this={0};
 				// DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY:[MARK]
 				char *colon=strchr(next, ':');
 				if(!colon)
