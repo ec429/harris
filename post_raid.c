@@ -37,10 +37,11 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 {
 	co_append(&state->hist, state->now, (harris_time){11, 05}, state->confid);
 	mo_append(&state->hist, state->now, (harris_time){11, 05}, state->morale);
+	date tomorrow=nextday(state->now);
 	for(unsigned int i=0;i<state->nbombers;i++)
 	{
 		unsigned int type=state->bombers[i].type;
-		if(!datewithin(state->now, types[type].entry, types[type].exit))
+		if(!datewithin(tomorrow, types[type].entry, types[type].exit))
 		{
 			ob_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type);
 			state->nbombers--;
@@ -67,7 +68,6 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			}
 		}
 	}
-	date tomorrow=nextday(state->now);
 	// TODO: if confid or morale too low, SACKED
 	state->cshr+=state->confid*2.0;
 	state->cshr+=state->morale;
