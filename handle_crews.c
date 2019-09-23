@@ -29,6 +29,7 @@ char *HC_count[CREW_CLASSES][SHOW_STATUSES];
 SDL_Surface *HC_skill[CREW_CLASSES][SHOW_STATUSES];
 SDL_Surface *HC_tops[CREW_CLASSES][2];
 atg_element *HC_tp_BT, *HC_tp_box[TPIPE__MAX], *HC_tp_btn[TPIPE__MAX], *HC_tp_dwell[TPIPE__MAX], *HC_tp_cont[TPIPE_LFS];
+SDL_Surface *HC_tp_tops[CREW_CLASSES];
 atg_element *HC_tp_text_box;
 char *HC_tp_count[CREW_CLASSES], *HC_tp_ecount[CREW_CLASSES];
 enum tpipe selstage=TPIPE__MAX;
@@ -533,6 +534,34 @@ int handle_crews_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		atg_element *shim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE});
+		if(!shim)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		shim->w=10;
+		if(atg_ebox_pack(tp_data_row, shim))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(HC_tp_tops[i]=SDL_CreateRGBSurface(SDL_HWSURFACE, 30, HC_SKILL_HHEIGHT, 32,  0xff000000, 0xff0000, 0xff00, 0xff)))
+		{
+			fprintf(stderr, "HC_tp_tops[]=SDL_CreateRGBSurface: %s\n", SDL_GetError());
+			return(1);
+		}
+		atg_element *tops=atg_create_element_image(HC_tp_tops[i]);
+		if(!tops)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(tp_data_row, tops))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	atg_element *text_guard=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
 	if(!text_guard)
@@ -609,6 +638,44 @@ void update_selstage(unsigned int *counts, unsigned int *ecounts, unsigned int *
 	}
 }
 
+void recalc_tp_tops(game *state, enum tpipe stage)
+{
+	for(enum cclass c=0;c<CREW_CLASSES;c++)
+	{
+		unsigned int dens[30]={0}, mxd=1, dw=state->tpipe[stage].dwell, sc=(dw+29)/30;
+		if(!HC_tp_tops[c]) continue;
+		SDL_FillRect(HC_tp_tops[c], &(SDL_Rect){0, 0, HC_tp_tops[c]->w, HC_tp_tops[c]->h}, SDL_MapRGB(HC_tp_tops[c]->format, 7, 7, 15));
+		if(stage>=TPIPE__MAX)
+			continue;
+		for(unsigned int i=0;i<state->ncrews;i++)
+		{
+			if(state->crews[i].status != CSTATUS_STUDENT)
+				continue;
+			if(state->crews[i].class != c)
+				continue;
+			if(state->crews[i].training != stage)
+				continue;
+			unsigned int x=state->crews[i].tour_ops/sc;
+			if(x>=30)
+				continue;
+			dens[x]++;
+			if(x)
+				mxd=max(dens[x], mxd);
+		}
+		unsigned int h=HC_tp_tops[c]->h-1;
+		for(unsigned int x=0;x<30;x++)
+		{
+			double frac=min(dens[x]/(double)mxd, 1.0);
+			unsigned int br=63+ceil(frac*192);
+			unsigned int y=h-ceil(frac*h);
+			bool end=x==dw/sc;
+			if(end)
+				line(HC_tp_tops[c], x, 0, x, y-1, (atg_colour){47, 47, 15, ATG_ALPHA_OPAQUE});
+			line(HC_tp_tops[c], x, y, x, h+1, (atg_colour){br, end ? br : 0, end ? 15 : 0, ATG_ALPHA_OPAQUE});
+		}
+	}
+}
+
 void recalc_ecounts(game *state, unsigned int *ecounts, unsigned int *acounts, enum tpipe stage)
 {
 	memset(ecounts, 0, sizeof(unsigned int[CREW_CLASSES]));
@@ -679,6 +746,7 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 			s->value=state->tpipe[stage].cont;
 		}
 	}
+	recalc_tp_tops(state, selstage);
 
 	while(1)
 	{
@@ -717,12 +785,14 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 					if(trigger.e==HC_tp_BT)
 					{
 						selstage=TPIPE__MAX;
+						recalc_tp_tops(state, selstage);
 						break;
 					}
 					for(stage=0;stage<TPIPE__MAX;stage++)
 						if(trigger.e==HC_tp_btn[stage])
 						{
 							selstage=stage;
+							recalc_tp_tops(state, selstage);
 							break;
 						}
 					if(stage<TPIPE__MAX)
@@ -735,6 +805,7 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 						if(e.event.value.e==HC_tp_dwell[stage]) {
 							state->tpipe[stage].dwell=e.event.value.value;
 							recalc_ecounts(state, ecounts[stage], acounts[stage], stage);
+							recalc_tp_tops(state, selstage);
 						}
 						if(stage<TPIPE_LFS && e.event.value.e==HC_tp_cont[stage]) {
 							state->tpipe[stage].cont=e.event.value.value;
