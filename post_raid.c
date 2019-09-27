@@ -746,6 +746,18 @@ void train_students(game *state)
 			continue;
 		if((int)++state->crews[i].tour_ops>=state->tpipe[stage].dwell)
 		{
+			int k=state->crews[i].assignment, c;
+			state->crews[i].assignment=-1;
+			if(k>=0) { /* Might not be, if CCLASS_E */
+				for(c=0;c<MAX_CREW;c++)
+					if(state->bombers[k].crew[c]==(int)i)
+					{
+						state->bombers[k].crew[c]=-1;
+						break;
+					}
+				if(c==MAX_CREW)
+					fprintf(stderr, "Warning: student assignment error (%u, %u)\n", k, i);
+			}
 			state->crews[i].tour_ops=0;
 			if(stage+1<TPIPE__MAX && state->tpipe[stage+1].dwell > 0 && ((stage+1==TPIPE_HCU&&state->crews[i].class==CCLASS_E)||brandp(state->tpipe[stage].cont/100.0)))
 			{
@@ -753,20 +765,8 @@ void train_students(game *state)
 			}
 			else
 			{
-				int k=state->crews[i].assignment, c;
 				state->crews[i].full_tours=0;
 				state->crews[i].status=CSTATUS_CREWMAN;
-				state->crews[i].assignment=-1;
-				if(k>=0) { /* Might not be, if CCLASS_E */
-					for(c=0;c<MAX_CREW;c++)
-						if(state->bombers[k].crew[c]==(int)i)
-						{
-							state->bombers[k].crew[c]=-1;
-							break;
-						}
-					if(c==MAX_CREW)
-						fprintf(stderr, "Warning: student assignment error (%u, %u)\n", k, i);
-				}
 				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 				continue;
 			}
