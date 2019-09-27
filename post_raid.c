@@ -736,16 +736,17 @@ void train_students(game *state)
 {
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
-		unsigned int type;
+		unsigned int type=(unsigned int)-1;
 		enum tpipe stage;
 
 		if(state->crews[i].status!=CSTATUS_STUDENT)
 			continue;
-		type=state->bombers[state->crews[i].assignment].type;
+		if(state->crews[i].assignment>=0)
+			type=state->bombers[state->crews[i].assignment].type;
 		stage=state->crews[i].training;
 		if(state->crews[i].assignment<0&&!(state->crews[i].class==CCLASS_E&&stage==TPIPE_OTU)) // engineers don't need an a/c for OTU-equivalent training
 			continue;
-		if((int)++state->crews[i].tour_ops>=state->tpipe[stage].dwell)
+		if((int)state->crews[i].tour_ops++>=state->tpipe[stage].dwell)
 		{
 			int k=state->crews[i].assignment, c;
 			state->crews[i].assignment=-1;
@@ -762,15 +763,15 @@ void train_students(game *state)
 			state->crews[i].tour_ops=0;
 			if(stage+1<TPIPE__MAX && state->tpipe[stage+1].dwell > 0 && ((stage+1==TPIPE_HCU&&state->crews[i].class==CCLASS_E)||brandp(state->tpipe[stage].cont/100.0)))
 			{
-				state->crews[i].training=++stage;
+				state->crews[i].training++;
 			}
 			else
 			{
 				state->crews[i].full_tours=0;
 				state->crews[i].status=CSTATUS_CREWMAN;
 				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
-				continue;
 			}
+			continue;
 		}
 		switch(stage)
 		{
