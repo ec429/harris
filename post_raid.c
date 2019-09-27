@@ -747,7 +747,7 @@ void train_students(game *state)
 		if((int)++state->crews[i].tour_ops>=state->tpipe[stage].dwell)
 		{
 			state->crews[i].tour_ops=0;
-			if(stage+1<TPIPE__MAX && state->tpipe[stage+1].dwell > 0 && brandp(state->tpipe[stage].cont/100.0))
+			if(stage+1<TPIPE__MAX && state->tpipe[stage+1].dwell > 0 && ((stage+1==TPIPE_HCU&&state->crews[i].class==CCLASS_E)||brandp(state->tpipe[stage].cont/100.0)))
 			{
 				state->crews[i].training=++stage;
 			}
