@@ -719,13 +719,14 @@ void refill_students(game *state, bool refill)
 				for(unsigned int j=0;j<state->ncrews;j++)
 					if(state->crews[j].status==CSTATUS_STUDENT)
 						if(state->crews[j].class==i)
-							if(state->crews[j].assignment<0)
-							{
-								state->crews[j].assignment=k;
-								state->bombers[k].crew[c]=j;
-								pool[i]--;
-								break;
-							}
+							if(state->crews[j].training==t)
+								if(state->crews[j].assignment<0)
+								{
+									state->crews[j].assignment=k;
+									state->bombers[k].crew[c]=j;
+									pool[i]--;
+									break;
+								}
 			}
 		}
 	}
