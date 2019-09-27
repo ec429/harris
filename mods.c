@@ -77,6 +77,18 @@ int apply_mod(unsigned int m)
 					case BFLAG_OVLTANK:
 						types[bt].ovltank=true;
 						return(0);
+					case BFLAG_CREWBG:
+						types[bt].crewbg=true;
+						return(0);
+					case BFLAG_NCREWBG:
+						types[bt].crewbg=false;
+						return(0);
+					case BFLAG_CREWWG:
+						types[bt].crewwg=true;
+						return(0);
+					case BFLAG_NCREWWG:
+						types[bt].crewwg=false;
+						return(0);
 					default:
 						fprintf(stderr, "ignoring unsupported flag %d\n", mods[m].v.f);
 						return(1);

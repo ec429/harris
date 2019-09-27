@@ -164,6 +164,10 @@ bstat;
 typedef enum
 {
 	BFLAG_OVLTANK,
+	BFLAG_CREWBG,
+	BFLAG_NCREWBG,
+	BFLAG_CREWWG,
+	BFLAG_NCREWWG,
 }
 bflag;
 

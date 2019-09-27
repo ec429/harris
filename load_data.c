@@ -448,6 +448,22 @@ int load_mods(void)
 					{
 						this.v.f=BFLAG_OVLTANK;
 					}
+					else if(!strncmp(newval, "CREWBG", 6))
+					{
+						this.v.f=BFLAG_CREWBG;
+					}
+					else if(!strncmp(newval, "!CREWBG", 7))
+					{
+						this.v.f=BFLAG_NCREWBG;
+					}
+					else if(!strncmp(newval, "CREWWG", 6))
+					{
+						this.v.f=BFLAG_CREWWG;
+					}
+					else if(!strncmp(newval, "!CREWWG", 7))
+					{
+						this.v.f=BFLAG_NCREWWG;
+					}
 					else
 					{
 						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
