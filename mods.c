@@ -54,10 +54,14 @@ int apply_mod(unsigned int m)
 				types[bt].mark[mark].range=mods[m].v.i;
 				return(0);
 			case BSTAT_CREW:
+				if(mods[m].mark)
+					fprintf(stderr, "Warning, mod %s tries to change crew on mark %u, but crew is not marked\n", mods[m].desc, mods[m].mark);
 				for(unsigned int c=0;c<MAX_CREW;c++)
 					types[bt].crew[c]=mods[m].v.crew[c];
 				return(0);
 			case BSTAT_LOADS:
+				if(mods[m].mark)
+					fprintf(stderr, "Warning, mod %s tries to change loads on mark %u, but loads are not marked\n", mods[m].desc, mods[m].mark);
 				if(mods[m].v.i<NBOMBLOADS)
 				{
 					types[bt].load[mods[m].v.i]=true;
@@ -66,6 +70,8 @@ int apply_mod(unsigned int m)
 				fprintf(stderr, "ignoring excessive bombload ID %d\n", mods[m].v.i);
 				return(1);
 			case BSTAT_FLAGS:
+				if(mods[m].mark)
+					fprintf(stderr, "Warning, mod %s tries to change flags on mark %u, but flags are not marked\n", mods[m].desc, mods[m].mark);
 				switch(mods[m].v.f)
 				{
 					case BFLAG_OVLTANK:
