@@ -642,7 +642,7 @@ void recalc_tp_tops(game *state, enum tpipe stage)
 {
 	for(enum cclass c=0;c<CREW_CLASSES;c++)
 	{
-		unsigned int dens[30]={0}, mxd=1, dw=state->tpipe[stage].dwell, sc=(dw+29)/30;
+		unsigned int dens[30]={0}, mxd=1, dw=state->tpipe[stage].dwell, sc=max((dw+29)/30, 1);
 		if(!HC_tp_tops[c]) continue;
 		SDL_FillRect(HC_tp_tops[c], &(SDL_Rect){0, 0, HC_tp_tops[c]->w, HC_tp_tops[c]->h}, SDL_MapRGB(HC_tp_tops[c]->format, 7, 7, 15));
 		if(stage>=TPIPE__MAX)
