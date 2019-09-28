@@ -228,6 +228,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				if((int)state->bombers[j].type!=i)	continue;
 			}
 			if(state->bombers[j].failed) continue;
+			if(state->bombers[j].train) continue;
 			if(state->bombers[j].nav[n]) continue;
 			state->bombers[j].nav[n]=true;
 			na_append(&state->hist, state->now, (harris_time){11, 35}, state->bombers[j].id, false, state->bombers[j].type, n);
