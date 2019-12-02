@@ -31,11 +31,18 @@ def poisson(lamb):
 		p *= random.random()
 	return k - 1
 
-def gencrews(line, i):
+def gencrews(line, i, cgv=1):
 	words = line.split(':')
 	_, stat, cls = words[0].split()
 	words = words[1].split(',')
 	ms = int(words[0])
+	if cgv > 1:
+	    mheavy = int(words[1])
+	    mlanc = int(words[2])
+	    words = words[2:]
+	else:
+	    mheavy = 0
+	    mlanc = 0
 	ml = int(words[1])
 	tops = int(words[2])
 	ft = int(words[3])
@@ -45,13 +52,21 @@ def gencrews(line, i):
 	ha = zlib.crc32(z) & 0xffffffff
 	random.seed(ha)
 	skill = poisson(ms)
+	heavy = poisson(mheavy)
+	lanc = poisson(mlanc)
 	lrate = poisson(ml)
 	tops = random.randint(0, tops)
-	# TODO support heavy & lanc skills in gencrew lines
+	if cgv <= 1 and stat == 'Student':
+	    # Account for students' HCU/LFS training
+	    if ft==1:
+	        heavy = tops * 3
+	    elif ft==2:
+	        lanc = tops * 9
+	        heavy = 100
 	if windows:
-		return "%s %c:%s,0,0,%u,%u,%u,%d,00000000%s"%(stat, cls, float_to_hex(skill), lrate, tops, ft, assi, acid)
+		return "%s %c:%s,%s,%s,%u,%u,%u,%d,00000000%s"%(stat, cls, float_to_hex(skill), float_to_hex(heavy), float_to_hex(lanc), lrate, tops, ft, assi, acid)
 	else:
-		return "%s %c:%u,0,0,%u,%u,%u,%d,00000000%s"%(stat, cls, skill, lrate, tops, ft, assi, acid)
+		return "%s %c:%u,%u,%u,%u,%u,%u,%d,00000000%s"%(stat, cls, skill, heavy, lanc, lrate, tops, ft, assi, acid)
 
 windows = '--windows' in sys.argv
 
@@ -75,7 +90,9 @@ for line in sys.stdin.readlines():
 	for i,line in enumerate(lines):
 		line = genids(line, i)
 		if line.startswith("CG "):
-			line = gencrews(line, i)
+			line = gencrews(line, i, 1)
+		elif line.startswith("CG2 "):
+			line = gencrews(line, i, 2)
 		if windows and ':' in line:
 			to_conv = {'Confid':(0,),
 				       'Morale':(0,),

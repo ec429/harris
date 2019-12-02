@@ -1,4 +1,4 @@
-HARR:0.3.0
+HARR:0.4.0
 DATE:14-02-1942
 Difficulty:0,1
 Confid:50
@@ -25,48 +25,59 @@ NPrio 0:0,40
 NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
-Bombers:672
-*67*Type 3:0,0,0,NOID,1
-*16*Type 3:1,0,0,NOID,1
-*231*Type 3:0,0,0,NOID,2
-*98*Type 3:1,0,0,NOID,2
-*20*Type 4:0,0,0,NOID,0
-*65*Type 4:1,0,0,NOID,0
-*36*Type 6:0,0,0,NOID,0
-*6*Type 6:0,4,0,NOID,0
-*47*Type 6:1,0,0,NOID,0
-*4*Type 6:1,4,0,NOID,0
-*36*Type 8:0,0,0,NOID,0
-*28*Type 8:1,0,0,NOID,0
-*15*Type 9:0,0,0,NOID,0
-*3*Type 9:1,0,0,NOID,0
+Bombers:831
+*87*Type 3:0,0,0,NOID,0,1
+*14*Type 3:1,0,0,NOID,0,1
+*123*Type 3:0,0,0,NOID,1,1
+*18*Type 3:1,0,0,NOID,1,1
+*231*Type 3:0,0,0,NOID,2,0
+*98*Type 3:1,0,0,NOID,2,0
+*20*Type 4:0,0,0,NOID,0,0
+*60*Type 4:1,0,0,NOID,0,0
+*5*Type 4:1,0,0,NOID,0,1
+*24*Type 6:0,0,0,NOID,0,0
+*12*Type 6:0,0,0,NOID,0,1
+*6*Type 6:0,4,0,NOID,0,0
+*47*Type 6:1,0,0,NOID,0,0
+*4*Type 6:1,4,0,NOID,0,0
+*28*Type 8:0,0,0,NOID,0,0
+*8*Type 8:0,0,0,NOID,0,1
+*28*Type 8:1,0,0,NOID,0,0
+*15*Type 9:0,0,0,NOID,0,0
+*3*Type 9:1,0,0,NOID,0,0
 TPipe:3
 TStage 0:70,20
 TStage 1:30,0
 TStage 2:-1,0
-Crews:4270
-*200*CG Crewman P:45,120,29,0,-1,NOID
-*150*CG Instructor P:50,120,120,1,-1,NOID
-*140*CG Crewman N:55,120,29,0,-1,NOID
-*150*CG Instructor N:60,120,120,1,-1,NOID
-*60*CG Crewman B:30,120,29,0,-1,NOID
-*60*CG Instructor B:35,120,120,1,-1,NOID
-*160*CG Crewman W:38,120,29,0,-1,NOID
-*140*CG Instructor W:42,120,120,1,-1,NOID
-*200*CG Crewman G:45,120,29,0,-1,NOID
-*188*CG Instructor G:45,120,120,1,-1,NOID
-*328*CG Crewman P:25,90,10,0,-1,NOID
-*368*CG Crewman N:20,90,10,0,-1,NOID
-*136*CG Crewman B:15,90,12,0,-1,NOID
-*124*CG Crewman E:25,90,6,0,-1,NOID
-*284*CG Crewman W:25,90,10,0,-1,NOID
-*865*CG Crewman G:20,90,10,0,-1,NOID
-*80*CG Student P:20,90,0,0,-1,NOID
-*105*CG Student N:20,90,0,0,-1,NOID
-*85*CG Student B:25,90,0,0,-1,NOID
-*25*CG Student E:30,90,0,0,-1,NOID
-*135*CG Student W:22,90,0,0,-1,NOID
-*287*CG Student G:18,90,0,0,-1,NOID
+Crews:4445
+*200*CG2 Crewman P:45,40,0,120,29,0,-1,NOID
+*150*CG2 Instructor P:50,40,0,120,120,1,-1,NOID
+*140*CG2 Crewman N:55,40,0,120,29,0,-1,NOID
+*150*CG2 Instructor N:60,40,0,120,120,1,-1,NOID
+*60*CG2 Crewman B:30,40,0,120,29,0,-1,NOID
+*60*CG2 Instructor B:35,40,0,120,120,1,-1,NOID
+*160*CG2 Crewman W:38,40,0,120,29,0,-1,NOID
+*140*CG2 Instructor W:42,40,0,120,120,1,-1,NOID
+*200*CG2 Crewman G:45,40,0,120,29,0,-1,NOID
+*188*CG2 Instructor G:45,40,0,120,120,1,-1,NOID
+*328*CG2 Crewman P:25,10,0,90,10,0,-1,NOID
+*368*CG2 Crewman N:20,10,0,90,10,0,-1,NOID
+*136*CG2 Crewman B:15,10,0,90,12,0,-1,NOID
+*124*CG2 Crewman E:25,10,0,90,6,0,-1,NOID
+*284*CG2 Crewman W:25,10,0,90,10,0,-1,NOID
+*865*CG2 Crewman G:20,10,0,90,10,0,-1,NOID
+*80*CG Student P:20,90,70,0,-1,NOID
+*105*CG Student N:20,90,70,0,-1,NOID
+*85*CG Student B:25,90,70,0,-1,NOID
+*25*CG Student E:30,90,70,0,-1,NOID
+*135*CG Student W:22,90,70,0,-1,NOID
+*287*CG Student G:18,90,70,0,-1,NOID
+*20*CG Student P:20,90,30,1,-1,NOID
+*25*CG Student N:20,90,30,1,-1,NOID
+*25*CG Student B:25,90,30,1,-1,NOID
+*15*CG Student E:30,90,30,1,-1,NOID
+*25*CG Student W:22,90,30,1,-1,NOID
+*65*CG Student G:18,90,30,1,-1,NOID
 GProd:8
 IClass 0:7500
 IClass 1:100000
