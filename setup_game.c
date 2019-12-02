@@ -23,7 +23,7 @@
 
 atg_element *setup_game_box;
 atg_element *SG_full, *SG_exit, *SG_cont;
-atg_element **SG_stitles, *SG_text_box, *SG_acbox;
+atg_element **SG_stitles, *SG_text_box, *SG_acbox, *SG_vwbox;
 atg_element **SG_btrow, **SG_btint, **SG_ftrow, **SG_ftint;
 char **SG_btnum, **SG_ftnum;
 char *SG_datestring;
@@ -484,6 +484,40 @@ int setup_game_create(void)
 			return(1);
 		}
 	}
+	if(!(SG_vwbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){63, 15, 15, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(setup_game_box, SG_vwbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	SG_vwbox->hidden=true;
+	atg_element *vw=atg_create_element_label("Warning: save file version does not match game version.", 15, (atg_colour){239, 95, 95, ATG_ALPHA_OPAQUE});
+	if(!vw)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	vw->w=724;
+	if(atg_ebox_pack(SG_vwbox, vw))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *vw2=atg_create_element_label("Some game features may function incorrectly.", 15, (atg_colour){239, 95, 95, ATG_ALPHA_OPAQUE});
+	if(!vw2)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(SG_vwbox, vw2))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	atg_element *text_guard=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
 	if(!text_guard)
 	{
@@ -562,6 +596,7 @@ screen_id setup_game_screen(atg_canvas *canvas, game *state)
 		atg_ebox_empty(SG_text_box);
 		if(selstart>=0)
 		{
+			SG_vwbox->hidden=!state->vermm;
 			snprintf(SG_datestring, 11, "%02u-%02u-%04u", state->now.day, state->now.month, state->now.year);
 			const char *bodytext=starts[selstart].description;
 			size_t x=0;

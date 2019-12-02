@@ -386,6 +386,7 @@ crewman;
 typedef struct
 {
 	date now;
+	bool vermm;
 	unsigned int difficulty[DIFFICULTY_CLASSES]; // [0] is ignored
 	unsigned int cash, cshr;
 	double confid, morale;

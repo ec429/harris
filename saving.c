@@ -30,6 +30,16 @@ bool version_newer(const unsigned int v1[3], const unsigned int v2[3]) // true i
 	return(false);
 }
 
+bool version_newer_minor(const unsigned int v1[3], const unsigned int v2[3]) // true iff v1 newer than v2 ignoring Revision
+{
+	for(unsigned int i=0;i<2;i++)
+	{
+		if(v1[i]>v2[i]) return(true);
+		if(v1[i]<v2[i]) return(false);
+	}
+	return(false);
+}
+
 int loadgame(const char *fn, game *state)
 {
 	FILE *fs = fopen(fn, "r");
@@ -42,6 +52,7 @@ int loadgame(const char *fn, game *state)
 	unsigned int s_version[3]={0,0,0};
 	unsigned int version[3]={VER_MAJ,VER_MIN,VER_REV};
 	bool warned_pff=false, warned_acid=false, warned_mark=false, warned_train=false;
+	state->vermm=false;
 	state->weather.seed=0;
 	for(unsigned int j=0;j<ntypes;j++)
 		types[j].newmark=0;
@@ -84,6 +95,12 @@ int loadgame(const char *fn, game *state)
 			if(version_newer(s_version, version))
 			{
 				fprintf(stderr, "Warning - file is newer version than program;\n may cause strange behaviour\n");
+				state->vermm=true;
+			}
+			else if(version_newer_minor(version, s_version))
+			{
+				fprintf(stderr, "Warning - file is older major version than program;\n may cause strange behaviour\n");
+				state->vermm=true;
 			}
 		}
 		else if(!(s_version[0]||s_version[1]||s_version[2]))
