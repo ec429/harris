@@ -40,7 +40,9 @@ int main(int argc, char **argv)
 	game initgame;
 	struct hashtable fighters, bombers;
 	bool dmg_cleared = true;
+#ifndef WINDOWS
 	bool localdat = false;
+#endif
 	char cwd_buf[1024];
 	int arg;
 	int rc;

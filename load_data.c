@@ -532,12 +532,14 @@ int load_fighters(void)
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%hhu:"zn, this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &this.radpri, &db))!=7)
+				unsigned int radpri;
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.cost, &this.speed, &this.arm, &this.mnv, &radpri, &db))!=7)
 				{
 					fprintf(stderr, "Malformed `fighters' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
 					return(1);
 				}
+				this.radpri=radpri;
 				size_t nlen=strlen(this.name)+1;
 				this.name=realloc(this.name, nlen);
 				this.entry=readdate(next+db, (date){0, 0, 0});

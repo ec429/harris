@@ -121,7 +121,7 @@ static: all
 
 windows: all
 	mkdir windows
-	cp -r art dat map save stats *.c *.h *.o *.py README HOWTOPLAY STRATEGY COPYING windows/
+	cp -r art dat map save stats *.c *.h *.py README HOWTOPLAY STRATEGY COPYING windows/
 	cp lib-w/* windows/
 	make -C windows -f Makefile.w32 -B
 	rm windows/*.o

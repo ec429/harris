@@ -10,7 +10,7 @@
 #include "types.h"
 
 #ifdef WINDOWS /* Because of this little bugger, savegames from Windows won't work on Linux/Unix and vice-versa */
-#define FLOAT	"%llx"
+#define FLOAT	"%I64x"
 #define CAST_FLOAT_PTR	(unsigned long long *)
 #define CAST_FLOAT	(unsigned long long)
 #else
