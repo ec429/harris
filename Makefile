@@ -79,7 +79,7 @@ setup_game.o: ui.h globals.h events.h saving.h intel_bombers.h intel_fighters.h 
 
 setup_difficulty.o: ui.h globals.h events.h
 
-setup_types.o: ui.h globals.h events.h control.h intel_bombers.h
+setup_types.o: ui.h globals.h events.h bits.h control.h intel_bombers.h
 
 load_game.o: ui.h globals.h events.h saving.h
 

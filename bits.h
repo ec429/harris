@@ -41,3 +41,5 @@ char *strndup(const char *s, size_t size);
 #define container_of(ptr, type, member) ({                      \
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
 	(type *)( (char *)__mptr - offsetof(type,member) );})
+
+#define ARRAY_SIZE(arr)	(sizeof(arr) / sizeof((arr)[0]))

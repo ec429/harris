@@ -13,6 +13,7 @@
 #include "setup_types.h"
 #include "ui.h"
 #include "globals.h"
+#include "bits.h"
 #include "control.h"
 #include "intel_bombers.h"
 
@@ -75,6 +76,38 @@ int setup_types_create(void)
 	{
 		perror("atg_ebox_pack");
 		return(1);
+	}
+	atg_element *helpbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){79, 79, 47, ATG_ALPHA_OPAQUE});
+	if(!helpbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	helpbox->w=779;
+	if(atg_ebox_pack(setup_types_box, helpbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	const char *const helptext[] = {
+		"For alternate-history playthroughs, you can change the aircraft types available in the",
+		"game.  This may significantly alter the game balance, and is not recommended for new",
+		"players.  Note that removing aircraft types used in the startpoint will leave you with",
+		"smaller starting forces, as those aircraft will not be replaced with other types."
+	};
+	for(unsigned int ti=0;ti<ARRAY_SIZE(helptext);ti++)
+	{
+		atg_element *hl=atg_create_element_label(helptext[ti], 15, (atg_colour){239, 239, 63, ATG_ALPHA_OPAQUE});
+		if(!hl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(helpbox, hl))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	atg_element *bomberbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, ST_BG_COLOUR);
 	if(!bomberbox)
