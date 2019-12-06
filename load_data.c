@@ -157,7 +157,7 @@ int load_bombers(void)
 		{
 			if(*next&&(*next!='#'))
 			{
-				bombertype this;
+				bombertype this={0};
 				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
