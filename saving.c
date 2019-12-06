@@ -669,8 +669,11 @@ int loadgame(const char *fn, game *state)
 		}
 		else if(strcmp(tag, "Targets init")==0)
 		{
-			double dmg,flk,heat,flam;
-			f=sscanf(dat, FLOAT","FLOAT","FLOAT","FLOAT"\n", CAST_FLOAT_PTR &dmg, CAST_FLOAT_PTR &flk, CAST_FLOAT_PTR &heat, CAST_FLOAT_PTR &flam);
+			/* Only user of this tag is qstart.sav, and that doesn't need fractions.
+			 * Using integers here allows us to avoid awkwardness with the Windows compat.
+			 */
+			unsigned int dmg,flk,heat,flam;
+			f=sscanf(dat, "%u,%u,%u,%u\n", &dmg, &flk, &heat, &flam);
 			if(f!=4)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -1024,8 +1027,10 @@ int savegame(const char *fn, game state)
 		fprintf(fs, "Site %u:%u\n", i, flags);
 	}
 	fprintf(fs, "Targets:%u\n", ntargs);
-	for(unsigned int i=0;i<ntargs;i++)
-		fprintf(fs, "Targ %u:"FLOAT","FLOAT","FLOAT","FLOAT"\n", i, CAST_FLOAT state.dmg[i], CAST_FLOAT (targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0), CAST_FLOAT state.heat[i], CAST_FLOAT state.flam[i]);
+	for(unsigned int i=0;i<ntargs;i++) {
+		double flk = (targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0);
+		fprintf(fs, "Targ %u:"FLOAT","FLOAT","FLOAT","FLOAT"\n", i, CAST_FLOAT state.dmg[i], CAST_FLOAT flk, CAST_FLOAT state.heat[i], CAST_FLOAT state.flam[i]);
+	}
 	fprintf(fs, "Weather state:"FLOAT","FLOAT"\n", CAST_FLOAT state.weather.push, CAST_FLOAT state.weather.slant);
 	for(unsigned int x=0;x<256;x++)
 	{

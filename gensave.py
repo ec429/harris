@@ -96,13 +96,13 @@ for line in sys.stdin.readlines():
 		if windows and ':' in line:
 			to_conv = {'Confid':(0,),
 				       'Morale':(0,),
-				       'IClass':(1,),
-				       'Targets init':(0,1,2,3),
-				       'Targ':(1,2,3,4)}
+				       'IClass':(0,),
+				       'Targ':(0,1,2,3)}
 			tag, values = line.rstrip('\n').split(':', 1)
+			starttag, _, resttag = tag.partition(' ')
 			values = values.split(',')
-			if tag in to_conv:
-				for pos in to_conv[tag]:
+			if starttag in to_conv:
+				for pos in to_conv[starttag]:
 					values[pos] = float_to_hex(values[pos])
 				line = ':'.join((tag, ','.join(values))) + '\n'
 		sys.stdout.write(line)
