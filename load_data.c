@@ -526,7 +526,7 @@ int load_fighters(void)
 		{
 			if(*next&&(*next!='#'))
 			{
-				fightertype this;
+				fightertype this={0};
 				// MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:RADPRI:DD-MM-YYYY:DD-MM-YYYY:FLAGS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
@@ -643,7 +643,7 @@ int load_ftrbases(void)
 		{
 			if(*next!='#')
 			{
-				ftrbase this;
+				ftrbase this={0};
 				// LAT:LONG:ENTRY:EXIT
 				ssize_t db;
 				int e;
@@ -692,7 +692,7 @@ int load_locations(void)
 		{
 			if(*next!='#')
 			{
-				locxn this;
+				locxn this={0};
 				// NAME:LAT:LONG:RADIUS
 				this.name=(char *)malloc(strcspn(next, ":")+1);
 				int e;
@@ -731,7 +731,7 @@ int load_targets(void)
 		{
 			if(*next!='#')
 			{
-				target this;
+				target this={0};
 				// NAME:PROD:FLAK:ESIZ:LAT:LONG:DD-MM-YYYY:DD-MM-YYYY:CLASS[,Flags][@City]
 				this.name=(char *)malloc(strcspn(next, ":")+1);
 				this.p_intel=NULL;
@@ -998,7 +998,7 @@ int load_flaksites(void)
 		{
 			if(*next!='#')
 			{
-				flaksite this;
+				flaksite this={0};
 				// STRENGTH:LAT:LONG:ENTRY:RADAR:EXIT
 				ssize_t db;
 				int e;
@@ -1250,7 +1250,7 @@ int load_regions(void)
 			if(*next!='#')
 			{
 				// R:G:B:Class:Name
-				struct region this;
+				struct region this={0};
 				ssize_t db;
 				char fne, lw;
 				unsigned int r,g,b;
