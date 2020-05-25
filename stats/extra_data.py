@@ -23,12 +23,11 @@ Bombers = {
 	"Stirling":   {"short":"STIR", "colour":'0.5',    },
 	"Elswick":    {"short":"ELSW", "colour":'#80e000',},
 	"Halifax I":  {"short":"HAL1", "colour":'#806000',},
-	"Lancaster I":{"short":"LAN1", "colour":'b',      },
+	"Lancaster":  {"short":"LANC", "colour":'b',      },
 	"Mosquito":   {"short":"MOSQ", "colour":'r',      },
 	"Halifax III":{"short":"HAL3", "colour":'y',      },
 	"Windsor":    {"short":"WIND", "colour":'m',      },
 	"Selkirk":    {"short":"SELK", "colour":'0.5',    },
-	"Lancaster X":{"short":"LANX", "colour":'c',      },
 	}
 
 Fighters = {

@@ -308,14 +308,6 @@ With the addition of a new bulged bomb bay to the de Havilland Mosquito, it can 
 Your Avro Lancasters are being modified with new wide-chord airscrews, able to more efficiently absorb the power
  from the ever-improving Merlin engines.  This will augment the type's maximum speed and ceiling altitude.
 
-==MOD_GLODGE==
-
-A modification has been applied to your Lancaster Mark I aircraft.  Known as the "Gransden Lodge" mod, it
- involves the removal of some of the perspex from the tail gunner's turret, improving his night vision (at the
- expense of his comfort).  This should help to reduce losses to nightfighter attacks.
-This mod is not applicable to the Mark X Lancasters, as they have the Rose twin .50 caliber turret in place of
- the Fraser-Nash FN120 quad-.303 of the Mark I.
-
 ==STIRLING_III==
 
 Short Stirling production has switched over to the Mark III upgrade, which brings slight increases in speed and
@@ -670,7 +662,7 @@ platform.  It gives you a realistic long-range heavy capability.
 A new type of bomber has been developed and is now going into production.  The Handley Page Halifax is generally
  an improvement over the Stirling and has a longer range, but it does carry slightly less ordnance.
 
-==Lancaster I==
+==Lancaster==
 
 The Avro 683 Lancaster is the classic heavy bomber.  Developed from
 the Manchester, but re-engined with four Merlins, it carries
@@ -679,7 +671,7 @@ bombing platform.  It's a great all-round heavy, capable of anything
 from area bombing cities at night to precision strikes on special
 targets by day.  However, it's fairly expensive to build.
 
-==NEW_Lancaster I==
+==NEW_Lancaster==
 
 A new type of bomber has been developed and is now going into production.  All the signs suggest that the Avro
  Lancaster will prove to be a classic heavy bomber: it's fast, reliable, and well-equipped to survive in the harsh
@@ -754,18 +746,19 @@ A new type of bomber has been developed and is now going into production.  The S
 
 ==Lancaster X==
 
-The designation "Lancaster B.X" actually refers only to airframes
-built in Canada by Victory Aircraft Ltd., but in Harris it
-represents all the developed variants of the Lanc.  With more
-powerful engines and better armament (the four .303 Brownings in the
-tail are replaced with twin .50s), the upgraded Lanc is faster,
-carries a heavier payload, is more reliable and survivable - in many
-ways it's the ultimate heavy bomber.
+Advanced versions of the Lancaster are now going into production.  These new variants carry more bombs and mount
+ better defensive armament.
 
-==NEW_Lancaster X==
+The designation "Lancaster B.X" actually refers only to airframes built in Canada by Victory Aircraft Ltd., but in
+ Harris it represents all the developed variants of the Lancaster.  With more powerful engines and better armament
+ (the four .303 Brownings in the tail are replaced with twin .50s), the upgraded Lanc is faster, carries a heavier
+ payload, is more reliable and survivable - in many ways it's the ultimate heavy bomber.
 
-Advanced versions of the Lancaster are now going into production.
-These new variants carry more bombs and mount better defensive armament.
+Meanwhile, the "Gransden Lodge" modification is being applied to your existing Mk I Lancasters; it involves the
+ removal of some of the perspex from the tail gunner's turret, improving his night vision (at the expense of his
+ comfort).  This should help to reduce losses to nightfighter attacks.
+This mod is not applicable to the Mark X Lancasters, as they have the Rose twin .50 caliber turret in place of the
+ Fraser-Nash FN120 quad-.303 of the Mark I.
 
 ==Bf109E==
 
