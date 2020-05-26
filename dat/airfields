@@ -1,0 +1,74 @@
+# format: NAME:X:Y:GROUP
+# This list is based on the airfields operational on 30th March
+# 1944, as given in M. Middlebrook's _The_Nuremberg_Raid_.
+# It therefore omits some airfields which were used earlier in
+# the war (such as Scampton), and many of the airfields listed
+# were new-build concrete rather than existing as grass strips
+# earlier in the war.  Thus, the presence of airfield names in
+# the game should be considered 'flavour' rather than an
+# accurate historical representation.
+# To this have been added a few No. 2 Group airfields, for use
+# by Blenheims early in the war (and including the ones
+# Middlebrook lists under No. 100 (Bomber Support) Group, which
+# had taken them over by 1944).
+
+# Map Registration onto Europe Map
+# (10,44) to (74,108)
+
+Elsham Wolds:117:102:1
+North Killingholme:125:99:1
+Kirmington:122:107:1
+Grimsby:136:115:1
+Binbrook:130:119:1
+Kelstern:135:123:1
+Faldingworth:114:129:1
+Ludford Magna:132:127:1
+Wickenby:123:132:1
+Watton:186:203:2
+West Raynham:181:184:2
+Sculthorpe:184:178:2
+Little Snoring:191:170:2
+Foulsham:199:182:2
+Wattisham:196:243:2
+Horsham St Faith:214:193:2
+Mepal:143:214:3
+Witchford:151:221:3
+Lakenheath:177:214:3
+Mildenhall:170:221:3
+Waterbeach:149:230:3
+Tuddenham:177:228:3
+Tempsford:120:246:3
+Elvington:84:76:4
+Pocklington:94:73:4
+Lisset:125:70:4
+Melbourne:93:78:4
+Leconfield:117:79:4
+Burn:79:91:4
+Breighton:91:84:4
+Holme-on-Spalding Moor:97:84:4
+Snaith:80:99:4
+Dunholme Lodge:112:135:5
+Skellingthorpe:108:141:5
+Fiskerton:114:140:5
+Bardney:125:139:5
+Waddington:112:147:5
+Metheringham:120:152:5
+Woodhall Spa:128:151:5
+East Kirkby:140:150:5
+Spilsby:149:147:5
+Coningsby:131:156:5
+Middleton St George:64:16:6
+Croft:53:21:6
+Leeming:56:37:6
+Skipton-on-Swale:60:42:6
+Tholthorpe:68:55:6
+East Moor:80:60:6
+Linton-on-Ouse:67:61:6
+Downham Market:160:198:8
+Marham:170:195:8
+Upwood:134:216:8
+Wyton:136:224:8
+Graveley:127:229:8
+Oakington:142:231:8
+Gransden Lodge:131:240:8
+Bourn:136:236:8
