@@ -1,0 +1,7 @@
+Groups, Stations & Squadrons
+
+If a Group is operating a mixture of aircraft types, its serviceability is reduced: multiply the FA0 probability by the square root of the largest fraction (e.g. if a Group has 64 Lancs and 36 Stirlings, pFA0 for both is scaled by 80%).  Note that Halifax I and III are considered different types (mainly on account of the engines).
+
+Stations mostly start out as grass strips and are only later paved.  Heavy bombers need concrete airfields to carry their full load — otherwise capwt and range are both reduced (to 75% and 80% respectively).  If a Station is operating a mixture of aircraft types, its serviceability is reduced: multiply the FA0 probability by the square root of the largest fraction (e.g. if a Station has 20 Lancs and 16 Stirlings, pFA0 for both is scaled by 74.5%, on top of the Group penalty).
+
+Squadrons can have either two or three flights (of nominally 10 aircraft each).  A new two-flight squadron can be formed by splitting off the C flight of an existing three-flight squadron and posting in sprogs to fill it up; a two-flight squadron can be grown to three flights.  A squadron may be disbanded, causing its crews to be pooled for the Group's replacements (instead of sprogs).  A squadron may be remustered (moved) to another airfield within the Group area, which will take it out of the front line for 7 days.  A squadron may not operate a mixture of aircraft types; it must switch all at once to the new type, which will take it out of the front line for 14 days.
