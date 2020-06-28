@@ -15,13 +15,9 @@
 #include "date.h"
 #include "bits.h"
 #include "render.h"
+#include "run_raid.h" // for crewman_skill
 
-/*
-#define HCTBL_BG_COLOUR	(atg_colour){23, 23, 31, ATG_ALPHA_OPAQUE}
-#define HC_SKILL_HHEIGHT	12
-#define HC_SKILL_FHEIGHT	(HC_SKILL_HHEIGHT * 2)
-#define HC_TP_BG_COLOUR	(atg_colour){23, 23, 63, ATG_ALPHA_OPAQUE}
-*/
+#define CREW_BG_COLOUR	(atg_colour){23, 23, 31, ATG_ALPHA_OPAQUE}
 
 atg_element *handle_squadrons_box;
 
@@ -34,7 +30,8 @@ char *HS_stname, *HS_stpavetime, *HS_stsqnum[2];
 atg_element *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest;
 SDL_Surface *HS_btpic;
-char *HS_flname;
+atg_element **HS_flcr;
+char *HS_flname, *HS_flest, **HS_flcc, **HS_flcrew;
 atg_element *HS_sll, **HS_slrow, **HS_slgl;
 char **HS_slgrp, **HS_slsqn;
 int selgrp=-1, selstn=-1, selsqn=-1, selflt=-1;
@@ -516,6 +513,91 @@ int handle_squadrons_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	HS_flest=malloc(12);
+	if(!HS_flest)
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(HS_flest, 12, " ");
+	atg_element *flest=atg_create_element_label_nocopy(HS_flest, 11, (atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE});
+	if(!flest)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(HS_fltbox, flest))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HS_flcr=calloc(MAX_CREW, sizeof(*HS_flcr))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	if(!(HS_flcc=calloc(MAX_CREW, sizeof(*HS_flcc))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	if(!(HS_flcrew=calloc(MAX_CREW, sizeof(*HS_flcrew))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	for(unsigned int i=0;i<MAX_CREW;i++)
+	{
+		HS_flcr[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, CREW_BG_COLOUR);
+		if(!HS_flcr[i])
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HS_fltbox, HS_flcr[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		HS_flcc[i]=malloc(16);
+		if(!HS_flcc[i])
+		{
+			perror("malloc");
+			return(1);
+		}
+		snprintf(HS_flcc[i], 16, " ");
+		atg_element *class_label=atg_create_element_label_nocopy(HS_flcc[i], 11, (atg_colour){207, 207, 207, ATG_ALPHA_OPAQUE});
+		if(!class_label)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		class_label->w=80;
+		class_label->h=16;
+		if(atg_ebox_pack(HS_flcr[i], class_label))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		HS_flcrew[i]=malloc(12);
+		if(!HS_flcrew[i])
+		{
+			perror("malloc");
+			return(1);
+		}
+		snprintf(HS_flcrew[i], 12, " ");
+		atg_element *crew_label=atg_create_element_label_nocopy(HS_flcrew[i], 10, (atg_colour){191, 159, 127, ATG_ALPHA_OPAQUE});
+		if(!crew_label)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HS_flcr[i], crew_label))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
 	atg_element *rightbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 	if(!rightbox)
 	{
@@ -706,10 +788,39 @@ void update_stn_list(game *state)
 
 void update_flt_info(game *state)
 {
-	(void)state;
+	unsigned int type=state->squads[selsqn].btype;
 	if((HS_fltbox->hidden=selflt<0))
 		return;
 	HS_flname[0]='A'+selflt;
+	snprintf(HS_flest, 40, "%d a/c", state->squads[selsqn].nb[selflt]);
+	for(unsigned int i=0;i<MAX_CREW;i++)
+	{
+		if((HS_flcr[i]->hidden=types[type].crew[i]>=CCLASS_NONE))
+			snprintf(HS_flcc[i], 16, " ");
+		else
+			snprintf(HS_flcc[i], 16, cclasses[types[type].crew[i]].name);
+		snprintf(HS_flcrew[i], 12, " ");
+	}
+	unsigned int nb=0;
+	for(unsigned int i=0;i<state->nbombers;i++)
+		if(state->bombers[i].squadron==selsqn && state->bombers[i].flight==selflt)
+		{
+			for(unsigned int j=0;j<MAX_CREW;j++)
+			{
+				if(types[type].crew[j]>=CCLASS_NONE)
+					continue;
+				int k=state->bombers[i].crew[j];
+				if(k<0)
+					snprintf(HS_flcrew[j]+nb, 12, "-");
+				else
+				{
+					int sk=min(crewman_skill(state->crews+k, type), 90)/10;
+					snprintf(HS_flcrew[j]+nb, 12, "%d", sk);
+				}
+			}
+			if(++nb>=10)
+				break;
+		}
 }
 
 void update_sqn_info(game *state)
@@ -778,8 +889,8 @@ void update_stn_info(game *state)
 screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
-	update_sqn_list(state);
 	update_stn_list(state);
+	update_stn_info(state);
 
 	while(1)
 	{

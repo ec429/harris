@@ -1357,6 +1357,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		state->bombers[j].landed=true;
 		state->bombers[j].damage=0;
 		state->bombers[j].ld.ds=DS_NONE;
+		if(!state->bombers[j].train && state->bombers[j].squadron>=0)
+			ensure_crewed(state, j);
 	}
 	bool shownav=false;
 	GB_fi_pff->hidden=datebefore(state->now, event[EVENT_PFF]);
@@ -2078,8 +2080,7 @@ bool ensure_crewed(game *state, unsigned int i)
 		if(state->bombers[i].crew[j]<0)
 		{
 			int best=-1;
-			// 1. Look for an available CREWMAN
-			// either unassigned, or assigned to a bomber who's not on a raid (yet)
+			// 1. Look for an available (unassigned) CREWMAN
 			for(unsigned int k=0;k<state->ncrews;k++)
 				if(state->crews[k].class==types[type].crew[j])
 					if(state->crews[k].status==CSTATUS_CREWMAN)
@@ -2101,48 +2102,12 @@ bool ensure_crewed(game *state, unsigned int i)
 								   state->crews[k].heavy <= 0.0)
 									break; /* won't improve on this */
 							}
-							else if(state->bombers[state->crews[k].assignment].landed)
-							{
-								unsigned int l=state->crews[k].assignment;
-								if(l==i) continue; // don't steal from ourselves
-								if(state->bombers[l].pff&&!state->bombers[i].pff) continue; // don't pull out of PFF either
-								if(best<0 ||
-								   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
-									   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :
-								    heavy ? (state->crews[k].heavy > state->crews[best].heavy ||
-									     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
-								    state->crews[k].heavy < state->crews[best].heavy))
-								{
-									best=k;
-									if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
-									   heavy ? (state->crews[k].lanc <= 0.0 && state->crews[k].heavy >= 100.0) :
-									   state->crews[k].heavy <= 0.0)
-										break; /* won't improve on this */
-								}
-							}
 						}
 					}
 			if(best>=0)
 			{
 				if(state->crews[best].assignment<0)
 				{
-					state->crews[best].assignment=i;
-					state->bombers[i].crew[j]=best;
-				}
-				else
-				{
-					unsigned int l=state->crews[best].assignment, m;
-					for(m=0;m<MAX_CREW;m++)
-						if(state->bombers[l].crew[m]==(int)best)
-						{
-							state->bombers[l].crew[m]=-1;
-							break;
-						}
-					if(m==MAX_CREW) // XXX should never happen
-					{
-						fprintf(stderr, "Warning: crew linkage error b%u c%u\n", l, best);
-						continue;
-					}
 					state->crews[best].assignment=i;
 					state->bombers[i].crew[j]=best;
 				}

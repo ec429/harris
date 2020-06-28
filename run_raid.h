@@ -18,4 +18,5 @@ extern unsigned int *heat;
 extern bool *canscore;
 extern double bridge, cidam;
 
+double crewman_skill(const crewman *c, unsigned int type);
 int clear_raids(game *state);
