@@ -1,10 +1,10 @@
-HARR:0.4.0
+HARR:0.5.0
 DATE:03-09-1939
 Difficulty:0,1
 Confid:40
 Morale:75
 Budget:40000+15000
-Types:15
+Types:14
 Prio 0:2,0,12500,0
 Prio 1:1,0,30000,0
 Prio 2:2,0,16000,0
@@ -25,24 +25,138 @@ NPrio 1:0,118
 NPrio 2:0,154
 NPrio 3:0,96
 Bombers:406
-*43*Type 0:0,0,0,NOID,0,0
-*80*Type 0:1,0,0,NOID,0,0
-*23*Type 1:0,0,0,NOID,0,0
-*31*Type 1:1,0,0,NOID,0,0
-*22*Type 1:0,0,0,NOID,0,1
-*28*Type 1:1,0,0,NOID,0,1
-*16*Type 1:0,0,0,NOID,1,0
-*7*Type 1:1,0,0,NOID,1,0
-*42*Type 2:0,0,0,NOID,0,0
-*41*Type 2:1,0,0,NOID,0,0
-*50*Type 3:0,0,0,NOID,0,0
-*23*Type 3:1,0,0,NOID,0,0
+*5*Type 0:0,0,0,NOID,0,0,4,0
+*5*Type 0:1,0,0,NOID,0,0,4,0
+*3*Type 0:0,0,0,NOID,0,0,4,1
+*6*Type 0:1,0,0,NOID,0,0,4,1
+*4*Type 0:0,0,0,NOID,0,0,5,0
+*6*Type 0:1,0,0,NOID,0,0,5,0
+*3*Type 0:0,0,0,NOID,0,0,5,1
+*7*Type 0:1,0,0,NOID,0,0,5,1
+*2*Type 0:0,0,0,NOID,0,0,6,0
+*8*Type 0:1,0,0,NOID,0,0,6,0
+*5*Type 0:0,0,0,NOID,0,0,6,1
+*5*Type 0:1,0,0,NOID,0,0,6,1
+*4*Type 0:0,0,0,NOID,0,0,17,0
+*5*Type 0:1,0,0,NOID,0,0,17,0
+*2*Type 0:0,0,0,NOID,0,0,17,1
+*6*Type 0:1,0,0,NOID,0,0,17,1
+*2*Type 0:0,0,0,NOID,0,0,18,0
+*7*Type 0:1,0,0,NOID,0,0,18,0
+*1*Type 0:0,0,0,NOID,0,0,18,1
+*5*Type 0:1,0,0,NOID,0,0,18,1
+*3*Type 0:0,0,0,NOID,0,0,19,0
+*5*Type 0:1,0,0,NOID,0,0,19,0
+*2*Type 0:0,0,0,NOID,0,0,19,1
+*6*Type 0:1,0,0,NOID,0,0,19,1
+*4*Type 0:0,0,0,NOID,0,0,20,0
+*4*Type 0:1,0,0,NOID,0,0,20,0
+*3*Type 0:0,0,0,NOID,0,0,20,1
+*5*Type 0:1,0,0,NOID,0,0,20,1
+*4*Type 1:0,0,0,NOID,0,0,15,0
+*5*Type 1:1,0,0,NOID,0,0,15,0
+*2*Type 1:0,0,0,NOID,0,0,15,1
+*5*Type 1:1,0,0,NOID,0,0,15,1
+*4*Type 1:0,0,0,NOID,0,0,15,2
+*4*Type 1:1,0,0,NOID,0,0,15,2
+*2*Type 1:0,0,0,NOID,0,0,16,0
+*4*Type 1:1,0,0,NOID,0,0,16,0
+*4*Type 1:0,0,0,NOID,0,0,16,1
+*5*Type 1:1,0,0,NOID,0,0,16,1
+*4*Type 1:0,0,0,NOID,0,0,21,0
+*3*Type 1:1,0,0,NOID,0,0,21,0
+*3*Type 1:0,0,0,NOID,0,0,21,1
+*5*Type 1:1,0,0,NOID,0,0,21,1
+*5*Type 1:0,0,0,NOID,0,1,14,0
+*5*Type 1:1,0,0,NOID,0,1,14,0
+*4*Type 1:0,0,0,NOID,0,1,14,1
+*6*Type 1:1,0,0,NOID,0,1,14,1
+*4*Type 1:0,0,0,NOID,0,1,14,2
+*6*Type 1:1,0,0,NOID,0,1,14,2
+*5*Type 1:0,0,0,NOID,0,1,22,0
+*5*Type 1:1,0,0,NOID,0,1,22,0
+*4*Type 1:0,0,0,NOID,0,1,22,1
+*6*Type 1:1,0,0,NOID,0,1,22,1
+*6*Type 1:0,0,0,NOID,1,0,8,0
+*2*Type 1:1,0,0,NOID,1,0,8,0
+*7*Type 1:0,0,0,NOID,1,0,8,1
+*1*Type 1:1,0,0,NOID,1,0,8,1
+*3*Type 1:0,0,0,NOID,1,0,8,2
+*4*Type 1:1,0,0,NOID,1,0,8,2
+*6*Type 2:0,0,0,NOID,0,0,0,0
+*4*Type 2:1,0,0,NOID,0,0,0,0
+*4*Type 2:0,0,0,NOID,0,0,0,1
+*5*Type 2:1,0,0,NOID,0,0,0,1
+*3*Type 2:0,0,0,NOID,0,0,2,0
+*6*Type 2:1,0,0,NOID,0,0,2,0
+*5*Type 2:0,0,0,NOID,0,0,2,1
+*4*Type 2:1,0,0,NOID,0,0,2,1
+*7*Type 2:0,0,0,NOID,0,0,3,0
+*3*Type 2:1,0,0,NOID,0,0,3,0
+*5*Type 2:0,0,0,NOID,0,0,3,1
+*4*Type 2:1,0,0,NOID,0,0,3,1
+*3*Type 2:0,0,0,NOID,0,0,7,0
+*7*Type 2:1,0,0,NOID,0,0,7,0
+*4*Type 2:0,0,0,NOID,0,0,7,1
+*4*Type 2:1,0,0,NOID,0,0,7,1
+*5*Type 2:0,0,0,NOID,0,0,7,2
+*4*Type 2:1,0,0,NOID,0,0,7,2
+*6*Type 3:0,0,0,NOID,0,0,1,0
+*4*Type 3:0,0,0,NOID,0,0,1,1
+*3*Type 3:1,0,0,NOID,0,0,1,1
+*3*Type 3:0,0,0,NOID,0,0,9,0
+*2*Type 3:1,0,0,NOID,0,0,9,0
+*5*Type 3:0,0,0,NOID,0,0,9,1
+*1*Type 3:1,0,0,NOID,0,0,9,1
+*5*Type 3:0,0,0,NOID,0,0,10,0
+*2*Type 3:1,0,0,NOID,0,0,10,0
+*3*Type 3:0,0,0,NOID,0,0,10,1
+*1*Type 3:1,0,0,NOID,0,0,10,1
+*4*Type 3:0,0,0,NOID,0,0,11,0
+*3*Type 3:1,0,0,NOID,0,0,11,0
+*5*Type 3:0,0,0,NOID,0,0,11,1
+*2*Type 3:1,0,0,NOID,0,0,11,1
+*4*Type 3:0,0,0,NOID,0,0,12,0
+*2*Type 3:1,0,0,NOID,0,0,12,0
+*3*Type 3:0,0,0,NOID,0,0,12,1
+*3*Type 3:1,0,0,NOID,0,0,12,1
+*5*Type 3:0,0,0,NOID,0,0,13,0
+*2*Type 3:1,0,0,NOID,0,0,13,0
+*3*Type 3:0,0,0,NOID,0,0,13,1
+*2*Type 3:1,0,0,NOID,0,0,13,1
+Bases:59
+%59%Base %d:0
+Paving:-1
+Squadrons:23
+Squad 0:9,38,0 # Waddington/5/Hampden (hist: Honington, we don't have it)
+Squad 1:15,57,0 # Gransden Lodge/3/Wellington (hist: Fairey Battles in the AASF.  But never mind)
+Squad 2:49,34,0 # Scampton/5/Hampden
+Squad 3:83,34,0 # Scampton/5/Hampden
+Squad 4:101,11,0 # West Raynham/2/Blenheim
+Squad 5:110,15,0 # Wattisham/2/Blenheim
+Squad 6:107,15,0 # Wattisham/2/Blenheim
+Squad 7:7,36,1 # Fiskerton/5/Hampden (hist: Group Pool training unit at Finningley)
+Squad 8:102,26,1 # Lissett/4/Whitley (hist: Driffield, we don't have it)
+Squad 9:149,20,0 # Mildenhall/3/Wellington
+Squad 10:99,20,0 # Mildenhall/3/Wellington
+Squad 11:38,19,0 # Lakenheath/3/Wellington (hist: Marham, we don't have it)
+Squad 12:12,8,0 # Wickenby/1/Wellington (hist: more AASF Battles)
+Squad 13:300,9,0 # Hemswell/1/Wellington (hist: did not exist until later)
+Squad 14:166,28,1 # Leconfield/4/Whitley
+Squad 15:458,31,1 # Holme-on-Spalding-Moor/4/Whitley
+Squad 16:103,0,0 # Elsham Wolds/1/Whitley (hist: yet more AASF Battles)
+Squad 17:21,10,0 # Watton/2/Blenheim
+Squad 18:82,10,0 # Watton/2/Blenheim
+Squad 19:90,11,0 # West Raynham/2/Blenheim
+Squad 20:114,54,0 # Wyton/2/Blenheim
+Squad 21:51,50,0 # Linton-on-Ouse/6/Whitley (hist: 4 Group at this time.  6 (Canadian) Group was formed later)
+Squad 22:58,50,0 # Linton-on-Ouse/6/Whitley (hist: 4 Group again)
 Crews:2090
-*500*CG Crewman P:30,120,0,0,-1,NOID
-*440*CG Crewman N:40,120,0,0,-1,NOID
-*150*CG Crewman B:15,120,0,0,-1,NOID
-*400*CG Crewman W:25,120,0,0,-1,NOID
-*600*CG Crewman G:35,120,0,0,-1,NOID
+*500*CG Crewman P:30,120,0,0,-1,0,-1,0,NOID
+*440*CG Crewman N:40,120,0,0,-1,0,-1,0,NOID
+*150*CG Crewman B:15,120,0,0,-1,0,-1,0,NOID
+*400*CG Crewman W:25,120,0,0,-1,0,-1,0,NOID
+*600*CG Crewman G:35,120,0,0,-1,0,-1,0,NOID
 GProd:8
 IClass 0:6000
 IClass 1:80000

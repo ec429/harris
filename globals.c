@@ -118,6 +118,9 @@ int set_init_state(game *state)
 	state->nbombers=state->nfighters=0;
 	state->bombers=NULL;
 	state->fighters=NULL;
+	state->paving=-1;
+	state->nsquads=0;
+	state->squads=NULL;
 	state->ntargs=ntargs;
 	if(!(state->dmg=calloc(ntargs, sizeof(*state->dmg))))
 	{

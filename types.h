@@ -329,6 +329,8 @@ typedef struct
 	unsigned int startt; // take-off time
 	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
 	int flakreport; // first unmapped flaksite we encountered
+	int squadron; // index in game.squads; -1 if in pool
+	int flight; // 0 if not assigned; [123] for [ABC] Flight.
 }
 ac_bomber;
 
@@ -379,26 +381,41 @@ typedef struct
 	double heavy;
 	double lanc;
 	unsigned int lrate;
-	unsigned int tour_ops;
 	/* meaning depends on status
 		CREWMAN: number of ops completed this tour.  After 30, become INSTRUC
 		STUDENT: number of days of current course completed
 		INSTRUC: number of days spent instructing.  After 180, become CREWMAN
 		ESCAPEE: as CREWMAN.  On safe return, become CREWMAN again
 	*/
+	unsigned int tour_ops;
 	union {
 		enum tpipe training; // for STUDENT, which training stage we're at
 		unsigned int full_tours; // otherwise, the count of complete CREWMAN tours
 	};
-	int assignment;
 	/* meaning depends on status
 		CREWMAN: bomber index (or -1)
 		STUDENT: same as CREWMAN, but bomber must be assigned to training
 		INSTRUC: currently not used
 		ESCAPEE: days until return
 	*/
+	int assignment;
+	unsigned int group; // 0 if not yet allocated to a group
+	int squadron; // index in game.squads; -1 if in group pool
+	unsigned int flight; // 0 if not assigned; [123] for [ABC] Flight.
 }
 crewman;
+
+typedef struct
+{
+	unsigned int number;
+	unsigned int base; // indirectly determines group
+	bool third_flight;
+	/* nb: number of bombers[flight]
+	 * nc: number of crews[flight][cclass]
+	 */
+	unsigned int nb[3], nc[3][CREW_CLASSES];
+}
+squadron;
 
 typedef struct
 {
@@ -411,6 +428,9 @@ typedef struct
 	ac_bomber *bombers;
 	unsigned int ncrews;
 	crewman *crews;
+	int paving; // which base is currently being paved, or -1
+	unsigned int nsquads;
+	squadron *squads;
 	bool *btypes;
 	bool evented[NEVENTS];
 	int nap[NNAVAIDS];

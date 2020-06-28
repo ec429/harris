@@ -2,7 +2,7 @@
 # This list is based on the airfields operational on 30th March
 # 1944, as given in M. Middlebrook's _The_Nuremberg_Raid_.
 # It therefore omits some airfields which were used earlier in
-# the war (such as Scampton), and many of the airfields listed
+# the war, and many of the airfields listed
 # were new-build concrete rather than existing as grass strips
 # earlier in the war.  Thus, the presence of airfield names in
 # the game should be considered 'flavour' rather than an
@@ -44,7 +44,7 @@ Tuddenham:177:228:3
 Tempsford:120:246:3
 Elvington:84:76:4
 Pocklington:94:73:4
-Lisset:125:70:4
+Lissett:125:70:4
 Melbourne:93:78:4
 Leconfield:117:79:4
 Burn:79:91:4
@@ -52,6 +52,7 @@ Breighton:91:84:4
 Holme-on-Spalding Moor:97:84:4
 Snaith:80:99:4
 Dunholme Lodge:112:135:5
+Scampton:108:133:5
 Skellingthorpe:108:141:5
 Fiskerton:114:140:5
 Bardney:125:139:5
