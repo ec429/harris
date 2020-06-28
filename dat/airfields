@@ -1,4 +1,4 @@
-# format: NAME:X:Y:GROUP
+# format: NAME:X:Y:GROUP[:PREGROUP]
 # This list is based on the airfields operational on 30th March
 # 1944, as given in M. Middlebrook's _The_Nuremberg_Raid_.
 # It therefore omits some airfields which were used earlier in
@@ -10,7 +10,10 @@
 # To this have been added a few No. 2 Group airfields, for use
 # by Blenheims early in the war (and including the ones
 # Middlebrook lists under No. 100 (Bomber Support) Group, which
-# had taken them over by 1944).
+# had taken them over by 1944), and a handful of others.
+# Airfields of 8 Group start out in the specified PREGROUP.
+# Upon the formation of 8 Group (event PFF), they are
+# transferred, along with their squadrons, to the new group.
 
 # Map Registration onto Europe Map
 # (10,44) to (74,108)
@@ -24,6 +27,7 @@ Kelstern:135:123:1
 Faldingworth:114:129:1
 Ludford Magna:132:127:1
 Wickenby:123:132:1
+Hemswell:103:125:1
 Watton:186:203:2
 West Raynham:181:184:2
 Sculthorpe:184:178:2
@@ -64,11 +68,11 @@ Skipton-on-Swale:60:42:6
 Tholthorpe:68:55:6
 East Moor:80:60:6
 Linton-on-Ouse:67:61:6
-Downham Market:160:198:8
-Marham:170:195:8
-Upwood:134:216:8
-Wyton:136:224:8
-Graveley:127:229:8
-Oakington:142:231:8
-Gransden Lodge:131:240:8
-Bourn:136:236:8
+Downham Market:160:198:8:3
+Marham:170:195:8:3
+Upwood:134:216:8:2
+Wyton:136:224:8:2
+Graveley:127:229:8:2
+Oakington:142:231:8:3
+Gransden Lodge:131:240:8:3
+Bourn:136:236:8:3
