@@ -49,6 +49,8 @@ atg_element *GB_filter_marks;
 
 bool filter_apply(ac_bomber b);
 void clear_crew(game *state, unsigned int i);
+void clear_sqn(game *state, unsigned int i);
+void fill_flights(game *state);
 bool ensure_crewed(game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 int update_raidnums(const game *state, int seltarg);
@@ -1352,6 +1354,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	}
 	double moonphase=pom(state->now);
 	drawmoon(GB_moonimg, moonphase);
+	fill_flights(state);
 	for(unsigned int j=0;j<state->nbombers;j++)
 	{
 		state->bombers[j].landed=true;
@@ -1686,6 +1689,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										if(!amount) continue;
 										if(!state->bombers[j].landed) continue;
 										if(!filter_apply(state->bombers[j])) continue;
+										clear_sqn(state, j);
 										clear_crew(state, j);
 										amount--;
 										count++;
@@ -1724,6 +1728,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										count++;
 										if(!amount) continue;
 										if(!filter_apply(state->bombers[k])) continue;
+										clear_sqn(state, k);
 										clear_crew(state, k);
 										state->bombers[k].train=false;
 										amount--;
@@ -1731,6 +1736,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									}
 									if(GB_raidnum[i])
 										snprintf(GB_raidnum[i], 32, "%u", count);
+									/* Some a/c may have been made available */
+									fill_flights(state);
 								}
 								break;
 							default:
@@ -2039,6 +2046,15 @@ bool filter_apply(ac_bomber b)
 	return(true);
 }
 
+void clear_sqn(game *state, unsigned int i)
+{
+	int s=state->bombers[i].squadron, f=state->bombers[i].flight;
+	if(s>=0 && f>=0)
+		state->squads[s].nb[f]--;
+	state->bombers[i].squadron=-1;
+	state->bombers[i].flight=-1;
+}
+
 void clear_crew(game *state, unsigned int i)
 {
 	unsigned int type=state->bombers[i].type;
@@ -2051,6 +2067,60 @@ void clear_crew(game *state, unsigned int i)
 		{
 			state->crews[k].assignment=-1;
 			state->bombers[i].crew[j]=-1;
+			int s=state->crews[k].squadron;
+			if(s>=0)
+				state->squads[s].nc[state->crews[k].class]++;
+		}
+	}
+}
+
+void fill_flights(game *state)
+{
+	for(unsigned int t=0;t<ntypes;t++)
+	{
+		unsigned int minf=10;
+		for(unsigned int s=0;s<state->nsquads;s++)
+		{
+			if(state->squads[s].btype!=t)
+				continue;
+			for(unsigned int f=0;f<(state->squads[s].third_flight?3:2);f++)
+				minf=min(minf, state->squads[s].nb[f]);
+		}
+		if(minf==10) /* none of this type needed */
+			continue;
+		for(unsigned int i=0;i<state->nbombers;i++)
+		{
+			if(state->bombers[i].type!=t)
+				continue;
+			if(state->bombers[i].train)
+				continue;
+			if(state->bombers[i].squadron>=0)
+			{
+				if(state->bombers[i].flight<0)
+					fprintf(stderr, "Warning: bomber %u has sqn (%d) but no flt (%d)\n", i, state->bombers[i].squadron, state->bombers[i].flight);
+				continue;
+			}
+			for(;minf<10;minf++)
+			{
+				for(unsigned int s=0;s<state->nsquads;s++)
+				{
+					if(state->squads[s].btype!=t)
+						continue;
+					for(unsigned int f=0;f<(state->squads[s].third_flight?3:2);f++)
+						if(state->squads[s].nb[f]<=minf)
+						{
+							state->bombers[i].squadron=s;
+							state->bombers[i].flight=f;
+							state->squads[s].nb[f]++;
+							ensure_crewed(state, i);
+							break;
+						}
+					if(state->bombers[i].squadron>=0)
+						break;
+				}
+				if(state->bombers[i].squadron>=0)
+					break;
+			}
 		}
 	}
 }
@@ -2064,6 +2134,10 @@ bool ensure_crewed(game *state, unsigned int i)
 	bool lanc=types[type].pff&&!types[type].noarm;
 	bool ok=true;
 	memset(shortof, 0, sizeof(shortof));
+	int s=state->bombers[i].squadron, f=state->bombers[i].flight;
+	if(s<0 || f<0)
+		return false;
+	unsigned int grp=base_grp(bases[state->squads[s].base]);
 	for(unsigned int j=0;j<MAX_CREW;j++)
 	{
 		if(types[type].crew[j]==CCLASS_NONE)
@@ -2074,48 +2148,126 @@ bool ensure_crewed(game *state, unsigned int i)
 		            (state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15))) || // PFF requirements
 		            state->crews[k].class!=types[type].crew[j])) // cclass changed under us
 		{
+			int cs=state->crews[k].squadron;
+			if(state->crews[k].assignment!=(int)i) /* can't happen */
+				fprintf(stderr, "Warning: crew assignments inconsistent (bomber %u had crew %d assigned %d\n", i, k, state->crews[k].assignment);
+			else if(cs>=0)
+				state->squads[cs].nc[state->crews[k].class]++;
 			state->crews[k].assignment=-1;
 			state->bombers[i].crew[j]=-1;
 		}
+		// 1. Look for an available (unassigned) CREWMAN within the squadron
 		if(state->bombers[i].crew[j]<0)
 		{
 			int best=-1;
-			// 1. Look for an available (unassigned) CREWMAN
-			for(unsigned int k=0;k<state->ncrews;k++)
-				if(state->crews[k].class==types[type].crew[j])
-					if(state->crews[k].status==CSTATUS_CREWMAN)
+			if(state->squads[s].nc[types[type].crew[j]])
+			{
+				for(unsigned int k=0;k<state->ncrews;k++)
+				{
+					if(state->crews[k].class!=types[type].crew[j])
+						continue;
+					if(state->crews[k].status!=CSTATUS_CREWMAN)
+						continue;
+					if(state->crews[k].squadron!=s)
+						continue;
+					if(state->crews[k].skill*filter_elite<50*filter_elite)
+						continue;
+					if(state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15)))
+						continue;
+					if(best<0 ||
+						   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
+							   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :
+						    heavy ? (state->crews[k].heavy > state->crews[best].heavy ||
+							     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
+						    state->crews[k].heavy < state->crews[best].heavy))
 					{
-						if(state->crews[k].skill*filter_elite<50*filter_elite) continue;
-						if(state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15))) continue;
-						if(best<0 ||
-							   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
-								   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :
-							    heavy ? (state->crews[k].heavy > state->crews[best].heavy ||
-								     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
-							    state->crews[k].heavy < state->crews[best].heavy))
+						if(state->crews[k].assignment<0)
 						{
-							if(state->crews[k].assignment<0)
-							{
-								best=k;
-								if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
-								   heavy ? (state->crews[k].lanc <= 0.0 && state->crews[k].heavy >= 100.0) :
-								   state->crews[k].heavy <= 0.0)
-									break; /* won't improve on this */
-							}
+							best=k;
+							if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
+							   heavy ? (state->crews[k].lanc <= 0.0 && state->crews[k].heavy >= 100.0) :
+							   state->crews[k].heavy <= 0.0)
+								break; /* won't improve on this */
 						}
 					}
+				}
+				if(best>=0)
+				{
+					if(state->crews[best].assignment<0)
+					{
+						int cs=state->crews[best].squadron;
+						if(cs>=0 && !(state->squads[cs].nc[state->crews[best].class]--)) /* can't happen */
+							fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", cs, state->crews[best].flight, state->crews[best].class);
+						state->crews[best].squadron=s;
+						state->crews[best].flight=f;
+						state->crews[best].assignment=i;
+						state->bombers[i].crew[j]=best;
+						if(state->crews[best].group!=grp)
+						{
+							if (state->crews[best].group) /* can't happen */
+								fprintf(stderr, "Warning: crewman %d jumped groups\n", best);
+							state->crews[best].group=grp;
+						}
+					}
+				}
+			}
+		}
+		// 2. Look for an available (unassigned) CREWMAN anywhere in the group or groupless
+		if(state->bombers[i].crew[j]<0)
+		{
+			int best=-1;
+			for(unsigned int k=0;k<state->ncrews;k++)
+			{
+				if(state->crews[k].class!=types[type].crew[j])
+					continue;
+				if(state->crews[k].status!=CSTATUS_CREWMAN)
+					continue;
+				if(state->crews[k].group && state->crews[k].group!=grp)
+					continue;
+				if(state->crews[k].skill*filter_elite<50*filter_elite)
+					continue;
+				if(state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15)))
+					continue;
+				if(best<0 ||
+					   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
+						   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :
+					    heavy ? (state->crews[k].heavy > state->crews[best].heavy ||
+						     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
+					    state->crews[k].heavy < state->crews[best].heavy))
+				{
+					if(state->crews[k].assignment<0)
+					{
+						best=k;
+						if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
+						   heavy ? (state->crews[k].lanc <= 0.0 && state->crews[k].heavy >= 100.0) :
+						   state->crews[k].heavy <= 0.0)
+							break; /* won't improve on this */
+					}
+				}
+			}
 			if(best>=0)
 			{
 				if(state->crews[best].assignment<0)
 				{
+					int cs=state->crews[best].squadron;
+					if(cs>=0 && !(state->squads[cs].nc[state->crews[best].class]--)) /* can't happen */
+						fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", cs, state->crews[best].flight, state->crews[best].class);
+					state->crews[best].squadron=s;
+					state->crews[best].flight=f;
 					state->crews[best].assignment=i;
 					state->bombers[i].crew[j]=best;
+					if(state->crews[best].group!=grp)
+					{
+						if (state->crews[best].group) /* can't happen */
+							fprintf(stderr, "Warning: crewman %d jumped groups\n", best);
+						state->crews[best].group=grp;
+					}
 				}
 			}
 		}
 		if(state->bombers[i].crew[j]<0)
 		{
-			// 2. Give up, and don't allow assigning this bomber to any raid
+			// 3. Give up, and don't allow assigning this bomber to any raid
 			shortof[types[type].crew[j]]=true;
 			ok=false;
 		}

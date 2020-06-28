@@ -416,9 +416,9 @@ typedef struct
 	unsigned int btype;
 	bool third_flight;
 	/* nb: number of bombers[flight]
-	 * nc: number of crews[flight][cclass]
+	 * nc: number of crews[cclass] without assigned aircraft
 	 */
-	unsigned int nb[3], nc[3][CREW_CLASSES];
+	unsigned int nb[3], nc[CREW_CLASSES];
 }
 squadron;
 

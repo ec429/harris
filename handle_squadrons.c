@@ -25,10 +25,12 @@ atg_element *HS_cont, *HS_full;
 atg_element *HS_map, *HS_stnbox, *HS_sqnbox, *HS_fltbox;
 atg_element *HS_gpl, *HS_gprow[7];
 #define gpnum(_i)	((_i)==6?8:(_i)+1)
+atg_element **HS_btrow;
+char **HS_btnum;
 atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_sqbtn[2], *HS_nosq;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2];
-atg_element *HS_flbtn[3];
-char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest;
+atg_element *HS_sqncr[CREW_CLASSES], *HS_flbtn[3];
+char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES];
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
 char *HS_flname, *HS_flest, **HS_flcc, **HS_flcrew;
@@ -138,6 +140,72 @@ int handle_squadrons_create(void)
 		}
 		item->cache=true;
 		if(atg_ebox_pack(HS_gprow[i], item))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	atg_element *sparc=atg_create_element_label("Pool airframes:", 12, (atg_colour){143, 143, 143, ATG_ALPHA_OPAQUE});
+	if(!sparc)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(leftbox, sparc))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HS_btrow=calloc(ntypes, sizeof(*HS_btrow))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	if(!(HS_btnum=calloc(ntypes, sizeof(*HS_btnum))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	for(unsigned int i=0;i<ntypes;i++)
+	{
+		HS_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!HS_btrow[i])
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		HS_btrow[i]->w=238;
+		if(atg_ebox_pack(leftbox, HS_btrow[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *pic=atg_create_element_image(types[i].picture);
+		if(!pic)
+		{
+			fprintf(stderr, "atg_create_element_image failed\n");
+			return(1);
+		}
+		pic->w=38;
+		if(atg_ebox_pack(HS_btrow[i], pic))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		HS_btnum[i]=malloc(8);
+		if(!HS_btnum[i])
+		{
+			perror("malloc");
+			return(1);
+		}
+		snprintf(HS_btnum[i], 8, " ");
+		atg_element *btnum=atg_create_element_label_nocopy(HS_btnum[i], 24, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
+		if(!btnum)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HS_btrow[i], btnum))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -431,6 +499,61 @@ int handle_squadrons_create(void)
 	{
 		perror("atg_ebox_pack");
 		return(1);
+	}
+	atg_element *spare=atg_create_element_label("Spare bods:", 10, (atg_colour){143, 143, 143, ATG_ALPHA_OPAQUE});
+	if(!spare)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(HS_sqnbox, spare))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int c=0;c<CREW_CLASSES;c++)
+	{
+		HS_sqncr[c]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+		if(!HS_sqncr[c])
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HS_sqnbox, HS_sqncr[c]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *ccl=atg_create_element_label(cclasses[c].name, 9, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
+		if(!ccl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		ccl->w=80;
+		if(atg_ebox_pack(HS_sqncr[c], ccl))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		HS_sqnc[c]=malloc(6);
+		if(!HS_sqnc[c])
+		{
+			perror("malloc");
+			return(1);
+		}
+		snprintf(HS_sqnc[c], 6, " ");
+		atg_element *sqnc=atg_create_element_label_nocopy(HS_sqnc[c], 9, (atg_colour){127, 127, 127, ATG_ALPHA_OPAQUE});
+		if(!sqnc)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HS_sqncr[c], sqnc))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	atg_element *fltlist=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 	if(!fltlist)
@@ -729,8 +852,6 @@ void update_stn_list(game *state)
 	atg_image *map_img=HS_map->elemdata;
 	SDL_FreeSurface(map_img->data);
 	map_img->data=SDL_ConvertSurface(england, england->format, england->flags);
-	bases[2].paved=2;
-	state->paving=3;
 	for(int i=0;i<(int)nbases;i++)
 	{
 		atg_box *b=HS_slrow[i]->elemdata;
@@ -850,6 +971,11 @@ void update_sqn_info(game *state)
 		act+=state->squads[selsqn].nb[f];
 		snprintf(HS_sqest, 40, " %2d/%2d I.E.", act, nom);
 	}
+	for(unsigned int c=0;c<CREW_CLASSES;c++)
+	{
+		snprintf(HS_sqnc[c], 6, "%2d", state->squads[selsqn].nc[c]);
+		HS_sqncr[c]->hidden=!state->squads[selsqn].nc[c];
+	}
 	HS_flbtn[2]->hidden=!state->squads[selsqn].third_flight;
 }
 
@@ -886,11 +1012,27 @@ void update_stn_info(game *state)
 			snprintf(HS_stsqnum[i], 12, "No. %d Sqn", state->squads[bases[selstn].sqn[i]].number);
 }
 
+void update_pool_info(game *state)
+{
+	unsigned int count[ntypes];
+	memset(count, 0, sizeof(count));
+	for(unsigned int i=0;i<state->nbombers;i++)
+		if(state->bombers[i].squadron<0 && !state->bombers[i].train)
+			count[state->bombers[i].type]++;
+	for(unsigned int i=0;i<ntypes;i++)
+	{
+		HS_btrow[i]->hidden=!(count[i] && datewithin(state->now, types[i].entry, types[i].exit) && state->btypes[i]);
+		snprintf(HS_btnum[i], 8, "%d", count[i]);
+	}
+}
+
 screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
-	update_stn_list(state);
+	update_sqn_list(state);
 	update_stn_info(state);
+	update_stn_list(state);
+	update_pool_info(state);
 
 	while(1)
 	{

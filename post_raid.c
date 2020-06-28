@@ -192,7 +192,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			state->nbombers=n;
 			break;
 		}
-		(state->bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid(), .mark=types[m].newmark};
+		(state->bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid(), .mark=types[m].newmark, .squadron=-1, .flight=-1};
 		for(unsigned int j=0;j<NNAVAIDS;j++)
 			nb[n].nav[j]=false;
 		if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[m].nav[NAV_GEE])
@@ -670,7 +670,19 @@ void refill_students(game *state, bool refill)
 			state->crews=new;
 			for(unsigned int j=state->ncrews;j<nc;j++)
 			{
-				state->crews[j]=(crewman){.id=rand_cmid(), .class=i, .status=CSTATUS_STUDENT, .skill=0, .lrate=60+irandu(60), .tour_ops=0, .training=TPIPE_OTU, .assignment=-1};
+				state->crews[j]=(crewman){
+					.id=rand_cmid(),
+					.class=i,
+					.status=CSTATUS_STUDENT,
+					.skill=0,
+					.lrate=60+irandu(60),
+					.tour_ops=0,
+					.training=TPIPE_OTU,
+					.assignment=-1,
+					.group=0,
+					.squadron=-1,
+					.flight=-1,
+				};
 				ge_append(&state->hist, state->now, (harris_time){11, 43}, state->crews[j].id, i, state->crews[j].lrate);
 			}
 			state->ncrews=nc;

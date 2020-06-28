@@ -12,6 +12,8 @@ Squadrons receive a number, purely for UI purposes and fluff.  Numbers are rando
 
 Aircraft and crews are laid out against flights' nominal establishments; normally, neither moves once it has a home unless pushed (squadron disbanded or, for aircraft, squadron converted) in which case aircraft may move anywhere but crews only within the group.  (This replaces the previous behaviour where crews could get re-assigned to aircraft any time that was necessary to add an aircraft to a raid.)
 
+Unanswered question: should a/c at Training Units still belong to their old squadrons/flights?  I'm leaning towards 'no' at the moment.
+
 Extended plans:
 * Track morale of Groups and individual Squadrons based on their loss records.  (Re-equipping a Squadron with a new type can somewhat perk up low morale.  TODO figure out a way to determine if they should think the new type is 'better', so you can't just switch back and forth between two obsolete types and keep the aircrews happy.)
 * Add a reserve aircraft to each flight (that is, the nominal establishment of airframes is one more than that of aircrews), to account for serviceability.

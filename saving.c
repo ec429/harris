@@ -1043,7 +1043,7 @@ int loadgame(const char *fn, game *state)
 		{
 			state->squads[s].nb[f]=0;
 			for(unsigned int c=0;c<CREW_CLASSES;c++)
-				state->squads[s].nc[f][c]=0;
+				state->squads[s].nc[c]=0;
 		}
 	for(unsigned int i=0;i<state->nbombers;i++)
 	{
@@ -1076,22 +1076,33 @@ int loadgame(const char *fn, game *state)
 		if(s>=(int)state->nsquads)
 		{
 			fprintf(stderr, "Warning, removing crewman %u from nonexistent sqn %d\n", i, s);
-			state->crews[i].squadron=-1;
-		}
-		if(s<0)
-			continue;
-		if(f>(state->squads[s].third_flight ? 2 : 1))
-		{
-			fprintf(stderr, "Warning, removing crewman %u from nonexistent flt %u of sqn %d\n", i, f, s);
+			s=state->crews[i].squadron=-1;
 			f=state->crews[i].flight=-1;
 		}
-		if(f<0)
+		if(s>=0)
 		{
-			fprintf(stderr, "Warning, removing crewman %u from sqn %d as he has no flt\n", i, s);
-			state->crews[i].squadron=-1;
-			continue;
+			if(f>(state->squads[s].third_flight ? 2 : 1))
+			{
+				fprintf(stderr, "Warning, removing crewman %u from nonexistent flt %u of sqn %d\n", i, f, s);
+				f=state->crews[i].flight=-1;
+			}
+			if(f<0)
+			{
+				fprintf(stderr, "Warning, removing crewman %u from sqn %d as he has no flt\n", i, s);
+				s=state->crews[i].squadron=-1;
+			}
 		}
-		state->squads[s].nc[f][state->crews[i].class]++;
+		if(state->crews[i].assignment>=0)
+		{
+			int k=state->crews[i].assignment;
+			if(state->bombers[k].squadron!=s||state->bombers[k].flight!=f)
+			{
+				fprintf(stderr, "Warning, removing crewman %u from bomber %d in wrong sqn/flt\n", i, k);
+				state->crews[i].assignment=-1;
+			}
+		}
+		if(s>=0 && state->crews[i].assignment<0)
+			state->squads[s].nc[state->crews[i].class]++;
 	}
 	/* compat for pre-tpipe games */
 	if(!datebefore(state->now, event[EVENT_HCU]) && state->tpipe[TPIPE_HCU].dwell == -1)
