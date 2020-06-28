@@ -87,6 +87,11 @@ int load_data(void)
 		fprintf(stderr, "Failed to load mods, rc=%d\n", rc);
 		return(rc);
 	}
+	if((rc=load_bases()))
+	{
+		fprintf(stderr, "Failed to load bases, rc=%d\n", rc);
+		return(rc);
+	}
 	if((rc=load_fighters()))
 	{
 		fprintf(stderr, "Failed to load fighters, rc=%d\n", rc);
@@ -506,6 +511,69 @@ int load_mods(void)
 		free(modfile);
 		fprintf(stderr, "Loaded %u bomber mods\n", nmods);
 	}
+	return(0);
+}
+
+int load_bases(void)
+{
+	FILE *basefp=fopen("dat/airfields", "r");
+	if(!basefp)
+	{
+		fprintf(stderr, "Failed to open data file `airfields'!\n");
+		return(1);
+	}
+	char *basefile=slurp(basefp);
+	fclose(basefp);
+	char *next=basefile?strtok(basefile, "\n"):NULL;
+	while(next)
+	{
+		if(*next&&(*next!='#'))
+		{
+			base this={0};
+			// NAME:X:Y:GROUP[:PREGROUP]
+			char *colon=strchr(next, ':');
+			if(!colon)
+			{
+				fprintf(stderr, "Missing : in `mods' line %s\n", next);
+				return(1);
+			}
+			char *space=colon-1;
+			*colon++=0;
+			while (*space==' ')
+				*space--=0;
+			this.name=strdup(next);
+			ssize_t db;
+			int e;
+			if((e=sscanf(colon, "%u:%u:%u"zn, &this.lon, &this.lat, &this.group, &db))!=3)
+			{
+				fprintf(stderr, "Malformed `bases' line `%s'\n", next);
+				fprintf(stderr, "  sscanf returned %d\n", e);
+				return(1);
+			}
+			colon+=db;
+			if(*colon)
+			{
+				if(sscanf(colon, ":%u", &this.pregroup)!=1) {
+					fprintf(stderr, "Malformed `bases' line `%s'\n", next);
+					fprintf(stderr, "  trailer not a pregroup\n");
+					return(1);
+				}
+				if(this.group!=8)
+					fprintf(stderr, "Warning: base `%s' has a pregroup %u, but group is %u\n", this.name, this.pregroup, this.group);
+			}
+			else if(this.group==8)
+			{
+				fprintf(stderr, "Error, base `%s' has no pregroup\n", this.name);
+				return(1);
+			}
+			bases=(base *)realloc(bases, (nbases+1)*sizeof(base));
+			bases[nbases]=this;
+			nbases++;
+		}
+		next=strtok(NULL, "\n");
+	}
+	free(basefile);
+	fprintf(stderr, "Loaded %u bomber bases\n", nbases);
 	return(0);
 }
 

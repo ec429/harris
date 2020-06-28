@@ -44,6 +44,8 @@ extern bombertype *types;
 extern bombertype *rawtypes;
 extern unsigned int nmods;
 extern bmod *mods;
+extern unsigned int nbases;
+extern base *bases;
 extern unsigned int nftypes;
 extern fightertype *ftypes;
 extern unsigned int nfbases;

@@ -13,6 +13,7 @@ int load_data(void); // performs all the loads below
 
 int load_bombers(void); // -> types
 int load_mods(void); // -> mods
+int load_bases(void); // -> bases
 int load_fighters(void); // -> ftypes
 int load_ftrbases(void); // -> fbases
 int load_locations(void); // -> locs

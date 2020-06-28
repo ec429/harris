@@ -191,6 +191,23 @@ bmod;
 
 typedef struct
 {
+	// NAME:X:Y:GROUP[:PREGROUP]
+	char *name;
+	int group, pregroup;
+	unsigned int lon, lat;
+	bool paved;
+	unsigned int pprog; // Progress at paving
+}
+base;
+
+// Days to pave one base
+#define PAVE_TIME	48
+// Convert base co-ords to Europe map
+#define base_lon(_b)	((_b)/4.0 + 10.0)
+#define base_lat(_b)	((_b)/4.0 + 44.0)
+
+typedef struct
+{
 	//MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:DD-MM-YYYY:DD-MM-YYYY:FLAGS
 	char *manu;
 	char *name;
