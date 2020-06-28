@@ -330,7 +330,7 @@ typedef struct
 	unsigned int fuelt; // when t (ticks) exceeds this value, turn for home
 	int flakreport; // first unmapped flaksite we encountered
 	int squadron; // index in game.squads; -1 if in pool
-	int flight; // 0 if not assigned; [123] for [ABC] Flight.
+	int flight; // -1 if not assigned; [012] for [ABC] Flight.
 }
 ac_bomber;
 
@@ -401,7 +401,7 @@ typedef struct
 	int assignment;
 	unsigned int group; // 0 if not yet allocated to a group
 	int squadron; // index in game.squads; -1 if in group pool
-	unsigned int flight; // 0 if not assigned; [123] for [ABC] Flight.
+	int flight; // -1 if not assigned; [012] for [ABC] Flight.
 }
 crewman;
 
@@ -409,6 +409,7 @@ typedef struct
 {
 	unsigned int number;
 	unsigned int base; // indirectly determines group
+	int btype; // or -1 if the game hasn't figured it out yet
 	bool third_flight;
 	/* nb: number of bombers[flight]
 	 * nc: number of crews[flight][cclass]

@@ -325,10 +325,10 @@ int loadgame(const char *fn, game *state)
 						break;
 					}
 					unsigned int j;
-					unsigned int failed,nav,pff,mark,train,flight;
-					int squadron;
+					unsigned int failed,nav,pff,mark,train;
+					int squadron,flight;
 					char p_id[9];
-					f=sscanf(line, "Type %u:%u,%u,%u,%8s,%u,%u,%d,%u\n", &j, &failed, &nav, &pff, p_id, &mark, &train, &squadron, &flight);
+					f=sscanf(line, "Type %u:%u,%u,%u,%8s,%u,%u,%d,%d\n", &j, &failed, &nav, &pff, p_id, &mark, &train, &squadron, &flight);
 					if(f!=9)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
@@ -341,7 +341,15 @@ int loadgame(const char *fn, game *state)
 						e|=4;
 						break;
 					}
-					state->bombers[i]=(ac_bomber){.type=j, .failed=failed, .pff=pff, .mark=mark, .train=(bool)train, .squadron=squadron, .flight=flight};
+					state->bombers[i]=(ac_bomber){
+						.type=j,
+						.failed=failed,
+						.pff=pff,
+						.mark=mark,
+						.train=(bool)train,
+						.squadron=squadron,
+						.flight=flight,
+					};
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						state->bombers[i].nav[n]=(nav>>n)&1;
 					for(unsigned int k=0;k<MAX_CREW;k++)
@@ -531,10 +539,10 @@ int loadgame(const char *fn, game *state)
 					char status[11];
 					char class;
 					double skill, heavy, lanc;
-					unsigned int lrate, tops, ft, group, flight;
-					int assi, squadron;
+					unsigned int lrate, tops, ft, group;
+					int assi, squadron, flight;
 					char p_id[17];
-					f=sscanf(line, "%10s %c:"FLOAT","FLOAT","FLOAT",%u,%u,%u,%d,%u,%d,%u,%16s\n", status, &class, CAST_FLOAT_PTR &skill, CAST_FLOAT_PTR &heavy, CAST_FLOAT_PTR &lanc, &lrate, &tops, &ft, &assi, &group, &squadron, &flight, p_id);
+					f=sscanf(line, "%10s %c:"FLOAT","FLOAT","FLOAT",%u,%u,%u,%d,%u,%d,%d,%16s\n", status, &class, CAST_FLOAT_PTR &skill, CAST_FLOAT_PTR &heavy, CAST_FLOAT_PTR &lanc, &lrate, &tops, &ft, &assi, &group, &squadron, &flight, p_id);
 					if(f!=13)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
@@ -551,7 +559,7 @@ int loadgame(const char *fn, game *state)
 						.assignment=assi,
 						.group=group,
 						.squadron=squadron,
-						.flight=flight
+						.flight=flight,
 					};
 					if((state->crews[i].class=lookup_crew_letter(class))==CCLASS_NONE)
 					{
@@ -1025,6 +1033,67 @@ int loadgame(const char *fn, game *state)
 	for(unsigned int m=0;m<nmods;m++)
 		if(!datebefore(state->now, mods[m].d))
 			apply_mod(m);
+	for(unsigned int s=0;s<state->nsquads;s++)
+		for(unsigned int f=0;f<3;f++)
+		{
+			state->squads[s].btype=-1;
+			state->squads[s].nb[f]=0;
+			for(unsigned int c=0;c<CREW_CLASSES;c++)
+				state->squads[s].nc[f][c]=0;
+		}
+	for(unsigned int i=0;i<state->nbombers;i++)
+	{
+		int s=state->bombers[i].squadron, f=state->bombers[i].flight;
+		if(s>=(int)state->nsquads)
+		{
+			fprintf(stderr, "Warning, removing bomber %u from nonexistent sqn %d\n", i, s);
+			state->bombers[i].squadron=-1;
+		}
+		if(s<0)
+			continue;
+		if(state->squads[s].btype<0)
+		{
+			state->squads[s].btype=state->bombers[i].type;
+			continue;
+		}
+		if(state->squads[s].btype!=(int)state->bombers[i].type)
+		{
+			fprintf(stderr, "Warning, removing bomber %u from wrongtype sqn %d\n", i, s);
+			state->bombers[i].squadron=-1;
+			continue;
+		}
+		if(f>(state->squads[s].third_flight ? 2 : 1))
+		{
+			fprintf(stderr, "Warning, removing bomber %u from nonexistent flt %u of sqn %d\n", i, f, s);
+			f=state->bombers[i].flight=-1;
+		}
+		if(f<0)
+			continue;
+		state->squads[s].nb[f]++;
+	}
+	for(unsigned int i=0;i<state->ncrews;i++)
+	{
+		int s=state->crews[i].squadron, f=state->crews[i].flight;
+		if(s>=(int)state->nsquads)
+		{
+			fprintf(stderr, "Warning, removing crewman %u from nonexistent sqn %d\n", i, s);
+			state->crews[i].squadron=-1;
+		}
+		if(s<0)
+			continue;
+		if(f>(state->squads[s].third_flight ? 2 : 1))
+		{
+			fprintf(stderr, "Warning, removing crewman %u from nonexistent flt %u of sqn %d\n", i, f, s);
+			f=state->crews[i].flight=-1;
+		}
+		if(f<0)
+		{
+			fprintf(stderr, "Warning, removing crewman %u from sqn %d as he has no flt\n", i, s);
+			state->crews[i].squadron=-1;
+			continue;
+		}
+		state->squads[s].nc[f][state->crews[i].class]++;
+	}
 	/* compat for pre-tpipe games */
 	if(!datebefore(state->now, event[EVENT_HCU]) && state->tpipe[TPIPE_HCU].dwell == -1)
 	{
@@ -1076,7 +1145,7 @@ int savegame(const char *fn, game state)
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		pacid(state.bombers[i].id, p_id);
-		fprintf(fs, "Type %u:%u,%u,%u,%s,%u,%u,%d,%u\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id, state.bombers[i].mark, state.bombers[i].train?1:0, state.bombers[i].squadron, state.bombers[i].flight);
+		fprintf(fs, "Type %u:%u,%u,%u,%s,%u,%u,%d,%d\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id, state.bombers[i].mark, state.bombers[i].train?1:0, state.bombers[i].squadron, state.bombers[i].flight);
 	}
 	fprintf(fs, "Bases:%u\n", nbases);
 	for(unsigned int i=0;i<nbases;i++)
@@ -1092,7 +1161,7 @@ int savegame(const char *fn, game state)
 	for(unsigned int i=0;i<state.ncrews;i++)
 	{
 		pcmid(state.crews[i].id, p_id);
-		fprintf(fs, "%s %c:"FLOAT","FLOAT","FLOAT",%u,%u,%u,%d,%u,%d,%u,%s\n", cstatuses[state.crews[i].status], cclasses[state.crews[i].class].letter, CAST_FLOAT state.crews[i].skill, CAST_FLOAT state.crews[i].heavy, CAST_FLOAT state.crews[i].lanc, state.crews[i].lrate, state.crews[i].tour_ops, state.crews[i].full_tours, state.crews[i].assignment, state.crews[i].group, state.crews[i].squadron, state.crews[i].flight, p_id);
+		fprintf(fs, "%s %c:"FLOAT","FLOAT","FLOAT",%u,%u,%u,%d,%u,%d,%d,%s\n", cstatuses[state.crews[i].status], cclasses[state.crews[i].class].letter, CAST_FLOAT state.crews[i].skill, CAST_FLOAT state.crews[i].heavy, CAST_FLOAT state.crews[i].lanc, state.crews[i].lrate, state.crews[i].tour_ops, state.crews[i].full_tours, state.crews[i].assignment, state.crews[i].group, state.crews[i].squadron, state.crews[i].flight, p_id);
 	}
 	fprintf(fs, "GProd:%u\n", ICLASS_MIXED);
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
