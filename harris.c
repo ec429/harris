@@ -43,6 +43,7 @@
 #include "intel_fighters.h"
 #include "intel_targets.h"
 #include "handle_crews.h"
+#include "handle_squadrons.h"
 
 #include "version.h"
 
@@ -208,6 +209,7 @@ int main(int argc, char *argv[])
 	screens[SCRN_INTELFTR]=MAKE_SCRN(intel_fighters);
 	screens[SCRN_INTELTRG]=MAKE_SCRN(intel_targets);
 	screens[SCRN_HCREWS]=MAKE_SCRN(handle_crews);
+	screens[SCRN_SQUADRONS]=MAKE_SCRN(handle_squadrons);
 	#undef MAKE_SCRN
 
 	for(unsigned int i=0;i<NUM_SCREENS;i++)
@@ -257,6 +259,7 @@ int main(int argc, char *argv[])
 	SDL_FreeSurface(target_overlay);
 	SDL_FreeSurface(flak_overlay);
 	SDL_FreeSurface(grey_overlay);
+	SDL_FreeSurface(england);
 	SDL_FreeSurface(terrain);
 	SDL_FreeSurface(location);
 	return(0);

@@ -13,7 +13,7 @@ CFLAGS += -Wall -Wextra -Werror --std=gnu11 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDI
 
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
-SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS) handle_crews.o
+SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS) handle_crews.o handle_squadrons.o
 OBJS := globals.o weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o mods.o almanack.o $(SCREEN_OBJS)
 INCLUDES := $(OBJS:.o=.h) types.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
@@ -61,55 +61,57 @@ weather.o: rand.h
 
 date.o: ui.h bits.h render.h
 
-routing.o: rand.h globals.h events.h date.h geom.h
+routing.o: rand.h globals.h date.h geom.h
 
 history.o: bits.h date.h saving.h
 
-saving.o: bits.h control.h date.h globals.h events.h handle_crews.h history.h mods.h rand.h version.h
+saving.o: bits.h control.h date.h globals.h handle_crews.h history.h mods.h rand.h version.h
 
-render.o: bits.h almanack.h globals.h events.h date.h
+render.o: bits.h almanack.h globals.h date.h
 
-ui.o: globals.h events.h date.h
+ui.o: globals.h date.h
 
-load_data.o: globals.h events.h bits.h date.h render.h ui.h widgets.h
+load_data.o: globals.h bits.h date.h render.h ui.h widgets.h
 
-main_menu.o: ui.h globals.h events.h saving.h setup_game.h control.h
+main_menu.o: ui.h globals.h saving.h setup_game.h control.h
 
-setup_game.o: ui.h globals.h events.h saving.h intel_bombers.h intel_fighters.h setup_difficulty.h
+setup_game.o: ui.h globals.h saving.h intel_bombers.h intel_fighters.h setup_difficulty.h
 
-setup_difficulty.o: ui.h globals.h events.h
+setup_difficulty.o: ui.h globals.h
 
-setup_types.o: ui.h globals.h events.h bits.h control.h intel_bombers.h
+setup_types.o: ui.h globals.h bits.h control.h intel_bombers.h
 
-load_game.o: ui.h globals.h events.h saving.h
+load_game.o: ui.h globals.h saving.h
 
-save_game.o: ui.h globals.h events.h saving.h
+save_game.o: ui.h globals.h saving.h
 
-control.o: ui.h globals.h events.h widgets.h date.h almanack.h bits.h history.h render.h routing.h weather.h intel_bombers.h intel_targets.h rand.h run_raid.h setup_difficulty.h
+control.o: ui.h globals.h widgets.h date.h almanack.h bits.h history.h render.h routing.h weather.h intel_bombers.h intel_targets.h rand.h run_raid.h setup_difficulty.h
 
-run_raid.o: ui.h globals.h events.h date.h almanack.h history.h render.h rand.h routing.h weather.h geom.h control.h
+run_raid.o: ui.h globals.h date.h almanack.h history.h render.h rand.h routing.h weather.h geom.h control.h
 
-raid_results.o: ui.h globals.h events.h bits.h date.h history.h weather.h run_raid.h
+raid_results.o: ui.h globals.h bits.h date.h history.h weather.h run_raid.h
 
-post_raid.o: ui.h globals.h events.h bits.h date.h history.h mods.h rand.h control.h
+post_raid.o: ui.h globals.h bits.h date.h history.h mods.h rand.h control.h
 
-intel_bombers.o: ui.h globals.h events.h bits.h date.h
+intel_bombers.o: ui.h globals.h bits.h date.h
 
-intel_fighters.o: ui.h globals.h events.h bits.h date.h
+intel_fighters.o: ui.h globals.h bits.h date.h
 
-intel_targets.o: ui.h globals.h events.h bits.h date.h render.h
+intel_targets.o: ui.h globals.h bits.h date.h render.h
 
 handle_crews.o: ui.h globals.h date.h post_raid.h bits.h render.h
 
+handle_squadrons.o: ui.h globals.h date.h bits.h render.h
+
 mods.o: ui.h globals.h bits.h render.h
 
-globals.o: ui.h events.h run_raid.h
+globals.o: ui.h run_raid.h
 
 hist_record.o: bits.h date.h
 
 almanack.o: date.h
 
-%.o: %.c %.h types.h dclass.h crew.h
+%.o: %.c %.h types.h dclass.h crew.h events.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
 static: all

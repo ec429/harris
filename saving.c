@@ -450,9 +450,9 @@ int loadgame(const char *fn, game *state)
 						break;
 					}
 					unsigned int j;
-					unsigned int number, base, third;
-					f=sscanf(line, "Squad %u:%u,%u,%u\n", &j, &number, &base, &third);
-					if(f!=4)
+					unsigned int number, base, third, btype;
+					f=sscanf(line, "Squad %u:%u,%u,%u,%u\n", &j, &number, &base, &third, &btype);
+					if(f!=5)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -464,7 +464,12 @@ int loadgame(const char *fn, game *state)
 						e|=4;
 						break;
 					}
-					state->squads[i]=(squadron){.number=number, .base=base, .third_flight=third};
+					state->squads[i]=(squadron){
+						.number=number,
+						.base=base,
+						.third_flight=third,
+						.btype=btype,
+					};
 				}
 			}
 		}
@@ -1036,7 +1041,6 @@ int loadgame(const char *fn, game *state)
 	for(unsigned int s=0;s<state->nsquads;s++)
 		for(unsigned int f=0;f<3;f++)
 		{
-			state->squads[s].btype=-1;
 			state->squads[s].nb[f]=0;
 			for(unsigned int c=0;c<CREW_CLASSES;c++)
 				state->squads[s].nc[f][c]=0;
@@ -1051,12 +1055,7 @@ int loadgame(const char *fn, game *state)
 		}
 		if(s<0)
 			continue;
-		if(state->squads[s].btype<0)
-		{
-			state->squads[s].btype=state->bombers[i].type;
-			continue;
-		}
-		if(state->squads[s].btype!=(int)state->bombers[i].type)
+		if(state->squads[s].btype!=state->bombers[i].type)
 		{
 			fprintf(stderr, "Warning, removing bomber %u from wrongtype sqn %d\n", i, s);
 			state->bombers[i].squadron=-1;
@@ -1153,7 +1152,7 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Paving:%d\n", state.paving);
 	fprintf(fs, "Squadrons:%u\n", state.nsquads);
 	for(unsigned int i=0;i<state.nsquads;i++)
-		fprintf(fs, "Squad %u:%u,%u,%u\n", i, state.squads[i].number, state.squads[i].base, state.squads[i].third_flight?1:0);
+		fprintf(fs, "Squad %u:%u,%u,%u,%u\n", i, state.squads[i].number, state.squads[i].base, state.squads[i].third_flight?1:0, state.squads[i].btype);
 	fprintf(fs, "TPipe:%u\n", TPIPE__MAX);
 	for(enum tpipe i=0;i<TPIPE__MAX;i++)
 		fprintf(fs, "TStage %u:%d,%u\n", i, state.tpipe[i].dwell, state.tpipe[i].cont);

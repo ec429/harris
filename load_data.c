@@ -1420,6 +1420,11 @@ int load_images(void)
 		fprintf(stderr, "Terrain overlay: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(england=IMG_Load("map/east_coast.png")))
+	{
+		fprintf(stderr, "England (base) map: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	if(!(location=IMG_Load("art/location.png")))
 	{
 		fprintf(stderr, "Location icon: IMG_Load: %s\n", IMG_GetError());
@@ -1660,6 +1665,7 @@ int load_images(void)
 			region[x][y]=i;
 		}
 	SDL_FreeSurface(region_map);
+	fprintf(stderr, "Loaded many images\n");
 	return(0);
 }
 

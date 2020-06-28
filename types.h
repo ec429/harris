@@ -197,6 +197,8 @@ typedef struct
 	unsigned int lon, lat;
 	bool paved;
 	unsigned int pprog; // Progress at paving
+	unsigned int nsqns; // only maintained within handle_squadrons screen
+	unsigned int sqn[2]; // only maintained within handle_squadrons screen
 }
 base;
 
@@ -205,6 +207,8 @@ base;
 // Convert base co-ords to Europe map
 #define base_lon(_b)	((_b)/4.0 + 10.0)
 #define base_lat(_b)	((_b)/4.0 + 44.0)
+// Current group of a base
+#define base_grp(_b)	((_b).group == 8 && datebefore(state->now, event[EVENT_PFF]) ? (_b).pregroup : (_b).group)
 
 typedef struct
 {
@@ -409,7 +413,7 @@ typedef struct
 {
 	unsigned int number;
 	unsigned int base; // indirectly determines group
-	int btype; // or -1 if the game hasn't figured it out yet
+	unsigned int btype;
 	bool third_flight;
 	/* nb: number of bombers[flight]
 	 * nc: number of crews[flight][cclass]
