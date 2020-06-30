@@ -163,12 +163,12 @@ int load_bombers(void)
 			if(*next&&(*next!='#'))
 			{
 				bombertype this={0};
-				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:BLAT:BLONG:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
+				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.mark[0].cost, &this.mark[0].speed, &this.mark[0].alt, &this.mark[0].capwt, &this.mark[0].svp, &this.mark[0].defn, &this.mark[0].fail, &this.mark[0].accu, &this.mark[0].range, &this.blat, &this.blon, &db))!=13)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.mark[0].cost, &this.mark[0].speed, &this.mark[0].alt, &this.mark[0].capwt, &this.mark[0].svp, &this.mark[0].defn, &this.mark[0].fail, &this.mark[0].accu, &this.mark[0].range, &db))!=11)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
