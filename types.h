@@ -196,7 +196,6 @@ typedef struct
 	int group, pregroup;
 	unsigned int lon, lat;
 	bool paved;
-	unsigned int pprog; // Progress at paving
 	/* These two are only maintained within handle_squadrons screen.  Otherwise call update_sqn_list() first */
 	unsigned int nsqns;
 	unsigned int sqn[2];
@@ -439,6 +438,7 @@ typedef struct
 	unsigned int ncrews;
 	crewman *crews;
 	int paving; // which base is currently being paved, or -1
+	unsigned int pprog; // Progress at paving
 	unsigned int nsquads;
 	squadron *squads;
 	unsigned int nsnums;

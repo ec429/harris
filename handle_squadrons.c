@@ -29,7 +29,7 @@ char *HS_mge[7];
 #define gpnum(_i)	((_i)==6?8:(_i)+1)
 atg_element **HS_btrow;
 char **HS_btnum;
-atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_sqbtn[2], *HS_nosq, *HS_mbw;
+atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_mbw;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe;
 atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
@@ -397,6 +397,18 @@ int handle_squadrons_create(void)
 		return(1);
 	}
 	if(atg_ebox_pack(stnstate, HS_stpaving))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_stpavebtn=atg_create_element_button("Pave this airfield", (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 55, ATG_ALPHA_OPAQUE});
+	if(!HS_stpavebtn)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	HS_stpavebtn->hidden=true;
+	if(atg_ebox_pack(stnstate, HS_stpavebtn))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1254,7 +1266,8 @@ void update_stn_info(game *state)
 	snprintf(HS_stname, 48, "%s", bases[selstn].name);
 	HS_stpaved->hidden=!bases[selstn].paved;
 	if(!(HS_stpaving->hidden=selstn!=state->paving))
-		snprintf(HS_stpavetime, 24, "Paving (%d days left)", PAVE_TIME-bases[selstn].pprog);
+		snprintf(HS_stpavetime, 24, "Paving (%d days left)", PAVE_TIME-state->pprog);
+	HS_stpavebtn->hidden=datebefore(state->now, event[EVENT_PAVING])||state->paving>=0||bases[selstn].nsqns;
 	double eff;
 	if(!(HS_mbw->hidden=!mixed_base(state, selstn, &eff)))
 		snprintf(HS_mbe, 40, "Mixed types (%.1f%% efficiency)", eff*100.0);
@@ -1346,7 +1359,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 										room=false;
 										break;
 								}
-								if(selsqn>=0 && room)
+								if(selsqn>=0 && room && (int)i!=state->paving)
 								{
 									unsigned int b=state->squads[selsqn].base;
 									bool sg=base_grp(bases[b])==base_grp(bases[i]);
@@ -1396,6 +1409,19 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 				break;
 				case ATG_EV_TRIGGER:;
 					atg_ev_trigger trigger=e.event.trigger;
+					if(trigger.e==HS_stpavebtn)
+					{
+						if(datebefore(state->now, event[EVENT_PAVING]))
+							break;
+						if(state->paving>=0)
+							break;
+						if(selstn<0)
+							break;
+						if(bases[selstn].nsqns)
+							break;
+						state->paving=selstn;
+						state->pprog=0;
+					}
 					for(i=0;i<bases[selstn].nsqns;i++)
 						if(trigger.e==HS_sqbtn[i])
 						{

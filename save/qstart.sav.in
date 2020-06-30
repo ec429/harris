@@ -124,9 +124,7 @@ Bombers:406
 *2*Type 3:1,0,0,NOID,0,0,13,0
 *3*Type 3:0,0,0,NOID,0,0,13,1
 *2*Type 3:1,0,0,NOID,0,0,13,1
-Bases:59
-%59%Base %d:0
-Paving:-1
+Paving:-1,0
 Squadrons:21
 Squad 0:9,38,0,2,0 # Waddington/5/Hampden (hist: Honington, we don't have it)
 Squad 1:15,57,0,3,0 # Gransden Lodge/3/Wellington (hist: Fairey Battles in the AASF.  But never mind)

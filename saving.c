@@ -363,56 +363,12 @@ int loadgame(const char *fn, game *state)
 				}
 			}
 		}
-		else if(strcmp(tag, "Bases")==0)
-		{
-			unsigned int snbase;
-			f=sscanf(dat, "%u\n", &snbase);
-			if(f!=1)
-			{
-				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
-				e|=1;
-			}
-			else if(snbase!=nbases)
-			{
-				fprintf(stderr, "2 Value mismatch: different nbase value (%u!=%u)\n", snbase, nbases);
-				e|=2;
-			}
-			else
-			{
-				for(unsigned int i=0;i<nbases;i++)
-				{
-					free(line);
-					line=fgetl(fs);
-					if(!line)
-					{
-						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
-						e|=64;
-						break;
-					}
-					unsigned int j, pprog;
-					f=sscanf(line, "Base %u:%u\n", &j, &pprog);
-					if(f!=2)
-					{
-						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
-						e|=1;
-						break;
-					}
-					if(j!=i)
-					{
-						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
-						e|=4;
-						break;
-					}
-					bases[j].pprog=pprog;
-					bases[j].paved=(pprog>=PAVE_TIME);
-				}
-			}
-		}
 		else if(strcmp(tag, "Paving")==0)
 		{
+			unsigned int pprog;
 			int paving;
-			f=sscanf(dat, "%d\n", &paving);
-			if(f!=1)
+			f=sscanf(dat, "%d,%u\n", &paving, &pprog);
+			if(f!=2)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 				e|=1;
@@ -425,6 +381,7 @@ int loadgame(const char *fn, game *state)
 			else
 			{
 				state->paving=paving;
+				state->pprog=pprog;
 			}
 		}
 		else if(strcmp(tag, "Squadrons")==0)
@@ -1191,10 +1148,7 @@ int savegame(const char *fn, game state)
 		pacid(state.bombers[i].id, p_id);
 		fprintf(fs, "Type %u:%u,%u,%u,%s,%u,%u,%d,%d\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id, state.bombers[i].mark, state.bombers[i].train?1:0, state.bombers[i].squadron, state.bombers[i].flight);
 	}
-	fprintf(fs, "Bases:%u\n", nbases);
-	for(unsigned int i=0;i<nbases;i++)
-		fprintf(fs, "Base %u:%u\n", i, bases[i].pprog);
-	fprintf(fs, "Paving:%d\n", state.paving);
+	fprintf(fs, "Paving:%d,%u\n", state.paving, state.pprog);
 	fprintf(fs, "Squadrons:%u\n", state.nsquads);
 	for(unsigned int i=0;i<state.nsquads;i++)
 		fprintf(fs, "Squad %u:%u,%u,%u,%u,%u\n", i, state.squads[i].number, state.squads[i].base, state.squads[i].third_flight?1:0, state.squads[i].btype, state.squads[i].rtime);

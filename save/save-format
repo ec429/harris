@@ -26,10 +26,7 @@ for(i=0;i<NNAVAIDS;i++)
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u,%u,%s,%u,%u,%d,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id), bomber[i].mark, bomber[i].train, bomber[i].squadron, bomber[i].flight
-"Bases:%u\n", nbases // should be a constant
-for(i=0;i<nbases;i++)
-	"Base %u:%u\n", i, base[i].pprog
-"Paving:%d\n", paving // base number or -1
+"Paving:%d,%u\n", paving /* base number or -1 */, pprog
 "Squadrons:%u\n", nsquads
 for(i=0;i<nsquads;i++)
 	"Squad %u:%u,%u,%u,%u,%u\n", i, squad[i].number, squad[i].base, squad[i].third_flight, squad[i].btype, squad[i].rtime
