@@ -271,6 +271,30 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			}
 		}
 	}
+	// update squadrons
+	for(unsigned int s=0;s<state->nsquads;s++)
+	{
+		if(state->squads[s].rtime)
+			state->squads[s].rtime--;
+	}
+	// update bases
+	if(state->paving>=0)
+	{
+		unsigned int b=state->paving;
+		if(++bases[b].pprog>=PAVE_TIME)
+		{
+			bases[b].paved=true;
+			state->paving=-1;
+			char pave_msg[256];
+			snprintf(pave_msg, sizeof(pave_msg),
+			"The airfield at %s has been upgraded to Class A standard.\n"
+			"\n"
+			"Concrete runways, peri-track and dispersal hardstandings have all been laid.",
+			bases[b].name);
+			if(msgadd(canvas, state, tomorrow, bases[b].name, pave_msg))
+				fprintf(stderr, "failed to msgadd paved: %s\n", bases[b].name);
+		}
+	}
 	// train crews, and recruit more
 	train_students(state);
 	refill_students(state, true);

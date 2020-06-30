@@ -29,8 +29,8 @@ atg_element **HS_btrow;
 char **HS_btnum;
 atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_sqbtn[2], *HS_nosq;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2];
-atg_element *HS_sqncr[CREW_CLASSES], *HS_flbtn[3];
-char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES];
+atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_flbtn[3];
+char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
 char *HS_flname, *HS_flest, **HS_flcc, **HS_flcrew;
@@ -401,6 +401,25 @@ int handle_squadrons_create(void)
 		return(1);
 	}
 	if(atg_ebox_pack(HS_sqnbox, sqname))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_rtime=malloc(24);
+	if(!HS_rtime)
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(HS_rtime, 24, " ");
+	HS_rtimer=atg_create_element_label_nocopy(HS_rtime, 12, (atg_colour){191, 63, 63, ATG_ALPHA_OPAQUE});
+	if(!HS_rtimer)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	HS_rtimer->hidden=true;
+	if(atg_ebox_pack(HS_sqnbox, HS_rtimer))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -951,6 +970,8 @@ void update_sqn_info(game *state)
 	if((HS_sqnbox->hidden=selsqn<0))
 		return;
 	snprintf(HS_sqname, 20, "No. %d Squadron", state->squads[selsqn].number);
+	snprintf(HS_rtime, 24, "Operational in %d days", state->squads[selsqn].rtime);
+	HS_rtimer->hidden=!state->squads[selsqn].rtime;
 	unsigned int type=state->squads[selsqn].btype;
 	if(type>=ntypes) /* error */
 	{
