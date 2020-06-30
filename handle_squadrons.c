@@ -35,7 +35,7 @@ atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
-char *HS_flname, *HS_flest, **HS_flcc, **HS_flcrew;
+char *HS_flname, *HS_flest, *HS_flsta, **HS_flcc, **HS_flcrew;
 atg_element *HS_sll, **HS_slrow, **HS_slgl;
 char **HS_slgrp, **HS_slsqn;
 int selgrp=-1, selstn=-1, selsqn=-1, selflt=-1;
@@ -833,6 +833,48 @@ int handle_squadrons_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *flstab=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, CREW_BG_COLOUR);
+	if(!flstab)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(HS_fltbox, flstab))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *flstal=atg_create_element_label("Status:", 11, (atg_colour){207, 207, 207, ATG_ALPHA_OPAQUE});
+	if(!flstal)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	flstal->w=80;
+	flstal->h=16;
+	if(atg_ebox_pack(flstab, flstal))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_flsta=malloc(12);
+	if(!HS_flsta)
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(HS_flsta, 12, " ");
+	atg_element *flstl=atg_create_element_label_nocopy(HS_flsta, 10, (atg_colour){191, 159, 127, ATG_ALPHA_OPAQUE});
+	if(!flstl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(flstab, flstl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	if(!(HS_flcr=calloc(MAX_CREW, sizeof(*HS_flcr))))
 	{
 		perror("calloc");
@@ -1098,6 +1140,7 @@ void update_flt_info(game *state)
 	unsigned int type=state->squads[selsqn].btype;
 	HS_flname[0]='A'+selflt;
 	snprintf(HS_flest, 40, "%d a/c", state->squads[selsqn].nb[selflt]);
+	snprintf(HS_flsta, 12, " ");
 	for(unsigned int i=0;i<MAX_CREW;i++)
 	{
 		if((HS_flcr[i]->hidden=types[type].crew[i]>=CCLASS_NONE))
@@ -1110,17 +1153,21 @@ void update_flt_info(game *state)
 	for(unsigned int i=0;i<state->nbombers;i++)
 		if(state->bombers[i].squadron==selsqn && state->bombers[i].flight==selflt)
 		{
+			snprintf(HS_flsta+nb, 12-nb, "%c",
+				 state->bombers[i].failed?'F':
+				 !state->bombers[i].landed?'A':
+				 '-');
 			for(unsigned int j=0;j<MAX_CREW;j++)
 			{
 				if(types[type].crew[j]>=CCLASS_NONE)
 					continue;
 				int k=state->bombers[i].crew[j];
 				if(k<0)
-					snprintf(HS_flcrew[j]+nb, 12, "-");
+					snprintf(HS_flcrew[j]+nb, 12-nb, "-");
 				else
 				{
 					int sk=min(crewman_skill(state->crews+k, type), 90)/10;
-					snprintf(HS_flcrew[j]+nb, 12, "%d", sk);
+					snprintf(HS_flcrew[j]+nb, 12-nb, "%d", sk);
 				}
 			}
 			if(++nb>=10)
@@ -1163,12 +1210,16 @@ void update_sqn_info(game *state)
 		snprintf(HS_btman, 40, types[type].manu);
 		snprintf(HS_btnam, 40, types[type].name);
 	}
-	unsigned int nom=0, act=0, flts=state->squads[selsqn].third_flight?3:2;
+	unsigned int sv=0, nom=0, act=0, flts=state->squads[selsqn].third_flight?3:2;
+	for(unsigned int i=0;i<state->nbombers;i++)
+		if(state->bombers[i].squadron==selsqn)
+			if(!state->bombers[i].failed)
+				sv++;
 	for(unsigned int f=0;f<flts;f++)
 	{
 		nom+=10;
 		act+=state->squads[selsqn].nb[f];
-		snprintf(HS_sqest, 40, " %2d/%2d I.E.", act, nom);
+		snprintf(HS_sqest, 40, " %2d/%2d/%2d I.E.", sv, act, nom);
 	}
 	for(unsigned int c=0;c<CREW_CLASSES;c++)
 	{
@@ -1309,7 +1360,11 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 								t->state=remustering=false;
 							}
 							else
+							{
 								selstn=i;
+								if(bases[i].nsqns==1)
+									resqn=bases[i].sqn[0];
+							}
 							update_stn_list(state);
 							update_stn_info(state);
 							selsqn=resqn;

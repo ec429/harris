@@ -19,6 +19,7 @@
 #include "rand.h"
 #include "control.h"
 #include "post_raid.h"
+#include "handle_squadrons.h"
 
 void force_tprio(game *state, enum t_class cls, unsigned int days);
 void force_iprio(game *state, enum i_class cls, unsigned int days);
@@ -51,9 +52,24 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			i--;
 			continue;
 		}
+	}
+	update_sqn_list(state);
+	for(unsigned int b=0;b<nbases;b++)
+	{
+		double eff;
+		bases[b].eff=1.0;
+		if(mixed_base(state, b, &eff))
+			bases[b].eff*=eff;
+		if(mixed_group(state, base_grp(bases[b]), &eff))
+			bases[b].eff*=eff;
+	}
+	for(unsigned int i=0;i<state->nbombers;i++)
+	{
+		unsigned int type=state->bombers[i].type;
 		if(state->bombers[i].failed)
 		{
-			if(brandp((bstats(state->bombers[i]).svp/100.0)/2.0))
+			unsigned int s=max(state->bombers[i].squadron, 0), b=state->squads[s].base;
+			if(brandp((bstats(state->bombers[i]).svp*bases[b].eff/100.0)/2.0))
 			{
 				fa_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type, 0);
 				state->bombers[i].failed=false;

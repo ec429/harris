@@ -197,8 +197,11 @@ typedef struct
 	unsigned int lon, lat;
 	bool paved;
 	unsigned int pprog; // Progress at paving
-	unsigned int nsqns; // only maintained within handle_squadrons screen
-	unsigned int sqn[2]; // only maintained within handle_squadrons screen
+	/* These two are only maintained within handle_squadrons screen.  Otherwise call update_sqn_list() first */
+	unsigned int nsqns;
+	unsigned int sqn[2];
+	// Scratch space for post_raid.c
+	double eff;
 }
 base;
 

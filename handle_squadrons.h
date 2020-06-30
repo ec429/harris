@@ -12,3 +12,7 @@
 #include "types.h"
 
 extern atg_element *handle_squadrons_box;
+
+bool mixed_base(game *state, unsigned int b, double *eff);
+bool mixed_group(game *state, int g, double *eff);
+void update_sqn_list(game *state);
