@@ -1234,9 +1234,18 @@ void update_sqn_info(game *state)
 	atg_toggle *t=HS_remust->elemdata;
 	t->state=remustering=false;
 	selflt=-1;
+	bool active=false;
+	for(unsigned int i=0;i<state->nbombers;i++)
+		if(state->bombers[i].squadron==selsqn)
+			if(!state->bombers[i].landed)
+			{
+				active=true;
+				break;
+			}
+	HS_sqdis->hidden=HS_remust->hidden=active;
 	update_flt_info(state);
 	for(unsigned int i=0;i<ntypes;i++)
-		HS_btcvt[i]->hidden=selsqn<0||state->squads[selsqn].btype==i;
+		HS_btcvt[i]->hidden=selsqn<0||state->squads[selsqn].btype==i||active;
 	if((HS_sqnbox->hidden=selsqn<0))
 		return;
 	snprintf(HS_sqname, 20, "No. %d Squadron", state->squads[selsqn].number);
@@ -1348,6 +1357,7 @@ void update_pool_info(game *state)
 screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
+	remustering=false;
 	update_group_info(state);
 	update_sqn_list(state);
 	update_stn_info(state);
@@ -1402,7 +1412,15 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 										room=false;
 										break;
 								}
-								if(selsqn>=0 && room && (int)i!=state->paving)
+								bool active=false;
+								for(unsigned int i=0;i<state->nbombers;i++)
+									if(state->bombers[i].squadron==selsqn)
+										if(!state->bombers[i].landed)
+										{
+											active=true;
+											break;
+										}
+								if(selsqn>=0 && room && (int)i!=state->paving && !active)
 								{
 									unsigned int b=state->squads[selsqn].base;
 									bool sg=base_grp(bases[b])==base_grp(bases[i]);
@@ -1563,6 +1581,16 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 					{
 						if(selsqn<0)
 							break;
+						bool active=false;
+						for(unsigned int i=0;i<state->nbombers;i++)
+							if(state->bombers[i].squadron==selsqn)
+								if(!state->bombers[i].landed)
+								{
+									active=true;
+									break;
+								}
+						if(active)
+							break;
 						for(unsigned int i=0;i<state->nbombers;i++)
 							if(state->bombers[i].squadron==selsqn)
 							{
@@ -1652,6 +1680,16 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 					atg_ev_toggle toggle=e.event.toggle;
 					if(toggle.e==HS_remust)
 					{
+						bool active=false;
+						for(unsigned int i=0;i<state->nbombers;i++)
+							if(state->bombers[i].squadron==selsqn)
+								if(!state->bombers[i].landed)
+								{
+									active=true;
+									break;
+								}
+						if(active)
+							toggle.state=false;
 						remustering=toggle.state;
 						break;
 					}
