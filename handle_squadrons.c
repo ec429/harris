@@ -24,12 +24,13 @@ atg_element *handle_squadrons_box;
 
 atg_element *HS_cont, *HS_full;
 atg_element *HS_map, *HS_stnbox, *HS_sqnbox, *HS_fltbox;
-atg_element *HS_gpl, *HS_gprow[7];
+atg_element *HS_gpl, *HS_gprow[7], *HS_mgw[7];
+char *HS_mge[7];
 #define gpnum(_i)	((_i)==6?8:(_i)+1)
 atg_element **HS_btrow;
 char **HS_btnum;
-atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_sqbtn[2], *HS_nosq;
-char *HS_stname, *HS_stpavetime, *HS_stsqnum[2];
+atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_sqbtn[2], *HS_nosq, *HS_mbw;
+char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe;
 atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
@@ -72,6 +73,47 @@ static unsigned int pick_snum(game *state)
 	if(!state->nsnums)
 		return 0;
 	return state->snums[--state->nsnums];
+}
+
+bool mixed_base(game *state, unsigned int b, double *eff)
+{
+	if(bases[b].nsqns<2)
+		return false;
+	unsigned int sa=bases[b].sqn[0], sb=bases[b].sqn[1];
+	if(state->squads[sa].btype==state->squads[sb].btype)
+		return false;
+	if(eff)
+	{
+		unsigned int na=0, nb=0;
+		for(unsigned int f=0;f<(state->squads[sa].third_flight?3:2);f++)
+			na+=state->squads[sa].nb[f];
+		for(unsigned int f=0;f<(state->squads[sb].third_flight?3:2);f++)
+			nb+=state->squads[sb].nb[f];
+		*eff=sqrt(max(na, nb)/(double)(na+nb));
+	}
+	return true;
+}
+
+bool mixed_group(game *state, int g, double *eff)
+{
+	unsigned int nb[ntypes], mnb=0, total=0;
+	memset(nb, 0, sizeof(nb));
+	for(unsigned int i=0;i<state->nbombers;i++)
+	{
+		if(state->bombers[i].squadron<0)
+			continue;
+		unsigned int s=state->bombers[i].squadron;
+		if(base_grp(bases[state->squads[s].base])!=gpnum(g))
+			continue;
+		unsigned int n=++nb[state->bombers[i].type];
+		mnb=max(mnb, n);
+		total++;
+	}
+	if(mnb==total)
+		return false;
+	if(eff)
+		*eff=sqrt(mnb/(double)total);
+	return true;
 }
 
 int handle_squadrons_create(void)
@@ -176,6 +218,24 @@ int handle_squadrons_create(void)
 		}
 		item->cache=true;
 		if(atg_ebox_pack(HS_gprow[i], item))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		HS_mge[i]=malloc(40);
+		if(!HS_mge[i])
+		{
+			perror("malloc");
+			return(1);
+		}
+		snprintf(HS_mge[i], 40, " ");
+		HS_mgw[i]=atg_create_element_label_nocopy(HS_mge[i], 10, (atg_colour){191, 111, 111, ATG_ALPHA_OPAQUE});
+		if(!HS_mgw[i])
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HS_gprow[i], HS_mgw[i]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -318,7 +378,7 @@ int handle_squadrons_create(void)
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(atg_ebox_pack(HS_stnbox, HS_stpaved))
+	if(atg_ebox_pack(stnstate, HS_stpaved))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -336,7 +396,25 @@ int handle_squadrons_create(void)
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	if(atg_ebox_pack(HS_stnbox, HS_stpaving))
+	if(atg_ebox_pack(stnstate, HS_stpaving))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_mbe=malloc(40);
+	if(!HS_mbe)
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(HS_mbe, 40, " ");
+	HS_mbw=atg_create_element_label_nocopy(HS_mbe, 10, (atg_colour){191, 111, 111, ATG_ALPHA_OPAQUE});
+	if(!HS_mbw)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(stnstate, HS_mbw))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1010,9 +1088,14 @@ void update_stn_list(game *state)
 
 void update_flt_info(game *state)
 {
-	unsigned int type=state->squads[selsqn].btype;
 	if((HS_fltbox->hidden=selflt<0))
 		return;
+	if(selsqn<0) /* can't happen */
+	{
+		fprintf(stderr, "selsqn<0 in %s\n", __func__);
+		return;
+	}
+	unsigned int type=state->squads[selsqn].btype;
 	HS_flname[0]='A'+selflt;
 	snprintf(HS_flest, 40, "%d a/c", state->squads[selsqn].nb[selflt]);
 	for(unsigned int i=0;i<MAX_CREW;i++)
@@ -1121,11 +1204,24 @@ void update_stn_info(game *state)
 	HS_stpaved->hidden=!bases[selstn].paved;
 	if(!(HS_stpaving->hidden=selstn!=state->paving))
 		snprintf(HS_stpavetime, 24, "Paving (%d days left)", PAVE_TIME-bases[selstn].pprog);
+	double eff;
+	if(!(HS_mbw->hidden=!mixed_base(state, selstn, &eff)))
+		snprintf(HS_mbe, 40, "Mixed types (%.1f%% efficiency)", eff*100.0);
 	update_sqn_list(state);
 	HS_nosq->hidden=bases[selstn].nsqns;
 	for(unsigned int i=0;i<2;i++)
 		if(!(HS_sqbtn[i]->hidden=i>=bases[selstn].nsqns))
 			snprintf(HS_stsqnum[i], 12, "No. %d Sqn", state->squads[bases[selstn].sqn[i]].number);
+}
+
+void update_group_info(game *state)
+{
+	for(int i=0;i<7;i++)
+	{
+		double eff;
+		if(!(HS_mgw[i]->hidden=!mixed_group(state, i, &eff)))
+			snprintf(HS_mge[i], 40, "Mixed types (%.1f%% efficiency)", eff*100.0);
+	}
 }
 
 void update_pool_info(game *state)
@@ -1145,6 +1241,7 @@ void update_pool_info(game *state)
 screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 {
 	atg_event e;
+	update_group_info(state);
 	update_sqn_list(state);
 	update_stn_info(state);
 	update_stn_list(state);
@@ -1204,6 +1301,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 									bool sg=base_grp(bases[b])==base_grp(bases[i]);
 									state->squads[selsqn].rtime+=sg?7:14;
 									state->squads[selsqn].base=i;
+									update_group_info(state);
 									update_sqn_list(state);
 									selstn=i;
 								}
