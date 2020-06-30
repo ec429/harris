@@ -1521,6 +1521,30 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 				}
 			}
 			update_raidnums(state, seltarg);
+			bool avail[ntypes], reach[ntypes];
+			memset(avail, 0, sizeof(avail));
+			memset(reach, 0, sizeof(reach));
+			if(seltarg>=0)
+				for(unsigned int j=0;j<state->nbombers;j++)
+				{
+					unsigned int type=state->bombers[j].type;
+					if(state->bombers[j].train) continue;
+					if(state->bombers[j].squadron<0)
+						continue;
+					unsigned int s=state->bombers[j].squadron;
+					if(state->squads[s].rtime)
+						continue;
+					unsigned int b=state->squads[s].base;
+					signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
+					bool unpaved=types[type].heavy&&!bases[b].paved;
+					double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[type].ovltank?1.3:1.5);
+					if(state->bombers[j].failed) continue;
+					if(!state->bombers[j].landed) continue;
+					if(!filter_apply(state->bombers[j])) continue;
+					avail[type]=true;
+					if(bstats(state->bombers[j]).range*(unpaved?0.8:1.0)>=dist)
+						reach[type]=true;
+				}
 			for(unsigned int i=0;i<ntypes;i++)
 			{
 				if(!GB_btrow[i]->hidden&&GB_btpic[i])
@@ -1531,12 +1555,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						SDL_Surface *pic=img->data;
 						SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
 						SDL_BlitSurface(types[i].picture, NULL, pic, NULL);
-						if(seltarg>=0)
-						{
-							double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
-							if(newstats(types[i]).range<dist)
-								SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
-						}
+						if(avail[i]&&!reach[i])
+							SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
 					}
 				}
 			}
@@ -1773,7 +1793,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										unsigned int b=state->squads[s].base;
 										signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 										bool unpaved=types[i].heavy&&!bases[b].paved;
-										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
+										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.3:1.5);
 										if(newstats(types[i]).range*(unpaved?0.8:1.0)<dist)
 											continue;
 										if(state->bombers[j].failed) continue;
@@ -2429,7 +2449,7 @@ int update_raidnums(const game *state, int seltarg)
 	bool stream=!datebefore(state->now, event[EVENT_GEE]);
 	for(unsigned int i=0;i<ntypes;i++)
 	{
-		unsigned int count=0;
+		unsigned int count=0, tcap=0;
 		switch(seltarg) {
 		case -1:
 			break;
@@ -2438,8 +2458,49 @@ int update_raidnums(const game *state, int seltarg)
 				if(state->bombers[k].type==i && state->bombers[k].train) count++;
 			break;
 		default:
-			for(unsigned int k=0;k<state->raids[seltarg].nbombers;k++)
-				if(state->bombers[state->raids[seltarg].bombers[k]].type==i) count++;
+			for(unsigned int j=0;j<state->raids[seltarg].nbombers;j++)
+			{
+				unsigned int k=state->raids[seltarg].bombers[j], type=state->bombers[k].type;
+				if(type!=i)
+					continue;
+				count++;
+
+				int s=state->bombers[k].squadron;
+				if (s<0)
+				{
+					fprintf(stderr, "Warning: internal squadron error\n");
+					s=0;
+				}
+				unsigned int b=state->squads[s].base;
+				signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
+				bool unpaved=types[type].heavy&&!bases[b].paved;
+				double dist;
+				if(stream)
+				{
+					dist=hypot(blat-(signed)targs[seltarg].route[0][0], blon-(signed)targs[seltarg].route[0][1]);
+					for(unsigned int l=0;l<4;l++)
+					{
+						double d=hypot((signed)targs[seltarg].route[l+1][0]-(signed)targs[seltarg].route[l][0], (signed)targs[seltarg].route[l+1][1]-(signed)targs[seltarg].route[l][1]);
+						dist+=d;
+					}
+				}
+				else
+				{
+					dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*1.07;
+				}
+				unsigned int cap=bstats(state->bombers[k]).capwt;
+				if(unpaved)
+					cap-=cap/4;
+				unsigned int fuelt=bstats(state->bombers[k]).range*0.6/(bstats(state->bombers[k]).speed/450.0);
+				unsigned int estt=dist*1.1/(bstats(state->bombers[k]).speed/450.0)+12;
+				if(!stream) estt+=36;
+				if(estt>fuelt)
+				{
+					unsigned int fu=estt-fuelt;
+					cap*=120.0/(120.0+fu);
+				}
+				tcap+=cap;
+			}
 			break;
 		}
 		if(GB_raidnum[i])
@@ -2449,37 +2510,9 @@ int update_raidnums(const game *state, int seltarg)
 		if(seltarg>=0&&count&&GB_estcap[i])
 		{
 			if(targs[seltarg].class==TCLASS_LEAFLET)
-			{
 				GB_estcap[i][0]=0;
-			}
 			else
-			{
-				unsigned int cap=newstats(types[i]).capwt;
-				double dist;
-				if(stream)
-				{
-					dist=hypot((signed)types[i].blat-(signed)targs[seltarg].route[0][0], (signed)types[i].blon-(signed)targs[seltarg].route[0][1]);
-					for(unsigned int l=0;l<4;l++)
-					{
-						double d=hypot((signed)targs[seltarg].route[l+1][0]-(signed)targs[seltarg].route[l][0], (signed)targs[seltarg].route[l+1][1]-(signed)targs[seltarg].route[l][1]);
-						dist+=d;
-					}
-				}
-				else
-				{
-					dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*1.07;
-				}
-				unsigned int fuelt=newstats(types[i]).range*0.6/(newstats(types[i]).speed/450.0);
-				unsigned int estt=dist*1.1/(newstats(types[i]).speed/450.0)+12;
-				if(!stream) estt+=36;
-				if(estt>fuelt)
-				{
-					unsigned int fu=estt-fuelt;
-					cap*=120.0/(120.0+fu);
-				}
-				cap=(cap/10)*10;
-				snprintf(GB_estcap[i], 24, "%12ulb est. max", cap);
-			}
+				snprintf(GB_estcap[i], 24, "%12ulb est. max", 10*(tcap/count/10));
 		}
 	}
 	return(0);
