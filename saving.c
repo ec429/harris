@@ -474,6 +474,39 @@ int loadgame(const char *fn, game *state)
 				}
 			}
 		}
+		else if(strcmp(tag, "SNums")==0)
+		{
+			f=sscanf(dat, "%u\n", &state->nsnums);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else
+			{
+				for(unsigned int i=0;i<state->nsnums;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int number;
+					f=sscanf(line, "SNum %u\n", &number);
+					if(f!=1)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(i<SNUM_DEPTH)
+						state->snums[i]=number;
+				}
+			}
+		}
 		else if(strcmp(tag, "TPipe")==0)
 		{
 			unsigned int sntp;
@@ -1165,6 +1198,12 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Squadrons:%u\n", state.nsquads);
 	for(unsigned int i=0;i<state.nsquads;i++)
 		fprintf(fs, "Squad %u:%u,%u,%u,%u,%u\n", i, state.squads[i].number, state.squads[i].base, state.squads[i].third_flight?1:0, state.squads[i].btype, state.squads[i].rtime);
+	if(state.nsnums)
+	{
+		fprintf(fs, "SNums:%u\n", state.nsnums);
+		for(unsigned int i=0;i<state.nsnums;i++)
+			fprintf(fs, "SNum %u\n", state.snums[i]);
+	}
 	fprintf(fs, "TPipe:%u\n", TPIPE__MAX);
 	for(enum tpipe i=0;i<TPIPE__MAX;i++)
 		fprintf(fs, "TStage %u:%d,%u\n", i, state.tpipe[i].dwell, state.tpipe[i].cont);

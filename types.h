@@ -423,6 +423,7 @@ typedef struct
 }
 squadron;
 
+#define SNUM_DEPTH	60
 typedef struct
 {
 	date now;
@@ -437,6 +438,8 @@ typedef struct
 	int paving; // which base is currently being paved, or -1
 	unsigned int nsquads;
 	squadron *squads;
+	unsigned int nsnums;
+	unsigned int snums[SNUM_DEPTH];
 	bool *btypes;
 	bool evented[NEVENTS];
 	int nap[NNAVAIDS];

@@ -33,6 +33,9 @@ for(i=0;i<nbases;i++)
 "Squadrons:%u\n", nsquads
 for(i=0;i<nsquads;i++)
 	"Squad %u:%u,%u,%u,%u,%u\n", i, squad[i].number, squad[i].base, squad[i].third_flight, squad[i].btype, squad[i].rtime
+"SNums:%u\n", nsnums // unused squadron numbers
+for(i=0;i<nsnums;i++)
+	"SNum %u\n", snum[i]
 "TPipe:%u\n", TPIPE__MAX
 for(i=0;i<TPIPE__MAX;i++)
 	"TStage %u:%d,%u\n", i, tpipe[i].dwell, tpipe[i].cont

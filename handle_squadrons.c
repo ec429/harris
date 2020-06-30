@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "date.h"
 #include "bits.h"
+#include "rand.h"
 #include "render.h"
 #include "run_raid.h" // for crewman_skill
 
@@ -29,7 +30,7 @@ atg_element **HS_btrow;
 char **HS_btnum;
 atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_sqbtn[2], *HS_nosq;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2];
-atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_flbtn[3];
+atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
@@ -38,6 +39,40 @@ atg_element *HS_sll, **HS_slrow, **HS_slgl;
 char **HS_slgrp, **HS_slsqn;
 int selgrp=-1, selstn=-1, selsqn=-1, selflt=-1;
 bool remustering=false, converting=false;
+
+static void generate_snums(game *state)
+{
+	unsigned int avail=min(SNUM_DEPTH/2, 699-state->nsquads);
+	unsigned int shufbuf[699];
+	for(unsigned int i=0;i<699;i++)
+		shufbuf[i]=i;
+	for(unsigned int s=0;s<state->nsquads;s++)
+	{
+		unsigned int n=state->squads[s].number;
+		unsigned int i;
+		for(i=0;i<699-s;i++)
+			if(shufbuf[i]==n)
+				break;
+		for(;i<698-s;i++)
+			shufbuf[i]=shufbuf[i+1];
+	}
+	for(unsigned int i=0;i<avail;i++)
+	{
+		unsigned int j=i+irandu(699-i);
+		state->snums[i]=shufbuf[j];
+		shufbuf[j]=shufbuf[i];
+	}
+	state->nsnums=avail;
+}
+
+static unsigned int pick_snum(game *state)
+{
+	if(!state->nsnums)
+		generate_snums(state);
+	if(!state->nsnums)
+		return 0;
+	return state->snums[--state->nsnums];
+}
 
 int handle_squadrons_create(void)
 {
@@ -443,6 +478,30 @@ int handle_squadrons_create(void)
 		return(1);
 	}
 	if(atg_ebox_pack(rebox, HS_remust))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_grow=atg_create_element_button("Grow to 3 flights", (atg_colour){191, 191, 47, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!HS_grow)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	HS_grow->hidden=true;
+	if(atg_ebox_pack(rebox, HS_grow))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_split=atg_create_element_button("Split C flight", (atg_colour){191, 191, 47, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!HS_split)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	HS_split->hidden=true;
+	if(atg_ebox_pack(rebox, HS_split))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -988,7 +1047,8 @@ void update_flt_info(game *state)
 
 void update_sqn_info(game *state)
 {
-	remustering=false;
+	atg_toggle *t=HS_remust->elemdata;
+	t->state=remustering=false;
 	converting=false;
 	selflt=-1;
 	update_flt_info(state);
@@ -997,6 +1057,16 @@ void update_sqn_info(game *state)
 	snprintf(HS_sqname, 20, "No. %d Squadron", state->squads[selsqn].number);
 	snprintf(HS_rtime, 24, "Operational in %d days", state->squads[selsqn].rtime);
 	HS_rtimer->hidden=!state->squads[selsqn].rtime;
+	if (state->squads[selsqn].third_flight)
+	{
+		HS_grow->hidden=true;
+		HS_split->hidden=state->squads[selsqn].nb[2]<8;
+	}
+	else
+	{
+		HS_grow->hidden=bases[state->squads[selsqn].base].nsqns>=2;
+		HS_split->hidden=true;
+	}
 	unsigned int type=state->squads[selsqn].btype;
 	if(type>=ntypes) /* error */
 	{
@@ -1182,6 +1252,75 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 						}
 					if(i<bases[selstn].nsqns)
 						break;
+					if(trigger.e==HS_grow)
+					{
+						if(selsqn<0)
+							break;
+						if(state->squads[selsqn].third_flight)
+							break;
+						unsigned int b=state->squads[selsqn].base;
+						if(bases[b].nsqns>=2)
+							break;
+						state->squads[selsqn].third_flight=true;
+						state->squads[selsqn].nb[2]=0;
+						update_sqn_list(state);
+						update_stn_list(state);
+						int resqn=selsqn;
+						update_stn_info(state);
+						selsqn=resqn;
+						update_sqn_info(state);
+						break;
+					}
+					if(trigger.e==HS_split)
+					{
+						if(selsqn<0)
+							break;
+						if(!state->squads[selsqn].third_flight)
+							break;
+						if(state->squads[selsqn].nb[2]<8)
+							break;
+						unsigned int b=state->squads[selsqn].base;
+						if(bases[b].nsqns>=2)
+							break;
+						/* Form a new squadron from C flight of selsqn */
+						squadron *n=realloc(state->squads, (state->nsquads+1)*sizeof(*n));
+						if(!n)
+						{
+							perror("realloc");
+							break;
+						}
+						unsigned int newsqn=state->nsquads++;
+						(state->squads=n)[newsqn]=(squadron){
+							.number=pick_snum(state),
+							.base=b,
+							.btype=state->squads[selsqn].btype,
+							.rtime=state->squads[selsqn].rtime+7,
+							.third_flight=false,
+							.nb[0]=state->squads[selsqn].nb[2],
+							.nc={0},
+						};
+						state->squads[selsqn].third_flight=false;
+						state->squads[selsqn].nb[2]=0;
+						for(unsigned int i=0;i<state->nbombers;i++)
+							if(state->bombers[i].squadron==selsqn&&state->bombers[i].flight==2)
+							{
+								state->bombers[i].squadron=newsqn;
+								state->bombers[i].flight=0;
+								for(unsigned int j=0;j<MAX_CREW;j++)
+									if(state->bombers[i].crew[j]>=0)
+									{
+										unsigned int k=state->bombers[i].crew[j];
+										state->crews[k].squadron=newsqn;
+										state->crews[k].flight=0;
+									}
+							}
+						update_sqn_list(state);
+						update_stn_list(state);
+						update_stn_info(state);
+						selsqn=newsqn;
+						update_sqn_info(state);
+						break;
+					}
 					for(i=0;i<3;i++)
 						if(trigger.e==HS_flbtn[i])
 						{

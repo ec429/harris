@@ -122,6 +122,7 @@ int set_init_state(game *state)
 	state->paving=-1;
 	state->nsquads=0;
 	state->squads=NULL;
+	state->nsnums=0;
 	state->ntargs=ntargs;
 	if(!(state->dmg=calloc(ntargs, sizeof(*state->dmg))))
 	{
