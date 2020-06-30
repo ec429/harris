@@ -1519,6 +1519,17 @@ int load_images(void)
 			return(1);
 		}
 	}
+	for(unsigned int g=0;g<6;g++)
+	{
+		char fn[80];
+		snprintf(fn, sizeof(fn), "art/filters/gp%u.png", g+1);
+		if(!(grouppic[g]=IMG_Load(fn)))
+		{
+			fprintf(stderr, "Group %u icon: IMG_Load: %s\n", g+1, IMG_GetError());
+			return(1);
+		}
+		grouppic[6]=pffpic;
+	}
 	for(unsigned int l=0;l<NBOMBLOADS;l++)
 	{
 		if(!(bombloads[l].pic=IMG_Load(bombloads[l].fn)))

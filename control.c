@@ -46,8 +46,10 @@ int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0;
 atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite;
 bool filter_marks[MAX_MARKS];
 atg_element *GB_filter_marks;
+bool filter_groups[7];
+atg_element *GB_filter_groups;
 
-bool filter_apply(ac_bomber b);
+bool filter_apply(game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 int update_raidnums(const game *state, int seltarg);
 
@@ -825,6 +827,38 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *GB_gfilters=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!GB_gfilters)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_bt, GB_gfilters))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *GB_gft=atg_create_element_label("Groups:", 12, (atg_colour){239, 239, 0, ATG_ALPHA_OPAQUE});
+	if(!GB_gft)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_gfilters, GB_gft))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if (!(GB_filter_groups=create_bfilter_switch(7, GAME_BG_COLOUR, grouppic, filter_groups)))
+	{
+		fprintf(stderr, "create_bfilter_switch failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_gfilters, GB_filter_groups))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	atg_element *GB_middle=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 	if(!GB_middle)
 	{
@@ -1360,7 +1394,9 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			ensure_crewed(state, j);
 	}
 	bool shownav=false;
-	GB_fi_pff->hidden=datebefore(state->now, event[EVENT_PFF]);
+	atg_element **fg_btns=GB_filter_groups->userdata;
+	if((fg_btns[6]->hidden=datebefore(state->now, event[EVENT_PFF])))
+		filter_groups[6]=false;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		GB_fi_nav[n]->hidden=datebefore(state->now, event[navevent[n]]);
@@ -1540,7 +1576,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[type].ovltank?1.3:1.5);
 					if(state->bombers[j].failed) continue;
 					if(!state->bombers[j].landed) continue;
-					if(!filter_apply(state->bombers[j])) continue;
+					if(!filter_apply(state, j)) continue;
 					avail[type]=true;
 					if(bstats(state->bombers[j]).range*(unpaved?0.8:1.0)>=dist)
 						reach[type]=true;
@@ -1704,7 +1740,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										}
 										if(!amount) continue;
 										if(!state->bombers[j].landed) continue;
-										if(!filter_apply(state->bombers[j])) continue;
+										if(!filter_apply(state, j)) continue;
 										clear_sqn(state, j);
 										clear_crew(state, j);
 										amount--;
@@ -1743,7 +1779,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										if(!state->bombers[k].train) continue;
 										count++;
 										if(!amount) continue;
-										if(!filter_apply(state->bombers[k])) continue;
+										if(!filter_apply(state, k)) continue;
 										clear_sqn(state, k);
 										clear_crew(state, k);
 										state->bombers[k].train=false;
@@ -1798,7 +1834,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											continue;
 										if(state->bombers[j].failed) continue;
 										if(!state->bombers[j].landed) continue;
-										if(!filter_apply(state->bombers[j])) continue;
+										if(!filter_apply(state, j)) continue;
 										if(!ensure_crewed(state, j)) continue;
 										state->bombers[j].landed=false;
 										amount--;
@@ -1853,7 +1889,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									{
 										unsigned int k=state->raids[seltarg].bombers[l];
 										if(state->bombers[k].type!=i) continue;
-										if(!filter_apply(state->bombers[k])) continue;
+										if(!filter_apply(state, k)) continue;
 										state->bombers[k].landed=true;
 										amount--;
 										state->raids[seltarg].nbombers--;
@@ -2051,8 +2087,9 @@ void control_free(void)
 	atg_free_element(control_box);
 }
 
-bool filter_apply(ac_bomber b)
+bool filter_apply(game *state, unsigned int i)
 {
+	ac_bomber b=state->bombers[i];
 	if(filter_pff>0&&!b.pff) return(false);
 	if(filter_pff<0&&b.pff) return(false);
 	for(unsigned int n=0;n<NNAVAIDS;n++)
@@ -2064,6 +2101,17 @@ bool filter_apply(ac_bomber b)
 		for(unsigned int m=0;m<MAX_MARKS;m++)
 			if(filter_marks[m])
 				return(false);
+	if(b.squadron<0)
+		return(true);
+	bool agroup=false;
+	for(unsigned int g=0;g<7;g++)
+		if(filter_groups[g])
+			agroup=true;
+	unsigned int s=b.squadron, g=base_grp(bases[state->squads[s].base])-1;
+	if(g>=7)
+		g=6;
+	if(agroup && !filter_groups[g])
+		return(false);
 	return(true);
 }
 
