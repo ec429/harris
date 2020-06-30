@@ -32,7 +32,7 @@ for(i=0;i<nbases;i++)
 "Paving:%d\n", paving // base number or -1
 "Squadrons:%u\n", nsquads
 for(i=0;i<nsquads;i++)
-	"Squad %u:%u,%u,%u,%u\n", i, squad[i].number, squad[i].base, squad[i].third_flight, squad[i].btype
+	"Squad %u:%u,%u,%u,%u,%u\n", i, squad[i].number, squad[i].base, squad[i].third_flight, squad[i].btype, squad[i].rtime
 "TPipe:%u\n", TPIPE__MAX
 for(i=0;i<TPIPE__MAX;i++)
 	"TStage %u:%d,%u\n", i, tpipe[i].dwell, tpipe[i].cont

@@ -205,8 +205,8 @@ base;
 // Days to pave one base
 #define PAVE_TIME	48
 // Convert base co-ords to Europe map
-#define base_lon(_b)	((_b)/4.0 + 10.0)
-#define base_lat(_b)	((_b)/4.0 + 44.0)
+#define base_lon(_b)	((_b).lon/4.0 + 10.0)
+#define base_lat(_b)	((_b).lat/4.0 + 44.0)
 // Current group of a base
 #define base_grp(_b)	((_b).group == 8 && datebefore(state->now, event[EVENT_PFF]) ? (_b).pregroup : (_b).group)
 
@@ -414,6 +414,7 @@ typedef struct
 	unsigned int number;
 	unsigned int base; // indirectly determines group
 	unsigned int btype;
+	unsigned int rtime; // days until readiness
 	bool third_flight;
 	/* nb: number of bombers[flight]
 	 * nc: number of crews[cclass] without assigned aircraft

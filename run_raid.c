@@ -475,9 +475,16 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			for(unsigned int j=0;j<state->raids[i].nbombers;j++)
 			{
 				unsigned int k=state->raids[i].bombers[j], type=state->bombers[k].type;
+				int s=state->bombers[k].squadron;
+				if (s<0)
+				{
+					fprintf(stderr, "Warning: internal squadron error\n");
+					s=0;
+				}
+				signed int blon=base_lon(bases[state->squads[s].base]), blat=base_lat(bases[state->squads[s].base]);
 				state->bombers[k].targ=i;
-				state->bombers[k].lat=types[type].blat;
-				state->bombers[k].lon=types[type].blon;
+				state->bombers[k].lat=blat;
+				state->bombers[k].lon=blon;
 				state->bombers[k].routestage=0;
 				if(stream)
 					for(unsigned int l=0;l<8;l++)
@@ -486,8 +493,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						state->bombers[k].route[l][1]=targs[i].route[l][1];
 					}
 				else
-					genroute((unsigned int [2]){types[type].blat, types[type].blon}, i, state->bombers[k].route, state, 100);
-				double dist=hypot((signed)types[type].blat-(signed)state->bombers[k].route[0][0], (signed)types[type].blon-(signed)state->bombers[k].route[0][1]), outward=dist;
+					genroute((unsigned int [2]){blat, blon}, i, state->bombers[k].route, state, 100);
+				double dist=hypot(blat-(signed)state->bombers[k].route[0][0], blon-(signed)state->bombers[k].route[0][1]), outward=dist;
 				for(unsigned int l=0;l<7;l++)
 				{
 					double d=hypot((signed)state->bombers[k].route[l+1][0]-(signed)state->bombers[k].route[l][0], (signed)state->bombers[k].route[l+1][1]-(signed)state->bombers[k].route[l][1]);
@@ -839,10 +846,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					}
 					else if(oboe.k==(int)k)
 						oboe.k=-1;
-					int destx=home?types[type].blon:state->bombers[k].route[stage][1],
-						desty=home?types[type].blat:state->bombers[k].route[stage][0],
-						prevx=stage?state->bombers[k].route[stage-1][1]:types[type].blon,
-						prevy=stage?state->bombers[k].route[stage-1][0]:types[type].blat;
+					unsigned int s=max(state->bombers[k].squadron, 0);
+					unsigned int blon=base_lon(bases[state->squads[s].base]), blat=base_lat(bases[state->squads[s].base]);
+					int destx=home?blon:state->bombers[k].route[stage][1],
+						desty=home?blat:state->bombers[k].route[stage][0],
+						prevx=stage?state->bombers[k].route[stage-1][1]:blon,
+						prevy=stage?state->bombers[k].route[stage-1][0]:blat;
 					double thinklon=state->bombers[k].lon+state->bombers[k].navlon,
 						thinklat=state->bombers[k].lat+state->bombers[k].navlat;
 					clamp(thinklon, 0, 256);

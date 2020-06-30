@@ -450,9 +450,9 @@ int loadgame(const char *fn, game *state)
 						break;
 					}
 					unsigned int j;
-					unsigned int number, base, third, btype;
-					f=sscanf(line, "Squad %u:%u,%u,%u,%u\n", &j, &number, &base, &third, &btype);
-					if(f!=5)
+					unsigned int number, base, third, btype, rtime;
+					f=sscanf(line, "Squad %u:%u,%u,%u,%u,%u\n", &j, &number, &base, &third, &btype, &rtime);
+					if(f!=6)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -469,6 +469,7 @@ int loadgame(const char *fn, game *state)
 						.base=base,
 						.third_flight=third,
 						.btype=btype,
+						.rtime=rtime,
 					};
 				}
 			}
@@ -1163,7 +1164,7 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Paving:%d\n", state.paving);
 	fprintf(fs, "Squadrons:%u\n", state.nsquads);
 	for(unsigned int i=0;i<state.nsquads;i++)
-		fprintf(fs, "Squad %u:%u,%u,%u,%u\n", i, state.squads[i].number, state.squads[i].base, state.squads[i].third_flight?1:0, state.squads[i].btype);
+		fprintf(fs, "Squad %u:%u,%u,%u,%u,%u\n", i, state.squads[i].number, state.squads[i].base, state.squads[i].third_flight?1:0, state.squads[i].btype, state.squads[i].rtime);
 	fprintf(fs, "TPipe:%u\n", TPIPE__MAX);
 	for(enum tpipe i=0;i<TPIPE__MAX;i++)
 		fprintf(fs, "TStage %u:%d,%u\n", i, state.tpipe[i].dwell, state.tpipe[i].cont);

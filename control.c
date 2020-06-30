@@ -1743,66 +1743,69 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							default:
 								if(c.e==GB_btpic[i])
 								{
-									double dist=hypot((signed)types[i].blat-(signed)targs[seltarg].lat, (signed)types[i].blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
-									if(newstats(types[i]).range<dist)
-										fprintf(stderr, "insufficient range: %u<%g\n", newstats(types[i]).range, dist);
-									else
+									unsigned int amount;
+									switch(b)
 									{
-										unsigned int amount;
-										switch(b)
-										{
-											case ATG_MB_RIGHT:
-											case ATG_MB_SCROLLDN:
-												amount=1;
-											break;
-											case ATG_MB_MIDDLE:
-												amount=-1;
-											break;
-											case ATG_MB_LEFT:
-												if(m&KMOD_CTRL)
-												{
-													amount=-1;
-													break;
-												}
-												/* else fallthrough */
-											case ATG_MB_SCROLLUP:
-											default:
-												amount=10;
-										}
-										memset(shortof, 0, sizeof(shortof));
-										for(unsigned int j=0;j<state->nbombers;j++)
-										{
-											if(state->bombers[j].type!=i) continue;
-											if(state->bombers[j].train) continue;
-											if(state->bombers[j].failed) continue;
-											if(!state->bombers[j].landed) continue;
-											if(!filter_apply(state->bombers[j])) continue;
-											if(!ensure_crewed(state, j)) continue;
-											state->bombers[j].landed=false;
-											amount--;
-											unsigned int n=state->raids[seltarg].nbombers++;
-											unsigned int *new=realloc(state->raids[seltarg].bombers, state->raids[seltarg].nbombers*sizeof(unsigned int));
-											if(!new)
+										case ATG_MB_RIGHT:
+										case ATG_MB_SCROLLDN:
+											amount=1;
+										break;
+										case ATG_MB_MIDDLE:
+											amount=-1;
+										break;
+										case ATG_MB_LEFT:
+											if(m&KMOD_CTRL)
 											{
-												perror("realloc");
-												state->raids[seltarg].nbombers=n;
+												amount=-1;
 												break;
 											}
-											(state->raids[seltarg].bombers=new)[n]=j;
-											if(!amount) break;
-										}
-										if(GB_raidnum[i])
+											/* else fallthrough */
+										case ATG_MB_SCROLLUP:
+										default:
+											amount=10;
+									}
+									memset(shortof, 0, sizeof(shortof));
+									for(unsigned int j=0;j<state->nbombers;j++)
+									{
+										if(state->bombers[j].type!=i) continue;
+										if(state->bombers[j].train) continue;
+										if(state->bombers[j].squadron<0)
+											continue;
+										unsigned int s=state->bombers[j].squadron;
+										if(state->squads[s].rtime)
+											continue;
+										signed int blon=base_lon(bases[state->squads[s].base]), blat=base_lat(bases[state->squads[s].base]);
+										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
+										if(newstats(types[i]).range<dist)
+											continue;
+										if(state->bombers[j].failed) continue;
+										if(!state->bombers[j].landed) continue;
+										if(!filter_apply(state->bombers[j])) continue;
+										if(!ensure_crewed(state, j)) continue;
+										state->bombers[j].landed=false;
+										amount--;
+										unsigned int n=state->raids[seltarg].nbombers++;
+										unsigned int *new=realloc(state->raids[seltarg].bombers, state->raids[seltarg].nbombers*sizeof(unsigned int));
+										if(!new)
 										{
-											unsigned int count=0;
-											for(unsigned int j=0;j<state->raids[seltarg].nbombers;j++)
-												if(state->bombers[state->raids[seltarg].bombers[j]].type==i) count++;
-											snprintf(GB_raidnum[i], 32, "%u", count);
+											perror("realloc");
+											state->raids[seltarg].nbombers=n;
+											break;
 										}
-										if(state->raids[seltarg].nbombers&&!datebefore(state->now, event[EVENT_GEE])&&!state->raids[seltarg].routed)
-										{
-											genroute((unsigned int [2]){0, 0}, seltarg, targs[seltarg].route, state, 10000);
-											state->raids[seltarg].routed=true;
-										}
+										(state->raids[seltarg].bombers=new)[n]=j;
+										if(!amount) break;
+									}
+									if(GB_raidnum[i])
+									{
+										unsigned int count=0;
+										for(unsigned int j=0;j<state->raids[seltarg].nbombers;j++)
+											if(state->bombers[state->raids[seltarg].bombers[j]].type==i) count++;
+										snprintf(GB_raidnum[i], 32, "%u", count);
+									}
+									if(state->raids[seltarg].nbombers&&!datebefore(state->now, event[EVENT_GEE])&&!state->raids[seltarg].routed)
+									{
+										genroute((unsigned int [2]){0, 0}, seltarg, targs[seltarg].route, state, 10000);
+										state->raids[seltarg].routed=true;
 									}
 								}
 								if(c.e==GB_rbpic[i])
@@ -2301,8 +2304,13 @@ void fixup_crew_assignments(game *state, unsigned int i, bool kill, double wskil
 					{
 						if(brandp(pescape[reg.status]))
 						{
-							int type=state->bombers[i].type;
-							int bx=types[type].blon, by=types[type].blat;
+							int s=state->crews[j].squadron;
+							if (s<0)
+							{
+								fprintf(stderr, "Warning: internal squadron error\n");
+								s=0;
+							}
+							int bx=base_lon(bases[state->squads[s].base]), by=base_lat(bases[state->squads[s].base]);
 							double d=hypot(x-bx,y-by);
 							unsigned int rt=ceil(exp(sqrt(d)/3.0));
 							state->crews[j].status=CSTATUS_ESCAPEE;
