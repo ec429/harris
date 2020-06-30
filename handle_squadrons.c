@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "date.h"
 #include "bits.h"
+#include "control.h"
 #include "rand.h"
 #include "render.h"
 #include "run_raid.h" // for crewman_skill
@@ -31,7 +32,7 @@ atg_element **HS_btrow;
 char **HS_btnum;
 atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_mbw;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe;
-atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_flbtn[3];
+atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_sqdis, *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
@@ -592,6 +593,17 @@ int handle_squadrons_create(void)
 	}
 	HS_split->hidden=true;
 	if(atg_ebox_pack(rebox, HS_split))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_sqdis=atg_create_element_button("Disband!", (atg_colour){255, 31, 15, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!HS_sqdis)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(rebox, HS_sqdis))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1493,11 +1505,55 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 										state->crews[k].flight=0;
 									}
 							}
+						/* Try to fill the new B flight */
+						fill_flights(state);
+						for(unsigned int j=0;j<state->nbombers;j++)
+						{
+							if(!state->bombers[j].train && state->bombers[j].squadron==(int)newsqn)
+								ensure_crewed(state, j);
+						}
+						update_pool_info(state);
 						update_sqn_list(state);
 						update_stn_list(state);
 						update_stn_info(state);
 						selsqn=newsqn;
 						update_sqn_info(state);
+						break;
+					}
+					if(trigger.e==HS_sqdis)
+					{
+						if(selsqn<0)
+							break;
+						for(unsigned int i=0;i<state->nbombers;i++)
+							if(state->bombers[i].squadron==selsqn)
+							{
+								state->bombers[i].squadron=-1;
+								state->bombers[i].flight=-1;
+							}
+							else if(state->bombers[i].squadron>selsqn)
+								state->bombers[i].squadron--;
+						for(unsigned int i=0;i<state->ncrews;i++)
+							if(state->crews[i].squadron==selsqn)
+							{
+								state->crews[i].squadron=-1;
+								state->crews[i].flight=-1;
+							}
+							else if(state->crews[i].squadron>selsqn)
+								state->crews[i].squadron--;
+						state->nsquads--;
+						for(unsigned int i=selsqn;i<state->nsquads;i++)
+							state->squads[i]=state->squads[i+1];
+						/* Aircraft and crews may have been freed up */
+						fill_flights(state);
+						for(unsigned int j=0;j<state->nbombers;j++)
+						{
+							if(!state->bombers[j].train && state->bombers[j].squadron>=0)
+								ensure_crewed(state, j);
+						}
+						update_pool_info(state);
+						update_sqn_list(state);
+						update_stn_list(state);
+						update_stn_info(state);
 						break;
 					}
 					for(i=0;i<3;i++)
