@@ -1774,9 +1774,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										unsigned int s=state->bombers[j].squadron;
 										if(state->squads[s].rtime)
 											continue;
-										signed int blon=base_lon(bases[state->squads[s].base]), blat=base_lat(bases[state->squads[s].base]);
+										unsigned int b=state->squads[s].base;
+										signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
+										bool unpaved=types[i].heavy&&!bases[b].paved;
 										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.4:1.6);
-										if(newstats(types[i]).range<dist)
+										if(newstats(types[i]).range*(unpaved?0.8:1.0)<dist)
 											continue;
 										if(state->bombers[j].failed) continue;
 										if(!state->bombers[j].landed) continue;
