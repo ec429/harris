@@ -48,8 +48,6 @@ bool filter_marks[MAX_MARKS];
 atg_element *GB_filter_marks;
 
 bool filter_apply(ac_bomber b);
-void clear_crew(game *state, unsigned int i);
-void clear_sqn(game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 int update_raidnums(const game *state, int seltarg);
 

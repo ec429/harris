@@ -15,6 +15,8 @@ extern atg_element *control_box;
 
 void game_preinit(game *state); // post-load and -setup, but pre-SCRN_CONTROL entry
 
+void clear_crew(game *state, unsigned int i);
+void clear_sqn(game *state, unsigned int i);
 void fill_flights(game *state);
 bool ensure_crewed(game *state, unsigned int i);
 void fixup_crew_assignments(game *state, unsigned int i, bool kill, double wskill);

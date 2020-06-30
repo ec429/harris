@@ -28,7 +28,7 @@ atg_element *HS_map, *HS_stnbox, *HS_sqnbox, *HS_fltbox;
 atg_element *HS_gpl, *HS_gprow[7], *HS_mgw[7];
 char *HS_mge[7];
 #define gpnum(_i)	((_i)==6?8:(_i)+1)
-atg_element **HS_btrow;
+atg_element **HS_btrow, **HS_btcvt;
 char **HS_btnum;
 atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_mbw;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe;
@@ -40,7 +40,7 @@ char *HS_flname, *HS_flest, *HS_flsta, **HS_flcc, **HS_flcrew;
 atg_element *HS_sll, **HS_slrow, **HS_slgl;
 char **HS_slgrp, **HS_slsqn;
 int selgrp=-1, selstn=-1, selsqn=-1, selflt=-1;
-bool remustering=false, converting=false;
+bool remustering=false;
 
 static void generate_snums(game *state)
 {
@@ -86,9 +86,9 @@ bool mixed_base(game *state, unsigned int b, double *eff)
 	if(eff)
 	{
 		unsigned int na=0, nb=0;
-		for(unsigned int f=0;f<(state->squads[sa].third_flight?3:2);f++)
+		for(unsigned int f=0;f<3;f++)
 			na+=state->squads[sa].nb[f];
-		for(unsigned int f=0;f<(state->squads[sb].third_flight?3:2);f++)
+		for(unsigned int f=0;f<3;f++)
 			nb+=state->squads[sb].nb[f];
 		*eff=sqrt(max(na, nb)/(double)(na+nb));
 	}
@@ -263,6 +263,11 @@ int handle_squadrons_create(void)
 		perror("calloc");
 		return(1);
 	}
+	if(!(HS_btcvt=calloc(ntypes, sizeof(*HS_btcvt))))
+	{
+		perror("calloc");
+		return(1);
+	}
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		HS_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
@@ -289,6 +294,19 @@ int handle_squadrons_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		atg_element *vbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!vbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		vbox->w=200;
+		vbox->h=38;
+		if(atg_ebox_pack(HS_btrow[i], vbox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 		HS_btnum[i]=malloc(8);
 		if(!HS_btnum[i])
 		{
@@ -296,13 +314,25 @@ int handle_squadrons_create(void)
 			return(1);
 		}
 		snprintf(HS_btnum[i], 8, " ");
-		atg_element *btnum=atg_create_element_label_nocopy(HS_btnum[i], 24, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
+		atg_element *btnum=atg_create_element_label_nocopy(HS_btnum[i], 16, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
 		if(!btnum)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
-		if(atg_ebox_pack(HS_btrow[i], btnum))
+		if(atg_ebox_pack(vbox, btnum))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		HS_btcvt[i]=atg_create_element_button("Convert squadron", (atg_colour){191, 191, 47, ATG_ALPHA_OPAQUE}, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!HS_btcvt[i])
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		HS_btcvt[i]->hidden=true;
+		if(atg_ebox_pack(vbox, HS_btcvt[i]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -1203,9 +1233,10 @@ void update_sqn_info(game *state)
 {
 	atg_toggle *t=HS_remust->elemdata;
 	t->state=remustering=false;
-	converting=false;
 	selflt=-1;
 	update_flt_info(state);
+	for(unsigned int i=0;i<ntypes;i++)
+		HS_btcvt[i]->hidden=selsqn<0||state->squads[selsqn].btype==i;
 	if((HS_sqnbox->hidden=selsqn<0))
 		return;
 	snprintf(HS_sqname, 20, "No. %d Squadron", state->squads[selsqn].number);
@@ -1377,6 +1408,10 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 									bool sg=base_grp(bases[b])==base_grp(bases[i]);
 									state->squads[selsqn].rtime+=sg?7:14;
 									state->squads[selsqn].base=i;
+									// update group in case we moved to a new one
+									for(unsigned int j=0;j<state->ncrews;j++)
+										if(state->crews[j].squadron==selsqn)
+											state->crews[j].group=base_grp(bases[i]);
 									update_group_info(state);
 									update_sqn_list(state);
 									selstn=i;
@@ -1453,7 +1488,15 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 						if(bases[b].nsqns>=2)
 							break;
 						state->squads[selsqn].third_flight=true;
-						state->squads[selsqn].nb[2]=0;
+						if(state->squads[selsqn].nb[2])
+						{
+							fprintf(stderr, "Warning: grow nb[2]=%u\n", state->squads[selsqn].nb[2]);
+							state->squads[selsqn].nb[2]=0;
+						}
+						/* Try to fill the new C flight */
+						fill_flights(state);
+						update_group_info(state);
+						update_pool_info(state);
 						update_sqn_list(state);
 						update_stn_list(state);
 						int resqn=selsqn;
@@ -1507,11 +1550,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 							}
 						/* Try to fill the new B flight */
 						fill_flights(state);
-						for(unsigned int j=0;j<state->nbombers;j++)
-						{
-							if(!state->bombers[j].train && state->bombers[j].squadron==(int)newsqn)
-								ensure_crewed(state, j);
-						}
+						update_group_info(state);
 						update_pool_info(state);
 						update_sqn_list(state);
 						update_stn_list(state);
@@ -1527,8 +1566,8 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 						for(unsigned int i=0;i<state->nbombers;i++)
 							if(state->bombers[i].squadron==selsqn)
 							{
-								state->bombers[i].squadron=-1;
-								state->bombers[i].flight=-1;
+								clear_sqn(state, i);
+								clear_crew(state, i);
 							}
 							else if(state->bombers[i].squadron>selsqn)
 								state->bombers[i].squadron--;
@@ -1551,6 +1590,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 								ensure_crewed(state, j);
 						}
 						update_pool_info(state);
+						update_group_info(state);
 						update_sqn_list(state);
 						update_stn_list(state);
 						update_stn_info(state);
@@ -1564,6 +1604,45 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 							break;
 						}
 					if(i<3)
+						break;
+					for(i=0;i<ntypes;i++)
+						if(trigger.e==HS_btcvt[i])
+						{
+							if(selsqn<0)
+								break;
+							if(!state->btypes[i])
+								break;
+							if(!datewithin(state->now, types[i].entry, types[i].exit))
+								break;
+							/* Begin converting selsqn to the new type */
+							state->squads[selsqn].btype=i;
+							state->squads[selsqn].rtime+=21;
+							/* Remove existing aircraft from sqn */
+							for(unsigned int j=0;j<state->nbombers;j++)
+								if(state->bombers[j].squadron==selsqn)
+								{
+									clear_sqn(state, j);
+									clear_crew(state, j);
+								}
+							for(unsigned int f=0;f<3;f++)
+								if(state->squads[selsqn].nb[f])
+								{
+									fprintf(stderr, "Warning: leftover nb[%u]=%u\n", f, state->squads[selsqn].nb[f]);
+									state->squads[selsqn].nb[f]=0;
+								}
+							/* Try to add some new ones */
+							fill_flights(state);
+							update_pool_info(state);
+							update_group_info(state);
+							update_sqn_list(state);
+							update_stn_list(state);
+							int resqn=selsqn;
+							update_stn_info(state);
+							selsqn=resqn;
+							update_sqn_info(state);
+							break;
+						}
+					if(i<ntypes)
 						break;
 					if(trigger.e==HS_cont)
 						return(SCRN_CONTROL);
