@@ -305,8 +305,9 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			char pave_msg[256];
 			snprintf(pave_msg, sizeof(pave_msg),
 			"The airfield at %s has been upgraded to Class A standard.\n"
+			"Concrete runways, peri-track and dispersal hardstandings have all been laid.\n"
 			"\n"
-			"Concrete runways, peri-track and dispersal hardstandings have all been laid.",
+			"Visit the Stations & Squadrons screen to select another station to upgrade.\n",
 			bases[b].name);
 			if(msgadd(canvas, state, tomorrow, bases[b].name, pave_msg))
 				fprintf(stderr, "failed to msgadd paved: %s\n", bases[b].name);
