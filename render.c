@@ -67,10 +67,6 @@ void render_one_route(SDL_Surface *s, const game *state, unsigned int i, bool ma
 {
 	if(!state->raids[i].nbombers) return;
 	int latl=0, lonl=0;
-	bool have[ntypes];
-	memset(have, 0, sizeof(have));
-	for(unsigned int j=0;j<state->raids[i].nbombers;j++)
-		have[state->bombers[state->raids[i].bombers[j]].type]=true;
 	for(unsigned int stage=0;stage<8;stage++)
 	{
 		int lat=targs[i].route[stage][0], lon=targs[i].route[stage][1];
@@ -81,9 +77,14 @@ void render_one_route(SDL_Surface *s, const game *state, unsigned int i, bool ma
 		}
 		else
 		{
-			for(unsigned int k=0;k<ntypes;k++)
-				if(have[k])
-					line(s, types[k].blon, types[k].blat, lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=96});
+			for(unsigned int j=0;j<state->raids[i].nbombers;j++)
+			{
+				unsigned int k=state->raids[i].bombers[j];
+				if(state->bombers[k].squadron<0)
+					continue;
+				unsigned int b=state->squads[state->bombers[k].squadron].base;
+				line(s, base_lon(bases[b]), base_lat(bases[b]), lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=12});
+			}
 		}
 		if(markers)
 		{
@@ -94,9 +95,14 @@ void render_one_route(SDL_Surface *s, const game *state, unsigned int i, bool ma
 		latl=lat;
 		lonl=lon;
 	}
-	for(unsigned int k=0;k<ntypes;k++)
-		if(have[k])
-			line(s, lonl, latl, types[k].blon, types[k].blat, (atg_colour){.r=0, .g=0, .b=255, .a=96});
+	for(unsigned int j=0;j<state->raids[i].nbombers;j++)
+	{
+		unsigned int k=state->raids[i].bombers[j];
+		if(state->bombers[k].squadron<0)
+			continue;
+		unsigned int b=state->squads[state->bombers[k].squadron].base;
+		line(s, lonl, latl, base_lon(bases[b]), base_lat(bases[b]), (atg_colour){.r=0, .g=0, .b=255, .a=12});
+	}
 }
 
 SDL_Surface *render_routes(const game *state)
