@@ -29,7 +29,7 @@ atg_element **HS_btrow;
 char **HS_btnum;
 atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_sqbtn[2], *HS_nosq;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2];
-atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_flbtn[3];
+atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
@@ -37,6 +37,7 @@ char *HS_flname, *HS_flest, **HS_flcc, **HS_flcrew;
 atg_element *HS_sll, **HS_slrow, **HS_slgl;
 char **HS_slgrp, **HS_slsqn;
 int selgrp=-1, selstn=-1, selsqn=-1, selflt=-1;
+bool remustering=false, converting=false;
 
 int handle_squadrons_create(void)
 {
@@ -420,6 +421,28 @@ int handle_squadrons_create(void)
 	}
 	HS_rtimer->hidden=true;
 	if(atg_ebox_pack(HS_sqnbox, HS_rtimer))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *rebox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!rebox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(HS_sqnbox, rebox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_remust=atg_create_element_toggle("Remuster", false, (atg_colour){191, 111, 47, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!HS_remust)
+	{
+		fprintf(stderr, "atg_create_element_toggle failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(rebox, HS_remust))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -965,6 +988,8 @@ void update_flt_info(game *state)
 
 void update_sqn_info(game *state)
 {
+	remustering=false;
+	converting=false;
 	selflt=-1;
 	update_flt_info(state);
 	if((HS_sqnbox->hidden=selsqn<0))
@@ -1085,9 +1110,42 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 					for(i=0;i<nbases;i++)
 						if(c.e==HS_slrow[i])
 						{
-							selstn=i;
+							int resqn=-1;
+							if(remustering)
+							{
+								resqn=selsqn;
+								bool room;
+								switch(bases[i].nsqns)
+								{
+									case 0:
+										room=true;
+										break;
+									case 1:
+										room=!state->squads[bases[i].sqn[0]].third_flight;
+										break;
+									case 2:
+									default:
+										room=false;
+										break;
+								}
+								if(selsqn>=0 && room)
+								{
+									unsigned int b=state->squads[selsqn].base;
+									bool sg=base_grp(bases[b])==base_grp(bases[i]);
+									state->squads[selsqn].rtime+=sg?7:14;
+									state->squads[selsqn].base=i;
+									update_sqn_list(state);
+									selstn=i;
+								}
+								atg_toggle *t=HS_remust->elemdata;
+								t->state=remustering=false;
+							}
+							else
+								selstn=i;
 							update_stn_list(state);
 							update_stn_info(state);
+							selsqn=resqn;
+							update_sqn_info(state);
 							break;
 						}
 					if(i<nbases)
@@ -1136,6 +1194,15 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 					if(trigger.e==HS_cont)
 						return(SCRN_CONTROL);
 					fprintf(stderr, "Clicked on unknown button!\n");
+				break;
+				case ATG_EV_TOGGLE:;
+					atg_ev_toggle toggle=e.event.toggle;
+					if(toggle.e==HS_remust)
+					{
+						remustering=toggle.state;
+						break;
+					}
+					fprintf(stderr, "Clicked on unknown toggle!\n");
 				break;
 				default:
 				break;
