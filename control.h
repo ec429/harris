@@ -10,6 +10,8 @@
 #include <atg.h>
 
 #include "types.h"
+#include "date.h"
+#include "globals.h"
 
 extern atg_element *control_box;
 
@@ -21,4 +23,13 @@ void fill_flights(game *state);
 bool ensure_crewed(game *state, unsigned int i);
 void fixup_crew_assignments(game *state, unsigned int i, bool kill, double wskill);
 
-extern int filter_nav[NNAVAIDS], filter_pff, filter_elite, filter_student;
+static inline bool is_pff(const game *state, unsigned int i)
+{
+	if(state->bombers[i].squadron<0)
+		return(false);
+	unsigned int s=state->bombers[i].squadron;
+	return(base_grp(bases[state->squads[s].base])==8);
+}
+
+extern int filter_nav[NNAVAIDS], filter_elite, filter_student;
+extern bool filter_marks[MAX_MARKS], filter_groups[7];

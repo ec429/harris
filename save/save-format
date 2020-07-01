@@ -25,7 +25,7 @@ for(i=0;i<NNAVAIDS;i++)
 	"Nprio %u:%d,%u\n", i, state.nap[i], state.napb[i]
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
-	"Type %u:%u,%u,%u,%s,%u,%u,%d,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff, pacid(bomber[i].id), bomber[i].mark, bomber[i].train, bomber[i].squadron, bomber[i].flight
+	"Type %u:%u,%u,%u,%s,%u,%u,%d,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].pff /* no longer used, always 0 */, pacid(bomber[i].id), bomber[i].mark, bomber[i].train, bomber[i].squadron, bomber[i].flight
 "Paving:%d,%u\n", paving /* base number or -1 */, pprog
 "Squadrons:%u\n", nsquads
 for(i=0;i<nsquads;i++)

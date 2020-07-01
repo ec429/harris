@@ -120,7 +120,7 @@ typedef struct
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
 	bool crewbg, crewwg;
-	bool noarm, pff, heavy, inc, extra, ovltank, slowgrow, otub;
+	bool noarm, heavy, inc, extra, ovltank, slowgrow, otub, lfs;
 	date entry;
 	date novelty;
 	date exit;
@@ -319,7 +319,6 @@ typedef struct
 	unsigned int route[8][2]; // [0123 out, 4 bmb, 567 in][0 lat, 1 lon]. {0, 0} indicates "not used, skip to next routestage"
 	unsigned int routestage; // 8 means "passed route[7], heading for base"
 	bool nav[NNAVAIDS];
-	bool pff; // a/c is assigned to the PFF
 	unsigned int mark;
 	unsigned int b_hc, b_gp, b_in, b_ti, b_le; // bombload carried: high capacity explosive, general purpose high explosive or mines, incendiaries, target indicator flares, leaflets
 	bool bombed;

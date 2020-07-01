@@ -344,7 +344,6 @@ int loadgame(const char *fn, game *state)
 					state->bombers[i]=(ac_bomber){
 						.type=j,
 						.failed=failed,
-						.pff=pff,
 						.mark=mark,
 						.train=(bool)train,
 						.squadron=squadron,
@@ -1019,10 +1018,13 @@ int loadgame(const char *fn, game *state)
 			return(e);
 		}
 	}
-	filter_pff=0;
 	filter_elite=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		filter_nav[n]=0;
+	for(unsigned int m=0;m<MAX_MARKS;m++)
+		filter_marks[m]=false;
+	for(unsigned int g=0;g<7;g++)
+		filter_groups[g]=false;
 	selstage=TPIPE__MAX;
 	for(unsigned int i=0;i<ntypes;i++)
 		types[i]=rawtypes[i];
@@ -1146,7 +1148,7 @@ int savegame(const char *fn, game state)
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		pacid(state.bombers[i].id, p_id);
-		fprintf(fs, "Type %u:%u,%u,%u,%s,%u,%u,%d,%d\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, state.bombers[i].pff?1:0, p_id, state.bombers[i].mark, state.bombers[i].train?1:0, state.bombers[i].squadron, state.bombers[i].flight);
+		fprintf(fs, "Type %u:%u,%u,%u,%s,%u,%u,%d,%d\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, 0, p_id, state.bombers[i].mark, state.bombers[i].train?1:0, state.bombers[i].squadron, state.bombers[i].flight);
 	}
 	fprintf(fs, "Paving:%d,%u\n", state.paving, state.pprog);
 	fprintf(fs, "Squadrons:%u\n", state.nsquads);

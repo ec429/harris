@@ -42,14 +42,14 @@ char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 char *GB_suntimes[2];
 SDL_Surface *GB_moonimg, *GB_tfav[2], *GB_ifav[2];
-int filter_nav[NNAVAIDS], filter_pff=0, filter_elite=0;
-atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_pff, *GB_fi_elite;
+int filter_nav[NNAVAIDS], filter_elite=0;
+atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_elite;
 bool filter_marks[MAX_MARKS];
 atg_element *GB_filter_marks;
 bool filter_groups[7];
 atg_element *GB_filter_groups;
 
-bool filter_apply(game *state, unsigned int i);
+bool filter_apply(const game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 int update_raidnums(const game *state, int seltarg);
 
@@ -796,16 +796,6 @@ int control_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-	}
-	if(!(GB_fi_pff=create_filter_switch(pffpic, &filter_pff)))
-	{
-		fprintf(stderr, "create_filter_switch failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(GB_filters, GB_fi_pff))
-	{
-		perror("atg_ebox_pack");
-		return(1);
 	}
 	if(!(GB_fi_elite=create_filter_switch(elitepic, &filter_elite)))
 	{
@@ -2087,11 +2077,9 @@ void control_free(void)
 	atg_free_element(control_box);
 }
 
-bool filter_apply(game *state, unsigned int i)
+bool filter_apply(const game *state, unsigned int i)
 {
 	ac_bomber b=state->bombers[i];
-	if(filter_pff>0&&!b.pff) return(false);
-	if(filter_pff<0&&b.pff) return(false);
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		if(filter_nav[n]>0&&!b.nav[n]) return(false);
@@ -2200,7 +2188,7 @@ bool ensure_crewed(game *state, unsigned int i)
 {
 	unsigned int type=state->bombers[i].type;
 	bool heavy=types[type].heavy;
-	bool lanc=types[type].pff&&!types[type].noarm;
+	bool lanc=types[type].lfs;
 	bool ok=true;
 	memset(shortof, 0, sizeof(shortof));
 	int s=state->bombers[i].squadron, f=state->bombers[i].flight;
@@ -2214,7 +2202,6 @@ bool ensure_crewed(game *state, unsigned int i)
 		int k=state->bombers[i].crew[j];
 		// 0. Deassign current crewman if unsuitable
 		if(k>=0 && ((state->crews[k].skill*filter_elite<50*filter_elite) || // 'elite' filter
-		            (state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15))) || // PFF requirements
 		            state->crews[k].class!=types[type].crew[j])) // cclass changed under us
 		{
 			int cs=state->crews[k].squadron;
@@ -2240,8 +2227,6 @@ bool ensure_crewed(game *state, unsigned int i)
 					if(state->crews[k].squadron!=s)
 						continue;
 					if(state->crews[k].skill*filter_elite<50*filter_elite)
-						continue;
-					if(state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15)))
 						continue;
 					if(best<0 ||
 						   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
@@ -2291,11 +2276,12 @@ bool ensure_crewed(game *state, unsigned int i)
 					continue;
 				if(state->crews[k].status!=CSTATUS_CREWMAN)
 					continue;
-				if(state->crews[k].group && state->crews[k].group!=grp)
+				// The PFF may steal crews from other groups
+				if(state->crews[k].group && state->crews[k].group!=grp && !is_pff(state, i))
 					continue;
 				if(state->crews[k].skill*filter_elite<50*filter_elite)
 					continue;
-				if(state->bombers[i].pff&&(CREWOPS(k)<(types[type].noarm?30:15)))
+				if(is_pff(state, i)&&(CREWOPS(k)<(types[type].noarm?30:15)))
 					continue;
 				if(best<0 ||
 					   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
@@ -2327,7 +2313,7 @@ bool ensure_crewed(game *state, unsigned int i)
 					state->bombers[i].crew[j]=best;
 					if(state->crews[best].group!=grp)
 					{
-						if (state->crews[best].group) /* can't happen */
+						if (state->crews[best].group && !is_pff(state, i)) /* can't happen */
 							fprintf(stderr, "Warning: crewman %d jumped groups\n", best);
 						state->crews[best].group=grp;
 					}
@@ -2455,7 +2441,18 @@ int update_raidbox(const game *state, int seltarg)
 				s->value=state->raids[seltarg].zerohour;
 			}
 	}
-	bool pff=!datebefore(state->now, event[EVENT_PFF]);
+	bool pffyes[ntypes], pffno[ntypes];
+	memset(pffyes, 0, sizeof(pffyes));
+	memset(pffno, 0, sizeof(pffno));
+	if(seltarg>=0 && targs[seltarg].class==TCLASS_CITY)
+		for(unsigned int j=0;j<state->raids[seltarg].nbombers;j++)
+		{
+			unsigned int k=state->raids[seltarg].bombers[j];
+			if (is_pff(state, k))
+				pffyes[state->bombers[k].type]=true;
+			else
+				pffno[state->bombers[k].type]=true;
+		}
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		for(unsigned int j=0;j<2;j++)
@@ -2475,7 +2472,7 @@ int update_raidbox(const game *state, int seltarg)
 				perror("atg_ebox_pack");
 				return(1);
 			}
-			GB_raidload[i][0]->hidden=pff&&types[i].noarm;
+			GB_raidload[i][0]->hidden=!pffno[i];
 			if(!(GB_raidload[i][1]=create_load_selector(&types[i], &state->raids[seltarg].pffloads[i])))
 			{
 				fprintf(stderr, "create_load_selector failed\n");
@@ -2486,7 +2483,7 @@ int update_raidbox(const game *state, int seltarg)
 				perror("atg_ebox_pack");
 				return(1);
 			}
-			GB_raidload[i][1]->hidden=!pff||!types[i].pff;
+			GB_raidload[i][1]->hidden=!pffyes[i];
 		}
 	}
 	return(update_raidnums(state, seltarg));

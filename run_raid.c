@@ -312,8 +312,7 @@ double crewman_skill(const crewman *c, unsigned int type)
 	double skill=c->skill;
 	if(types[type].heavy)
 		skill*=0.2+c->heavy/80.0;
-	/* For LFS purposes, we define "Lancaster" as any type with PFF and not NOARM flags */
-	if(types[type].pff&&!types[type].noarm)
+	if(types[type].lfs)
 		skill*=0.2+c->lanc/80.0;
 	return skill;
 }
@@ -537,9 +536,9 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					// aim for Zero Hour 01:00 plus up to 10 minutes
 					// PFF should arrive at Zero minus 6, and be finished by Zero minus 2
 					// Zero Hour is t=840, and a minute is two t-steps
-					int tt=state->bombers[k].pff?(state->raids[i].zerohour-12+irandu(8)):(state->raids[i].zerohour+irandu(20));
+					int tt=is_pff(state, k)?(state->raids[i].zerohour-12+irandu(8)):(state->raids[i].zerohour+irandu(20));
 					int st=tt-(outward/state->bombers[k].speed)-3;
-					if(state->bombers[k].pff) st-=3;
+					if(is_pff(state, k)) st-=3;
 					if(st<0)
 					{
 						tt-=st;
@@ -576,7 +575,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						state->bombers[k].b_le=min(bulk*3, cap*20);
 					break;
 					case TCLASS_CITY:
-						switch(state->bombers[k].pff?state->raids[i].pffloads[type]:state->raids[i].loads[type])
+						switch(is_pff(state, k)?state->raids[i].pffloads[type]:state->raids[i].loads[type])
 						{
 							case BL_PLUMDUFF:
 								if(cap>=4000) // cookie + gp+in mix
@@ -889,7 +888,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						bool damaged=(state->bombers[k].damage>=8);
 						bool roeok=state->bombers[k].idtar||(!state->roe.idtar&&brandp(0.2))||brandp(0.005);
 						bool leaf=state->bombers[k].b_le;
-						bool pffstop=stream&&(t<state->raids[i].zerohour-(state->bombers[k].pff?16:0)); // PFF start bombing at Zero minus 8; Main Force at Zero Hour
+						bool pffstop=stream&&(t<state->raids[i].zerohour-(is_pff(state, k)?16:0)); // PFF start bombing at Zero minus 8; Main Force at Zero Hour
 						double cr=1.2;
 						if(oboe.k==(int)k) cr=0.3;
 						unsigned int dm=0; // target crew believes is nearest
@@ -943,7 +942,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										state->dmg[ta]-=dmg;
 										tdm_append(&state->hist, state->now, maketime(t), ta, dmg, state->dmg[ta]);
 										targs[ta].fires+=state->bombers[k].b_in*(state->flam[ta]/40.0)/1500+state->bombers[k].b_ti/30;
-										if(state->bombers[k].pff&&state->bombers[k].fix)
+										if(is_pff(state, k)&&state->bombers[k].fix)
 											targs[ta].skym=t;
 										break;
 									}
@@ -1776,7 +1775,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							/* HCU and LFS equivalent experience */
 							if(types[type].heavy)
 								state->crews[m].heavy=min(state->crews[m].heavy+10.0, 100.0);
-							if(types[type].pff&&!types[type].noarm)
+							if(types[type].lfs)
 								state->crews[m].lanc=min(state->crews[m].lanc+25.0, 100.0);
 						}
 					}

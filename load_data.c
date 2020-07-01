@@ -219,7 +219,6 @@ int load_bombers(void)
 				for(unsigned int i=0;i<NNAVAIDS;i++)
 					this.nav[i]=strstr(nav, navaids[i]);
 				this.noarm=strstr(nav, "NOARM");
-				this.pff=strstr(nav, "PFF");
 				this.heavy=strstr(nav, "HEAVY");
 				this.inc=strstr(nav, "INC");
 				this.extra=strstr(nav, "EXTRA");
@@ -228,6 +227,7 @@ int load_bombers(void)
 				this.ovltank=strstr(nav, "OVLTANK");
 				this.slowgrow=strstr(nav, "SLOWGROW");
 				this.otub=strstr(nav, "OTUB");
+				this.lfs=strstr(nav, "LFS");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
 				char pn[256];
@@ -1494,11 +1494,6 @@ int load_images(void)
 		}
 		SDL_SetAlpha(navpic[n], 0, SDL_ALPHA_OPAQUE);
 	}
-	if(!(pffpic=IMG_Load("art/filters/pff.png")))
-	{
-		fprintf(stderr, "PFF icon: IMG_Load: %s\n", IMG_GetError());
-		return(1);
-	}
 	if(!(elitepic=IMG_Load("art/filters/elite.png")))
 	{
 		fprintf(stderr, "Elite icon: IMG_Load: %s\n", IMG_GetError());
@@ -1528,7 +1523,11 @@ int load_images(void)
 			fprintf(stderr, "Group %u icon: IMG_Load: %s\n", g+1, IMG_GetError());
 			return(1);
 		}
-		grouppic[6]=pffpic;
+	}
+	if(!(grouppic[6]=IMG_Load("art/filters/pff.png")))
+	{
+		fprintf(stderr, "PFF icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
 	}
 	for(unsigned int l=0;l<NBOMBLOADS;l++)
 	{

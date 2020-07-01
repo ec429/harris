@@ -73,13 +73,13 @@ ui.o: globals.h date.h
 
 load_data.o: globals.h bits.h date.h render.h ui.h widgets.h
 
-main_menu.o: ui.h globals.h saving.h setup_game.h control.h
+main_menu.o: ui.h globals.h saving.h setup_game.h control.h date.h
 
 setup_game.o: ui.h globals.h saving.h intel_bombers.h intel_fighters.h setup_difficulty.h
 
 setup_difficulty.o: ui.h globals.h
 
-setup_types.o: ui.h globals.h bits.h control.h intel_bombers.h
+setup_types.o: ui.h globals.h bits.h control.h date.h intel_bombers.h
 
 load_game.o: ui.h globals.h saving.h
 

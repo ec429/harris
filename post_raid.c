@@ -252,41 +252,6 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			if(++nac>=(notnew?10:4)) break;
 		}
 	}
-	// assign PFF
-	if(!datebefore(tomorrow, event[EVENT_PFF]))
-	{
-		for(unsigned int j=0;j<ntypes;j++)
-			types[j].count=types[j].pffcount=0;
-		for(int i=state->nbombers-1;i>=0;i--)
-		{
-			unsigned int type=state->bombers[i].type;
-			types[type].count++;
-			if(state->bombers[i].pff) types[type].pffcount++;
-			if(types[type].pff&&types[type].noarm)
-			{
-				if(!state->bombers[i].pff)
-				{
-					state->bombers[i].pff=true;
-					pf_append(&state->hist, state->now, (harris_time){11, 40}, state->bombers[i].id, false, type);
-				}
-				continue;
-			}
-		}
-		for(unsigned int j=0;j<ntypes;j++)
-		{
-			if(!types[j].pff) continue;
-			if(types[j].noarm) continue;
-			int pffneed=ceil(types[j].count*0.2)-types[j].pffcount;
-			for(int i=state->nbombers-1;(pffneed>0)&&(i>=0);i--)
-			{
-				if(state->bombers[i].type!=j) continue;
-				if(state->bombers[i].pff) continue;
-				state->bombers[i].pff=true;
-				pf_append(&state->hist, state->now, (harris_time){11, 40}, state->bombers[i].id, false, j);
-				pffneed--;
-			}
-		}
-	}
 	// update squadrons
 	for(unsigned int s=0;s<state->nsquads;s++)
 	{
@@ -743,16 +708,16 @@ void refill_students(game *state, bool refill)
 				continue;
 			unsigned int type=state->bombers[k].type;
 			switch(t) {
-			case TPIPE_LFS: /* Lancs (PFF and !noarm) only */
-				if(!(types[type].pff&&!types[type].noarm))
+			case TPIPE_LFS: /* Lancs (LFS flag) only */
+				if(!(types[type].lfs))
 					continue;
 				break;
 			case TPIPE_HCU: /* Any heavy */
 				if(!types[type].heavy)
 					continue;
 				break;
-			case TPIPE_OTU: /* Neither heavy nor PFF (i.e. no Mosquito) */
-				if(types[type].heavy||types[type].pff)
+			case TPIPE_OTU: /* Neither heavy nor noarm (i.e. no Mosquito) */
+				if(types[type].heavy||types[type].noarm)
 					continue;
 				break;
 			default:
@@ -841,7 +806,7 @@ void train_students(game *state)
 			break;
 			case TPIPE_HCU:
 				state->crews[i].heavy=min(state->crews[i].heavy+100.0/max_dwell[TPIPE_HCU], 100.0);
-				if(types[type].pff&&!types[type].noarm)
+				if(types[type].lfs)
 					state->crews[i].lanc=min(state->crews[i].lanc+100.0/max_dwell[TPIPE_HCU], 100.0);
 			break;
 			case TPIPE_LFS:

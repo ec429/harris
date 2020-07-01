@@ -84,7 +84,6 @@ SDL_Surface *yellowhair=NULL;
 SDL_Surface *intelbtn=NULL;
 SDL_Surface *nointelbtn=NULL;
 SDL_Surface *navpic[NNAVAIDS];
-SDL_Surface *pffpic=NULL;
 SDL_Surface *elitepic=NULL;
 SDL_Surface *studentpic=NULL;
 SDL_Surface *markpic[4];
@@ -177,15 +176,12 @@ int set_init_state(game *state)
 		{
 			state->raids[i].loads[j]=BL_USUAL;
 			int limit=0;
-			if(types[j].pff)
-			{
-				if(types[j].noarm)
-					state->raids[i].pffloads[j]=BL_ILLUM;
-				else
-					state->raids[i].pffloads[j]=BL_PPLUS;
-			}
+			if(types[j].noarm)
+				state->raids[i].pffloads[j]=BL_ILLUM;
+			else if(types[j].lfs)
+				state->raids[i].pffloads[j]=BL_PPLUS;
 			else
-				state->raids[i].pffloads[j]=0; // doesn't matter
+				state->raids[i].pffloads[j]=BL_ABNORMAL;
 			while(!types[j].load[state->raids[i].loads[j]])
 			{
 				state->raids[i].loads[j]=(state->raids[i].loads[j]+1)%NBOMBLOADS;
