@@ -1162,6 +1162,19 @@ void update_stn_list(game *state)
 			b->bgcolour.r+=23;
 			b->bgcolour.g+=23;
 		}
+		switch(bases[i].nsqns)
+		{
+			case 1:
+				line(map_img->data, bases[i].lon, bases[i].lat-state->squads[bases[i].sqn[0]].third_flight, bases[i].lon, bases[i].lat+2, (atg_colour){143, 95, 0, ATG_ALPHA_OPAQUE});
+				break;
+			case 2:
+				line(map_img->data, bases[i].lon-1, bases[i].lat, bases[i].lon-1, bases[i].lat+2, (atg_colour){143, 95, 0, ATG_ALPHA_OPAQUE});
+				line(map_img->data, bases[i].lon+1, bases[i].lat, bases[i].lon+1, bases[i].lat+2, (atg_colour){143, 95, 0, ATG_ALPHA_OPAQUE});
+				break;
+			case 0:
+			default:
+				break;
+		}
 		atg_label *l=HS_slgl[i]->elemdata;
 		if(base_grp(bases[i])==selgrp)
 			l->colour=(atg_colour){255, 191, 159, ATG_ALPHA_OPAQUE};
@@ -1462,6 +1475,34 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 						selstn=-1;
 						update_stn_list(state);
 						update_stn_info(state);
+						break;
+					}
+					if(c.e==HS_map)
+					{
+						unsigned int mind=(unsigned)-1, best=0;
+						for(i=0;i<nbases;i++)
+						{
+							int dx=bases[i].lon-c.pos.x, dy=bases[i].lat-c.pos.y;
+							unsigned int d=dx*dx+dy*dy;
+							if(d<mind)
+							{
+								mind=d;
+								best=i;
+							}
+						}
+						int resqn=-1;
+						if(mind<=35)
+						{
+							selstn=best;
+							if(bases[best].nsqns==1)
+								resqn=bases[best].sqn[0];
+						}
+						else
+							selstn=-1;
+						update_stn_list(state);
+						update_stn_info(state);
+						selsqn=resqn;
+						update_sqn_info(state);
 						break;
 					}
 					if(c.e==HS_full)
