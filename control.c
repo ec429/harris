@@ -2201,53 +2201,59 @@ bool ensure_crewed(game *state, unsigned int i)
 		if(state->bombers[i].crew[j]<0)
 		{
 			int best=-1;
-			if(state->squads[s].nc[types[type].crew[j]])
+			for(unsigned int k=0;k<state->ncrews;k++)
 			{
-				for(unsigned int k=0;k<state->ncrews;k++)
+				if(state->crews[k].class!=types[type].crew[j])
+					continue;
+				if(state->crews[k].status!=CSTATUS_CREWMAN)
+					continue;
+				if(state->crews[k].squadron!=s)
+					continue;
+				if(state->crews[k].skill*filter_elite<50*filter_elite)
+					continue;
+				if(best<0 ||
+					   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
+						   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :
+					    heavy ? (state->crews[k].heavy > state->crews[best].heavy ||
+						     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
+					    state->crews[k].heavy < state->crews[best].heavy))
 				{
-					if(state->crews[k].class!=types[type].crew[j])
-						continue;
-					if(state->crews[k].status!=CSTATUS_CREWMAN)
-						continue;
-					if(state->crews[k].squadron!=s)
-						continue;
-					if(state->crews[k].skill*filter_elite<50*filter_elite)
-						continue;
-					if(best<0 ||
-						   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
-							   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :
-						    heavy ? (state->crews[k].heavy > state->crews[best].heavy ||
-							     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
-						    state->crews[k].heavy < state->crews[best].heavy))
+					if(state->crews[k].assignment<0||(state->bombers[state->crews[k].assignment].failed&&!state->bombers[i].failed))
 					{
-						if(state->crews[k].assignment<0)
-						{
-							best=k;
-							if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
-							   heavy ? (state->crews[k].lanc <= 0.0 && state->crews[k].heavy >= 100.0) :
-							   state->crews[k].heavy <= 0.0)
-								break; /* won't improve on this */
-						}
+						best=k;
+						if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
+						   heavy ? (state->crews[k].lanc <= 0.0 && state->crews[k].heavy >= 100.0) :
+						   state->crews[k].heavy <= 0.0)
+							break; /* won't improve on this */
 					}
 				}
-				if(best>=0)
+			}
+			if(best>=0)
+			{
+				if(state->crews[best].assignment<0)
 				{
-					if(state->crews[best].assignment<0)
+					int cs=state->crews[best].squadron;
+					if(cs>=0 && !(state->squads[cs].nc[state->crews[best].class]--)) /* can't happen */
+						fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", cs, state->crews[best].flight, state->crews[best].class);
+				}
+				else
+				{
+					unsigned int k=state->crews[best].assignment, c;
+					for(c=0;c<MAX_CREW;c++)
 					{
-						int cs=state->crews[best].squadron;
-						if(cs>=0 && !(state->squads[cs].nc[state->crews[best].class]--)) /* can't happen */
-							fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", cs, state->crews[best].flight, state->crews[best].class);
-						state->crews[best].squadron=s;
-						state->crews[best].flight=f;
-						state->crews[best].assignment=i;
-						state->bombers[i].crew[j]=best;
-						if(state->crews[best].group!=grp)
-						{
-							if (state->crews[best].group) /* can't happen */
-								fprintf(stderr, "Warning: crewman %d jumped groups\n", best);
-							state->crews[best].group=grp;
-						}
+						if(state->bombers[k].crew[c]==best)
+							state->bombers[k].crew[c]=-1;
 					}
+				}
+				state->crews[best].squadron=s;
+				state->crews[best].flight=f;
+				state->crews[best].assignment=i;
+				state->bombers[i].crew[j]=best;
+				if(state->crews[best].group!=grp)
+				{
+					if (state->crews[best].group) /* can't happen */
+						fprintf(stderr, "Warning: crewman %d jumped groups\n", best);
+					state->crews[best].group=grp;
 				}
 			}
 		}

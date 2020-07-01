@@ -568,8 +568,6 @@ int loadgame(const char *fn, game *state)
 						e|=32;
 						break;
 					}
-					if(state->crews[i].status!=CSTATUS_ESCAPEE)
-						state->crews[i].assignment=-1;
 					if(gcmid(p_id, &state->crews[i].id))
 					{
 						fprintf(stderr, "32 Invalid value \"%s\" for c/m ID in tag \"%s\"\n", p_id, tag);
@@ -1092,6 +1090,22 @@ int loadgame(const char *fn, game *state)
 			{
 				fprintf(stderr, "Warning, removing crewman %u from bomber %d in wrong sqn/flt\n", i, k);
 				state->crews[i].assignment=-1;
+			}
+			else
+			{
+				unsigned int j, type=state->bombers[k].type;
+				for(j=0;j<MAX_CREW;j++)
+					if(types[type].crew[j]==state->crews[i].class)
+						if(state->bombers[k].crew[j]<0)
+						{
+							state->bombers[k].crew[j]=i;
+							break;
+						}
+				if(j>=MAX_CREW)
+				{
+					fprintf(stderr, "Warning, removing crewman %u from bomber %d no seat\n", i, k);
+					state->crews[i].assignment=-1;
+				}
 			}
 		}
 		if(s>=0 && state->crews[i].assignment<0)
