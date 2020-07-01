@@ -257,6 +257,11 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	{
 		if(state->squads[s].rtime)
 			state->squads[s].rtime--;
+		/* On PFF day, everyone at a PFF base gets transferred to No. 8 Group */
+		if(!diffdate(tomorrow, event[EVENT_PFF]) && bases[state->squads[s].base].group==8)
+			for(unsigned int i=0;i<state->ncrews;i++)
+				if(state->crews[i].squadron==(int)s)
+					state->crews[i].group=8;
 	}
 	// update bases
 	if(state->paving>=0)
@@ -314,6 +319,9 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 							fprintf(stderr, "Warning: crew linkage error b%u c%u\n", k, i);
 					}
 					state->crews[i].assignment=-1;
+					state->crews[i].squadron=-1;
+					state->crews[i].flight=-1;
+					state->crews[i].group=0;
 				}
 			break;
 			case CSTATUS_INSTRUC:
@@ -323,6 +331,9 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 					state->crews[i].tour_ops=0;
 					state->crews[i].assignment=-1;
+					state->crews[i].squadron=-1;
+					state->crews[i].flight=-1;
+					state->crews[i].group=0;
 				}
 			break;
 			default:
@@ -789,6 +800,9 @@ void train_students(game *state)
 			{
 				state->crews[i].full_tours=0;
 				state->crews[i].status=CSTATUS_CREWMAN;
+				state->crews[i].squadron=-1;
+				state->crews[i].flight=-1;
+				state->crews[i].group=0;
 				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 			}
 			continue;
