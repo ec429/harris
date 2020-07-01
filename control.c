@@ -51,6 +51,7 @@ atg_element *GB_filter_groups;
 
 bool filter_apply(const game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
+void update_btcount(const game *state, unsigned int type, bool shownav);
 int update_raidnums(const game *state, int seltarg);
 
 bool shortof[CREW_CLASSES];
@@ -311,11 +312,12 @@ int control_create(void)
 			fprintf(stderr, "Missing manu or name in type %u\n", i);
 			return(1);
 		}
-		if(!(GB_btnum[i]=malloc(12)))
+		if(!(GB_btnum[i]=malloc(20)))
 		{
 			perror("malloc");
 			return(1);
 		}
+		snprintf(GB_btnum[i], 20, " ");
 		atg_element *btnum=atg_create_element_label_nocopy(GB_btnum[i], 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE});
 		if(!btnum)
 		{
@@ -1393,6 +1395,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		if(!datebefore(state->now, event[navevent[n]])) shownav=true;
 	}
 	for(unsigned int i=0;i<ntypes;i++)
+		types[i].nestab=0;
+	for(unsigned int s=0;s<state->nsquads;s++)
+		types[state->squads[s].btype].nestab+=state->squads[s].third_flight?30:20;
+	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
 			GB_btrow[i]->hidden=!datewithin(state->now, types[i].entry, types[i].exit)||!state->btypes[i];
@@ -1402,30 +1408,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			GB_btnew[i]->hidden=!datebefore(state->now, types[i].novelty);
 		if(GB_btp[i])
 			GB_btp[i]->hidden=(types[i].pribuf<8)||(state->cash<newstats(types[i]).cost)||(types[i].pcbuf>=newstats(types[i]).cost);
-		if(GB_btnum[i])
-		{
-			unsigned int svble=0,total=0;
-			types[i].count=0;
-			for(unsigned int n=0;n<NNAVAIDS;n++)
-				types[i].navcount[n]=0;
-			for(unsigned int j=0;j<state->nbombers;j++)
-				if(state->bombers[j].type==i)
-				{
-					total++;
-					if(!state->bombers[j].failed) svble++;
-					types[i].count++;
-					for(unsigned int n=0;n<NNAVAIDS;n++)
-						if(state->bombers[j].nav[n]) types[i].navcount[n]++;
-				}
-			snprintf(GB_btnum[i], 12, "%u/%u", svble, total);
-		}
-		GB_navrow[i]->hidden=!shownav;
-		for(unsigned int n=0;n<NNAVAIDS;n++)
-		{
-			update_navbtn(*state, GB_navbtn, i, n, grey_overlay, yellow_overlay);
-			if(GB_navgraph[i][n])
-				GB_navgraph[i][n]->h=16-(types[i].count?(types[i].navcount[n]*16)/types[i].count:0);
-		}
+		update_btcount(state, i, shownav);
 	}
 	if(GB_go&&GB_go->elemdata&&((atg_button *)GB_go->elemdata)->content)
 		((atg_button *)GB_go->elemdata)->content->bgcolour=(atg_colour){31, 63, 31, ATG_ALPHA_OPAQUE};
@@ -1739,6 +1722,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									}
 									if(GB_raidnum[i])
 										snprintf(GB_raidnum[i], 32, "%u", count);
+									update_btcount(state, i, shownav);
 								}
 								if(c.e==GB_rbpic[i])
 								{
@@ -1778,6 +1762,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									}
 									if(GB_raidnum[i])
 										snprintf(GB_raidnum[i], 32, "%u", count);
+									update_btcount(state, i, shownav);
 									/* Some a/c may have been made available */
 									fill_flights(state);
 								}
@@ -2487,6 +2472,33 @@ int update_raidbox(const game *state, int seltarg)
 		}
 	}
 	return(update_raidnums(state, seltarg));
+}
+
+void update_btcount(const game *state, unsigned int type, bool shownav)
+{
+	if(GB_btnum[type])
+	{
+		unsigned int svble=0;
+		types[type].count=0;
+		for(unsigned int n=0;n<NNAVAIDS;n++)
+			types[type].navcount[n]=0;
+		for(unsigned int j=0;j<state->nbombers;j++)
+			if(state->bombers[j].type==type&&!state->bombers[j].train)
+			{
+				if(!state->bombers[j].failed) svble++;
+				types[type].count++;
+				for(unsigned int n=0;n<NNAVAIDS;n++)
+					if(state->bombers[j].nav[n]) types[type].navcount[n]++;
+			}
+		snprintf(GB_btnum[type], 20, "%u/%u/%u I.E.", svble, types[type].count, types[type].nestab);
+	}
+	GB_navrow[type]->hidden=!shownav;
+	for(unsigned int n=0;n<NNAVAIDS;n++)
+	{
+		update_navbtn(*state, GB_navbtn, type, n, grey_overlay, yellow_overlay);
+		if(GB_navgraph[type][n])
+			GB_navgraph[type][n]->h=16-(types[type].count?(types[type].navcount[n]*16)/types[type].count:0);
+	}
 }
 
 int update_raidnums(const game *state, int seltarg)

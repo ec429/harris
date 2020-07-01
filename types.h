@@ -129,7 +129,7 @@ typedef struct
 	
 	unsigned int count;
 	unsigned int navcount[NNAVAIDS];
-	unsigned int pffcount;
+	unsigned int nestab;
 	unsigned int prio;
 	unsigned int pribuf;
 	atg_element *prio_selector;
