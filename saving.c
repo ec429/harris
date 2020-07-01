@@ -1083,33 +1083,36 @@ int loadgame(const char *fn, game *state)
 				s=state->crews[i].squadron=-1;
 			}
 		}
-		if(state->crews[i].assignment>=0)
+		if(state->crews[i].status==CSTATUS_CREWMAN || state->crews[i].status==CSTATUS_STUDENT)
 		{
-			int k=state->crews[i].assignment;
-			if(state->bombers[k].squadron!=s||state->bombers[k].flight!=f)
+			if(state->crews[i].assignment>=0)
 			{
-				fprintf(stderr, "Warning, removing crewman %u from bomber %d in wrong sqn/flt\n", i, k);
-				state->crews[i].assignment=-1;
-			}
-			else
-			{
-				unsigned int j, type=state->bombers[k].type;
-				for(j=0;j<MAX_CREW;j++)
-					if(types[type].crew[j]==state->crews[i].class)
-						if(state->bombers[k].crew[j]<0)
-						{
-							state->bombers[k].crew[j]=i;
-							break;
-						}
-				if(j>=MAX_CREW)
+				int k=state->crews[i].assignment;
+				if(state->bombers[k].squadron!=s||state->bombers[k].flight!=f)
 				{
-					fprintf(stderr, "Warning, removing crewman %u from bomber %d no seat\n", i, k);
+					fprintf(stderr, "Warning, removing crewman %u from bomber %d in wrong sqn/flt\n", i, k);
 					state->crews[i].assignment=-1;
 				}
+				else
+				{
+					unsigned int j, type=state->bombers[k].type;
+					for(j=0;j<MAX_CREW;j++)
+						if(types[type].crew[j]==state->crews[i].class)
+							if(state->bombers[k].crew[j]<0)
+							{
+								state->bombers[k].crew[j]=i;
+								break;
+							}
+					if(j>=MAX_CREW)
+					{
+						fprintf(stderr, "Warning, removing crewman %u from bomber %d no seat\n", i, k);
+						state->crews[i].assignment=-1;
+					}
+				}
 			}
+			if(s>=0 && state->crews[i].assignment<0)
+				state->squads[s].nc[state->crews[i].class]++;
 		}
-		if(s>=0 && state->crews[i].assignment<0)
-			state->squads[s].nc[state->crews[i].class]++;
 	}
 	/* compat for pre-tpipe games */
 	if(!datebefore(state->now, event[EVENT_HCU]) && state->tpipe[TPIPE_HCU].dwell == -1)

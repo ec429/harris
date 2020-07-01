@@ -1376,6 +1376,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	}
 	double moonphase=pom(state->now);
 	drawmoon(GB_moonimg, moonphase);
+	memset(shortof, 0, sizeof(shortof));
 	fill_flights(state);
 	for(unsigned int j=0;j<state->nbombers;j++)
 	{
@@ -2175,7 +2176,6 @@ bool ensure_crewed(game *state, unsigned int i)
 	bool heavy=types[type].heavy;
 	bool lanc=types[type].lfs;
 	bool ok=true;
-	memset(shortof, 0, sizeof(shortof));
 	int s=state->bombers[i].squadron, f=state->bombers[i].flight;
 	if(s<0 || f<0)
 		return false;
