@@ -76,6 +76,16 @@ static unsigned int pick_snum(game *state)
 	return state->snums[--state->nsnums];
 }
 
+static void push_snum(game *state, unsigned int number)
+{
+	if(state->nsnums>=SNUM_DEPTH-1)
+		for(unsigned int i=0;i<SNUM_DEPTH-1;i++)
+			state->snums[i]=state->snums[i+1];
+	else
+		state->nsnums++;
+	state->snums[state->nsnums-1]=number;
+}
+
 bool mixed_base(game *state, unsigned int b, double *eff)
 {
 	if(bases[b].nsqns<2)
@@ -1648,6 +1658,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 							}
 							else if(state->crews[i].squadron>selsqn)
 								state->crews[i].squadron--;
+						push_snum(state, state->squads[selsqn].number);
 						state->nsquads--;
 						for(unsigned int i=selsqn;i<state->nsquads;i++)
 							state->squads[i]=state->squads[i+1];
