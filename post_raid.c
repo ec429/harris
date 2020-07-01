@@ -297,6 +297,11 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				state->crews[i].status=CSTATUS_CREWMAN;
 				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 				state->crews[i].assignment=-1;
+				if(state->crews[i].squadron>=0)
+				{
+					unsigned int s=state->crews[i].squadron;
+					state->squads[s].nc[state->crews[i].class]++;
+				}
 				// fall through
 				// to CREWMAN handling for end-of-tour check (in case we were shot down after bombing)
 			case CSTATUS_CREWMAN:
