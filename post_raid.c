@@ -157,7 +157,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					state->nbombers=n;
 					break;
 				}
-				(state->bombers=nb)[n]=(ac_bomber){.type=i, .failed=false, .id=rand_acid(), .mark=types[i].newmark};
+				(state->bombers=nb)[n]=(ac_bomber){.type=i, .failed=false, .id=rand_acid(), .mark=types[i].newmark, .squadron=-1, .flight=-1};
 				for(unsigned int j=0;j<NNAVAIDS;j++)
 					nb[n].nav[j]=false;
 				for(unsigned int j=0;j<MAX_CREW;j++)

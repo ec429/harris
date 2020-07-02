@@ -2325,6 +2325,16 @@ bool ensure_crewed(game *state, unsigned int i)
 // This would be so much easier if everything was in linked-lists... ah well
 void fixup_crew_assignments(game *state, unsigned int i, bool kill, double wskill)
 {
+	// While we're here, decrement the flight's nb
+	if(state->bombers[i].squadron>=0)
+	{
+		unsigned int s=state->bombers[i].squadron;
+		int f=state->bombers[i].flight;
+		if(f<0)
+			fprintf(stderr, "Warning: internal flight error\n");
+		else if(!state->squads[s].nb[f]--)
+			fprintf(stderr, "Warning: nb went negative in %s (%d.%d)\n", __func__, s, f);
+	}
 	for(unsigned int j=0;j<state->ncrews;j++) {
 		if(state->crews[j].status==CSTATUS_CREWMAN)
 		{
