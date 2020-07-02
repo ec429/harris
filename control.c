@@ -2620,6 +2620,8 @@ int update_raidnums(const game *state, int seltarg)
 			else
 				snprintf(GB_estcap[i], 24, "%12ulb est. max", 10*(tcap/count/10));
 		}
+		else
+			GB_estcap[i][0]=0;
 	}
 	return(0);
 }
