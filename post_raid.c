@@ -255,6 +255,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	// crews in non-operational squadrons train a little
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
+		if(state->crews[i].status!=CSTATUS_CREWMAN)
+			continue;
 		if(state->crews[i].squadron<0)
 			continue;
 		unsigned int s=state->crews[i].squadron;
@@ -275,7 +277,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		unsigned int type=state->squads[s].btype;
 		if(state->bombers[k].type!=type)
 		{
-			fprintf(stderr, "Warning: assignment type mismatch: %u type %u!=%u\n", k, state->bombers[k].type, type);
+			fprintf(stderr, "Warning: assignment type mismatch: %u in %u type %u!=%u sqn %u\n", i, k, state->bombers[k].type, type, s);
 			continue;
 		}
 		if(types[type].heavy)
