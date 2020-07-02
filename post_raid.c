@@ -354,6 +354,12 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 						else // can't happen
 							fprintf(stderr, "Warning: crew linkage error b%u c%u\n", k, i);
 					}
+					else if(state->crews[i].squadron>=0)
+					{
+						unsigned int s=state->crews[i].squadron;
+						if(!state->squads[s].nc[state->crews[i].class]--)
+							fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", s, state->crews[i].flight, state->crews[i].class);
+					}
 					state->crews[i].assignment=-1;
 					state->crews[i].squadron=-1;
 					state->crews[i].flight=-1;
