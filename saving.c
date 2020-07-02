@@ -383,6 +383,50 @@ int loadgame(const char *fn, game *state)
 				state->pprog=pprog;
 			}
 		}
+		else if(strcmp(tag, "Bases")==0)
+		{
+			unsigned int snbases;
+			f=sscanf(dat, "%u\n", &snbases);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(snbases!=nbases)
+			{
+				fprintf(stderr, "2 Value mismatch: different ntypes value (%u!=%u)\n", snbases, nbases);
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<nbases;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j, paved;
+					f=sscanf(line, "Base %u:%u\n", &j, &paved);
+					if(f!=2)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+					bases[i].paved=paved;
+				}
+			}
+		}
 		else if(strcmp(tag, "Squadrons")==0)
 		{
 			f=sscanf(dat, "%u\n", &state->nsquads);
@@ -1168,6 +1212,9 @@ int savegame(const char *fn, game state)
 		fprintf(fs, "Type %u:%u,%u,%u,%s,%u,%u,%d,%d\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, 0, p_id, state.bombers[i].mark, state.bombers[i].train?1:0, state.bombers[i].squadron, state.bombers[i].flight);
 	}
 	fprintf(fs, "Paving:%d,%u\n", state.paving, state.pprog);
+	fprintf(fs, "Bases:%u\n", nbases);
+	for(unsigned int i=0;i<nbases;i++)
+		fprintf(fs, "Base %u:%u\n", i, bases[i].paved?1:0);
 	fprintf(fs, "Squadrons:%u\n", state.nsquads);
 	for(unsigned int i=0;i<state.nsquads;i++)
 		fprintf(fs, "Squad %u:%u,%u,%u,%u,%u\n", i, state.squads[i].number, state.squads[i].base, state.squads[i].third_flight?1:0, state.squads[i].btype, state.squads[i].rtime);
