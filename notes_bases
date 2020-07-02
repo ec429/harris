@@ -15,3 +15,4 @@ Aircraft and crews are laid out against flights' nominal establishments; normall
 Extended plans:
 * Track morale of Groups and individual Squadrons based on their loss records.  (Re-equipping a Squadron with a new type can somewhat perk up low morale.  TODO figure out a way to determine if they should think the new type is 'better', so you can't just switch back and forth between two obsolete types and keep the aircrews happy.)
 * Add a reserve aircraft to each flight (that is, the nominal establishment of airframes is one more than that of aircrews), to account for serviceability.
+* Fiddle with ensure_crewed() to try to keep whole crews intact: preferentially pilfer from incomplete crews; and if a complete crew's a/c is Failed, steal the whole crew (swapping with our incomplete one) rather than just the individuals we need.
