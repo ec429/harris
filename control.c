@@ -1797,9 +1797,12 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									if(GB_raidnum[i])
 										snprintf(GB_raidnum[i], 32, "%u", count);
 									update_btcount(state, i, shownav);
-									/* Some a/c may have been made available */
-									fill_flights(state);
 								}
+								/* Some a/c or crews may have been made available */
+								fill_flights(state);
+								for(unsigned int k=0;k<state->nbombers;k++)
+									if(!state->bombers[k].train && state->bombers[k].squadron>=0)
+										ensure_crewed(state, k);
 								break;
 							default:
 								if(c.e==GB_btpic[i])
