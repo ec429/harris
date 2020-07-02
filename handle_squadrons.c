@@ -1335,9 +1335,11 @@ void update_sqn_list(game *state)
 void update_stn_info(game *state)
 {
 	selsqn=-1;
-	update_sqn_info(state);
 	if((HS_stnbox->hidden=selstn<0))
-		return;
+		return update_sqn_info(state);
+	if(bases[selstn].nsqns==1)
+		selsqn=bases[selstn].sqn[0];
+	update_sqn_info(state);
 	snprintf(HS_stname, 48, "%s", bases[selstn].name);
 	HS_stpaved->hidden=!bases[selstn].paved;
 	if(!(HS_stpaving->hidden=selstn!=state->paving))
@@ -1461,14 +1463,11 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 								t->state=remustering=false;
 							}
 							else
-							{
 								selstn=i;
-								if(bases[i].nsqns==1)
-									resqn=bases[i].sqn[0];
-							}
 							update_stn_list(state);
 							update_stn_info(state);
-							selsqn=resqn;
+							if(resqn>=0)
+								selsqn=resqn;
 							update_sqn_info(state);
 							break;
 						}
@@ -1500,18 +1499,12 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 								best=i;
 							}
 						}
-						int resqn=-1;
 						if(mind<=35)
-						{
 							selstn=best;
-							if(bases[best].nsqns==1)
-								resqn=bases[best].sqn[0];
-						}
 						else
 							selstn=-1;
 						update_stn_list(state);
 						update_stn_info(state);
-						selsqn=resqn;
 						update_sqn_info(state);
 						break;
 					}
