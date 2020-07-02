@@ -1398,7 +1398,40 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	for(unsigned int i=0;i<ntypes;i++)
 		types[i].nestab=0;
 	for(unsigned int s=0;s<state->nsquads;s++)
-		types[state->squads[s].btype].nestab+=state->squads[s].third_flight?30:20;
+	{
+		unsigned int flights=state->squads[s].third_flight?3:2;
+		unsigned int ucls[CREW_CLASSES]={0};
+		types[state->squads[s].btype].nestab+=flights*10;
+		/* Count up unfilled I.E. of each crew class */
+		for(unsigned int j=0;j<MAX_CREW;j++)
+			for(unsigned int f=0;f<flights;f++)
+				ucls[types[state->squads[s].btype].crew[j]]+=(10-state->squads[s].nb[f]);
+		bool surplus=false;
+		for(unsigned int c=0;c<CREW_CLASSES;c++)
+			if(state->squads[s].nc[c]>ucls[c])
+			{
+				surplus=true;
+				break;
+			}
+		if(surplus) /* Release surplus to group pool */
+			for(unsigned int i=0;i<state->ncrews;i++)
+			{
+				if(state->crews[i].status!=CSTATUS_CREWMAN)
+					continue;
+				if(state->crews[i].squadron!=(int)s)
+					continue;
+				if(state->crews[i].assignment>=0)
+					continue;
+				if(ucls[state->crews[i].class])
+				{
+					ucls[state->crews[i].class]--;
+					continue;
+				}
+				if(!(state->squads[s].nc[state->crews[i].class]--)) /* can't happen */
+					fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", s, state->crews[i].flight, state->crews[i].class);
+				state->crews[i].squadron=state->crews[i].flight=-1;
+			}
+	}
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
