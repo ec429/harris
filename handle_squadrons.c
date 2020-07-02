@@ -1388,7 +1388,7 @@ void update_stn_info(game *state)
 	HS_stpaved->hidden=!bases[selstn].paved;
 	if(!(HS_stpaving->hidden=selstn!=state->paving))
 		snprintf(HS_stpavetime, 24, "Paving (%d days left)", PAVE_TIME-state->pprog);
-	HS_stpavebtn->hidden=datebefore(state->now, event[EVENT_PAVING])||state->paving>=0||bases[selstn].nsqns;
+	HS_stpavebtn->hidden=datebefore(state->now, event[EVENT_PAVING])||bases[selstn].paved||state->paving>=0||bases[selstn].nsqns;
 	double eff;
 	if(!(HS_mbw->hidden=!mixed_base(state, selstn, &eff)))
 		snprintf(HS_mbe, 40, "Mixed types (%.1f%% efficiency)", eff*100.0);
@@ -1574,6 +1574,9 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 							break;
 						state->paving=selstn;
 						state->pprog=0;
+						update_stn_list(state);
+						update_stn_info(state);
+						break;
 					}
 					for(i=0;i<bases[selstn].nsqns;i++)
 						if(trigger.e==HS_sqbtn[i])
