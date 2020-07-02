@@ -252,6 +252,37 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			if(++nac>=(notnew?10:4)) break;
 		}
 	}
+	// crews in non-operational squadrons train a little
+	for(unsigned int i=0;i<state->ncrews;i++)
+	{
+		if(state->crews[i].squadron<0)
+			continue;
+		unsigned int s=state->crews[i].squadron;
+		if(!state->squads[s].rtime)
+			continue;
+		if(state->crews[i].assignment<0)
+			continue;
+		unsigned int k=state->crews[i].assignment;
+		if(state->bombers[k].failed)
+			continue;
+		if((state->crews[i].skill<1)||brandp(5.0/pow(state->crews[i].skill, 1.5)))
+		{
+			double new=min(state->crews[i].skill+irandu(state->crews[i].lrate)/100.0, 100.0);
+			if(floor(new)>floor(state->crews[i].skill))
+				sk_append(&state->hist, state->now, (harris_time){11, 40}, state->crews[i].id, state->crews[i].class, new);
+			state->crews[i].skill=new;
+		}
+		unsigned int type=state->squads[s].btype;
+		if(state->bombers[k].type!=type)
+		{
+			fprintf(stderr, "Warning: assignment type mismatch: %u type %u!=%u\n", k, state->bombers[k].type, type);
+			continue;
+		}
+		if(types[type].heavy)
+			state->crews[i].heavy=min(state->crews[i].heavy+50.0/max_dwell[TPIPE_HCU], 100.0);
+		if(types[type].lfs)
+			state->crews[i].lanc=min(state->crews[i].lanc+50.0/max_dwell[TPIPE_HCU], 100.0);
+	}
 	// update squadrons
 	for(unsigned int s=0;s<state->nsquads;s++)
 	{
