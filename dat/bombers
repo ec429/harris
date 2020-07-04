@@ -1,5 +1,5 @@
 # Format: dsv
-# MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
+# MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
 # Cost in £
 # Speed in mph (cruising, approx)
 # Ceiling in 100ft (only affects Navaid range)
@@ -9,7 +9,7 @@
 # Failure represents the chance of mech. fail. crashes and early returns, 'just a number', high is bad
 # Accuracy controls navigational errors
 # A range of 230 will reach Hamburg, 315 for Berlin.  Soesterberg could be under 120, while Schillig roads are about 175.  Munich (from Yorkshire) is up to 330
-# Dates are entry and exit from service (null in either case means open-ended)
+# Dates are entry and exit from service and exit from training units (null in each case means open-ended)
 # Navaids lists which navigational aids this bomber can carry (a big set won't fit in a small bomber)
 # Flags: NOARM,HEAVY,INC,OVLTANK,SLOWGROW,OTUB,LFS,...
 # Bombloads: Ab=Abnormal, Pp=Plumduff-plus, Pd=Plumduff, Po=Plumduff (cookie only), Us=Usual, Ar=Arson, Il=Illuminator, Hh=Half-and-half (alternate Il and Po)
@@ -17,35 +17,36 @@
 
 # True, or at any rate different, entry-dates:
 # Stir 10 Feb 1941 (source: documentary film "Lancaster At War")
-# Hal1 Nov 1940 (!?) (source: unknown);  Mar 1941 (source: film "Forgotten Bombers of the RAF")
+# Hal1 Nov 1940 (!?) (source: unknown); Mar 1941 (source: film "Forgotten Bombers of the RAF"); first op 10 Mar 41 Le Havre but shortly afterwards taken out of frontline for a month owing to unreliability (source: Halifax at War (BJ Rapier))
 # Wind 23 October 1943 (first flight of prototype.  source: Wiki)
 # Mosq 15 November 1941 (first B.IV, W4064, arrives at 105 Sqn.  source: Wiki)
 # Selk "production seemed unlikely before January 1944" (source: The Stirling Bomber (MJF Bowyer))
+# Hal3 Dec 1943 (source: Halifax (KA Merrick), adds "expansion of the [Mk III] force was relatively rapid and by mid-January 1944 nine squadrons were operational with the type" although some were using a mixture of IIs, Vs and IIIs)
 
 # True obsolete-dates:
 # Blen unknown; late 1940?
-# Whit May 1942 (the 1000 raids; last ops four weeks earlier)
-# Hamp mid-Sep 1942
+# Whit May 1942 (the 1000 raids; last ops four weeks earlier).  According to Wiki, 10 OTU used Whitleys until Sep 44!
+# Hamp mid-Sep 1942 (source: wiki)
 # (Wlng Oct 1943; but we keep them around indefinitely for OTUs)
 # (Manc 26 Jun 1942)
-# Stir mid-1943; or Dec 43 according to Wiki
-# Hal1 unknown
+# Stir mid-1943; or Dec 43 according to Wiki; or 8 Sep 1944 according to Bowyer (who also notes that 22/23 Nov 43 was "the last time that Stirlings participated in a long distance Main Force attack", 50 of them raiding Berlin, and that as of 1 Jan 44 "there were still 100 Stirlings on squadrons".)
+# Hal1 unknown.  Jan44 IIs and Vs suspended from ops against Germany (Rapier)
 
 # Note that most of these values change at various dates due to mods.
 
-#                            COST SPD ALT CAPAC SV DE FA AC RAN                       CREW
-Bristol:Blenheim:            5000:198:205: 1200:55:28: 6:60:190:          :10-01-1941:PNG    :Ab
-Armstrong-Whitworth:Whitley: 8000:165:176: 7000:70:32: 9:32:320:          :18-06-1941:PNBWG  :GEE,H2S,Ab
-Handley Page:Hampden:       10000:202:190: 4000:65:24: 8:48:265:          :02-11-1941:PNWG   :GEE,Ab
-Vickers:Wellington:         12000:185:180: 4500:85:16: 2:40:311:          :          :PNWGGG :GEE,H2S,OTUB,Ab,Pd,Us,Ar
+#                            COST SPD ALT CAPAC SV DE FA AC RAN ENTRY      TRAIN_ONLY EXIT      :CREW
+Bristol:Blenheim:            5000:198:205: 1200:55:28: 6:60:190:          :10-01-1941:20-05-1941:PNG    :Ab
+Armstrong-Whitworth:Whitley: 8000:165:176: 7000:70:32: 9:32:320:          :18-06-1941:01-04-1942:PNBWG  :GEE,H2S,Ab
+Handley Page:Hampden:       10000:202:190: 4000:65:24: 8:48:265:          :02-02-1942:16-11-1942:PNWG   :GEE,Ab
+Vickers:Wellington:         12000:185:180: 4500:85:16: 2:40:311:          :21-10-1943:          :PNWGGG :GEE,H2S,OTUB,Ab,Pd,Us,Ar
 # while Manc's Sv may seem high, remember that its high Fa brings this right down in practice
-Avro:Manchester:            20000:210:185:10350:64:24:16:55:325:05-11-1940:26-06-1942:PPNBWGG:GEE,H2S,OBOE,CREWBG,HEAVY,Ab,Pd,Us,Ar
-Supermarine:Southampton:    33000:230:220:16000:64:22: 6:50:265:25-12-1940:17-11-1943:PNBWGG :GEE,H2S,HEAVY,EXTRA,Ab,Pd,Us,Ar
-Short:Stirling:             25000:200:175:14000:40:18: 7:50:280:16-01-1941:08-07-1943:PPNWEGG:GEE,H2S,OBOE,CREWWG,HEAVY,Ab,Us,Ar
-Armstrong-Whitworth:Elswick:10000:186:202: 7500:65:30:10:40:330:13-02-1941:03-02-1943:PNBWG  :GEE,H2S,EXTRA,Ab,Us,Ar
-Handley Page:Halifax I:     28000:225:200:13000:80:22: 6:62:335:14-05-1941:31-03-1944:PNWEGGG:GEE,H2S,OBOE,GH,HEAVY,Ab,Us,Ar
-Avro:Lancaster:             40000:232:225:14000:70:12: 4:60:350:07-02-1942:          :PNBWEGG:GEE,H2S,OBOE,GH,CREWBG,HEAVY,SLOWGROW,LFS,Ab,Pp,Pd,Us,Ar
-de Havilland:Mosquito:      15000:325:300: 2000:80: 4: 4:64:390:12-08-1942:          :PN     :GEE,OBOE,GH,NOARM,Ab,Il
-Handley Page:Halifax III:   30000:230:220:13500:90:14: 5:70:345:30-04-1943:          :PNBWEGG:GEE,H2S,OBOE,GH,CREWBG,HEAVY,INC,OVLTANK,Ab,Us,Ar
-Vickers:Windsor:            50000:260:270:15000:80: 8: 5:70:365:26-06-1943:          :PNBWEG :GEE,H2S,OBOE,GH,HEAVY,EXTRA,Ab,Pp,Pd,Us,Ar
-Short:Selkirk:              36000:210:185:18000:72:18: 6:58:300:13-08-1943:02-02-1945:PNBWEGG:GEE,H2S,OBOE,GH,CREWWG,HEAVY,EXTRA,Ab,Us,Ar
+Avro:Manchester:            20000:210:185:10350:64:24:16:55:325:05-11-1940:26-06-1942:19-05-1943:PPNBWGG:GEE,H2S,OBOE,CREWBG,HEAVY,Ab,Pd,Us,Ar
+Supermarine:Southampton:    33000:230:220:16000:64:22: 6:50:265:25-12-1940:17-11-1943:15-04-1944:PNBWGG :GEE,H2S,HEAVY,EXTRA,Ab,Pd,Us,Ar
+Short:Stirling:             25000:200:175:14000:40:18: 7:50:280:16-01-1941:08-02-1944:22-05-1944:PPNWEGG:GEE,H2S,OBOE,CREWWG,HEAVY,Ab,Us,Ar
+Armstrong-Whitworth:Elswick:10000:186:202: 7500:65:30:10:40:330:13-02-1941:03-02-1943:16-07-1943:PNBWG  :GEE,H2S,EXTRA,Ab,Us,Ar
+Handley Page:Halifax:       28000:225:200:13000:80:22: 6:62:335:14-05-1941:31-03-1944:09-09-1944:PNWEGGG:GEE,H2S,OBOE,GH,HEAVY,Ab,Us,Ar
+Avro:Lancaster:             40000:232:225:14000:70:12: 4:60:350:07-02-1942:          :          :PNBWEGG:GEE,H2S,OBOE,GH,CREWBG,HEAVY,SLOWGROW,LFS,Ab,Pp,Pd,Us,Ar
+de Havilland:Mosquito:      15000:325:300: 2000:80: 4: 4:64:390:12-08-1942:          :          :PN     :GEE,OBOE,GH,NOARM,Ab,Il
+Handley Page:Halifax III:   30000:230:220:13500:90:14: 5:70:345:30-04-1943:          :          :PNBWEGG:GEE,H2S,OBOE,GH,CREWBG,HEAVY,INC,OVLTANK,Ab,Us,Ar
+Vickers:Windsor:            50000:260:270:15000:80: 8: 5:70:365:26-06-1943:          :          :PNBWEG :GEE,H2S,OBOE,GH,HEAVY,EXTRA,Ab,Pp,Pd,Us,Ar
+Short:Selkirk:              36000:210:185:18000:72:18: 6:58:300:13-08-1943:02-02-1945:          :PNBWEGG:GEE,H2S,OBOE,GH,CREWWG,HEAVY,EXTRA,Ab,Us,Ar

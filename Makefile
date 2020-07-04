@@ -46,10 +46,10 @@ harris: harris.o $(OBJS)
 harris.o: harris.c $(INCLUDES)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(SDLFLAGS) -o $@ -c $<
 
-events.h: dat/events mkevents.py
+events.h: dat/events mkevents.py stats/hdata.py
 	./mkevents.py h >events.h
 
-events.c: dat/events mkevents.py
+events.c: dat/events mkevents.py stats/hdata.py
 	./mkevents.py c >events.c
 
 save/%.sav: save/%.sav.in gensave.py

@@ -163,7 +163,7 @@ int load_bombers(void)
 			if(*next&&(*next!='#'))
 			{
 				bombertype this={0};
-				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
+				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
@@ -187,7 +187,16 @@ int load_bombers(void)
 					this.novelty.month-=12;
 					this.novelty.year++;
 				}
-				const char *exit=strchr(next+db, ':');
+				const char *train=strchr(next+db, ':');
+				if(!train)
+				{
+					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+					fprintf(stderr, "  missing :TRAIN_ONLY\n");
+					return(1);
+				}
+				train++;
+				this.train=readdate(train, (date){9999, 99, 99});
+				const char *exit=strchr(train, ':');
 				if(!exit)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
@@ -1193,11 +1202,21 @@ int load_texts(void)
 				else
 				{
 					unsigned int i;
-					bool new=false;
+					bool new=false, train=false, exit=false;
 					if(!strncmp(item, "NEW_", 4))
 					{
 						new=true;
 						item+=4;
+					}
+					else if(!strncmp(item, "TRAIN_", 6))
+					{
+						train=true;
+						item+=6;
+					}
+					else if(!strncmp(item, "EXIT_", 5))
+					{
+						exit=true;
+						item+=5;
 					}
 					for(i=0;i<ntypes;i++)
 						if(!strcmp(rawtypes[i].name, item)) break;
@@ -1205,6 +1224,10 @@ int load_texts(void)
 					{
 						if(new)
 							rawtypes[i].newtext=strdup(next);
+						else if(train)
+							rawtypes[i].traintext=strdup(next);
+						else if(exit)
+							rawtypes[i].exittext=strdup(next);
 						else
 							rawtypes[i].text=strdup(next);
 					}

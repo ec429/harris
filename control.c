@@ -1435,7 +1435,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
-			GB_btrow[i]->hidden=!datewithin(state->now, types[i].entry, types[i].exit)||!state->btypes[i];
+			GB_btrow[i]->hidden=!datewithin(state->now, types[i].entry, types[i].train)||!state->btypes[i];
 		if(GB_btpc[i])
 			GB_btpc[i]->h=18-min(types[i].pcbuf/10000, 18);
 		if(GB_btnew[i])
@@ -1758,9 +1758,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										snprintf(GB_raidnum[i], 32, "%u", count);
 									update_btcount(state, i, shownav);
 								}
-								if(c.e==GB_rbpic[i])
+								else if(c.e==GB_rbpic[i])
 								{
 									unsigned int amount, count=0;
+									if(!datebefore(state->now, types[i].train))
+										break;
 									switch(b)
 									{
 										case ATG_MB_RIGHT:

@@ -565,6 +565,17 @@ a light bomber, it carries a mere 1,200lb of bombs, and hasn't the
 range to attack distant targets.  It's best employed against coastal
 targets and enemy-held airfields and troop concentrations in France.
 
+==TRAIN_Blenheim==
+
+With loss rates deemed to be unacceptably high, the Bristol Blenheim has been removed from front-line operational
+ duties.  All remaining airframes of this type have been transferred to Operational Training Units.
+
+==EXIT_Blenheim==
+
+Training flights in Blenheims have proven to be poor preparation for operating medium bombers, as the Blenheim is
+ only a small aircraft with a mere three-man crew.
+All remaining Blenheims have been either sent to other theatres (mainly North Africa) or broken up for scrap.
+
 ==Whitley==
 
 The Armstrong Whitworth A.W.38 Whitley is a twin-engined medium
@@ -576,6 +587,10 @@ carry a bomb load of about 7,000lb, the heaviest of the bombers
 available to you at the start of the war.  It's best used for
 mining, leaflet raids, and long-range sorties.
 
+==TRAIN_Whitley==
+
+The slow old Whitleys are no longer considered suitable for operational use, and have been relegated to OTU duty.
+
 ==Hampden==
 
 The Handley Page HP.52 Hampden was conceived as a fast, manoeuvrable
@@ -586,6 +601,15 @@ It's fairly vulnerable to modern fighters, and may struggle to reach
 well-defended targets.  It's a good bombing platform, though, so
 accuracy is good.
 
+==TRAIN_Hampden==
+
+Handley Page's "fighting bomber" can no longer fight its way through the harsh night skies of Occupied Europe.
+All Hampdens have been relegated to Operational Training Units with immediate effect.
+
+==EXIT_Hampden==
+
+The Hampdens have been retired from your training units, as they are now thoroughly obsolete.
+
 ==Wellington==
 
 The Vickers Wellington, popularly dubbed the "Wimpy", is anything
@@ -594,6 +618,11 @@ damage and continue with the operation.  It's the most survivable,
 and also the most reliable, of the twin-engined medium bombers at
 the start of the war.  It carries a reasonable medium-bomber payload
 of 4,500lb, and is a solid all-rounder.
+
+==TRAIN_Wellington==
+
+The faithful old Wimpey is, at long last, too old to serve in the front lines.  Your Wellingtons will spend the
+ remainder of their war at Operational Training Units, in the hands of 'sprog' crews.
 
 ==Manchester==
 
@@ -609,6 +638,16 @@ treated as a Whitley replacement.
 A new type of bomber has been developed and is now going into production.  The Avro Manchester is a twin-engined
  heavy bomber, capable of carrying 50% more bombs than a Whitley.  There have been a few teething problems with
  the Vulture engines, though.
+
+==TRAIN_Manchester==
+
+The Air Ministry have reluctantly concluded that the Avro Manchester is a complete failure as a front-line heavy
+ bomber.  All remaining Manchester aircraft are restricted to training duties at Heavy Conversion Units.
+
+==EXIT_Manchester==
+
+Unreliable Manchesters at HCUs are causing too great a wastage owing to the type's continued unreliability.
+Consequently, these airframes will henceforth be used only for ground instruction.
 
 ==Southampton==
 
@@ -628,6 +667,14 @@ Historical notes: The Type 317 project was cancelled after a
 A new type of bomber has been developed and is now going into production.  The Supermarine Type 317 is a large
  four-engined bomber with a 16,000lb payload.
 
+==TRAIN_Southampton==
+
+The Supermarine Southampton has been officially declared obsolescent and relegated to HCU training.
+
+==EXIT_Southampton==
+
+Your Southamptons are no longer fit for training use and have been scrapped.
+
 ==Stirling==
 
 The Short S.29 Stirling is the first four-engined heavy bomber
@@ -641,6 +688,16 @@ it's a welcome addition to the heavy striking force.
 
 The first of the new four-engined heavy bombers is now going into production.  The Short Stirling, a very large
  aircraft, carries a huge 14,000lb of bombs.
+
+==TRAIN_Stirling==
+
+Short Stirlings are no longer fit to be employed operationally.  All Stirling airframes have been transferred to
+ Heavy Conversion Units for use in aircrew training.
+
+==EXIT_Stirling==
+
+Your HCUs have handed their elderly Stirlings over to Transport Command, which needs all the heavies it can get to
+ tow gliders and drop paratroops for the imminent Operation Overlord.
 
 ==Elswick==
 
@@ -659,7 +716,15 @@ A new medium bomber has been developed and is now going into production.  The Ar
  cheap-and-cheerful alternative to heavy bombers, with a long range and a 7,500lb load but otherwise rather poor
  performance.  It's also weak defensively and lacks accuracy.
 
-==Halifax I==
+==TRAIN_Elswick==
+
+Thoroughly obsolescent, the Armstrong-Whitworth Elswick has been relegated to O.T.U. duties.
+
+==EXIT_Elswick==
+
+All remaining Elswick airframes have been scrapped.
+
+==Halifax==
 
 The Handley Page H.P.57 Halifax I is a four-engined heavy.  Its load
 is slightly less than the Stirling, and it suffers from a fatal yaw
@@ -667,10 +732,19 @@ spiral in violent evasive manoeuvres, but it's faster, more
 reliable, and much more serviceable.  It's also a better bombing
 platform.  It gives you a realistic long-range heavy capability.
 
-==NEW_Halifax I==
+==NEW_Halifax==
 
 A new type of bomber has been developed and is now going into production.  The Handley Page Halifax is generally
  an improvement over the Stirling and has a longer range, but it does carry slightly less ordnance.
+
+==TRAIN_Halifax==
+
+Loss-rates of the old Merlin-engined Halifaxes are no longer sustainable.  Mk I, II and V Halifaxes have all been
+ relegated to training duties at the HCUs.
+
+==EXIT_Halifax==
+
+The Mk I and II/V Halifaxes at Heavy Conversion Units are now thoroughly worn out and have been struck off charge.
 
 ==Lancaster==
 
@@ -716,8 +790,9 @@ raids, and it's not a bad bomber... it's just not the best.
 
 ==NEW_Halifax III==
 
-A new type of bomber has been developed and is now going into production.  The Halifax Mark III is easier to
- produce in quantity, and to maintain, than the Lancaster, but has slightly inferior performance.
+A new type of bomber has been developed and is now going into production.  Re-engined with Bristol Hercules
+ radials, the Halifax Mark III is easier to produce in quantity, and to maintain, than the Lancaster, but has
+ slightly inferior performance.
 
 ==Windsor==
 
@@ -753,6 +828,11 @@ Historical notes: the Air Ministry wrote Specification B.8/41 around
 
 A new type of bomber has been developed and is now going into production.  The Short Selkirk carries a colossal
  18,000lb of bombs, but its performance and survivability aren't great.
+
+==TRAIN_Selkirk==
+
+The Short Selkirk is no longer considered suitable for front-line operational service.
+All remaining Selkirks have been reassigned to training duties.
 
 ==Lancaster X==
 

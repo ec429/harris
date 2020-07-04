@@ -43,30 +43,31 @@ Mk III                  :Wellington :alt  :    180:    185:17-06-1941:2
 Mk III                  :Wellington :defn :     14:     13:17-06-1941:2
 Mk III                  :Wellington :svp  :     85:     87:17-06-1941:2
 Broughton shadow factory:Wellington :cost :  12000:   8000:30-07-1941:
-Remove beam guns        :Halifax I  :speed:    225:    227:09-09-1941:
-Remove beam guns        :Halifax I  :alt  :    200:    202:09-09-1941:
+Remove beam guns        :Halifax    :speed:    225:    227:09-09-1941:
+Remove beam guns        :Halifax    :alt  :    200:    202:09-09-1941:
 Engine derating         :Manchester :fail :     16:     14:14-09-1941:
 Engine derating         :Manchester :speed:    210:    206:14-09-1941:
 Engine derating         :Manchester :capwt:  10350:   9000:14-09-1941:
 Engine derating         :Manchester :svp  :     64:     66:14-09-1941:
 Exactor priming         :Stirling   :svp  :     40:     45:21-10-1941:
-Exhaust shrouds         :Halifax I  :defn :     22:     20:02-12-1941:
-Exhaust shrouds         :Halifax I  :fail :      6:      8:02-12-1941:
-Exhaust shrouds         :Halifax I  :speed:    227:    216:02-12-1941:
-Exhaust shrouds         :Halifax I  :alt  :    202:    184:02-12-1941:
-Exhaust shrouds         :Halifax I  :range:    335:    320:02-12-1941:
-Bulbous rudder          :Halifax I  :defn :     20:     16:15-01-1942:
-Remove exhaust shrouds  :Halifax I  :defn :     16:     18:12-03-1942:
-Remove exhaust shrouds  :Halifax I  :fail :      8:      6:12-03-1942:
-Remove exhaust shrouds  :Halifax I  :speed:    216:    227:12-03-1942:
-Remove exhaust shrouds  :Halifax I  :alt  :    184:    202:12-03-1942:
-Remove exhaust shrouds  :Halifax I  :range:    320:    335:12-03-1942:
+# Halifax Mk II: 25-10-1941
+Exhaust shrouds         :Halifax    :defn :     22:     20:02-12-1941:
+Exhaust shrouds         :Halifax    :fail :      6:      8:02-12-1941:
+Exhaust shrouds         :Halifax    :speed:    227:    216:02-12-1941:
+Exhaust shrouds         :Halifax    :alt  :    202:    184:02-12-1941:
+Exhaust shrouds         :Halifax    :range:    335:    320:02-12-1941:
+Bulbous rudder          :Halifax    :defn :     20:     16:15-01-1942:
+Remove exhaust shrouds  :Halifax    :defn :     16:     18:12-03-1942:
+Remove exhaust shrouds  :Halifax    :fail :      8:      6:12-03-1942:
+Remove exhaust shrouds  :Halifax    :speed:    216:    227:12-03-1942:
+Remove exhaust shrouds  :Halifax    :alt  :    184:    202:12-03-1942:
+Remove exhaust shrouds  :Halifax    :range:    320:    335:12-03-1942:
 Type XIV Bomb Sight     :Lancaster  :accu :     60:     72:19-04-1942:
-Overload tanks          :Halifax I  :flags:       :OVLTANK:09-05-1942:
-Type XIV Bomb Sight     :Halifax I  :accu :     62:     68:27-06-1942:
-Remove nose turret      :Halifax I  :speed:    227:    230:21-08-1942:
-Remove nose turret      :Halifax I  :range:    335:    340:21-08-1942:
-Remove nose turret      :Halifax I  :crew :PNWEGGG:PNBWEGG:21-08-1942:
+Overload tanks          :Halifax    :flags:       :OVLTANK:09-05-1942:
+Type XIV Bomb Sight     :Halifax    :accu :     62:     68:27-06-1942:
+Remove nose turret      :Halifax    :speed:    227:    230:21-08-1942:
+Remove nose turret      :Halifax    :range:    335:    340:21-08-1942:
+Remove nose turret      :Halifax    :crew :PNWEGGG:PNBWEGG:21-08-1942:
 Type XIV Bomb Sight     :Southampton:accu :     50:     62:14-10-1942:
 Type XIV Bomb Sight     :Stirling   :accu :     50:     56:07-11-1942:
 Mk X                    :Wellington :speed:    200:    205:10-11-1942:3

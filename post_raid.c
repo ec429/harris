@@ -52,6 +52,12 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			i--;
 			continue;
 		}
+		if(!datebefore(tomorrow, types[type].train)&&!state->bombers[i].train)
+		{
+			clear_sqn(state, i);
+			clear_crew(state, i);
+			state->bombers[i].train=true;
+		}
 	}
 	update_sqn_list(state);
 	for(unsigned int b=0;b<nbases;b++)
@@ -167,7 +173,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				ct_append(&state->hist, state->now, (harris_time){11, 25}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
 			}
 		}
-		if(!datewithin(state->now, types[i].entry, types[i].exit)) continue;
+		if(!datewithin(state->now, types[i].entry, types[i].train)) continue;
 		types[i].pcbuf=min(types[i].pcbuf, 180000)+types[i].pc;
 	}
 	// purchase additional planes based on priorities and subject to production capacity constraints
@@ -177,7 +183,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		for(unsigned int i=1;i<ntypes;i++)
 		{
 			if(!state->btypes[i]) continue;
-			if(!datewithin(state->now, types[i].entry, types[i].exit)) continue;
+			if(!datewithin(state->now, types[i].entry, types[i].train)) continue;
 			if(types[i].pribuf>types[m].pribuf) m=i;
 		}
 		if(types[m].pribuf<8)
@@ -186,7 +192,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			for(unsigned int i=0;i<ntypes;i++)
 			{
 				if(!state->btypes[i]) continue;
-				if(!datewithin(state->now, types[i].entry, types[i].exit)) continue;
+				if(!datewithin(state->now, types[i].entry, types[i].train)) continue;
 				unsigned int prio=(unsigned int [4]){0, 1, 3, 6}[types[i].prio];
 				if(datebefore(state->now, types[i].novelty)) prio=max(prio, 1);
 				types[i].pribuf+=prio;
@@ -231,7 +237,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		bool notnew=datebefore(x, state->now);
 		state->napb[n]+=notnew?25:10;
 		int i=state->nap[n];
-		if(i>=0&&!datewithin(state->now, types[i].entry, types[i].exit)) continue;
+		if(i>=0&&!datewithin(state->now, types[i].entry, types[i].train)) continue;
 		unsigned int nac=0;
 		for(int j=state->nbombers-1;(state->napb[n]>=navprod[n])&&(j>=0);j--)
 		{
@@ -563,6 +569,16 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		{
 			if(msgadd(canvas, state, tomorrow, types[i].name, types[i].newtext))
 				fprintf(stderr, "failed to msgadd newtype: %s\n", types[i].name);
+		}
+		if(!diffdate(tomorrow, types[i].train) && types[i].traintext)
+		{
+			if(msgadd(canvas, state, tomorrow, types[i].name, types[i].traintext))
+				fprintf(stderr, "failed to msgadd traintype: %s\n", types[i].name);
+		}
+		if(!diffdate(tomorrow, types[i].exit) && types[i].exittext)
+		{
+			if(msgadd(canvas, state, tomorrow, types[i].name, types[i].exittext))
+				fprintf(stderr, "failed to msgadd exittype: %s\n", types[i].name);
 		}
 	}
 	for(unsigned int i=0;i<nftypes;i++)

@@ -1418,7 +1418,7 @@ void update_pool_info(game *state)
 			count[state->bombers[i].type]++;
 	for(unsigned int i=0;i<ntypes;i++)
 	{
-		HS_btrow[i]->hidden=!(count[i] && datewithin(state->now, types[i].entry, types[i].exit) && state->btypes[i]);
+		HS_btrow[i]->hidden=!(count[i] && datewithin(state->now, types[i].entry, types[i].train) && state->btypes[i]);
 		snprintf(HS_btnum[i], 8, "%d", count[i]);
 	}
 }
@@ -1732,7 +1732,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 								break;
 							if(!state->btypes[i])
 								break;
-							if(!datewithin(state->now, types[i].entry, types[i].exit))
+							if(!datewithin(state->now, types[i].entry, types[i].train))
 								break;
 							/* Begin converting selsqn to the new type */
 							state->squads[selsqn].btype=i;

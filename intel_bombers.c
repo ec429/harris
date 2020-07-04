@@ -650,6 +650,8 @@ void update_intel_bombers(const game *state)
 		{
 			if(!datebefore(state->now, types[i].exit))
 				nb->bgcolour=(atg_colour){15, 15, 63, ATG_ALPHA_OPAQUE};
+			if(!datebefore(state->now, types[i].train))
+				nb->bgcolour=(atg_colour){23, 23, 47, ATG_ALPHA_OPAQUE};
 			else if(datebefore(state->now, types[i].entry))
 				nb->bgcolour=(atg_colour){47, 47, 15, ATG_ALPHA_OPAQUE};
 			else
