@@ -407,7 +407,6 @@ typedef struct
 	int assignment;
 	unsigned int group; // 0 if not yet allocated to a group
 	int squadron; // index in game.squads; -1 if in group pool
-	int flight; // -1 if not assigned; [012] for [ABC] Flight.
 }
 crewman;
 

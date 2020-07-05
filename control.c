@@ -1428,8 +1428,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					continue;
 				}
 				if(!(state->squads[s].nc[state->crews[i].class]--)) /* can't happen */
-					fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", s, state->crews[i].flight, state->crews[i].class);
-				state->crews[i].squadron=state->crews[i].flight=-1;
+					fprintf(stderr, "Warning: sqn nc went negative for %d.%d\n", s, state->crews[i].class);
+				state->crews[i].squadron=-1;
 			}
 	}
 	for(unsigned int i=0;i<ntypes;i++)
@@ -2274,7 +2274,7 @@ bool ensure_crewed(game *state, unsigned int i)
 				{
 					int cs=state->crews[best].squadron;
 					if(cs>=0 && !(state->squads[cs].nc[state->crews[best].class]--)) /* can't happen */
-						fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", cs, state->crews[best].flight, state->crews[best].class);
+						fprintf(stderr, "Warning: sqn nc went negative for %d.%d\n", cs, state->crews[best].class);
 				}
 				else
 				{
@@ -2286,7 +2286,6 @@ bool ensure_crewed(game *state, unsigned int i)
 					}
 				}
 				state->crews[best].squadron=s;
-				state->crews[best].flight=f;
 				state->crews[best].assignment=i;
 				state->bombers[i].crew[j]=best;
 				if(state->crews[best].group!=grp)
@@ -2337,9 +2336,8 @@ bool ensure_crewed(game *state, unsigned int i)
 				{
 					int cs=state->crews[best].squadron;
 					if(cs>=0 && !(state->squads[cs].nc[state->crews[best].class]--)) /* can't happen */
-						fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", cs, state->crews[best].flight, state->crews[best].class);
+						fprintf(stderr, "Warning: sqn nc went negative for %d.%d\n", cs, state->crews[best].class);
 					state->crews[best].squadron=s;
-					state->crews[best].flight=f;
 					state->crews[best].assignment=i;
 					state->bombers[i].crew[j]=best;
 					if(state->crews[best].group!=grp)

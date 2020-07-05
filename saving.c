@@ -579,10 +579,10 @@ int loadgame(const char *fn, game *state)
 					char class;
 					double skill, heavy, lanc;
 					unsigned int lrate, tops, ft, group;
-					int assi, squadron, flight;
+					int assi, squadron;
 					char p_id[17];
-					f=sscanf(line, "%10s %c:"FLOAT","FLOAT","FLOAT",%u,%u,%u,%d,%u,%d,%d,%16s\n", status, &class, CAST_FLOAT_PTR &skill, CAST_FLOAT_PTR &heavy, CAST_FLOAT_PTR &lanc, &lrate, &tops, &ft, &assi, &group, &squadron, &flight, p_id);
-					if(f!=13)
+					f=sscanf(line, "%10s %c:"FLOAT","FLOAT","FLOAT",%u,%u,%u,%d,%u,%d,%16s\n", status, &class, CAST_FLOAT_PTR &skill, CAST_FLOAT_PTR &heavy, CAST_FLOAT_PTR &lanc, &lrate, &tops, &ft, &assi, &group, &squadron, p_id);
+					if(f!=12)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -598,7 +598,6 @@ int loadgame(const char *fn, game *state)
 						.assignment=assi,
 						.group=group,
 						.squadron=squadron,
-						.flight=flight,
 					};
 					if((state->crews[i].class=lookup_crew_letter(class))==CCLASS_NONE)
 					{
@@ -1107,34 +1106,20 @@ int loadgame(const char *fn, game *state)
 	}
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
-		int s=state->crews[i].squadron, f=state->crews[i].flight;
+		int s=state->crews[i].squadron;
 		if(s>=(int)state->nsquads)
 		{
 			fprintf(stderr, "Warning, removing crewman %u from nonexistent sqn %d\n", i, s);
 			s=state->crews[i].squadron=-1;
-			f=state->crews[i].flight=-1;
-		}
-		if(s>=0)
-		{
-			if(f>(state->squads[s].third_flight ? 2 : 1))
-			{
-				fprintf(stderr, "Warning, removing crewman %u from nonexistent flt %u of sqn %d\n", i, f, s);
-				f=state->crews[i].flight=-1;
-			}
-			if(f<0)
-			{
-				fprintf(stderr, "Warning, removing crewman %u from sqn %d as he has no flt\n", i, s);
-				s=state->crews[i].squadron=-1;
-			}
 		}
 		if(state->crews[i].status==CSTATUS_CREWMAN || state->crews[i].status==CSTATUS_STUDENT)
 		{
 			if(state->crews[i].assignment>=0)
 			{
 				int k=state->crews[i].assignment;
-				if(state->bombers[k].squadron!=s||state->bombers[k].flight!=f)
+				if(state->bombers[k].squadron!=s)
 				{
-					fprintf(stderr, "Warning, removing crewman %u from bomber %d in wrong sqn/flt\n", i, k);
+					fprintf(stderr, "Warning, removing crewman %u from bomber %d in wrong sqn\n", i, k);
 					state->crews[i].assignment=-1;
 				}
 				else
@@ -1231,7 +1216,7 @@ int savegame(const char *fn, game state)
 	for(unsigned int i=0;i<state.ncrews;i++)
 	{
 		pcmid(state.crews[i].id, p_id);
-		fprintf(fs, "%s %c:"FLOAT","FLOAT","FLOAT",%u,%u,%u,%d,%u,%d,%d,%s\n", cstatuses[state.crews[i].status], cclasses[state.crews[i].class].letter, CAST_FLOAT state.crews[i].skill, CAST_FLOAT state.crews[i].heavy, CAST_FLOAT state.crews[i].lanc, state.crews[i].lrate, state.crews[i].tour_ops, state.crews[i].full_tours, state.crews[i].assignment, state.crews[i].group, state.crews[i].squadron, state.crews[i].flight, p_id);
+		fprintf(fs, "%s %c:"FLOAT","FLOAT","FLOAT",%u,%u,%u,%d,%u,%d,%s\n", cstatuses[state.crews[i].status], cclasses[state.crews[i].class].letter, CAST_FLOAT state.crews[i].skill, CAST_FLOAT state.crews[i].heavy, CAST_FLOAT state.crews[i].lanc, state.crews[i].lrate, state.crews[i].tour_ops, state.crews[i].full_tours, state.crews[i].assignment, state.crews[i].group, state.crews[i].squadron, p_id);
 	}
 	fprintf(fs, "GProd:%u\n", ICLASS_MIXED);
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)

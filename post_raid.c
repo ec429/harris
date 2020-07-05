@@ -366,11 +366,10 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					{
 						unsigned int s=state->crews[i].squadron;
 						if(!state->squads[s].nc[state->crews[i].class]--)
-							fprintf(stderr, "Warning: sqn nc went negative for %d.%d.%d\n", s, state->crews[i].flight, state->crews[i].class);
+							fprintf(stderr, "Warning: sqn nc went negative for %d.%d\n", s, state->crews[i].class);
 					}
 					state->crews[i].assignment=-1;
 					state->crews[i].squadron=-1;
-					state->crews[i].flight=-1;
 					state->crews[i].group=0;
 				}
 			break;
@@ -382,7 +381,6 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					state->crews[i].tour_ops=0;
 					state->crews[i].assignment=-1;
 					state->crews[i].squadron=-1;
-					state->crews[i].flight=-1;
 					state->crews[i].group=0;
 				}
 			break;
@@ -759,7 +757,6 @@ void refill_students(game *state, bool refill)
 					.assignment=-1,
 					.group=0,
 					.squadron=-1,
-					.flight=-1,
 				};
 				ge_append(&state->hist, state->now, (harris_time){11, 43}, state->crews[j].id, i, state->crews[j].lrate);
 			}
@@ -861,7 +858,6 @@ void train_students(game *state)
 				state->crews[i].full_tours=0;
 				state->crews[i].status=CSTATUS_CREWMAN;
 				state->crews[i].squadron=-1;
-				state->crews[i].flight=-1;
 				state->crews[i].group=0;
 				st_append(&state->hist, state->now, (harris_time){11, 44}, state->crews[i].id, state->crews[i].class, state->crews[i].status);
 			}

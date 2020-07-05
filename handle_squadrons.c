@@ -1654,7 +1654,6 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 									{
 										unsigned int k=state->bombers[i].crew[j];
 										state->crews[k].squadron=newsqn;
-										state->crews[k].flight=0;
 									}
 							}
 						/* Try to fill the new B flight */
@@ -1692,10 +1691,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 								state->bombers[i].squadron--;
 						for(unsigned int i=0;i<state->ncrews;i++)
 							if(state->crews[i].squadron==selsqn)
-							{
 								state->crews[i].squadron=-1;
-								state->crews[i].flight=-1;
-							}
 							else if(state->crews[i].squadron>selsqn)
 								state->crews[i].squadron--;
 						push_snum(state, state->squads[selsqn].number);

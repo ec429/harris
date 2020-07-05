@@ -150,11 +150,11 @@ Squad 18:90,11,0,0,0 # West Raynham/2/Blenheim
 Squad 19:114,54,0,0,0 # Wyton/2/Blenheim
 Squad 20:51,50,0,1,0 # Linton-on-Ouse/6/Whitley (hist: 4 Group at this time.  6 (Canadian) Group was formed later)
 Crews:2090
-*500*CG Crewman P:30,120,0,0,-1,0,-1,-1,NOID
-*440*CG Crewman N:40,120,0,0,-1,0,-1,-1,NOID
-*150*CG Crewman B:15,120,0,0,-1,0,-1,-1,NOID
-*400*CG Crewman W:25,120,0,0,-1,0,-1,-1,NOID
-*600*CG Crewman G:35,120,0,0,-1,0,-1,-1,NOID
+*500*CG Crewman P:30,120,0,0,-1,0,-1,NOID
+*440*CG Crewman N:40,120,0,0,-1,0,-1,NOID
+*150*CG Crewman B:15,120,0,0,-1,0,-1,NOID
+*400*CG Crewman W:25,120,0,0,-1,0,-1,NOID
+*600*CG Crewman G:35,120,0,0,-1,0,-1,NOID
 GProd:8
 IClass 0:6000
 IClass 1:80000
