@@ -517,7 +517,7 @@ int load_mods(void)
 					fprintf(stderr, "Malformed mark %s (stat %s)\n", colon, statname);
 					return(1);
 				}
-				else if(!types[this.bt].markname[this.mark])
+				else if(!rawtypes[this.bt].markname[this.mark])
 				{
 					rawtypes[this.bt].markname[this.mark]=this.desc;
 				}
