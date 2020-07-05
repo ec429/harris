@@ -21,6 +21,7 @@ Mk Ia                   :Wellington :nil  :       :       :00-00-0000:0
 Mk Ia                   :Manchester :nil  :       :       :00-00-0000:0
 Mk I                    :Southampton:nil  :       :       :00-00-0000:0
 Mk I                    :Stirling   :nil  :       :       :00-00-0000:0
+Mk I                    :Halifax    :nil  :       :       :00-00-0000:0
 Mk I                    :Elswick    :nil  :       :       :00-00-0000:0
 Mk I                    :Lancaster  :nil  :       :       :00-00-0000:0
 Mk IV                   :Mosquito   :nil  :       :       :00-00-0000:0
@@ -36,6 +37,7 @@ Mk Ic                   :Wellington :defn :     15:     14:02-04-1940:1
 Mk Ic                   :Wellington :speed:    185:    190:02-04-1940:1
 Self-sealing tank       :Blenheim   :defn :     27:     25:04-05-1940:
 Electric bomb release   :Whitley    :accu :     32:     34:10-08-1940:
+Blockbuster bomb        :Wellington :loads:       :Po     :27-03-1941:
 Crew rationalisation    :Stirling   :crew :PPNWEGG:PNBWEGG:18-04-1941:
 Crew rationalisation    :Manchester :crew :PPNBWGG:PNBWEGG:22-04-1941:
 Mk III                  :Wellington :speed:    190:    200:17-06-1941:2
@@ -44,30 +46,47 @@ Mk III                  :Wellington :defn :     14:     13:17-06-1941:2
 Mk III                  :Wellington :svp  :     85:     87:17-06-1941:2
 Broughton shadow factory:Wellington :cost :  12000:   8000:30-07-1941:
 Remove beam guns        :Halifax    :speed:    225:    227:09-09-1941:
-Remove beam guns        :Halifax    :alt  :    200:    202:09-09-1941:
+Remove beam guns        :Halifax    :alt  :    190:    192:09-09-1941:
 Engine derating         :Manchester :fail :     16:     14:14-09-1941:
 Engine derating         :Manchester :speed:    210:    206:14-09-1941:
 Engine derating         :Manchester :capwt:  10350:   9000:14-09-1941:
 Engine derating         :Manchester :svp  :     64:     66:14-09-1941:
 Exactor priming         :Stirling   :svp  :     40:     45:21-10-1941:
-# Halifax Mk II: 25-10-1941
+Mk II                   :Halifax    :speed:    227:    224:25-10-1941:1
+Mk II                   :Halifax    :alt  :    192:    215:25-10-1941:1
+Mk II                   :Halifax    :defn :     22:     21:25-10-1941:1
+Mk II                   :Halifax    :range:    335:    348:25-10-1941:1
+# Mk I figures
 Exhaust shrouds         :Halifax    :defn :     22:     20:02-12-1941:
 Exhaust shrouds         :Halifax    :fail :      6:      8:02-12-1941:
 Exhaust shrouds         :Halifax    :speed:    227:    216:02-12-1941:
-Exhaust shrouds         :Halifax    :alt  :    202:    184:02-12-1941:
+Exhaust shrouds         :Halifax    :alt  :    192:    184:02-12-1941:
 Exhaust shrouds         :Halifax    :range:    335:    320:02-12-1941:
+# Mk II figures (where different)
+Exhaust shrouds         :Halifax    :defn :     21:     19:02-12-1941:1
+Exhaust shrouds         :Halifax    :speed:    224:    212:02-12-1941:1
+Exhaust shrouds         :Halifax    :alt  :    215:    196:02-12-1941:1
+Exhaust shrouds         :Halifax    :range:    348:    333:02-12-1941:1
 Bulbous rudder          :Halifax    :defn :     20:     16:15-01-1942:
+Bulbous rudder          :Halifax    :defn :     19:     15:15-01-1942:1
 Remove exhaust shrouds  :Halifax    :defn :     16:     18:12-03-1942:
 Remove exhaust shrouds  :Halifax    :fail :      8:      6:12-03-1942:
 Remove exhaust shrouds  :Halifax    :speed:    216:    227:12-03-1942:
-Remove exhaust shrouds  :Halifax    :alt  :    184:    202:12-03-1942:
+Remove exhaust shrouds  :Halifax    :alt  :    184:    192:12-03-1942:
 Remove exhaust shrouds  :Halifax    :range:    320:    335:12-03-1942:
+Remove exhaust shrouds  :Halifax    :defn :     15:     17:12-03-1942:1
+Remove exhaust shrouds  :Halifax    :speed:    212:    224:12-03-1942:1
+Remove exhaust shrouds  :Halifax    :alt  :    196:    215:12-03-1942:1
+Remove exhaust shrouds  :Halifax    :range:    333:    348:12-03-1942:1
+4,000lb installation    :Halifax    :loads:       :Pd     :11-04-1942:
 Type XIV Bomb Sight     :Lancaster  :accu :     60:     72:19-04-1942:
 Overload tanks          :Halifax    :flags:       :OVLTANK:09-05-1942:
 Type XIV Bomb Sight     :Halifax    :accu :     62:     68:27-06-1942:
 Remove nose turret      :Halifax    :speed:    227:    230:21-08-1942:
 Remove nose turret      :Halifax    :range:    335:    340:21-08-1942:
 Remove nose turret      :Halifax    :crew :PNWEGGG:PNBWEGG:21-08-1942:
+Remove nose turret      :Halifax    :speed:    224:    227:21-08-1942:1
+Remove nose turret      :Halifax    :range:    348:    353:21-08-1942:1
 Type XIV Bomb Sight     :Southampton:accu :     50:     62:14-10-1942:
 Type XIV Bomb Sight     :Stirling   :accu :     50:     56:07-11-1942:
 Mk X                    :Wellington :speed:    200:    205:10-11-1942:3
@@ -83,6 +102,10 @@ Bulged Bomb Bay         :Mosquito   :capwt:   2000:   4000:03-04-1943:
 Bulged Bomb Bay         :Mosquito   :capbulk: 2000:   4000:03-04-1943:
 Bulged Bomb Bay         :Mosquito   :loads:       :Po     :03-04-1943:
 Bulged Bomb Bay         :Mosquito   :loads:       :Hh     :03-04-1943:
+Mk II Ser IA            :Halifax    :speed:    227:    233:01-06-1943:2
+Mk II Ser IA            :Halifax    :alt  :    215:    210:01-06-1943:2
+Mk II Ser IA            :Halifax    :range:    353:    345:01-06-1943:2
+Mk II Ser IA            :Halifax    :defn :     17:     16:01-06-1943:2
 Mk IX                   :Mosquito   :alt  :    300:    320:22-07-1943:1
 Mk IX                   :Mosquito   :range:    390:    400:22-07-1943:1
 Mk IX                   :Mosquito   :speed:    325:    340:22-07-1943:1

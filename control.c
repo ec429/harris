@@ -1875,6 +1875,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										genroute((unsigned int [2]){0, 0}, seltarg, targs[seltarg].route, state, 10000);
 										state->raids[seltarg].routed=true;
 									}
+									update_raidbox(state, seltarg);
 								}
 								if(c.e==GB_rbpic[i])
 								{
@@ -1919,6 +1920,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											if(state->bombers[state->raids[seltarg].bombers[l]].type==i) count++;
 										snprintf(GB_raidnum[i], 32, "%u", count);
 									}
+									update_raidbox(state, seltarg);
 								}
 								break;
 							}

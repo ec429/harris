@@ -232,6 +232,17 @@ All bombers now have self-sealing fuel tanks installed.
 Your Whitley bombers have now been equipped with an electric bomb release, replacing their earlier, somewhat
  crude, mechanical system.  This should improve their bombing accuracy slightly.
 
+==MOD_COOKIE==
+
+The Directorate of Armament Development has developed the first 'block-buster bomb', the 4,000lb HC (light-case)
+ 'cookie', and Vickers have devised a modification (Type 423) to allow its carriage by the Wellington — which
+ does, unfortunately, require the removal of the inner bomb-bay doors with concomitant increase in drag.
+As a blast bomb, the 'cookie' is designed to reduce buildings to rubble to (a) make them more flammable in and of
+ themselves and (b) hinder the movement of firefighting vehicles by blocking streets.  It produces much less
+ shrapnel than the General Purpose medium capacity bombs, so is less suited to damaging heavy installations such
+ as factory machinery.  It is also rather inaccurate owing to its unaerodynamic design.  Consequently, it should
+ be used primarily in area raids on towns and cities, in combination with incendiary loads.
+
 ==MOD_CREWSTIR==
 
 The crews of your Stirling bombers are being rationalised; instead of a second pilot they will now carry a
@@ -272,9 +283,9 @@ To reduce Halifax losses to nightfighters, exhaust shrouds are being fitted to c
 
 ==MOD_RUDDER==
 
-A partial solution to the Halifax's rudder overbalance woes has been found.  The new bulbous rudder has been
- fitted to all Halifaxes, and is expected to reduce the heavy losses which, it is thought, have occurred when the
- bomber fails to recover from evasive maneuvers.
+A partial solution to the Halifax's rudder overbalance woes has been found.  The new bulbous rudder (HP Mod.413)
+ has been fitted to all Halifaxes, and is expected to reduce the heavy losses which, it is thought, have occurred
+ when the bomber fails to recover from evasive maneuvers.
 However, the new rudder is not perfect; a complete fix will have to wait for the redesigned tailplane on the Mark
  III Halifax which Handley Page are developing.
 
@@ -283,6 +294,13 @@ However, the new rudder is not perfect; a complete fix will have to wait for the
 It has been found that the Halifax exhaust shrouds severely hamper the performance of the engines.  As well as
  reducing reliability, they decrease the aircraft's speed, ceiling and range.  Consequently, they have been
  removed.
+
+==MOD_HAL4000==
+
+With the assistance of Mr Knivett from Handley Page, a modification to the Halifax has been developed to allow
+ that aircraft to carry up to two 4,000lb High Capacity "blockbuster" bombs.  Unfortunately, the bomb doors are
+ unable to fully close around the great girth of these bombs, so the additional drag will slightly reduce the
+ airspeed of Halifaxes when carrying this load.
 
 ==MOD_XIV==
 
@@ -329,10 +347,29 @@ Short Stirling production has switched over to the Mark III upgrade, which bring
 Vickers Wellington production has switched over to the Mark Ic variant.  The ventral turret has been replaced with
  a pair of waist guns, slightly improving speed and survivability.
 
-==WELLINGTON_III=
+==WELLINGTON_III==
 
 Another new Vickers Wellington variant has been developed.  New Wellingtons coming off the production line will be
  Mk IIIs, with more powerful Hercules XI engines for greater speed and altitude.
+
+==WELLINGTON_X==
+
+A further upgrade to the Vickers Wellington, the Mk X, will hopefully prolong the usefulness of this type for
+ another year or so.  The use of new light alloys in the structure has increased the maximum all-up weight, and
+ the new variant is fitted with 1,675 horsepower Bristol Hercules XVI engines.  Consequently, the cruising speed,
+ operational ceiling, range and serviceability have all increased slightly.
+
+==HALIFAX_II==
+
+An upgraded Halifax variant has been developed.  The Mk II is fitted with Merlin XX engines, allowing for greater
+ all-up weights, as well as a higher ceiling altitude which should slightly reduce losses.  Newly manufactured
+ Halifaxes will be of this mark.
+
+==HALIFAX_IIA==
+
+Several detail improvements to the Halifax Mk II, mainly directed at reducing parasitic drag, have led to the new
+ Mk II Series IA variant, now entering production.  It features Merlin 22 engines, a new glazed nose, redesigned
+ engine radiators and a low-drag four-gun dorsal turret.
 
 ==MOSQUITO_IX==
 

@@ -111,7 +111,7 @@ struct bomberstats
 
 typedef struct
 {
-	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS
+	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM
 	char * manu;
 	char * name;
 	struct bomberstats mark[MAX_MARKS];
@@ -120,11 +120,12 @@ typedef struct
 	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
 	bool crewbg, crewwg;
-	bool noarm, heavy, inc, extra, ovltank, slowgrow, otub, lfs;
+	bool noarm, heavy, inc, extra, ovltank, slowgrow, otub, lfs, smbay;
 	date entry;
 	date novelty;
 	date train;
 	date exit;
+	int convertfrom;
 	SDL_Surface *picture, *side_image;
 	char *text, *newtext, *traintext, *exittext;
 	

@@ -531,6 +531,10 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					}
 				}
 				state->bombers[k].speed=(bstats(state->bombers[k]).speed+askill/20.0-2.0)/450.0;
+				bombload load=is_pff(state, k)?state->raids[i].pffloads[type]:state->raids[i].loads[type];
+				/* Cookies sticking out of the bomb bay slow us down */
+				if(targs[i].class==TCLASS_CITY&&(load==BL_PLUMDUFF||load==BL_PONLY)&&types[i].smbay)
+					state->bombers[k].speed*=0.94;
 				if(stream)
 				{
 					// aim for Zero Hour 01:00 plus up to 10 minutes
@@ -575,19 +579,29 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						state->bombers[k].b_le=min(bulk*3, cap*20);
 					break;
 					case TCLASS_CITY:
-						switch(is_pff(state, k)?state->raids[i].pffloads[type]:state->raids[i].loads[type])
+						switch(load)
 						{
 							case BL_PLUMDUFF:
 								if(cap>=4000) // cookie + gp+in mix
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
-									while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
+									if(types[type].smbay) // Halifax: 2 cookies + gp
 									{
-										if(inext)
-											transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
-										else
-											transfer(min(bulk, 500), cap, state->bombers[k].b_gp);
-										inext=!inext;
+										if(cap>=4000)
+											transfer(4000, cap, state->bombers[k].b_hc);
+										bulk=11000-loadbulk(state->bombers[k]);
+										transfer(bulk, cap, state->bombers[k].b_gp);
+									}
+									else
+									{
+										while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
+										{
+											if(inext)
+												transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
+											else
+												transfer(min(bulk, 500), cap, state->bombers[k].b_gp);
+											inext=!inext;
+										}
 									}
 								}
 								else // can't take a cookie, so just gp+in mix (but more gp than BL_USUAL)
@@ -603,7 +617,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 							break;
 							case BL_USUAL:
-								if(types[type].load[BL_PLUMDUFF]&&bstats(state->bombers[k]).capwt>=10000&&cap>4000) // cookie + incendiaries
+								if(types[type].load[BL_PLUMDUFF]&&bstats(state->bombers[k]).capwt>=10000&&cap>4000&&!types[type].smbay) // cookie + incendiaries
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
 									bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k]);

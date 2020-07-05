@@ -1735,8 +1735,9 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 							if(!datewithin(state->now, types[i].entry, types[i].train))
 								break;
 							/* Begin converting selsqn to the new type */
+							bool related=types[i].convertfrom==(int)state->squads[selsqn].btype;
 							state->squads[selsqn].btype=i;
-							state->squads[selsqn].rtime+=types[i].heavy?28:21;
+							state->squads[selsqn].rtime+=related?14:types[i].heavy?28:21;
 							/* Remove existing aircraft from sqn */
 							for(unsigned int j=0;j<state->nbombers;j++)
 								if(state->bombers[j].squadron==selsqn)
