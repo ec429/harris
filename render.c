@@ -83,7 +83,7 @@ void render_one_route(SDL_Surface *s, const game *state, unsigned int i, bool ma
 				if(state->bombers[k].squadron<0)
 					continue;
 				unsigned int b=state->squads[state->bombers[k].squadron].base;
-				line(s, base_lon(bases[b]), base_lat(bases[b]), lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=12});
+				line(s, base_lon(bases[b]), base_lat(bases[b]), lon, lat, (atg_colour){.r=0, .g=0, .b=0, .a=96});
 			}
 		}
 		if(markers)
@@ -101,7 +101,7 @@ void render_one_route(SDL_Surface *s, const game *state, unsigned int i, bool ma
 		if(state->bombers[k].squadron<0)
 			continue;
 		unsigned int b=state->squads[state->bombers[k].squadron].base;
-		line(s, lonl, latl, base_lon(bases[b]), base_lat(bases[b]), (atg_colour){.r=0, .g=0, .b=255, .a=12});
+		line(s, lonl, latl, base_lon(bases[b]), base_lat(bases[b]), (atg_colour){.r=0, .g=0, .b=255, .a=96});
 	}
 }
 
