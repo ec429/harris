@@ -1546,7 +1546,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					{
 						for(unsigned int j=0;j<ntypes;j++)
 							if(GB_rbrow[j])
-								GB_rbrow[j]->hidden=(GB_btrow[j]?GB_btrow[j]->hidden:true)||!raid[j];
+								GB_rbrow[j]->hidden=!datewithin(state->now, types[j].entry, types[j].exit)||!state->btypes[j]||!raid[j];
 					}
 					atg_box *b=GB_ttrow[i]->elemdata;
 					b->bgcolour=(state->raids[i].nbombers?(atg_colour){127, 103, 95, ATG_ALPHA_OPAQUE}:(atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
@@ -2619,7 +2619,7 @@ int update_raidnums(const game *state, int seltarg)
 		if(GB_raidnum[i])
 			snprintf(GB_raidnum[i], 32, "%u", count);
 		if(GB_rbrow[i])
-			GB_rbrow[i]->hidden=!count||(GB_btrow[i]?GB_btrow[i]->hidden:true);
+			GB_rbrow[i]->hidden=!count||!datewithin(state->now, types[i].entry, types[i].exit)||!state->btypes[i];
 		if(seltarg>=0&&count&&GB_estcap[i])
 		{
 			if(targs[seltarg].class==TCLASS_LEAFLET)
