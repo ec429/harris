@@ -22,7 +22,7 @@ Bombers = {
 	"Southampton":{"short":"SOUT", "colour":'#800000',},
 	"Stirling":   {"short":"STIR", "colour":'0.5',    },
 	"Elswick":    {"short":"ELSW", "colour":'#80e000',},
-	"Halifax I":  {"short":"HAL1", "colour":'#806000',},
+	"Halifax":    {"short":"HAL1", "colour":'#806000',},
 	"Lancaster":  {"short":"LANC", "colour":'b',      },
 	"Mosquito":   {"short":"MOSQ", "colour":'r',      },
 	"Halifax III":{"short":"HAL3", "colour":'y',      },

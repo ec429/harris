@@ -37,7 +37,9 @@ class Save(object):
 		nosplit = False
 		for line in f:
 			try:
-				if line.lstrip().startswith('#'): continue
+				line, _, _ = line.partition('#')
+				if not line.lstrip():
+				    continue
 				if nosplit:
 					tag = None
 					rest = line.rstrip('\n')
@@ -158,6 +160,20 @@ class Save(object):
 			self.nbombers = int(rest)
 			self.bombers = []
 			return self.Bombers, False
+		if tag == 'Bases':
+		    self.nbases = int(rest)
+		    self.bases = []
+		    return self.Bases, False
+		if tag == 'Squadrons':
+		    self.nsquads = int(rest)
+		    self.squads = []
+		    return self.Squadrons, False
+		if tag == 'SNums':
+		    self.nsnums = int(rest)
+		    self.snums = []
+		    return self.SNums, True
+		if tag == 'Paving':
+		    return None, False
 		if tag == 'TPipe':
 		    self.ntpipe = int(rest)
 		    return self.TPipe, False
@@ -239,10 +255,30 @@ class Save(object):
 	def Bombers(self, tag, rest):
 		if tag.startswith('Type '):
 			typ = int(tag[5:])
-			fail, nav, pff, acid, mark, train = rest.split(',', 5)
-			self.bombers.append({'type':int(typ), 'fail':bool(int(fail)), 'nav':int(nav), 'pff':bool(int(pff)), 'id':int(acid, 16), 'mark':int(mark), 'train':bool(int(train))})
+			fail, nav, pff, acid, mark, train, sqn, flt = rest.split(',', 7)
+			self.bombers.append({'type':int(typ), 'fail':bool(int(fail)), 'nav':int(nav), 'pff':bool(int(pff)), 'id':int(acid, 16), 'mark':int(mark), 'train':bool(int(train)), 'squadron':int(sqn), 'flight':int(flt)})
 			return len(self.bombers) == self.nbombers
 		raise UnrecognisedSubtag('Bombers', tag, rest)
+	def Bases(self, tag, rest):
+	    if tag.startswith('Base '):
+	        base = int(tag[5:])
+	        paved = int(rest)
+	        self.bases.append({'base':base, 'paved':paved})
+	        return len(self.bases) == self.nbases
+	    raise UnrecognisedSubtag('Bases', tag, rest)
+	def Squadrons(self, tag, rest):
+	    if tag.startswith('Squad '):
+	        sqn = int(tag[6:])
+	        num, base, third, btype, rtime = rest.split(',', 4)
+	        self.squads.append({'squadron':int(sqn), 'number':int(num), 'base':int(base), 'third_flight':bool(int(third)), 'btype':int(btype), 'rtime':int(rtime)})
+	        return len(self.squads) == self.nsquads
+	    raise UnrecognisedSubtag('Squadrons', tag, rest)
+	def SNums(self, tag, rest):
+	    if rest.startswith('SNum '):
+	        num = int(rest[5:])
+	        self.snums.append(num)
+	        return len(self.snums) == self.nsnums
+	    raise UnrecognisedSubtag('SNums', tag, rest)
 	def TPipe(self, tag, rest):
 	    if tag.startswith('TStage '):
 	        tstage = int(tag[7:])
@@ -251,8 +287,8 @@ class Save(object):
 		for t in ['Crewman', 'Student', 'Instructor', 'Escaping']:
 			if tag.startswith(t+' '):
 				typ = tag[-1]
-				skill, heavy, lanc, lrate, tops, ft, assi, acid = rest.split(',', 7)
-				self.crews.append({'status':t, 'type':typ, 'skill':readfloat(skill), 'heavy':readfloat(heavy), 'lanc':readfloat(lanc), 'lrate':int(lrate), 'tops':int(tops), 'ft':int(ft), 'assi':int(assi), 'id':int(acid, 16)})
+				skill, heavy, lanc, lrate, tops, ft, assi, grp, sqn, flt, acid = rest.split(',', 10)
+				self.crews.append({'status':t, 'type':typ, 'skill':readfloat(skill), 'heavy':readfloat(heavy), 'lanc':readfloat(lanc), 'lrate':int(lrate), 'tops':int(tops), 'ft':int(ft), 'assi':int(assi), 'group':int(grp), 'squadron':int(sqn), 'flight':int(flt), 'id':int(acid, 16)})
 				return len(self.crews) == self.ncrews
 		raise UnrecognisedSubtag('Crews', tag, rest)
 	def Fighters(self, tag, rest):

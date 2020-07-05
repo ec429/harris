@@ -10,7 +10,7 @@ this_script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 # Intention for this report is to compute (total value of all bombers + cash) for each day
 def extract_value(f):
-	output = subprocess.check_output(os.path.join(this_script_path, 'bombers'), stdin=f)
+	output = subprocess.check_output([os.path.join(this_script_path, 'bombers'), '--localdat'], stdin=f)
 	records = {}
 	first = None
 	current = None
