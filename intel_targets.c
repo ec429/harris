@@ -44,7 +44,7 @@ struct t_stat_row
 	const char *name;
 	int (*v_fn)(unsigned int ti, const game *state);
 	const char *(*t_fn)(unsigned int ti);
-	unsigned int bar_min, bar_max;
+	int bar_min, bar_max;
 	bool bar_rev; // reverse colours
 }
 t_stat_rows[NUM_STATS]=

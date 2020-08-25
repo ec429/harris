@@ -52,7 +52,7 @@ struct f_stat_row
 	char value_buf[6];
 	const char *unit;
 	bool unit_first;
-	unsigned int bar_min, bar_max;
+	int bar_min, bar_max;
 	bool bar_rev; // reverse colours
 	int (*v_fn)(unsigned int ti, const game *state);
 	const char *(*t_fn)(unsigned int ti);

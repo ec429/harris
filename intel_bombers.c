@@ -87,7 +87,7 @@ struct b_stat_row
 	char value_buf[6];
 	const char *unit;
 	bool unit_first;
-	unsigned int bar_min, bar_max;
+	int bar_min, bar_max;
 	bool bar_rev; // reverse colours
 	unsigned int (*get_stat)(bombertype b, unsigned int mark);
 	int v_shift, v_scale; // shift is applied first
