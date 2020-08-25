@@ -97,7 +97,7 @@ Later (September 1942) the Germans will jam GEE, reducing the range to 200mi.  L
 
 Oboe
 ----
-Oboe is a precision blind-bombing device.  By its nature a pair of Oboe stations can only be used by one aircraft at once.  The disposition of Oboe stations is made automatically, with priority given to Pathfinders.  It is invented in November 1941.
+Oboe is a precision blind-bombing device.  By its nature a pair of Oboe stations can only be used by one aircraft at once.  The disposition of Oboe stations is made automatically, with priority given to Pathfinders (more precisely, aircraft carrying TIs).  It is invented in November 1941.
 
 H₂S
 ---
@@ -109,7 +109,9 @@ G-H has not been implemented yet.  When it has, it will provide blind-bombing ca
 
 PFF
 ~~~
-After the 15th of August 1942, your Mosquitoes and one in five of your Lancasters will be assigned to the Pathfinder Force (PFF).  They will mark the target, about 5 minutes before Zero Hour, with TIs and incendiaries, in order to direct the bombing of the Main Force.  You don't need to do anything (this is handled automatically), but you probably want to make sure the Pathfinders have the best navigational aids, to make sure they mark the right target and mark it well.
+After the 15th of August 1942, some of your bombers can be assigned to the Pathfinder Force (PFF).  They will mark the target, about 5 minutes before Zero Hour, with TIs and incendiaries, in order to direct the bombing of the Main Force.
+The Pathfinders consist of the squadrons of No. 8 Group; upon their creation, a number of stations and their squadrons will be transferred from Nos. 2 and 3 Groups.
+You probably want to make sure the Pathfinders have the best navigational aids, to make sure they mark the right target and mark it well.
 
 Window
 ~~~~~~
@@ -135,7 +137,7 @@ The bombloads and their codenames are:
 	"Plumduff-Plus"	(Lancaster only):	one 8000lb or 12000lb blockbuster plus GP.  (Symbol: one large bomb, two small bombs.)
 	"Illuminator"	(Mosquito only):	4 × 250lb TI, 8 × 250lb GP, plus several uncoloured flares.  (Symbol: multiple coloured lights.)
 	"Half and Half"	(Mosquito only):	Half of these aircraft will carry Illuminator, the other half will carry Plumduff.  (Symbol: multiple coloured lights / one large bomb)
-One final note: Lancasters (of both marks) are split between the Main Force and the Pathfinders (after the introduction of the latter), and the bombloads for the two are controlled independently.  The selector on the left is for the PFF, that on the right is for the Main Force.
+One final note: after the introduction of the Pathfinders (No. 8 Group), their bombloads are controlled independently of other groups.  The selector on the left is for the PFF, that on the right is for the Main Force.
 
 Budget
 ~~~~~~
