@@ -1598,7 +1598,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						SDL_Surface *pic=img->data;
 						SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
 						SDL_BlitSurface(types[i].picture, NULL, pic, NULL);
-						if(avail[i]&&!reach[i])
+						if((avail[i]&&!reach[i])||(seltarg==-2&&types[i].noarm))
 							SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
 					}
 				}
@@ -1714,7 +1714,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							case -1:
 								break;
 							case -2:
-								if(c.e==GB_btpic[i])
+								if(c.e==GB_btpic[i]&&!types[i].noarm)
 								{
 									unsigned int amount, count=0;
 									switch(b)
