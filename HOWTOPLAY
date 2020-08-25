@@ -118,7 +118,7 @@ Window (known today as 'Chaff') is a radio countermeasure: thousands of strips o
 Filters
 ~~~~~~~
 Once navaids are available, it's possible to apply filters when adding bombers to, or removing them from, a raid.  These filters are controlled by a row of buttons (one per navaid) which can be set to '+' (only move bombers which HAVE this), blank (don't filter on this) or '-' (only move bombers which DON'T have this).
-There are also filters of this kind for PFF and Elite crews (a crewman is Elite if his skill level is over 50), as well as a set of two-position filters for Marks (see section "Mods and Marks" above).  If none of the Marks are selected, all will be allowed.
+There is also a set of two-position filters for Marks (see section "Mods and Marks" above).  If none of the Marks are selected, all will be allowed.  Similarly, there are two-position filters for each Group (see notes_bases).
 These filters allow more complicated raid planning, such as "Use only H₂S-equipped Pathfinders, but all the Main Force whether they have H₂S or not".
 
 Bombloads
