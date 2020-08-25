@@ -37,7 +37,7 @@
 
 #                            COST SPD ALT CAPAC SV DE FA AC RAN ENTRY      TRAIN_ONLY EXIT      :CREW
 Bristol:Blenheim:            5000:198:205: 1200:55:28: 6:60:190:          :10-01-1941:20-05-1941:PNG    :Ab
-Armstrong-Whitworth:Whitley: 8000:165:176: 7000:70:32: 9:32:320:          :18-06-1941:01-04-1942:PNBWG  :GEE,H2S,Ab
+Armstrong-Whitworth:Whitley: 8000:155:150: 7000:70:35: 9:32:300:          :18-06-1941:01-04-1942:PNBWG  :GEE,H2S,Ab
 Handley Page:Hampden:       10000:202:190: 4000:65:24: 8:48:265:          :02-02-1942:16-11-1942:PNWG   :GEE,Ab
 Vickers:Wellington:         12000:185:180: 4500:85:16: 2:40:311:          :21-10-1943:          :PNWGGG :GEE,H2S,OTUB,SMBAY,Ab,Us,Ar
 # while Manc's Sv may seem high, remember that its high Fa brings this right down in practice
