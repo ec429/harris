@@ -29,6 +29,7 @@ void update_intel_bombers(const game *state);
 
 enum b_stat_i
 {
+	STAT_CAT,
 	/* Numbers with units */
 	STAT_COST,
 	STAT_SPEED,
@@ -44,6 +45,10 @@ enum b_stat_i
 	NUM_STATS
 };
 
+static const char *get_cat(bombertype b, __attribute__((unused)) unsigned int mark)
+{
+	return b.category;
+}
 static unsigned int get_cost(bombertype b, unsigned int mark)
 {
 	return b.mark[mark].cost;
@@ -89,27 +94,29 @@ struct b_stat_row
 	bool unit_first;
 	int bar_min, bar_max;
 	bool bar_rev; // reverse colours
-	unsigned int (*get_stat)(bombertype b, unsigned int mark);
+	const char *(*t_fn)(bombertype b, unsigned int mark);
+	unsigned int (*v_fn)(bombertype b, unsigned int mark);
 	int v_shift, v_scale; // shift is applied first
 } b_stat_rows[NUM_STATS]=
 {
-	[STAT_COST]   ={.name="Cost",           .unit="£",   .unit_first=true,  .bar_min=0,     .bar_max=50000, .get_stat=get_cost,
+	[STAT_CAT]    ={.name="Category", .unit_first=true, .t_fn=get_cat },
+	[STAT_COST]   ={.name="Cost",           .unit="£",   .unit_first=true,  .bar_min=0,     .bar_max=50000, .v_fn=get_cost,
 			.v_shift=0,   .v_scale=1,   .bar_rev=true },
-	[STAT_SPEED]  ={.name="Speed",          .unit="mph", .unit_first=false, .bar_min=120,   .bar_max=275,   .get_stat=get_speed,
+	[STAT_SPEED]  ={.name="Speed",          .unit="mph", .unit_first=false, .bar_min=120,   .bar_max=275,   .v_fn=get_speed,
 			.v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_CEILING]={.name="Ceiling",        .unit="ft",  .unit_first=false, .bar_min=16000, .bar_max=26000, .get_stat=get_alt,
+	[STAT_CEILING]={.name="Ceiling",        .unit="ft",  .unit_first=false, .bar_min=16000, .bar_max=26000, .v_fn=get_alt,
 			.v_shift=0,   .v_scale=100, .bar_rev=false},
-	[STAT_LOAD]   ={.name="Max. Bombload",  .unit="lb",  .unit_first=false, .bar_min=0,     .bar_max=20000, .get_stat=get_capwt,
+	[STAT_LOAD]   ={.name="Max. Bombload",  .unit="lb",  .unit_first=false, .bar_min=0,     .bar_max=20000, .v_fn=get_capwt,
 			.v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_SV]     ={.name="Serviceability", .unit="%",   .unit_first=false, .bar_min=0,     .bar_max=100,   .get_stat=get_svp,
+	[STAT_SV]     ={.name="Serviceability", .unit="%",   .unit_first=false, .bar_min=0,     .bar_max=100,   .v_fn=get_svp,
 			.v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_DE]     ={.name="Survivability",  .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=40,    .get_stat=get_defn,
+	[STAT_DE]     ={.name="Survivability",  .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=40,    .v_fn=get_defn,
 			.v_shift=-40, .v_scale=-1,  .bar_rev=false},
-	[STAT_FA]     ={.name="Reliability",    .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=20,    .get_stat=get_fail,
+	[STAT_FA]     ={.name="Reliability",    .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=20,    .v_fn=get_fail,
 			.v_shift=-20, .v_scale=-1,  .bar_rev=false},
-	[STAT_AC]     ={.name="Accuracy",       .unit=" ",   .unit_first=false, .bar_min=20,    .bar_max=80,    .get_stat=get_accu,
+	[STAT_AC]     ={.name="Accuracy",       .unit=" ",   .unit_first=false, .bar_min=20,    .bar_max=80,    .v_fn=get_accu,
 			.v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_RANGE]  ={.name="Max. Range",     .unit="mi",  .unit_first=false, .bar_min=450,   .bar_max=1200,  .get_stat=get_range,
+	[STAT_RANGE]  ={.name="Max. Range",     .unit="mi",  .unit_first=false, .bar_min=450,   .bar_max=1200,  .v_fn=get_range,
 			.v_shift=0,   .v_scale=3,   .bar_rev=false},
 };
 
@@ -733,8 +740,6 @@ void update_intel_bombers(const game *state)
 			atg_free_element(row);
 			break;
 		}
-		int val=b_stat_rows[i].get_stat(types[IB_i], IB_showmark);
-		val=(val+b_stat_rows[i].v_shift)*b_stat_rows[i].v_scale;
 		atg_element *s_name=atg_create_element_label(b_stat_rows[i].name, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
 		if(s_name)
 		{
@@ -746,74 +751,92 @@ void update_intel_bombers(const game *state)
 				break;
 			}
 		}
-		if(b_stat_rows[i].unit_first)
+		if(b_stat_rows[i].t_fn)
 		{
-			atg_element *s_unit=atg_create_element_label(b_stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-			if(s_unit)
+			atg_element *text=atg_create_element_label(b_stat_rows[i].t_fn(types[IB_i], IB_showmark), 12, (atg_colour){0, 0, 31, ATG_ALPHA_OPAQUE});
+			if(text)
 			{
-				s_unit->w=8;
-				if(atg_ebox_pack(row, s_unit))
+				if(atg_ebox_pack(row, text))
 				{
 					perror("atg_ebox_pack");
-					atg_free_element(s_unit);
+					atg_free_element(text);
 					break;
 				}
 			}
 		}
-		snprintf(b_stat_rows[i].value_buf, 6, "%5d", val);
-		atg_element *s_value=atg_create_element_label(b_stat_rows[i].value_buf, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-		if(s_value)
+		else if(b_stat_rows[i].v_fn)
 		{
-			s_value->w=40+(b_stat_rows[i].unit_first?32:0);
-			if(atg_ebox_pack(row, s_value))
+			int val=b_stat_rows[i].v_fn(types[IB_i], IB_showmark);
+			val=(val+b_stat_rows[i].v_shift)*b_stat_rows[i].v_scale;
+			if(b_stat_rows[i].unit_first)
 			{
-				perror("atg_ebox_pack");
-				atg_free_element(s_value);
-				break;
+				atg_element *s_unit=atg_create_element_label(b_stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+				if(s_unit)
+				{
+					s_unit->w=8;
+					if(atg_ebox_pack(row, s_unit))
+					{
+						perror("atg_ebox_pack");
+						atg_free_element(s_unit);
+						break;
+					}
+				}
 			}
-		}
-		if(!b_stat_rows[i].unit_first)
-		{
-			atg_element *s_unit=atg_create_element_label(b_stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
-			if(s_unit)
+			snprintf(b_stat_rows[i].value_buf, 6, "%5d", val);
+			atg_element *s_value=atg_create_element_label(b_stat_rows[i].value_buf, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+			if(s_value)
 			{
-				s_unit->w=32;
-				if(atg_ebox_pack(row, s_unit))
+				s_value->w=40+(b_stat_rows[i].unit_first?32:0);
+				if(atg_ebox_pack(row, s_value))
 				{
 					perror("atg_ebox_pack");
-					atg_free_element(s_unit);
+					atg_free_element(s_value);
 					break;
 				}
 			}
-		}
-		SDL_Surface *bar=SDL_CreateRGBSurface(SDL_HWSURFACE, 102, 14, 24, 0xff0000, 0xff00, 0xff, 0);
-		if(!bar)
-		{
-			fprintf(stderr, "bar: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-			break;
-		}
-		SDL_FillRect(bar, &(SDL_Rect){0, 0, bar->w, bar->h}, SDL_MapRGB(bar->format, 191, 191, 191));
-		SDL_FillRect(bar, &(SDL_Rect){1, 1, bar->w-2, bar->h-2}, SDL_MapRGB(bar->format, 0, 0, 23));
-		int bar_x=(val-b_stat_rows[i].bar_min)*100.0/(b_stat_rows[i].bar_max-b_stat_rows[i].bar_min);
-		clamp(bar_x, 0, 100);
-		int dx=bar_x;
-		if(b_stat_rows[i].bar_rev)
-			dx=100-dx;
-		unsigned int r=255-(dx*2.55), g=dx*2.55;
-		SDL_FillRect(bar, &(SDL_Rect){1, 1, bar_x, bar->h-2}, SDL_MapRGB(bar->format, r, g, 0));
-		atg_element *s_bar=atg_create_element_image(bar);
-		SDL_FreeSurface(bar);
-		if(!s_bar)
-		{
-			break;
-		}
-		else
-		{
-			if(atg_ebox_pack(row, s_bar))
+			if(!b_stat_rows[i].unit_first)
 			{
-				perror("atg_ebox_pack");
-				atg_free_element(s_bar);
+				atg_element *s_unit=atg_create_element_label(b_stat_rows[i].unit, 12, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE});
+				if(s_unit)
+				{
+					s_unit->w=32;
+					if(atg_ebox_pack(row, s_unit))
+					{
+						perror("atg_ebox_pack");
+						atg_free_element(s_unit);
+						break;
+					}
+				}
+			}
+			SDL_Surface *bar=SDL_CreateRGBSurface(SDL_HWSURFACE, 102, 14, 24, 0xff0000, 0xff00, 0xff, 0);
+			if(!bar)
+			{
+				fprintf(stderr, "bar: SDL_CreateRGBSurface: %s\n", SDL_GetError());
 				break;
+			}
+			SDL_FillRect(bar, &(SDL_Rect){0, 0, bar->w, bar->h}, SDL_MapRGB(bar->format, 191, 191, 191));
+			SDL_FillRect(bar, &(SDL_Rect){1, 1, bar->w-2, bar->h-2}, SDL_MapRGB(bar->format, 0, 0, 23));
+			int bar_x=(val-b_stat_rows[i].bar_min)*100.0/(b_stat_rows[i].bar_max-b_stat_rows[i].bar_min);
+			clamp(bar_x, 0, 100);
+			int dx=bar_x;
+			if(b_stat_rows[i].bar_rev)
+				dx=100-dx;
+			unsigned int r=255-(dx*2.55), g=dx*2.55;
+			SDL_FillRect(bar, &(SDL_Rect){1, 1, bar_x, bar->h-2}, SDL_MapRGB(bar->format, r, g, 0));
+			atg_element *s_bar=atg_create_element_image(bar);
+			SDL_FreeSurface(bar);
+			if(!s_bar)
+			{
+				break;
+			}
+			else
+			{
+				if(atg_ebox_pack(row, s_bar))
+				{
+					perror("atg_ebox_pack");
+					atg_free_element(s_bar);
+					break;
+				}
 			}
 		}
 	}

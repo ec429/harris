@@ -163,7 +163,7 @@ int load_bombers(void)
 			if(*next&&(*next!='#'))
 			{
 				bombertype this={0};
-				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM
+				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM:CATEGORY
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				ssize_t db;
@@ -225,7 +225,6 @@ int load_bombers(void)
 					return(1);
 				}
 				nav++;
-				const char *conv=strchr(nav, ':');
 				for(unsigned int i=0;i<NNAVAIDS;i++)
 					this.nav[i]=strstr(nav, navaids[i]);
 				this.noarm=strstr(nav, "NOARM");
@@ -241,14 +240,32 @@ int load_bombers(void)
 				this.smbay=strstr(nav, "SMBAY");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
+				const char *conv=strchr(nav, ':');
+				if(!conv)
+				{
+					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+					fprintf(stderr, "  missing :[CONVERTFROM]\n");
+					return(1);
+				}
+				conv++;
+				const char *cat=strchr(conv, ':');
+				if(!cat)
+				{
+					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+					fprintf(stderr, "  missing :CATEGORY\n");
+					return(1);
+				}
+				unsigned int convlen=cat-conv;
+				cat++;
 				this.convertfrom=-1;
-				if(conv)
+				if(convlen)
 					for(unsigned int i=0;i<ntypes;i++)
-						if(!strcmp(conv+1, types[i].name))
+						if(convlen==strlen(types[i].name) && !strcmp(conv, types[i].name))
 						{
 							this.convertfrom=i;
 							break;
 						}
+				this.category=strdup(cat);
 				char pn[256];
 				strcpy(pn, "art/bombers/");
 				for(size_t p=0;p<nlen;p++)
