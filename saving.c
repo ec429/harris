@@ -1059,7 +1059,6 @@ int loadgame(const char *fn, game *state)
 			return(e);
 		}
 	}
-	filter_elite=0;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		filter_nav[n]=0;
 	for(unsigned int m=0;m<MAX_MARKS;m++)

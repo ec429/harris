@@ -42,8 +42,8 @@ char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 char *GB_suntimes[2];
 SDL_Surface *GB_moonimg, *GB_tfav[2], *GB_ifav[2];
-int filter_nav[NNAVAIDS], filter_elite=0;
-atg_element *GB_fi_nav[NNAVAIDS], *GB_fi_elite;
+int filter_nav[NNAVAIDS];
+atg_element *GB_fi_nav[NNAVAIDS];
 bool filter_marks[MAX_MARKS];
 atg_element *GB_filter_marks;
 bool filter_groups[7];
@@ -798,16 +798,6 @@ int control_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-	}
-	if(!(GB_fi_elite=create_filter_switch(elitepic, &filter_elite)))
-	{
-		fprintf(stderr, "create_filter_switch failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(GB_filters, GB_fi_elite))
-	{
-		perror("atg_ebox_pack");
-		return(1);
 	}
 	if (!(GB_filter_marks=create_bfilter_switch(MAX_MARKS, GAME_BG_COLOUR, markpic, filter_marks)))
 	{
@@ -2226,8 +2216,7 @@ bool ensure_crewed(game *state, unsigned int i)
 			continue;
 		int k=state->bombers[i].crew[j];
 		// 0. Deassign current crewman if unsuitable
-		if(k>=0 && ((state->crews[k].skill*filter_elite<50*filter_elite) || // 'elite' filter
-		            state->crews[k].class!=types[type].crew[j])) // cclass changed under us
+		if(k>=0 && state->crews[k].class!=types[type].crew[j]) // cclass changed under us
 		{
 			int cs=state->crews[k].squadron;
 			if(state->crews[k].assignment!=(int)i) /* can't happen */
@@ -2248,8 +2237,6 @@ bool ensure_crewed(game *state, unsigned int i)
 				if(state->crews[k].status!=CSTATUS_CREWMAN)
 					continue;
 				if(state->crews[k].squadron!=s)
-					continue;
-				if(state->crews[k].skill*filter_elite<50*filter_elite)
 					continue;
 				if(best<0 ||
 					   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
@@ -2308,8 +2295,6 @@ bool ensure_crewed(game *state, unsigned int i)
 					continue;
 				// The PFF may steal crews from other groups
 				if(state->crews[k].group && state->crews[k].group!=grp && !is_pff(state, i))
-					continue;
-				if(state->crews[k].skill*filter_elite<50*filter_elite)
 					continue;
 				if(is_pff(state, i)&&(CREWOPS(k)<(types[type].noarm?30:15)))
 					continue;
