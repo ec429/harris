@@ -2198,6 +2198,36 @@ void fill_flights(game *state)
 	}
 }
 
+bool fully_crewed(const game *state, unsigned int i)
+{
+	for(unsigned int j=0;j<MAX_CREW;j++)
+	{
+		if(types[state->bombers[i].type].crew[j]==CCLASS_NONE)
+			continue;
+		if(state->bombers[i].crew[j]<0)
+			return false;
+	}
+	return true;
+}
+
+void swap_crews(game *state, unsigned int i, unsigned int k)
+{
+	if(state->bombers[i].type!=state->bombers[k].type)
+		/* can't happen */
+		fprintf(stderr, "Warning: swapping crews between different types %s (bi %u) and %s (bi %u)\n", types[state->bombers[i].type].name, i, types[state->bombers[k].type].name, k);
+	for(unsigned int j=0;j<MAX_CREW;j++)
+	{
+		int a=state->bombers[i].crew[j];
+		int b=state->bombers[k].crew[j];
+		state->bombers[i].crew[j]=b;
+		if(b>=0)
+			state->crews[b].assignment=i;
+		state->bombers[k].crew[j]=a;
+		if(a>=0)
+			state->crews[a].assignment=k;
+	}
+}
+
 #define CREWOPS(k)	(state->crews[(k)].tour_ops + 30 * state->crews[(k)].full_tours) // TODO second tours should only be 20 ops
 
 bool ensure_crewed(game *state, unsigned int i)
@@ -2245,7 +2275,7 @@ bool ensure_crewed(game *state, unsigned int i)
 						     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
 					    state->crews[k].heavy < state->crews[best].heavy))
 				{
-					if(state->crews[k].assignment<0||(state->bombers[state->crews[k].assignment].failed&&!state->bombers[i].failed))
+					if(state->crews[k].assignment<0||(state->bombers[state->crews[k].assignment].failed&&!state->bombers[i].failed&&!fully_crewed(state, state->crews[k].assignment)))
 					{
 						best=k;
 						if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
@@ -2282,8 +2312,26 @@ bool ensure_crewed(game *state, unsigned int i)
 					state->crews[best].group=grp;
 				}
 			}
+			else if(!state->bombers[i].failed)
+			{
+				// 2. Try to swap entire crew with a failed-but-fully-crewed a/c in the squadron
+				for(unsigned int k=0;k<state->nbombers;k++)
+				{
+					if(k==i)
+						continue;
+					if(state->bombers[k].squadron!=s)
+						continue;
+					if(!state->bombers[k].failed)
+						continue;
+					if(fully_crewed(state, k))
+					{
+						swap_crews(state, i, k);
+						break;
+					}
+				}
+			}
 		}
-		// 2. Look for an available (unassigned) CREWMAN anywhere in the group or groupless
+		// 3. Look for an available (unassigned) CREWMAN anywhere in the group or groupless
 		if(state->bombers[i].crew[j]<0)
 		{
 			int best=-1;
@@ -2336,7 +2384,7 @@ bool ensure_crewed(game *state, unsigned int i)
 		}
 		if(state->bombers[i].crew[j]<0)
 		{
-			// 3. Give up, and don't allow assigning this bomber to any raid
+			// 4. Give up, and don't allow assigning this bomber to any raid
 			shortof[types[type].crew[j]]=true;
 			ok=false;
 		}
