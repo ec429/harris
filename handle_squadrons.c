@@ -30,7 +30,7 @@ char *HS_mge[7];
 #define gpnum(_i)	((_i)==6?8:(_i)+1)
 atg_element **HS_btrow, **HS_btcvt;
 char **HS_btnum;
-atg_element *HS_stl, *HS_stoper, *HS_stclmp, *HS_stshim, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_mbw;
+atg_element *HS_stl, *HS_stoper, *HS_stclmp, *HS_stshim, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_stshim2, *HS_mbw;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe, *HS_wp, *HS_wt;
 atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_sqdis, *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
@@ -571,6 +571,20 @@ int handle_squadrons_create(void)
 		return(1);
 	}
 	if(atg_ebox_pack(HS_stnbox, wt))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_stshim2=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!HS_stshim2)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	HS_stshim2->w=3;
+	HS_stshim2->h=13;
+	HS_stshim2->hidden=true;
+	if(atg_ebox_pack(stnstate, HS_stshim2))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1528,7 +1542,8 @@ void update_stn_info(game *state)
 	snprintf(HS_wt, 16, "Temp:  %4.1fC", bases[selstn].wt);
 	double eff;
 	if(!(HS_mbw->hidden=!mixed_base(state, selstn, &eff)))
-		snprintf(HS_mbe, 40, "Mixed types (%.1f%% efficiency)", eff*100.0);
+		snprintf(HS_mbe, 40, "Mixed types (%.1f%% eff)", eff*100.0);
+	HS_stshim2->hidden=HS_mbw->hidden;
 	update_sqn_list(state);
 	HS_nosq->hidden=bases[selstn].nsqns;
 	for(unsigned int i=0;i<2;i++)
