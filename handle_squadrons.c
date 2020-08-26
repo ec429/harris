@@ -32,7 +32,7 @@ atg_element **HS_btrow, **HS_btcvt;
 char **HS_btnum;
 atg_element *HS_stl, *HS_stoper, *HS_stclmp, *HS_stshim, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_stshim2, *HS_mbw;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe, *HS_wp, *HS_wt;
-atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_sqdis, *HS_flbtn[3];
+atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_sqdis, *HS_sqrh, *HS_sqrl, *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
@@ -878,6 +878,48 @@ int handle_squadrons_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!hbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(HS_sqnbox, hbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *req=atg_create_element_label("Require: ", 11, (atg_colour){127, 127, 127, ATG_ALPHA_OPAQUE});
+	if(!req)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(hbox, req))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HS_sqrh=atg_create_element_toggle("HCU", false, (atg_colour){159, 159, 111, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_toggle failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(hbox, HS_sqrh))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HS_sqrl=atg_create_element_toggle("LFS", false, (atg_colour){159, 159, 111, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_toggle failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(hbox, HS_sqrl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	atg_element *spare=atg_create_element_label("Spare bods:", 10, (atg_colour){143, 143, 143, ATG_ALPHA_OPAQUE});
 	if(!spare)
 	{
@@ -1487,6 +1529,12 @@ void update_sqn_info(game *state)
 		snprintf(HS_btman, 40, types[type].manu);
 		snprintf(HS_btnam, 40, types[type].name);
 	}
+	HS_sqrh->hidden=type>=ntypes||!types[type].heavy;
+	t=HS_sqrh->elemdata;
+	t->state=state->squads[selsqn].rh;
+	HS_sqrl->hidden=type>=ntypes||!types[type].lfs;
+	t=HS_sqrl->elemdata;
+	t->state=state->squads[selsqn].rl;
 	unsigned int sv=0, nom=0, act=0, flts=state->squads[selsqn].third_flight?3:2;
 	for(unsigned int i=0;i<state->nbombers;i++)
 		if(state->bombers[i].squadron==selsqn)
@@ -1937,6 +1985,16 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 						if(active)
 							toggle.state=false;
 						remustering=toggle.state;
+						break;
+					}
+					if(toggle.e==HS_sqrh&&selsqn>=0)
+					{
+						state->squads[selsqn].rh=toggle.state;
+						break;
+					}
+					if(toggle.e==HS_sqrl&&selsqn>=0)
+					{
+						state->squads[selsqn].rl=toggle.state;
 						break;
 					}
 					fprintf(stderr, "Clicked on unknown toggle!\n");
