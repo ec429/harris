@@ -34,8 +34,8 @@ atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
-atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
-atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff;
+atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
+atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff, *GB_clamp;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
@@ -176,6 +176,11 @@ int control_create(void)
 		return(1);
 	}
 	if(!(GB_btp=calloc(ntypes, sizeof(atg_element *))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	if(!(GB_btw=calloc(ntypes, sizeof(atg_element *))))
 	{
 		perror("calloc");
 		return(1);
@@ -389,6 +394,16 @@ int control_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		if(!(GB_btw[i]=atg_create_element_label("W!", 12, (atg_colour){191, 79, 79, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(hbox, GB_btw[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 		GB_navrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
 		if(!GB_navrow[i])
 		{
@@ -596,6 +611,18 @@ int control_create(void)
 	}
 	GB_save->w=159;
 	if(atg_ebox_pack(GB_bt, GB_save))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	GB_clamp=atg_create_element_label("Base Weather limits ops", 10, (atg_colour){223, 15, 15, ATG_ALPHA_OPAQUE});
+	if(!GB_clamp)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	GB_clamp->w=159;
+	if(atg_ebox_pack(GB_bt, GB_clamp))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1393,15 +1420,23 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		bases[b].wt=state->weather.t[(int)base_lon(bases[b])][(int)base_lat(bases[b])] + seasonal_temp(state->now) + ((int)bases[b].lat-160)*0.01;
 		bases[b].clamped=(bases[b].wp+bases[b].wt)<(bases[b].paved?996.0:1001.0);
 	}
+	bool clampany=false, clamptype[ntypes];
+	memset(clamptype, 0, sizeof(clamptype));
 	for(unsigned int s=0;s<state->nsquads;s++)
 	{
 		unsigned int flights=state->squads[s].third_flight?3:2;
 		unsigned int ucls[CREW_CLASSES]={0};
-		types[state->squads[s].btype].nestab+=flights*10;
+		unsigned int type=state->squads[s].btype;
+		if(bases[state->squads[s].base].clamped)
+		{
+			clampany=true;
+			clamptype[type]=true;
+		}
+		types[type].nestab+=flights*10;
 		/* Count up unfilled I.E. of each crew class */
 		for(unsigned int j=0;j<MAX_CREW;j++)
 			for(unsigned int f=0;f<flights;f++)
-				ucls[types[state->squads[s].btype].crew[j]]+=(10-state->squads[s].nb[f]);
+				ucls[types[type].crew[j]]+=(10-state->squads[s].nb[f]);
 		bool surplus=false;
 		for(unsigned int c=0;c<CREW_CLASSES;c++)
 			if(state->squads[s].nc[c]>ucls[c])
@@ -1428,6 +1463,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 				state->crews[i].squadron=-1;
 			}
 	}
+	GB_clamp->hidden=!clampany;
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(GB_btrow[i])
@@ -1438,6 +1474,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			GB_btnew[i]->hidden=!datebefore(state->now, types[i].novelty);
 		if(GB_btp[i])
 			GB_btp[i]->hidden=(types[i].pribuf<8)||(state->cash<newstats(types[i]).cost)||(types[i].pcbuf>=newstats(types[i]).cost);
+		if(GB_btw[i])
+			GB_btw[i]->hidden=!clamptype[i];
 		update_btcount(state, i, shownav);
 	}
 	if(GB_go&&GB_go->elemdata&&((atg_button *)GB_go->elemdata)->content)
