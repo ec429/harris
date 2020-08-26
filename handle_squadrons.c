@@ -317,6 +317,19 @@ int handle_squadrons_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		atg_element *hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!hbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		hbox->w=200;
+		hbox->h=18;
+		if(atg_ebox_pack(vbox, hbox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 		HS_btnum[i]=malloc(8);
 		if(!HS_btnum[i])
 		{
@@ -330,7 +343,41 @@ int handle_squadrons_create(void)
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
-		if(atg_ebox_pack(vbox, btnum))
+		btnum->w=30;
+		if(atg_ebox_pack(hbox, btnum))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *v2box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+		if(!v2box)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(hbox, v2box))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *btmanu=atg_create_element_label(types[i].manu, 7, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
+		if(!btmanu)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(v2box, btmanu))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *btname=atg_create_element_label(types[i].name, 9, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
+		if(!btname)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(v2box, btname))
 		{
 			perror("atg_ebox_pack");
 			return(1);
