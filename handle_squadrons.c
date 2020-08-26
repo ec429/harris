@@ -1578,15 +1578,18 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 						update_stn_info(state);
 						break;
 					}
-					for(i=0;i<bases[selstn].nsqns;i++)
-						if(trigger.e==HS_sqbtn[i])
-						{
-							selsqn=bases[selstn].sqn[i];
-							update_sqn_info(state);
+					if(selstn>=0)
+					{
+						for(i=0;i<bases[selstn].nsqns;i++)
+							if(trigger.e==HS_sqbtn[i])
+							{
+								selsqn=bases[selstn].sqn[i];
+								update_sqn_info(state);
+								break;
+							}
+						if(i<bases[selstn].nsqns)
 							break;
-						}
-					if(i<bases[selstn].nsqns)
-						break;
+					}
 					if(trigger.e==HS_grow)
 					{
 						if(selsqn<0)
