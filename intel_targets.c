@@ -33,7 +33,7 @@ enum t_stat_i
 	NUM_STATS
 };
 
-const char *tclass_fn(unsigned int ti);
+int tclass_fn(unsigned int ti, char *buf, size_t n);
 int dmg_fn(unsigned int ti, const game *state);
 int flak_fn(unsigned int ti, const game *state);
 int prod_fn(unsigned int ti, const game *state);
@@ -43,7 +43,7 @@ struct t_stat_row
 {
 	const char *name;
 	int (*v_fn)(unsigned int ti, const game *state);
-	const char *(*t_fn)(unsigned int ti);
+	int (*t_fn)(unsigned int ti, char *buf, size_t n);
 	int bar_min, bar_max;
 	bool bar_rev; // reverse colours
 }
@@ -546,7 +546,12 @@ void update_intel_targets(const game *state)
 		}
 		else if(t_stat_rows[i].t_fn)
 		{
-			atg_element *text=atg_create_element_label(t_stat_rows[i].t_fn(IT_i), 12, (atg_colour){0, 0, 31, ATG_ALPHA_OPAQUE});
+			char buf[40];
+			if(t_stat_rows[i].t_fn(IT_i, buf, sizeof(buf))<0) {
+				perror("snprintf");
+				break;
+			}
+			atg_element *text=atg_create_element_label(buf, 12, (atg_colour){0, 0, 31, ATG_ALPHA_OPAQUE});
 			if(text)
 			{
 				text->w=284;
@@ -561,50 +566,44 @@ void update_intel_targets(const game *state)
 	}
 }
 
-const char *tclass_fn(unsigned int ti)
+static const char *iclass_desc[I_CLASSES + 1] = { // Mixed is an 'extra' class
+	[ICLASS_BB]	= "Ball Bearings",
+	[ICLASS_OIL]	= "Oil/Petrochemical",
+	[ICLASS_RAIL]	= "Rail/Transportation",
+	[ICLASS_UBOOT]	= "U-Boats/Shipyards",
+	[ICLASS_ARM]	= "Armament",
+	[ICLASS_STEEL]	= "Steel/Smelting",
+	[ICLASS_AC]	= "Aircraft",
+	[ICLASS_RADAR]	= "Radar/Electronics",
+	[ICLASS_MIXED]	= "Mixed",
+};
+
+int tclass_fn(unsigned int ti, char *buf, size_t n)
 {
 	switch(targs[ti].class)
 	{
 		case TCLASS_CITY:
-			return("City");
+			if(targs[ti].iclass<I_CLASSES && iclass_desc[targs[ti].iclass]) // not Mixed
+				return snprintf(buf, n, "City (%s)", iclass_desc[targs[ti].iclass]);
+			return snprintf(buf, n, "City");
 		case TCLASS_SHIPPING:
-			return("Shipping");
+			return snprintf(buf, n, "Shipping");
 		case TCLASS_MINING:
-			return("Minelaying");
+			return snprintf(buf, n, "Minelaying");
 		case TCLASS_LEAFLET:
-			return("Leafleting");
+			return snprintf(buf, n, "Leafleting");
 		case TCLASS_AIRFIELD:
-			return("Airfield");
+			return snprintf(buf, n, "Airfield");
 		case TCLASS_BRIDGE:
-			return("Bridge");
+			return snprintf(buf, n, "Bridge");
 		case TCLASS_ROAD:
-			return("Road junction");
+			return snprintf(buf, n, "Road junction");
 		case TCLASS_INDUSTRY:
-			switch(targs[ti].iclass)
-			{
-				case ICLASS_BB:
-					return("Industry - Ball Bearings");
-				case ICLASS_OIL:
-					return("Industry - Oil/Petrochemical");
-				case ICLASS_RAIL:
-					return("Industry - Rail/Transportation");
-				case ICLASS_UBOOT:
-					return("Industry - U-Boats/Shipyards");
-				case ICLASS_ARM:
-					return("Industry - Armament");
-				case ICLASS_STEEL:
-					return("Industry - Steel/Smelting");
-				case ICLASS_AC:
-					return("Industry - Aircraft");
-				case ICLASS_RADAR:
-					return("Industry - Radar/Electronics");
-				case ICLASS_MIXED:
-					return("Industry - Mixed");
-				default:
-					return("Industry - unknown");
-			}
+			if(targs[ti].iclass<=I_CLASSES && iclass_desc[targs[ti].iclass])
+				return snprintf(buf, n, "Industry - %s", iclass_desc[targs[ti].iclass]);
+			return snprintf(buf, n, "Industry (unknown iclass %d)", targs[ti].iclass);
 		default:
-			return("unknown");
+			return snprintf(buf, n, "(unknown class %d)", targs[ti].class);
 	}
 }
 
