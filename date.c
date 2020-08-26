@@ -64,6 +64,18 @@ int diffdate(date date1, date date2) // returns <0 if date1<date2, >0 if date1>d
 	return(days1-days2);
 }
 
+static double season(date when)
+{
+	// depth of winter at 04/02/1939
+	// tropical year 365.24217 (mean solar) days
+	return diffdate(when, (date){.day=4, .month=2, .year=1939})/365.24217;
+}
+
+double seasonal_temp(date when)
+{
+	return 3.0-5.5*cos(season(when)*M_PI*2);
+}
+
 double pom(date when)
 {
 	// new moon at 14/08/1939

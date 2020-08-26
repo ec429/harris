@@ -30,8 +30,8 @@ char *HS_mge[7];
 #define gpnum(_i)	((_i)==6?8:(_i)+1)
 atg_element **HS_btrow, **HS_btcvt;
 char **HS_btnum;
-atg_element *HS_stl, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_mbw;
-char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe;
+atg_element *HS_stl, *HS_stoper, *HS_stclmp, *HS_stshim, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_mbw;
+char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe, *HS_wp, *HS_wt;
 atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_sqdis, *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
@@ -413,6 +413,44 @@ int handle_squadrons_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	HS_stoper=atg_create_element_label("Operational", 10, (atg_colour){95, 223, 95, ATG_ALPHA_OPAQUE});
+	if(!HS_stoper)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	HS_stoper->hidden=true;
+	if(atg_ebox_pack(stnstate, HS_stoper))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_stclmp=atg_create_element_label("Bad Weather", 10, (atg_colour){95, 127, 223, ATG_ALPHA_OPAQUE});
+	if(!HS_stclmp)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	HS_stclmp->hidden=true;
+	if(atg_ebox_pack(stnstate, HS_stclmp))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_stshim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	if(!HS_stshim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	HS_stshim->w=3;
+	HS_stshim->h=13;
+	HS_stshim->hidden=true;
+	if(atg_ebox_pack(stnstate, HS_stshim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	HS_stpaved=atg_create_element_label("Paved", 10, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
 	if(!HS_stpaved)
 	{
@@ -450,6 +488,42 @@ int handle_squadrons_create(void)
 	}
 	HS_stpavebtn->hidden=true;
 	if(atg_ebox_pack(stnstate, HS_stpavebtn))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_wp=malloc(16);
+	if(!HS_wp)
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(HS_wp, 16, " ");
+	atg_element *wp=atg_create_element_label_nocopy(HS_wp, 10, (atg_colour){127, 127, 161, ATG_ALPHA_OPAQUE});
+	if(!wp)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(HS_stnbox, wp))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_wt=malloc(16);
+	if(!HS_wt)
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(HS_wt, 16, " ");
+	atg_element *wt=atg_create_element_label_nocopy(HS_wt, 10, (atg_colour){161, 127, 127, ATG_ALPHA_OPAQUE});
+	if(!wt)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(HS_stnbox, wt))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1207,6 +1281,15 @@ void update_stn_list(game *state)
 			bb=31;
 			hg=hilight;
 		}
+		if(bases[i].clamped)
+		{
+			b->bgcolour.r-=32;
+			br-=32;
+			b->bgcolour.g-=32;
+			bg-=32;
+			b->bgcolour.b+=16;
+			bg+=16;
+		}
 		SDL_FillRect(map_img->data, &(SDL_Rect){.x=bases[i].lon-2, .y=bases[i].lat-2, .w=5, .h=5}, SDL_MapRGBA(map_img->data->format, br+hr, bg+hg, bb+hb, ATG_ALPHA_OPAQUE));
 		SDL_FillRect(map_img->data, &(SDL_Rect){.x=bases[i].lon-1, .y=bases[i].lat-1, .w=3, .h=3}, SDL_MapRGBA(map_img->data->format, br, bg, bb, ATG_ALPHA_OPAQUE));
 		if(i==selstn)
@@ -1387,10 +1470,15 @@ void update_stn_info(game *state)
 		selsqn=bases[selstn].sqn[0];
 	update_sqn_info(state);
 	snprintf(HS_stname, 48, "%s", bases[selstn].name);
+	HS_stclmp->hidden=!bases[selstn].clamped;
+	HS_stoper->hidden=bases[selstn].clamped||selstn==state->paving;
 	HS_stpaved->hidden=!bases[selstn].paved;
 	if(!(HS_stpaving->hidden=selstn!=state->paving))
 		snprintf(HS_stpavetime, 24, "Paving (%d days left)", PAVE_TIME-state->pprog);
 	HS_stpavebtn->hidden=datebefore(state->now, event[EVENT_PAVING])||bases[selstn].paved||state->paving>=0||bases[selstn].nsqns;
+	HS_stshim->hidden=(HS_stclmp->hidden&&HS_stoper->hidden)||(HS_stpaved->hidden&&HS_stpaving->hidden&&HS_stpavebtn->hidden);
+	snprintf(HS_wp, 16, "QNH: %6.1fmb", bases[selstn].wp);
+	snprintf(HS_wt, 16, "Temp:  %4.1fC", bases[selstn].wt);
 	double eff;
 	if(!(HS_mbw->hidden=!mixed_base(state, selstn, &eff)))
 		snprintf(HS_mbe, 40, "Mixed types (%.1f%% efficiency)", eff*100.0);

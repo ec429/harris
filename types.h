@@ -197,6 +197,9 @@ typedef struct
 	int group, pregroup;
 	unsigned int lon, lat;
 	bool paved;
+	// Weather conditions
+	double wp, wt;
+	bool clamped;
 	/* These two are only maintained within handle_squadrons screen.  Otherwise call update_sqn_list() first */
 	unsigned int nsqns;
 	unsigned int sqn[2];

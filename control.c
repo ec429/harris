@@ -1387,6 +1387,12 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	}
 	for(unsigned int i=0;i<ntypes;i++)
 		types[i].nestab=0;
+	for(unsigned int b=0;b<nbases;b++)
+	{
+		bases[b].wp=england_weather_p(&state->weather, bases[b].lon, bases[b].lat);
+		bases[b].wt=state->weather.t[(int)base_lon(bases[b])][(int)base_lat(bases[b])] + seasonal_temp(state->now) + ((int)bases[b].lat-160)*0.01;
+		bases[b].clamped=(bases[b].wp+bases[b].wt)<(bases[b].paved?996.0:1001.0);
+	}
 	for(unsigned int s=0;s<state->nsquads;s++)
 	{
 		unsigned int flights=state->squads[s].third_flight?3:2;
