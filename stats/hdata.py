@@ -76,7 +76,7 @@ def parse_crew(text):
 			raise Exception("No such cclass", c, "as found in", text)
 	return text.strip()
 
-# Bombers: MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS:CONVERTFROM
+# Bombers: MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS:CONVERTFROM:CATEGORY
 Bombers = Table([('manf', parse_string),
 				 ('name', parse_string), 
 				 ('cost', parse_int),
@@ -94,6 +94,7 @@ Bombers = Table([('manf', parse_string),
 				 ('crew', parse_crew),
 				 ('flags', parse_flags), # Flags includes NAVAIDS
 				 ('conv', parse_string),
+				 ('cat', parse_string),
 				 ])
 Bombers.read(open('dat/bombers'))
 

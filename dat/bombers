@@ -44,7 +44,7 @@ Vickers:Wellington:         12000:185:180: 4500:85:16: 2:40:311:          :21-10
 Avro:Manchester:            20000:210:185:10350:64:24:16:55:325:05-11-1940:26-06-1942:19-05-1943:PPNBWGG:GEE,H2S,OBOE,CREWBG,HEAVY,Ab,Us,Ar::Heavy Bomber
 Supermarine:Southampton:    33000:230:220:16000:64:22: 6:50:265:25-12-1940:17-11-1943:15-04-1944:PNBWGG :GEE,H2S,HEAVY,EXTRA,Ab,Us,Ar::Heavy Bomber
 Short:Stirling:             25000:200:175:14000:40:18: 7:50:280:16-01-1941:08-02-1944:22-05-1944:PPNWEGG:GEE,H2S,OBOE,CREWWG,HEAVY,Ab,Us,Ar::Heavy Bomber
-Armstrong-Whitworth:Elswick:10000:186:202: 7500:65:30:10:40:330:13-02-1941:03-02-1943:16-07-1943:PNBWG  :GEE,H2S,EXTRA,Ab,Us,Ar:Whitley::Medium Night Bomber
+Armstrong-Whitworth:Elswick:10000:186:202: 7500:65:30:10:40:330:13-02-1941:03-02-1943:16-07-1943:PNBWG  :GEE,H2S,EXTRA,Ab,Us,Ar:Whitley:Medium Night Bomber
 Handley Page:Halifax:       28000:225:190:13000:80:22: 6:62:335:14-05-1941:31-03-1944:09-09-1944:PNWEGGG:GEE,H2S,OBOE,GH,HEAVY,SMBAY,Ab,Us,Ar::Heavy Bomber
 Avro:Lancaster:             40000:232:225:14000:70:12: 4:60:350:07-02-1942:          :          :PNBWEGG:GEE,H2S,OBOE,GH,CREWBG,HEAVY,SLOWGROW,LFS,Ab,Pp,Pd,Us,Ar:Manchester:Heavy Bomber
 de Havilland:Mosquito:      15000:325:300: 2000:80: 4: 4:64:390:12-08-1942:          :          :PN     :GEE,OBOE,GH,NOARM,Ab,Il::Unarmed Light Bomber
