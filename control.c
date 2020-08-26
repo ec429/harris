@@ -2392,6 +2392,10 @@ bool ensure_crewed(game *state, unsigned int i)
 					continue;
 				if(is_pff(state, i)&&(CREWOPS(k)<(types[type].noarm?30:15)))
 					continue;
+				if(state->squads[s].rh&&state->crews[k].heavy < 1.0)
+					continue;
+				if(state->squads[s].rl&&state->crews[k].lanc < 1.0)
+					continue;
 				if(best<0 ||
 					   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >
 						   (0.25+state->crews[best].lanc)*(0.25+state->crews[best].heavy) :

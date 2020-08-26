@@ -420,6 +420,7 @@ typedef struct
 	unsigned int btype;
 	unsigned int rtime; // days until readiness
 	bool third_flight;
+	bool rh, rl; // require nonzero heavy/lanc skill for new postings
 	/* nb: number of bombers[flight]
 	 * nc: number of crews[cclass] without assigned aircraft
 	 */

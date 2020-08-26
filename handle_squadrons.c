@@ -1794,6 +1794,8 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 							.btype=state->squads[selsqn].btype,
 							.rtime=state->squads[selsqn].rtime+7,
 							.third_flight=false,
+							.rh=state->squads[selsqn].rh,
+							.rl=state->squads[selsqn].rl,
 							.nb[0]=state->squads[selsqn].nb[2],
 							.nc={0},
 						};
