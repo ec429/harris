@@ -1574,6 +1574,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					if(state->squads[s].rtime)
 						continue;
 					unsigned int b=state->squads[s].base;
+					if(bases[b].clamped) continue;
 					signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 					bool unpaved=types[type].heavy&&!bases[b].paved;
 					double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[type].ovltank?1.3:1.5);
@@ -1837,6 +1838,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										if(state->squads[s].rtime)
 											continue;
 										unsigned int b=state->squads[s].base;
+										if(bases[b].clamped) continue;
 										signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 										bool unpaved=types[i].heavy&&!bases[b].paved;
 										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.3:1.5);
