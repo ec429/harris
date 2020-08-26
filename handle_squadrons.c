@@ -1245,6 +1245,8 @@ void update_stn_list(game *state)
 		else
 			snprintf(HS_slsqn[i], 12, " ");
 	}
+	SDL_Surface *weather_overlay=render_england_weather(&state->weather);
+	SDL_BlitSurface(weather_overlay, NULL, map_img->data, NULL);
 }
 
 void update_flt_info(game *state)

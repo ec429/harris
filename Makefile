@@ -67,7 +67,7 @@ history.o: bits.h date.h saving.h
 
 saving.o: bits.h control.h date.h globals.h handle_crews.h history.h mods.h rand.h version.h
 
-render.o: bits.h almanack.h globals.h date.h
+render.o: bits.h almanack.h globals.h date.h weather.h widgets.h
 
 ui.o: globals.h date.h
 

@@ -10,7 +10,8 @@
 #include <SDL.h>
 #include "types.h"
 
-SDL_Surface *render_weather(w_state weather);
+SDL_Surface *render_weather(const w_state *weather);
+SDL_Surface *render_england_weather(const w_state *weather);
 SDL_Surface *render_sun(double showtime);
 SDL_Surface *render_routes(const game *state);
 SDL_Surface *render_cities(void);

@@ -702,7 +702,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		SDL_BlitSurface(target_overlay, NULL, with_flak_and_target, NULL);
 		with_weather=SDL_ConvertSurface(with_flak_and_target, with_flak_and_target->format, with_flak_and_target->flags);
 		SDL_FreeSurface(weather_overlay);
-		weather_overlay=render_weather(state->weather);
+		weather_overlay=render_weather(&state->weather);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		SDL_FreeSurface(route_overlay);
 		route_overlay=render_routes(state);
@@ -736,7 +736,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			}
 		}
 		SDL_FreeSurface(weather_overlay);
-		weather_overlay=render_weather(state->weather);
+		weather_overlay=render_weather(&state->weather);
 		SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 		SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 		sun_overlay=render_sun(convert_ht(maketime(t)));
@@ -749,7 +749,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			{
 				w_iter(&state->weather, lorw);
 				SDL_FreeSurface(weather_overlay);
-				weather_overlay=render_weather(state->weather);
+				weather_overlay=render_weather(&state->weather);
 				SDL_BlitSurface(with_flak_and_target, NULL, with_weather, NULL);
 				SDL_BlitSurface(weather_overlay, NULL, with_weather, NULL);
 				SDL_BlitSurface(route_overlay, NULL, with_weather, NULL);

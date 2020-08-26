@@ -16,9 +16,10 @@
 #include "bits.h"
 #include "globals.h"
 #include "date.h"
+#include "weather.h"
 #include "widgets.h"
 
-SDL_Surface *render_weather(w_state weather)
+SDL_Surface *render_weather(const w_state *weather)
 {
 	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	if(!rv)
@@ -31,8 +32,29 @@ SDL_Surface *render_weather(w_state weather)
 	{
 		for(unsigned int y=0;y<256;y++)
 		{
-			Uint8 cl=min(max(floor(1016-weather.p[x>>1][y>>1])*8.0, 0), 255);
-			pset(rv, x, y, (atg_colour){180+weather.t[x>>1][y>>1]*3, 210, 255-weather.t[x>>1][y>>1]*3, min(cl, 191)});
+			Uint8 cl=min(max(floor(1016-weather->p[x>>1][y>>1])*8.0, 0), 255);
+			pset(rv, x, y, (atg_colour){180+weather->t[x>>1][y>>1]*3, 210, 255-weather->t[x>>1][y>>1]*3, min(cl, 191)});
+		}
+	}
+	return(rv);
+}
+
+SDL_Surface *render_england_weather(const w_state *weather)
+{
+	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 256, 256, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+	if(!rv)
+	{
+		fprintf(stderr, "render_england_weather: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(NULL);
+	}
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	for(unsigned int x=0;x<256;x++)
+	{
+		for(unsigned int y=0;y<256;y++)
+		{
+			double p=england_weather_p(weather, x, y);
+			Uint8 cl=min(max(floor(1016-p)*5.0, 0), 255);
+			pset(rv, x, y, (atg_colour){180+weather->t[x/8+5][y/8+22]*3, 210, 255-weather->t[x>>1][y>>1]*3, min(cl, 128)});
 		}
 	}
 	return(rv);

@@ -89,3 +89,12 @@ void w_iter(w_state * ptr, bool lorw[128][128])
 		}
 	}
 }
+
+double england_weather_p(const w_state *w, unsigned int x, unsigned int y)
+{
+	unsigned int wx=x/8+5, wy=y/8+22, dx=x%8, dy=y%8;
+	return (w->p[wx][wy]*(8-dx)*(8-dy) +
+		w->p[wx+1][wy]*dx*(8-dy) +
+		w->p[wx][wy+1]*(8-dx)*dy +
+		w->p[wx+1][wy+1]*dx*dy) / 64.0;
+}

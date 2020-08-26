@@ -13,3 +13,4 @@
 
 void w_init(w_state * buf, unsigned int prep, bool lorw[128][128]); // initialise weather state _buf_, with _prep_ iterations to smooth it out
 void w_iter(w_state * ptr, bool lorw[128][128]); // iterate weather model
+double england_weather_p(const w_state *w, unsigned int x, unsigned int t);

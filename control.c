@@ -1497,7 +1497,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	SDL_FreeSurface(target_overlay);
 	target_overlay=render_targets(state->now);
 	SDL_FreeSurface(weather_overlay);
-	weather_overlay=render_weather(state->weather);
+	weather_overlay=render_weather(&state->weather);
 	SDL_FreeSurface(xhair_overlay);
 	xhair_overlay=render_xhairs(state);
 	SDL_FreeSurface(seltarg_overlay);
@@ -2076,7 +2076,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		map_img->data=SDL_ConvertSurface(terrain, terrain->format, terrain->flags);
 		SDL_FillRect(map_img->data, &(SDL_Rect){.x=0, .y=0, .w=terrain->w, .h=terrain->h}, SDL_MapRGB(terrain->format, 0, 0, 0));
 		SDL_FreeSurface(weather_overlay);
-		weather_overlay=render_weather(state->weather);
+		weather_overlay=render_weather(&state->weather);
 		SDL_BlitSurface(weather_overlay, NULL, map_img->data, NULL);
 		SDL_FreeSurface(xhair_overlay);
 		xhair_overlay=render_xhairs(state);
