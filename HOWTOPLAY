@@ -11,6 +11,7 @@ Contents
 * Bombers
  - Mods and Marks
 * Sun and Moon
+* Weather
 * Flak
 * Fighters
 * Navaids
@@ -66,6 +67,12 @@ Sun and Moon
 ~~~~~~~~~~~~
 The phase of the moon is shown in the top left of the control center, next to the date.  During the full moon, your bombers will navigate more accurately, but will be at greater risk from flak and fighters, as compared to the new moon.
 Sun rise and set times vary with location; when the cursor is hovered over the map, the times for that location are shown.  When the sun is up, its bright light will have a similar but much stronger effect to that of moonlight; it's generally very dangerous to be caught over enemy territory in daylight.  During the summer, the nights are shorter, limiting the distance your raids can safely penetrate.
+
+Weather
+~~~~~~~
+Cloud cover is shown on the map (if the weather overlay is enabled), and has multiple counteracting effects.  Thick cloud makes it harder for your bombers to navigate and bomb accurately, but also makes it harder for flak and fighters to attack them.  In both cases electronic warfare can somewhat mitigate this — radionavigation and airborne-intercept radar are both unaffected by clouds.  Note that the weather situation continues to develop after a raid is launched — prevailing winds tend to drive weather patterns eastward — so a target that's clear when you're planning your raids could be overcast by the time your bombers get there.
+Weather at base is also a constraining factor, particularly early in the war: during the depths of winter, grass airfields can become waterlogged, preventing take-off.  Airfields which are 'clamped' appear in blue on the Stations & Squadrons screen, and bombers based there cannot be assigned to raids.  Paved airfields are much less susceptible to this, but excessively heavy snowfalls can still block their concrete runways on rare occasions.
+Don't expect the displayed temperature and pressure values to make meteorological sense — the game's weather model is very much abstracted and simplified, and is more 'plausible fakery' than 'realistic simulation'.
 
 Flak
 ~~~~
