@@ -22,15 +22,14 @@
 3. Build libatg.
 	$ cd libatg
 	$ make
-	$ su
-	# make install
-	# ^D
+	$ sudo make install
 	$ cd ..
 
 4. Build Harris.
 	$ cd harris
 	$ make
+	$ sudo make install
 
 5. Run the game!
-	$ ./harris
+	$ harris
 	At this point a small grey window with a menu should pop up.  For further help, see the Tutorial in the file 'howtoplay'.

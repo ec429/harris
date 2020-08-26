@@ -1579,6 +1579,11 @@ int load_images(void)
 		fprintf(stderr, "PFF icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(grouppic[7]=IMG_Load("art/filters/gp0.png")))
+	{
+		fprintf(stderr, "No-Group icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	for(unsigned int l=0;l<NBOMBLOADS;l++)
 	{
 		if(!(bombloads[l].pic=IMG_Load(bombloads[l].fn)))

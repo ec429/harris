@@ -87,7 +87,7 @@ SDL_Surface *navpic[NNAVAIDS];
 SDL_Surface *elitepic=NULL;
 SDL_Surface *studentpic=NULL;
 SDL_Surface *markpic[4];
-SDL_Surface *grouppic[7];
+SDL_Surface *grouppic[8];
 SDL_Surface *england=NULL;
 SDL_Surface *resizebtn=NULL;
 SDL_Surface *fullbtn=NULL;

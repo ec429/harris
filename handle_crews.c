@@ -16,6 +16,7 @@
 #include "post_raid.h" /* for refill_students() */
 #include "bits.h"
 #include "render.h"
+#include "widgets.h"
 
 #define HCTBL_BG_COLOUR	(atg_colour){23, 23, 31, ATG_ALPHA_OPAQUE}
 #define HC_SKILL_HHEIGHT	12
@@ -33,6 +34,8 @@ SDL_Surface *HC_tp_tops[CREW_CLASSES];
 atg_element *HC_tp_text_box;
 char *HC_tp_count[CREW_CLASSES], *HC_tp_ecount[CREW_CLASSES];
 enum tpipe selstage=TPIPE__MAX;
+int filter_groups[8];
+atg_element *HC_filter_groups[8];
 
 void update_crews(game *state);
 
@@ -268,6 +271,42 @@ int handle_crews_create(void)
 			return(1);
 		}
 		if(atg_ebox_pack(cd_box, class_desc))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	atg_element *gfilters=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!gfilters)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(handle_crews_box, gfilters))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *gft=atg_create_element_label("Groups:", 12, (atg_colour){239, 239, 0, ATG_ALPHA_OPAQUE});
+	if(!gft)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(gfilters, gft))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int g=0;g<8;g++)
+	{
+		filter_groups[g]=0;
+		if(!(HC_filter_groups[g]=create_filter_switch(grouppic[g], filter_groups+g)))
+		{
+			fprintf(stderr, "create_filter_switch failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(gfilters, HC_filter_groups[g]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -702,6 +741,8 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 	unsigned int counts[TPIPE__MAX+1][CREW_CLASSES]={0};
 	unsigned int acounts[TPIPE__MAX][CREW_CLASSES]={0};
 	unsigned int ecounts[TPIPE__MAX+1][CREW_CLASSES]={0};
+	if((HC_filter_groups[6]->hidden=datebefore(state->now, event[EVENT_PFF])))
+		filter_groups[6]=0;
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
 		if(state->crews[i].status == CSTATUS_INSTRUC)
@@ -847,11 +888,25 @@ void update_crews(game *state)
 		need[i]=0;
 		pool[i]=cclasses[i].initpool;
 	}
+	bool agroup=false;
+	for(unsigned int g=0;g<8;g++)
+		if(filter_groups[g]>0)
+			agroup=true;
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
 		unsigned int cls=state->crews[i].class, sta=state->crews[i].status;
 		if(sta>=SHOW_STATUSES)
 			continue;
+		if(sta==CSTATUS_CREWMAN)
+		{
+			int g=state->crews[i].group-1;
+			if(g>=7)
+				g=6;
+			if(g<0)
+				g=7;
+			if(filter_groups[g]<(agroup?1:0))
+				continue;
+		}
 		count[cls][sta]++;
 		unsigned int skill=floor(state->crews[i].skill);
 		dens[cls][sta][min(skill, 100)]++;
@@ -870,13 +925,26 @@ void update_crews(game *state)
 		}
 	}
 	for(unsigned int i=0;i<state->nbombers;i++)
-		if(!state->bombers[i].train && !state->bombers[i].failed)
+		if(!state->bombers[i].train)
+		{
+			int s=state->bombers[i].squadron, g;
+			if(s<0)
+				g=7;
+			else
+			{
+				g=base_grp(bases[state->squads[s].base])-1;
+				if(g>=7)
+					g=6;
+			}
+			if(filter_groups[g]<(agroup?1:0))
+				continue;
 			for(unsigned int j=0;j<MAX_CREW;j++)
 			{
 				enum cclass ct=types[state->bombers[i].type].crew[j];
 				if(ct!=CCLASS_NONE)
 					need[ct]++;
 			}
+		}
 	if(datebefore(state->now, event[EVENT_FLT_ENG]))
 		pool[CCLASS_E]=0;
 	for(unsigned int i=0;i<CREW_CLASSES;i++)

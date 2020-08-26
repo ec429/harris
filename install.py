@@ -59,6 +59,13 @@ manifest = {
 					'mk2.png',
 					'mk3.png',
 					'mk4.png',
+					'gp0.png',
+					'gp1.png',
+					'gp2.png',
+					'gp3.png',
+					'gp4.png',
+					'gp5.png',
+					'gp6.png',
 				]},
 			'intels': {'.':[
 					'bombers.png',

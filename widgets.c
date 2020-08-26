@@ -165,6 +165,7 @@ void filter_switch_match_click_callback(struct atg_event_list *list, atg_element
 }
 
 SDL_Surface *bfilter_switch_render_callback(const struct atg_element *e);
+void bfilter_switch_button_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
 void bfilter_switch_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
 
 void bfilter_switch_free_callback(struct atg_element *e)
@@ -191,7 +192,7 @@ atg_element *create_bfilter_switch(unsigned int count, atg_colour bgcolour, SDL_
 		if(!btns[i]) goto fail;
 		btns[i]->userdata=value+i;
 		btns[i]->render_callback=bfilter_switch_render_callback;
-		btns[i]->match_click_callback=bfilter_switch_match_click_callback;
+		btns[i]->match_click_callback=bfilter_switch_button_click_callback;
 		if(atg_ebox_pack(rv, btns[i]))
 		{
 			atg_free_element(btns[i]);
@@ -199,6 +200,7 @@ atg_element *create_bfilter_switch(unsigned int count, atg_colour bgcolour, SDL_
 		}
 	}
 	rv->userdata=btns;
+	rv->match_click_callback=bfilter_switch_match_click_callback;
 	rv->free_callback=bfilter_switch_free_callback;
 	return(rv);
 fail:
@@ -224,7 +226,7 @@ SDL_Surface *bfilter_switch_render_callback(const struct atg_element *e)
 	return(rv);
 }
 
-void bfilter_switch_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, __attribute__((unused)) unsigned int xoff, __attribute__((unused)) unsigned int yoff)
+void bfilter_switch_button_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, __attribute__((unused)) unsigned int xoff, __attribute__((unused)) unsigned int yoff)
 {
 	bool *u=element->userdata;
 	if(!u) return;
@@ -236,6 +238,30 @@ void bfilter_switch_match_click_callback(struct atg_event_list *list, atg_elemen
 		break;
 	}
 	atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*u}});
+}
+
+void bfilter_switch_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff)
+{
+	atg_box *b=element->elemdata;
+	if(!b->elems) return;
+	switch(button.button)
+	{
+		case ATG_MB_LEFT:
+		case ATG_MB_RIGHT:
+			for(unsigned int i=0;i<b->nelems;i++)
+				atg__match_click_recursive(list, b->elems[i], button, xoff+element->display.x, yoff+element->display.y);
+		break;
+		case ATG_MB_MIDDLE:
+			for(unsigned int i=0;i<b->nelems;i++)
+			{
+				bool *u=b->elems[i]->userdata;
+				if(u) {
+					*u=!*u;
+					atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=b->elems[i], .value=*u}});
+				}
+			}
+		break;
+	}
 }
 /**/
 
