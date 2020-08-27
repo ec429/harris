@@ -10,6 +10,7 @@
 #include "saving.h"
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "bits.h"
 #include "control.h"
 #include "date.h"
@@ -1164,6 +1165,10 @@ int loadgame(const char *fn, game *state)
 		state->tpipe[TPIPE_HCU].cont=50;
 		state->tpipe[TPIPE_LFS].dwell=10;
 	}
+	/* For continuing saved games, ensure a fresh RNG seed (to minimise the risk of acid/cmid reuse).
+	 * For startpoints, this will be overridden by the seed from 'Weather rand'
+	 */
+	srand(time(NULL));
 	return(0);
 }
 
