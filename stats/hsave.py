@@ -269,8 +269,8 @@ class Save(object):
 	def Squadrons(self, tag, rest):
 	    if tag.startswith('Squad '):
 	        sqn = int(tag[6:])
-	        num, base, third, btype, rtime = rest.split(',', 4)
-	        self.squads.append({'squadron':int(sqn), 'number':int(num), 'base':int(base), 'third_flight':bool(int(third)), 'btype':int(btype), 'rtime':int(rtime)})
+	        num, base, third, btype, rtime, rh, rl = rest.split(',', 6)
+	        self.squads.append({'squadron':int(sqn), 'number':int(num), 'base':int(base), 'third_flight':bool(int(third)), 'btype':int(btype), 'rtime':int(rtime), 'rh':bool(int(rh)), 'rl':bool(int(rl))})
 	        return len(self.squads) == self.nsquads
 	    raise UnrecognisedSubtag('Squadrons', tag, rest)
 	def SNums(self, tag, rest):
