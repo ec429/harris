@@ -871,7 +871,7 @@ void train_students(game *state)
 					fprintf(stderr, "Warning: student assignment error (%u, %u)\n", k, i);
 			}
 			state->crews[i].tour_ops=0;
-			if(stage+1<TPIPE__MAX && state->tpipe[stage+1].dwell > 0 && ((stage+1==TPIPE_HCU&&state->crews[i].class==CCLASS_E)||brandp(state->tpipe[stage].cont/100.0)))
+			if(stage+1<TPIPE__MAX && state->tpipe[stage+1].dwell > 0 && ((stage+1==TPIPE_HCU&&(state->crews[i].class==CCLASS_E||(state->crews[i].class==CCLASS_B&&!datebefore(state->now, event[EVENT_OTUB]))))||brandp(state->tpipe[stage].cont/100.0)))
 			{
 				state->crews[i].training++;
 			}
