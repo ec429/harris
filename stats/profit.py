@@ -32,8 +32,9 @@ def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=No
 					bombers[acid]=[int(h['data']['type']['ti']), 0, True, True]
 				else:
 					if acid not in bombers:
-						print 'Warning: un-inited bomber %08x'%acid
-					elif h['data']['etyp'] in ['CR', 'OB']:
+						print 'Warning: un-inited bomber %08x (%d)'%(acid, h['data']['type']['ti'])
+						bombers[acid] = [int(h['data']['type']['ti']), 0, True, True]
+					if h['data']['etyp'] in ['CR', 'OB']:
 						bombers[acid][2] = False
 						if not start:
 							bombers[acid][3] = False
