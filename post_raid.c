@@ -146,6 +146,28 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				fprintf(stderr, "Failed to apply mod `%s' to %s %s\n", mods[m].desc, types[bt].manu, types[bt].name);
 			else
 				fprintf(stderr, "Applied mod `%s' to %s %s\n", mods[m].desc, types[bt].manu, types[bt].name);
+			if(mods[m].s==BSTAT_CREW)
+			{
+				// remove mismatched students
+				for(unsigned int i=0;i<state->nbombers;i++)
+				{
+					if(!state->bombers[i].train)
+						continue;
+					if(state->bombers[i].type!=bt)
+						continue;
+					for(unsigned int j=0;j<MAX_CREW;j++)
+					{
+						int k=state->bombers[i].crew[j];
+						if(k<0)
+							continue;
+						if(state->crews[k].class!=types[bt].crew[j])
+						{
+							state->bombers[i].crew[j]=-1;
+							state->crews[k].assignment=-1;
+						}
+					}
+				}
+			}
 		}
 	// Update bomber prodn caps
 	for(unsigned int i=0;i<ntypes;i++)
