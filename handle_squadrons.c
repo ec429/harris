@@ -47,7 +47,7 @@ static void generate_snums(game *state)
 	unsigned int avail=min(SNUM_DEPTH/2, 699-state->nsquads);
 	unsigned int shufbuf[699];
 	for(unsigned int i=0;i<699;i++)
-		shufbuf[i]=i;
+		shufbuf[i]=i+1;
 	for(unsigned int s=0;s<state->nsquads;s++)
 	{
 		unsigned int n=state->squads[s].number;
@@ -60,7 +60,7 @@ static void generate_snums(game *state)
 	}
 	for(unsigned int i=0;i<avail;i++)
 	{
-		unsigned int j=i+irandu(699-i);
+		unsigned int j=i+irandu(699-state->nsquads-i);
 		state->snums[i]=shufbuf[j];
 		shufbuf[j]=shufbuf[i];
 	}
