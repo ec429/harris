@@ -106,7 +106,7 @@ void scroll_kill_box(void)
 	fill_kill_box=5;
 }
 
-void describe_cr_helper(atg_colour colour, SDL_Surface *pic, const char *loc, const char *reason, SDL_Surface *kpic)
+void describe_cr_helper(atg_colour colour, SDL_Surface *pic, unsigned int sqn, const char *loc, const char *reason, SDL_Surface *kpic)
 {
 	if(fill_kill_box>9)
 		scroll_kill_box();
@@ -163,6 +163,23 @@ void describe_cr_helper(atg_colour colour, SDL_Surface *pic, const char *loc, co
 	}
 	if(!text_line)
 		text_line=kb;
+	if(sqn) {
+		char snum[16];
+		snprintf(snum, sizeof(snum), " of %u Sqn", sqn);
+		atg_element *crs=atg_create_element_label(snum, 14, colour);
+		if (!crs)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+		}
+		else
+		{
+			if(atg_ebox_pack(text_line, crs))
+			{
+				perror("atg_ebox_pack");
+				atg_free_element(crs);
+			}
+		}
+	}
 	atg_element *crl=atg_create_element_label(" crashed ", 14, colour);
 	if(!crl)
 	{
@@ -268,9 +285,12 @@ void describe_crb(const game *state, unsigned int k)
 		break;
 	}
 	const char *loc=describe_location(x, y);
-	describe_cr_helper((atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE}, types[b.type].picture, loc, reason, kpic);
+	unsigned int sqn=0;
+	if(b.squadron>=0)
+		sqn=state->squads[b.squadron].number;
+	describe_cr_helper((atg_colour){255, 127, 0, ATG_ALPHA_OPAQUE}, types[b.type].picture, sqn, loc, reason, kpic);
 	bool marked=types[b.type].markname[0] != NULL;
-	fprintf(stderr, "%s %s%s%s crashed %s%s\n", types[b.type].manu, types[b.type].name, marked?" ":"", marked?types[b.type].markname[b.mark]:"", loc, reason);
+	fprintf(stderr, "%s %s%s%s of %d Sqn crashed %s%s\n", types[b.type].manu, types[b.type].name, marked?" ":"", marked?types[b.type].markname[b.mark]:"", sqn, loc, reason);
 }
 
 void describe_crf(const game *state, unsigned int j)
@@ -297,7 +317,7 @@ void describe_crf(const game *state, unsigned int j)
 		break;
 	}
 	const char *loc=describe_location(x, y);
-	describe_cr_helper((atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE}, ftypes[f.type].picture, loc, reason, kpic);
+	describe_cr_helper((atg_colour){127, 255, 127, ATG_ALPHA_OPAQUE}, ftypes[f.type].picture, 0, loc, reason, kpic);
 	fprintf(stderr, "%s %s crashed %s%s\n", ftypes[f.type].manu, ftypes[f.type].name, loc, reason);
 }
 
