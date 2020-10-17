@@ -34,7 +34,7 @@ SDL_Surface *HC_tp_tops[CREW_CLASSES];
 atg_element *HC_tp_text_box;
 char *HC_tp_count[CREW_CLASSES], *HC_tp_ecount[CREW_CLASSES];
 enum tpipe selstage=TPIPE__MAX;
-int filter_groups[8];
+int hc_filter_groups[8];
 atg_element *HC_filter_groups[8];
 
 void update_crews(game *state);
@@ -300,8 +300,8 @@ int handle_crews_create(void)
 	}
 	for(unsigned int g=0;g<8;g++)
 	{
-		filter_groups[g]=0;
-		if(!(HC_filter_groups[g]=create_filter_switch(grouppic[g], filter_groups+g)))
+		hc_filter_groups[g]=0;
+		if(!(HC_filter_groups[g]=create_filter_switch(grouppic[g], hc_filter_groups+g)))
 		{
 			fprintf(stderr, "create_filter_switch failed\n");
 			return(1);
@@ -742,7 +742,7 @@ screen_id handle_crews_screen(atg_canvas *canvas, game *state)
 	unsigned int acounts[TPIPE__MAX][CREW_CLASSES]={0};
 	unsigned int ecounts[TPIPE__MAX+1][CREW_CLASSES]={0};
 	if((HC_filter_groups[6]->hidden=datebefore(state->now, event[EVENT_PFF])))
-		filter_groups[6]=0;
+		hc_filter_groups[6]=0;
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
 		if(state->crews[i].status == CSTATUS_INSTRUC)
@@ -890,7 +890,7 @@ void update_crews(game *state)
 	}
 	bool agroup=false;
 	for(unsigned int g=0;g<8;g++)
-		if(filter_groups[g]>0)
+		if(hc_filter_groups[g]>0)
 			agroup=true;
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
@@ -904,7 +904,7 @@ void update_crews(game *state)
 				g=6;
 			if(g<0)
 				g=7;
-			if(filter_groups[g]<(agroup?1:0))
+			if(hc_filter_groups[g]<(agroup?1:0))
 				continue;
 		}
 		count[cls][sta]++;
@@ -936,7 +936,7 @@ void update_crews(game *state)
 				if(g>=7)
 					g=6;
 			}
-			if(filter_groups[g]<(agroup?1:0))
+			if(hc_filter_groups[g]<(agroup?1:0))
 				continue;
 			for(unsigned int j=0;j<MAX_CREW;j++)
 			{
