@@ -2176,11 +2176,8 @@ void clear_sqn(game *state, unsigned int i)
 
 void clear_crew(game *state, unsigned int i)
 {
-	unsigned int type=state->bombers[i].type;
 	for(unsigned int j=0;j<MAX_CREW;j++)
 	{
-		if(types[type].crew[j]==CCLASS_NONE)
-			continue;
 		int k=state->bombers[i].crew[j];
 		if(k>=0)
 		{
