@@ -326,10 +326,11 @@ int loadgame(const char *fn, game *state)
 						break;
 					}
 					unsigned int j;
-					unsigned int failed,nav,pff,mark,train;
+					unsigned int failed,nav,mark,train;
 					int squadron,flight;
 					char p_id[9];
-					f=sscanf(line, "Type %u:%u,%u,%u,%8s,%u,%u,%d,%d\n", &j, &failed, &nav, &pff, p_id, &mark, &train, &squadron, &flight);
+					double wear;
+					f=sscanf(line, "Type %u:%u,%u,"FLOAT",%8s,%u,%u,%d,%d\n", &j, &failed, &nav, CAST_FLOAT_PTR &wear, p_id, &mark, &train, &squadron, &flight);
 					if(f!=9)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
@@ -349,6 +350,7 @@ int loadgame(const char *fn, game *state)
 						.train=(bool)train,
 						.squadron=squadron,
 						.flight=flight,
+						.wear=wear,
 					};
 					for(unsigned int n=0;n<NNAVAIDS;n++)
 						state->bombers[i].nav[n]=(nav>>n)&1;
@@ -1209,7 +1211,7 @@ int savegame(const char *fn, game state)
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			nav|=(state.bombers[i].nav[n]?(1<<n):0);
 		pacid(state.bombers[i].id, p_id);
-		fprintf(fs, "Type %u:%u,%u,%u,%s,%u,%u,%d,%d\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, 0, p_id, state.bombers[i].mark, state.bombers[i].train?1:0, state.bombers[i].squadron, state.bombers[i].flight);
+		fprintf(fs, "Type %u:%u,%u,"FLOAT",%s,%u,%u,%d,%d\n", state.bombers[i].type, state.bombers[i].failed?1:0, nav, CAST_FLOAT state.bombers[i].wear, p_id, state.bombers[i].mark, state.bombers[i].train?1:0, state.bombers[i].squadron, state.bombers[i].flight);
 	}
 	fprintf(fs, "Paving:%d,%u\n", state.paving, state.pprog);
 	fprintf(fs, "Bases:%u\n", nbases);

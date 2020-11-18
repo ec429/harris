@@ -333,6 +333,7 @@ typedef struct
 	double speed;
 	double damage; // increases the probability of mech.fail and of consequent crashes
 	dmgsrc ld; // last damage source
+	double wear; // how clapped-out is this aircraft?  Percentage
 	bool idtar; // identified target?  (for use if RoE require it)
 	bool fix; // have a navaid fix?  (controls whether to drop skymarker)
 	unsigned int startt; // take-off time
