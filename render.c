@@ -357,7 +357,7 @@ int line(SDL_Surface *s, unsigned int x0, unsigned int y0, unsigned int x1, unsi
 	int e=0;
 	if((e=pset(s, x0, y0, c)))
 		return(e);
-	bool steep = abs(y1 - y0) > abs(x1 - x0);
+	bool steep = abs((int)y1 - (int)y0) > abs((int)x1 - (int)x0);
 	int tmp;
 	if(steep)
 	{
@@ -369,7 +369,7 @@ int line(SDL_Surface *s, unsigned int x0, unsigned int y0, unsigned int x1, unsi
 		tmp=x0;x0=x1;x1=tmp;
 		tmp=y0;y0=y1;y1=tmp;
 	}
-	int dx=x1-x0,dy=abs(y1-y0);
+	int dx=x1-x0,dy=abs((int)y1-(int)y0);
 	int ey=dx>>1;
 	int dely=(y0<y1?1:-1),y=y0;
 	for(int x=x0;x<(int)x1;x++)
