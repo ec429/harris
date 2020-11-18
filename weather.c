@@ -57,7 +57,7 @@ void w_iter(w_state * ptr, bool lorw[128][128])
 				double d2px=ptr->p[(x+255)%256][y]+ptr->p[(x+1)%256][y]-2*ptr->p[x][y];
 				double d2py=ptr->p[x][max(y, 1)-1]+ptr->p[x][min(y+1, 127)]-2*ptr->p[x][y];
 				double divp=d2px+d2py;
-				double big=(abs(d2px)>abs(d2py))?d2px:d2py;
+				double big=(fabs(d2px)>fabs(d2py))?d2px:d2py;
 				tmp[x][y]=ptr->p[x][y]+divp*.09+big*.07+(ptr->p[(x+255)%256][y]-base)*.07;
 				if(x<128)
 				{
