@@ -270,14 +270,14 @@ int load_bombers(void)
 				strcpy(pn, "art/bombers/");
 				for(size_t p=0;p<nlen;p++)
 				{
-					if(12+p>=255)
+					if(12+p>=240)
 					{
 						pn[12+p]=0;
 						break;
 					}
 					pn[12+p]=tolower(this.name[p]);
 				}
-				strncat(pn, ".png", 256);
+				strcat(pn, ".png");
 				SDL_Surface *rawpic;
 				if(!(rawpic=IMG_Load(pn)))
 				{
@@ -302,14 +302,14 @@ int load_bombers(void)
 				strcpy(sn, "art/large/bombers/");
 				for(size_t p=0;p<nlen;p++)
 				{
-					if(18+p>=255)
+					if(18+p>=240)
 					{
 						pn[18+p]=0;
 						break;
 					}
 					sn[18+p]=tolower(this.name[p]);
 				}
-				strncat(sn, "-side.png", 256);
+				strcat(sn, "-side.png");
 				if(!(this.side_image=IMG_Load(sn))&&!this.extra)
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
@@ -679,14 +679,14 @@ int load_fighters(void)
 				strcpy(pn, "art/fighters/");
 				for(size_t p=0;p<nlen;p++)
 				{
-					if(13+p>=255)
+					if(13+p>=240)
 					{
 						pn[13+p]=0;
 						break;
 					}
 					pn[13+p]=tolower(this.name[p]);
 				}
-				strncat(pn, ".png", 256);
+				strcat(pn, ".png");
 				SDL_Surface *rawpic;
 				if(!(rawpic=IMG_Load(pn)))
 				{
@@ -705,14 +705,14 @@ int load_fighters(void)
 				strcpy(sn, "art/large/fighters/");
 				for(size_t p=0;p<nlen;p++)
 				{
-					if(19+p>=255)
+					if(19+p>=240)
 					{
 						pn[19+p]=0;
 						break;
 					}
 					sn[19+p]=tolower(this.name[p]);
 				}
-				strncat(sn, "-side.png", 256);
+				strcat(sn, "-side.png");
 				if(!(this.side_image=IMG_Load(sn)))
 				{
 					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
