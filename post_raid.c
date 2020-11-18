@@ -245,7 +245,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			nb[n].crew[j]=-1;
 		state->cash-=cost;
 		types[m].pcbuf-=cost;
-		types[m].pc+=cost/(types[m].slowgrow?150:100);
+		types[m].pc+=cost/(types[m].slowgrow?200:150);
 		types[m].pribuf-=8;
 		ct_append(&state->hist, state->now, (harris_time){11, 30}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
 	}
