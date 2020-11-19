@@ -66,7 +66,7 @@ Older marks are often best put to use in training units (see the section "Aircre
 
 Wear and Tear
 -------------
-A bomber does not last forever.  Each time it flies an operation, or is used for training, it accumulates 'wear', which slightly reduces its performance.  On reaching 100% wear, it is no longer airworthy and is automatically scrapped.
+A bomber does not last forever.  Each time it flies an operation, or is used for training, it accumulates 'wear', which slightly reduces its performance.  On reaching 100% wear, it is no longer airworthy and is automatically scrapped.  At an earlier threshold, which defaults to 30% but is configurable per mark, the aircraft will be automatically sent to a Training Unit.
 
 Sun and Moon
 ~~~~~~~~~~~~
