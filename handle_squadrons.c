@@ -36,7 +36,7 @@ atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
-char *HS_flname, *HS_flest, *HS_flsta, *HS_flmark, **HS_flcc, **HS_flcrew;
+char *HS_flname, *HS_flest, *HS_flsta, *HS_flmark, *HS_flcond, **HS_flcc, **HS_flcrew;
 atg_element *HS_sll, **HS_slrow, **HS_slgl;
 char **HS_slgrp, **HS_slsqn;
 int selgrp=-1, selstn=-1, selsqn=-1, selflt=-1;
@@ -1158,6 +1158,48 @@ int handle_squadrons_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *flcdb=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, CREW_BG_COLOUR);
+	if(!flcdb)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(HS_fltbox, flcdb))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *flcol=atg_create_element_label("Condition:", 11, (atg_colour){191, 207, 191, ATG_ALPHA_OPAQUE});
+	if(!flcol)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	flcol->w=80;
+	flcol->h=16;
+	if(atg_ebox_pack(flcdb, flcol))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HS_flcond=malloc(12);
+	if(!HS_flcond)
+	{
+		perror("malloc");
+		return(1);
+	}
+	snprintf(HS_flcond, 12, " ");
+	atg_element *flcdl=atg_create_element_label_nocopy(HS_flcond, 10, (atg_colour){191, 159, 127, ATG_ALPHA_OPAQUE});
+	if(!flcdl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(flcdb, flcdl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	if(!(HS_flcr=calloc(MAX_CREW, sizeof(*HS_flcr))))
 	{
 		perror("calloc");
@@ -1449,6 +1491,7 @@ void update_flt_info(game *state)
 	snprintf(HS_flest, 40, "%d a/c", state->squads[selsqn].nb[selflt]);
 	snprintf(HS_flsta, 12, " ");
 	snprintf(HS_flmark, 12, " ");
+	snprintf(HS_flcond, 12, " ");
 	for(unsigned int i=0;i<MAX_CREW;i++)
 	{
 		if((HS_flcr[i]->hidden=types[type].crew[i]>=CCLASS_NONE))
@@ -1466,6 +1509,11 @@ void update_flt_info(game *state)
 				 !state->bombers[i].landed?'A':
 				 '-');
 			snprintf(HS_flmark+nb, 12-nb, "%c", 'a'+state->bombers[i].mark);
+			int cond=max(100-state->bombers[i].wear, 0)/10;
+			if(cond>=10)
+				snprintf(HS_flcond+nb, 12-nb, "n");
+			else
+				snprintf(HS_flcond+nb, 12-nb, "%d", cond);
 			for(unsigned int j=0;j<MAX_CREW;j++)
 			{
 				if(types[type].crew[j]>=CCLASS_NONE)
