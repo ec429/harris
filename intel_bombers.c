@@ -20,7 +20,7 @@ atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box
 unsigned int IB_i, IB_showmark;
 char *IB_mark_buf;
 atg_element *IB_mark_box, *IB_mark_lbl, *IB_mark_prev, *IB_mark_noprev, *IB_mark_next, *IB_mark_nonext;
-atg_element *IB_breakdown_box, *IB_breakdown_row[MAX_MARKS];
+atg_element *IB_breakdown_box, *IB_breakdown_row[MAX_MARKS], *IB_tw_spin[MAX_MARKS];
 unsigned int IB_mark_count[MAX_MARKS][2];
 char *IB_mark_count_buf[MAX_MARKS];
 SDL_Surface *IB_blank;
@@ -469,13 +469,13 @@ int intel_bombers_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	IB_breakdown_box->w=120;
+	IB_breakdown_box->w=180;
 	if(atg_ebox_pack(main_box, IB_breakdown_box))
 	{
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *breakdown_title=atg_create_element_label("Force breakdown:", 12, (atg_colour){0, 127, 255, ATG_ALPHA_OPAQUE});
+	atg_element *breakdown_title=atg_create_element_label("Force breakdown (wear thr):", 12, (atg_colour){0, 127, 255, ATG_ALPHA_OPAQUE});
 	if(!breakdown_title)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -521,7 +521,18 @@ int intel_bombers_create(void)
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
+		force_lbl->w=120;
 		if(atg_ebox_pack(IB_breakdown_row[m], force_lbl))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(IB_tw_spin[m]=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 0, 100, 2, 30, "%03u", (atg_colour){0, 115, 223, ATG_ALPHA_OPAQUE}, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_spinner failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(IB_breakdown_row[m], IB_tw_spin[m]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -533,7 +544,14 @@ int intel_bombers_create(void)
 void count_marks(const game *state)
 {
 	for(unsigned int m=0;m<MAX_MARKS;m++)
+	{
 		IB_mark_count[m][0]=IB_mark_count[m][1]=0;
+		if(IB_i<ntypes)
+		{
+			atg_spinner *s=IB_tw_spin[m]->elemdata;
+			s->value=types[IB_i].twear[m];
+		}
+	}
 	for(unsigned int k=0;k<state->nbombers;k++)
 		if(state->bombers[k].type==IB_i)
 		{
@@ -628,6 +646,21 @@ screen_id intel_bombers_screen(atg_canvas *canvas, game *state)
 					}
 					else
 						fprintf(stderr, "Clicked on unknown button!\n");
+				break;
+				case ATG_EV_VALUE:;
+					atg_ev_value v=e.event.value;
+					unsigned int m;
+					for(m=0;m<MAX_MARKS;m++)
+						if(v.e==IB_tw_spin[m])
+							break;
+					if(m<MAX_MARKS&&IB_i<ntypes)
+					{
+						types[IB_i].twear[m]=v.value;
+					}
+					else
+					{
+						fprintf(stderr, "Clicked on unknown spinner!\n");
+					}
 				break;
 				default:
 				break;
