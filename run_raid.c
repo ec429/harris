@@ -550,7 +550,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						askill=max(askill, get_skill(state, k, l)*.5);
 					}
 				}
-				state->bombers[k].speed=(bstats(state->bombers[k]).speed+askill/20.0-2.0)/450.0;
+				state->bombers[k].speed=(bstats(state->bombers[k]).speed+askill/20.0-2.0-state->bombers[k].wear/20.0)/450.0;
 				bombload load=is_pff(state, k)?state->raids[i].pffloads[type]:state->raids[i].loads[type];
 				/* Cookies sticking out of the bomb bay slow us down */
 				if(targs[i].class==TCLASS_CITY&&(load==BL_PLUMDUFF||load==BL_PONLY)&&types[i].smbay)
@@ -799,7 +799,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					unsigned int k=state->raids[i].bombers[j], type=state->bombers[k].type;
 					if(t<state->bombers[k].startt) continue;
 					if(state->bombers[k].crashed||state->bombers[k].landed) continue;
-					if(state->bombers[k].damage>=100)
+					if(state->bombers[k].damage+(state->bombers[k].wear/2.0)>=100)
 					{
 						cr_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type);
 						state->bombers[k].crashed=true;
@@ -864,7 +864,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					while((stage<8)&&(t>RRT(7,0)||!(state->bombers[k].route[stage][0]||state->bombers[k].route[stage][1])))
 						stage=++state->bombers[k].routestage;
 					bool home=(state->bombers[k].failed&&!state->bombers[k].bombed)||(stage>=8);
-					double altitude=bstats(state->bombers[k]).alt+(irandu(askill)-10)/10.0;
+					double altitude=bstats(state->bombers[k]).alt+(irandu(askill)-10)/10.0-state->bombers[k].wear/20.0;
 					if((stage==4)&&state->bombers[k].nav[NAV_OBOE]&&xyr(state->bombers[k].lon-oboe.lon, state->bombers[k].lat-oboe.lat, 50+altitude*.3)) // OBOE
 					{
 						if(oboe.k==-1)
