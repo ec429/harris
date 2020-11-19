@@ -139,6 +139,8 @@ typedef struct
 	unsigned int pc;
 	unsigned int pcbuf;
 	unsigned int newmark;
+	// wear percentage at which to auto-train
+	unsigned int twear[MAX_MARKS];
 }
 bombertype;
 #define newstats(t)	((t).mark[(t).newmark])

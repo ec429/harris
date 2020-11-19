@@ -20,6 +20,8 @@ for(i=0;i<ntypes;i++)
 		"Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf
 	else
 		"NoType %u:\n", i
+for(i=0;i<ntypes;i++)
+	"Twear %u:%u,%u,%u,%u\n", i, types[i].twear[]
 "Navaids:%u\n", NNAVAIDS // should be constant
 for(i=0;i<NNAVAIDS;i++)
 	"Nprio %u:%d,%u\n", i, state.nap[i], state.napb[i]

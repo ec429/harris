@@ -55,7 +55,11 @@ int loadgame(const char *fn, game *state)
 	state->vermm=false;
 	state->weather.seed=0;
 	for(unsigned int j=0;j<ntypes;j++)
+	{
 		types[j].newmark=0;
+		for(unsigned int m=0;m<MAX_MARKS;m++)
+			types[j].twear[m]=30;
+	}
 	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++) // default everything to medium
 		state->difficulty[i]=1;
 	for(unsigned int i=0;i<nflaks;i++) // all flaksites are unmapped if not saved
@@ -253,6 +257,49 @@ int loadgame(const char *fn, game *state)
 						rawtypes[j].pc=pc;
 						rawtypes[j].pcbuf=pcbuf;
 						state->btypes[j]=true;
+					}
+				}
+				if(!e)
+				{
+					for(unsigned int i=0;i<ntypes;i++)
+					{
+						free(line);
+						line=fgetl(fs);
+						if(!line)
+						{
+							fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+							e|=64;
+							break;
+						}
+						unsigned int j;
+						int n;
+						f=sscanf(line, "Twear %u:%n", &j, &n);
+						if(f!=1)
+						{
+							fprintf(stderr, "1 Too few arguments to part %u.II of tag \"%s\"\n", i, tag);
+							e|=1;
+							break;
+						}
+						if(j!=i)
+						{
+							fprintf(stderr, "4 Index mismatch in part %u.II (%u?) of tag \"%s\"\n", i, j, tag);
+							e|=4;
+							break;
+						}
+						for(unsigned int m=0;m<MAX_MARKS;m++)
+						{
+							const char *tx=line+n;
+							unsigned int tw;
+							n+=strcspn(tx, ",\n")+1;
+							f=sscanf(tx, "%u", &tw);
+							if(f!=1)
+							{
+								fprintf(stderr, "1 Too few arguments to part %u.II[%u] of tag \"%s\"\n", i, m, tag);
+								e|=1;
+								goto fail;
+							}
+							rawtypes[j].twear[m]=tw;
+						}
 					}
 				}
 			}
@@ -1061,6 +1108,7 @@ int loadgame(const char *fn, game *state)
 			fprintf(stderr, "128 Bad tag \"%s\"\n", tag);
 			e|=128;
 		}
+fail:
 		free(line);
 		if(e!=0) // ...catch
 		{
@@ -1201,6 +1249,13 @@ int savegame(const char *fn, game state)
 			fprintf(fs, "Prio %u:%u,%u,%u,%u\n", i, types[i].prio, types[i].pribuf, types[i].pc, types[i].pcbuf);
 		else
 			fprintf(fs, "NoType %u:\n", i);
+	for(unsigned int i=0;i<ntypes;i++)
+	{
+		fprintf(fs, "Twear %u:", i);
+		for(unsigned int m=0;m<MAX_MARKS;m++)
+			fprintf(fs, "%s%u", m?",":"", types[i].twear[m]);
+		fprintf(fs, "\n");
+	}
 	fprintf(fs, "Navaids:%u\n", NNAVAIDS);
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		fprintf(fs, "NPrio %u:%d,%u\n", n, state.nap[n], state.napb[n]);
