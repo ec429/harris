@@ -439,6 +439,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	             rother=GET_DC(state,ROTHER);
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)
 		state->dprod[i]=0;
+	double reprate=state->gprod[ICLASS_RAIL]/9000;
+	state->gprod[ICLASS_RAIL]=0;
 	for(unsigned int i=0;i<ntargs;i++)
 	{
 		if(targs[i].city<0)
@@ -458,7 +460,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				state->flk[i]+=dflk;
 				if(dflk)
 					tfk_append(&state->hist, state->now, (harris_time){11, 45}, i, dflk, state->flk[i]);
-				double ddmg=min(state->dmg[i]*.1/(double)rcity, 100-state->dmg[i]);
+				double ddmg=min(state->dmg[i]*.1*reprate/(double)rcity, 100-state->dmg[i]);
 				state->dmg[i]+=ddmg;
 				if(ddmg)
 					tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
@@ -475,7 +477,11 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			}
 			break;
 			case TCLASS_SHIPPING:
+			break;
 			case TCLASS_MINING:
+				state->gprod[ICLASS_RAIL]+=state->dmg[i]*targs[i].prod*0.4;
+				state->dprod[ICLASS_RAIL]+=state->dmg[i]*targs[i].prod*0.4;
+				state->dmg[i]=min(state->dmg[i]+0.2, 100.0);
 			break;
 			case TCLASS_AIRFIELD:
 			case TCLASS_BRIDGE:
@@ -486,7 +492,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			case TCLASS_INDUSTRY:
 				if(state->dmg[i])
 				{
-					double ddmg=min(state->dmg[i]/(double)rother, 100-state->dmg[i]), cscale=targs[i].city<0?1.0:state->dmg[targs[i].city]/100.0;
+					double ddmg=min(state->dmg[i]*reprate/(double)rother, 100-state->dmg[i]), cscale=targs[i].city<0?1.0:state->dmg[targs[i].city]/100.0;
 					if(cscale==0)
 						goto unflak;
 					state->dmg[i]+=ddmg;
@@ -707,8 +713,6 @@ void post_raid_free(void)
 
 void produce(int targ, game *state, double amount)
 {
-	if((targs[targ].iclass!=ICLASS_RAIL)&&(targs[targ].iclass!=ICLASS_MIXED))
-		amount=min(amount, state->gprod[ICLASS_RAIL]*8.0);
 	switch(targs[targ].iclass)
 	{
 		case ICLASS_BB:
@@ -745,8 +749,6 @@ void produce(int targ, game *state, double amount)
 			fprintf(stderr, "Bad targs[%d].iclass = %d\n", targ, targs[targ].iclass);
 		break;
 	}
-	if(targs[targ].iclass!=ICLASS_RAIL)
-		state->gprod[ICLASS_RAIL]-=amount/8.0;
 	state->gprod[targs[targ].iclass]+=amount;
 	state->dprod[targs[targ].iclass]+=amount;
 }
