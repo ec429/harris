@@ -6,7 +6,7 @@
 <cm-uid> ::= <hex>*16 # P(match) is negligible
 <b-or-f> ::= B | F
 <cclass> ::= P | N | B | E | W | G
-<a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev> | <obs-ev>
+<a-event>::= <ct-ev> | <nav-ev> | <pff-ev> | <raid-ev> | <hit-ev> | <dmg-ev> | <fail-ev> | <crsh-ev> | <scrp-ev> | <obs-ev>
 <ct-ev>  ::= CT <mark:int> # older saves may be missing <mark>, in which case assume 0
 <nav-ev> ::= NA <navaid:int> # installation of a navaid (or, for fighters, radar)
 <pff-ev> ::= PF # assignment to PFF - not reversible
@@ -16,6 +16,7 @@
 <dmg-ev> ::= DM <delta-dmg:float> <current-dmg:float> (AC <from:ac-uid> | FK <flak-id:int> | TF <targ-d:int>)
 <fail-ev>::= FA <failstate:int> # is really a bool
 <crsh-ev>::= CR
+<scrp-ev>::= SC
 <obs-ev> ::= OB
 <init-ev>::= INIT <filename:str> # Never generated, but should appear in all startpoints (*.sav.in)
 <t-event>::= <t-dmg> | <t-flk> | <t-ship>

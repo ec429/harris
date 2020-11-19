@@ -350,6 +350,21 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	// train crews, and recruit more
 	train_students(state);
 	refill_students(state, true);
+	// scrap worn-out aircraft
+	for(unsigned int i=0;i<state->nbombers;i++)
+	{
+		unsigned int type=state->bombers[i].type;
+		if(state->bombers[i].wear >= 99.99)
+		{
+			sc_append(&state->hist, state->now, (harris_time){11, 42}, state->bombers[i].id, false, type);
+			state->nbombers--;
+			for(unsigned int j=i;j<state->nbombers;j++)
+				state->bombers[j]=state->bombers[j+1];
+			fixup_crew_assignments(state, i, false, 0);
+			i--;
+			continue;
+		}
+	}
 	// crews go to instructors and vice-versa; escapees return home
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{

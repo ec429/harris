@@ -216,6 +216,11 @@ int cr_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned 
 	return(eva_append(hist, d, t, id, ftr, type, "CR"));
 }
 
+int sc_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type)
+{
+	return(eva_append(hist, d, t, id, ftr, type, "SC"));
+}
+
 int ob_append(history *hist, date d, harris_time t, acid id, bool ftr, unsigned int type)
 {
 	return(eva_append(hist, d, t, id, ftr, type, "OB"));
