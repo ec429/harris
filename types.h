@@ -8,6 +8,7 @@
 	types: data type definitions
 */
 
+#include <math.h>
 #include <atg.h>
 #include "dclass.h"
 #include "crew.h"
@@ -343,6 +344,11 @@ typedef struct
 	int flight; // -1 if not assigned; [012] for [ABC] Flight.
 }
 ac_bomber;
+
+static inline void apply_wear(ac_bomber *b, double amount)
+{
+	b->wear=fmin(b->wear+amount, 100.0);
+}
 
 #define loadweight(b)	((b).b_hc+(b).b_gp+(b).b_in+(b).b_ti+(b).b_le/20)
 #define loadbulk(b)	((b).b_hc+(b).b_gp+(b).b_in*1.5+(b).b_ti*2+(b).b_le/3)

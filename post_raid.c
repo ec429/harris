@@ -236,7 +236,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			state->nbombers=n;
 			break;
 		}
-		(state->bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid(), .mark=types[m].newmark, .squadron=-1, .flight=-1};
+		(state->bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid(), .mark=types[m].newmark, .squadron=-1, .flight=-1, .wear=0};
 		for(unsigned int j=0;j<NNAVAIDS;j++)
 			nb[n].nav[j]=false;
 		if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[m].nav[NAV_GEE])
@@ -295,6 +295,9 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		unsigned int k=state->crews[i].assignment;
 		if(state->bombers[k].failed)
 			continue;
+		// apply training-wear only once
+		if(state->bombers[k].crew[0]==(int)i)
+			apply_wear(&state->bombers[k], 0.2);
 		if((state->crews[i].skill<1)||brandp(5.0/pow(state->crews[i].skill, 1.5)))
 		{
 			double new=min(state->crews[i].skill+irandu(state->crews[i].lrate)/100.0, 100.0);
@@ -847,18 +850,21 @@ void train_students(game *state)
 	for(unsigned int i=0;i<state->ncrews;i++)
 	{
 		unsigned int type=(unsigned int)-1;
+		int k=state->crews[i].assignment;
 		enum tpipe stage;
 
 		if(state->crews[i].status!=CSTATUS_STUDENT)
 			continue;
-		if(state->crews[i].assignment>=0)
-			type=state->bombers[state->crews[i].assignment].type;
+		if(k>=0)
+			type=state->bombers[k].type;
 		stage=state->crews[i].training;
-		if(state->crews[i].assignment<0&&!(state->crews[i].class==CCLASS_E&&stage==TPIPE_OTU)) // engineers don't need an a/c for OTU-equivalent training
+		if(k<0&&!(state->crews[i].class==CCLASS_E&&stage==TPIPE_OTU)) // engineers don't need an a/c for OTU-equivalent training
 			continue;
+		if(k>=0&&state->bombers[k].crew[0]==(int)i)
+			apply_wear(&state->bombers[k], 0.4);
 		if((int)state->crews[i].tour_ops++>=state->tpipe[stage].dwell)
 		{
-			int k=state->crews[i].assignment, c;
+			int c;
 			state->crews[i].assignment=-1;
 			if(k>=0) { /* Might not be, if CCLASS_E */
 				for(c=0;c<MAX_CREW;c++)
