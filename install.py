@@ -146,6 +146,7 @@ manifest = {
 				]
 		},
 	'dat': {'cities': {'.':[
+					'Augsburg.pbm',
 					'Berlin.pbm',
 					'Hamburg.pbm',
 					'Frankfurt.pbm',

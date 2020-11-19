@@ -27,6 +27,7 @@ Norway Fleet:          5: 4:11: 34:149:13-04-1940:17-04-1940:SHIPPING
 Norway Fleet:          5: 3:11: 20:148:17-04-1940:21-04-1940:SHIPPING
 Norway Fleet:          5: 2:11:  9:149:21-04-1940:26-04-1940:SHIPPING
 Kiel Dockyards:       20:10: 8: 52:189:03-05-1940:14-02-1942:SHIPPING,UBOOT
+Brunsbüttel:           9: 8: 7: 64:172:          :14-02-1942:SHIPPING
 #  Scharnhorst and Gneisenau ("Salmon and Gluckstein") and the Prinz Eugen
 Channel Dash:          7: 3: 5:131: 68:12-02-1942:13-02-1942:SHIPPING
 Le Havre:             12:11: 7:165: 49:15-09-1940:14-02-1942:SHIPPING
@@ -66,6 +67,7 @@ Leipzig:              28:15:22:124:219:14-02-1942:          :CITY,AC
 Stuttgart:            32:12:20:180:175:14-02-1942:          :CITY
 Hanover:              22:10:27: 98:182:14-02-1942:          :CITY
 Dresden:              16: 9:32:130:238:14-02-1942:          :CITY,RAIL,FLAMMABLE
+Augsburg:             13: 8:20:187:202:14-02-1942:          :CITY
 Magdeburg:            15: 8:25:105:208:14-02-1942:          :CITY
 Schweinfurt:          24:14:16:152:189:14-02-1942:          :CITY
 Kassel:               11: 7:14:127:178:14-02-1942:          :CITY
@@ -116,6 +118,7 @@ Siemens, Berlin:       9: 9:10: 97:237:27-05-1940:14-02-1942:INDUSTRY,BERLIN,@Be
 Telefunken, Berlin:   14:11:13: 99:230:30-05-1940:14-02-1942:INDUSTRY,RADAR,BERLIN,@Berlin
 München-Gladbach:      8: 8:20:130:136:11-05-1940:14-02-1942:INDUSTRY,RAIL,@Cologne
 Cologne Oil Refinery: 20: 5:20:132:143:15-05-1940:14-02-1942:INDUSTRY,OIL,@Cologne
+Cologne Rail Yards:    9: 6:18:134:142:17-05-1940:14-02-1942:INDUSTRY,RAIL,@Cologne
 Cologne Power Station: 9: 6:13:135:145:19-05-1940:14-02-1942:INDUSTRY,@Cologne
 Dusseldorf Steel Mill:22: 4:30:128:142:15-05-1940:14-02-1942:INDUSTRY,STEEL,@Dusseldorf
 Krupps, Essen:        30:10:19:122:145:15-05-1940:14-02-1942:INDUSTRY,ARM,@Essen
@@ -127,7 +130,8 @@ IG Farben, Frankfurt: 14: 7:22:152:168:20-05-1940:14-02-1942:INDUSTRY,ARM,@Frank
 Bremen Oil Refinery:  12: 5:16: 85:168:16-05-1940:14-02-1942:INDUSTRY,OIL,@Bremen
 Focke-Wulf, Bremen:   20: 8:10: 84:171:17-05-1940:14-02-1942:INDUSTRY,AC,@Bremen
 Antwerp Oil Depot:     6: 3:16:126:108:21-05-1940:14-02-1942:INDUSTRY,OIL
-BFW, Augsburg:        15:10:12:187:202:18-05-1940:14-02-1942:INDUSTRY,AC,@Munich
+BFW, Augsburg:        15:10:12:187:201:18-05-1940:14-02-1942:INDUSTRY,AC,@Augsburg
+MAN, Augsburg:        12: 6:10:185:202:05-06-1940:14-02-1942:INDUSTRY,UBOOT,@Augsburg
 Gelsenkirchen Oil:     9: 6:13:120:143:16-05-1940:14-02-1942:INDUSTRY,OIL,@Essen
 Hüls Chemical Works:  12: 8:14:124:139:15-05-1940:14-02-1942:INDUSTRY,ARM,@Duisburg
 Zollern Colliery:     11: 4:15:120:152:22-05-1940:14-02-1942:INDUSTRY,STEEL,@Dortmund
