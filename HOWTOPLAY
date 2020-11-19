@@ -10,6 +10,7 @@ Contents
 * Targets
 * Bombers
  - Mods and Marks
+ - Wear and Tear
 * Sun and Moon
 * Weather
 * Flak
@@ -62,6 +63,10 @@ It is thus possible for your forces of a given type to consist of a mix of diffe
 You can also filter by mark when assigning bombers to a raid; see the section "Filters" below for details.
 In the special case of the Handley Page Halifax (Mk I, Mk III), the change between marks is big enough to warrant a new type, so these do not use the game's mark system.
 Older marks are often best put to use in training units (see the section "Aircrew and Training" below).
+
+Wear and Tear
+-------------
+A bomber does not last forever.  Each time it flies an operation, or is used for training, it accumulates 'wear', which slightly reduces its performance.  On reaching 100% wear, it is no longer airworthy and is automatically scrapped.
 
 Sun and Moon
 ~~~~~~~~~~~~
