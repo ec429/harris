@@ -2,8 +2,7 @@
 # DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY:[MARK]
 # Description is not used in-game except for MARK and in debugging messages
 # ACNAME should match NAME from dat/bombers
-# Stat is one of cost, speed, alt, capwt, (capbulk), svp, defn, fail, accu, range, crew, (loads), flags, nil
-#   (bracketed stats are not currently supported)
+# Stat is one of cost, speed, alt, capwt, capbulk, svp, defn, fail, accu, range, crew, loads, navs, flags, nil
 #   nil is used with MARK to set the name of mark 0; it sets no stat
 # old is ignored by game
 # new is the new value of the stat (or, for flags, the flag to set)
@@ -102,6 +101,7 @@ Mk X                    :Wellington :speed:    200:    205:10-11-1942:3
 Mk X                    :Wellington :alt  :    185:    195:10-11-1942:3
 Mk X                    :Wellington :range:    311:    318:10-11-1942:3
 Mk X                    :Wellington :svp  :     87:     88:10-11-1942:3
+OBOE installation       :Mosquito   :navs :       :OBOE   :04-12-1942:
 Mk III                  :Stirling   :speed:    200:    205:08-01-1943:1
 Mk III                  :Stirling   :alt  :    175:    185:08-01-1943:1
 Mk III                  :Stirling   :svp  :     45:     55:08-01-1943:1

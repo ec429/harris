@@ -69,6 +69,16 @@ int apply_mod(unsigned int m)
 				}
 				fprintf(stderr, "ignoring excessive bombload ID %d\n", mods[m].v.i);
 				return(1);
+			case BSTAT_NAVS:
+				if(mods[m].mark)
+					fprintf(stderr, "Warning, mod %s tries to change navs on mark %u, but navaids are not marked\n", mods[m].desc, mods[m].mark);
+				if(mods[m].v.i<NNAVAIDS)
+				{
+					types[bt].nav[mods[m].v.i]=true;
+					return(0);
+				}
+				fprintf(stderr, "ignoring excessive navaid ID %d\n", mods[m].v.i);
+				return(1);
 			case BSTAT_FLAGS:
 				if(mods[m].mark)
 					fprintf(stderr, "Warning, mod %s tries to change flags on mark %u, but flags are not marked\n", mods[m].desc, mods[m].mark);

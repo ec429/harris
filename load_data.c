@@ -425,6 +425,8 @@ int load_mods(void)
 					this.s=BSTAT_CREW;
 				else if(!strcmp(statname, "loads"))
 					this.s=BSTAT_LOADS;
+				else if(!strcmp(statname, "navs"))
+					this.s=BSTAT_NAVS;
 				else if(!strcmp(statname, "flags"))
 					this.s=BSTAT_FLAGS;
 				else if(!strcmp(statname, "nil"))
@@ -474,6 +476,24 @@ int load_mods(void)
 							break;
 					}
 					if(i<NBOMBLOADS)
+					{
+						this.v.i=i;
+					}
+					else
+					{
+						fprintf(stderr, "Malformed newval %s (stat %s)\n", newval, statname);
+						return(1);
+					}
+				}
+				else if(this.s==BSTAT_NAVS)
+				{
+					unsigned int i;
+					for(i=0;i<NNAVAIDS;i++)
+					{
+						if(!strncmp(newval, navaids[i], strlen(navaids[i])))
+							break;
+					}
+					if(i<NNAVAIDS)
 					{
 						this.v.i=i;
 					}

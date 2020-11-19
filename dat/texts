@@ -328,6 +328,11 @@ The nose turrets are being removed from all Halifax bombers to reduce weight, it
 
 The Mark XIV vector bomb sight has now been fitted to all heavy bombers.
 
+==MOD_OBOE==
+
+The boffins at TRE have come up with an OBOE unit small enough to be fitted to a de Havilland Mosquito.
+It is recommended to use this combination for Pathfinder purposes, to drop T.I.s with pinpoint precision.
+
 ==MOD_TSIGHT==
 
 American production of the T-1 bomb sight, based on the Mark XIV, has enabled us to fit these sights to the force
@@ -827,8 +832,7 @@ It can't be used by training units.
 ==NEW_Mosquito==
 
 A new type of bomber has been developed and is now going into production.  The de Havilland Mosquito is small but
- powerful; its high performance makes it almost invulnerable.  Combined with OBOE, it looks as though it will
- prove to be the perfect Pathfinder aircraft.
+ powerful; its high performance makes it almost invulnerable.
 
 ==Halifax III==
 
