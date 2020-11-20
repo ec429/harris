@@ -151,6 +151,8 @@ class Save(object):
 			self.prio = [0]*self.ntypes
 			self._type = 0
 			return self.Types, False
+		if tag.startswith('Twear '):
+			return None, False
 		if tag == 'Navaids':
 			self.nnav = int(rest)
 			self.npri = [0]*self.nnav
@@ -255,8 +257,8 @@ class Save(object):
 	def Bombers(self, tag, rest):
 		if tag.startswith('Type '):
 			typ = int(tag[5:])
-			fail, nav, pff, acid, mark, train, sqn, flt = rest.split(',', 7)
-			self.bombers.append({'type':int(typ), 'fail':bool(int(fail)), 'nav':int(nav), 'pff':bool(int(pff)), 'id':int(acid, 16), 'mark':int(mark), 'train':bool(int(train)), 'squadron':int(sqn), 'flight':int(flt)})
+			fail, nav, wear, acid, mark, train, sqn, flt = rest.split(',', 7)
+			self.bombers.append({'type':int(typ), 'fail':bool(int(fail)), 'nav':int(nav), 'wear':readfloat(wear), 'id':int(acid, 16), 'mark':int(mark), 'train':bool(int(train)), 'squadron':int(sqn), 'flight':int(flt)})
 			return len(self.bombers) == self.nbombers
 		raise UnrecognisedSubtag('Bombers', tag, rest)
 	def Bases(self, tag, rest):
