@@ -1793,7 +1793,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			{
 				unsigned int k=state->raids[i].bombers[j], type=state->bombers[k].type;
 				dij[i][type]++;
-				apply_wear(&state->bombers[k], 1.0 + state->bombers[k].damage*0.002);
+				apply_wear(&state->bombers[k], 0.6 + state->bombers[k].damage*0.01);
 				if(!state->bombers[k].bombed) continue;
 				for(unsigned int l=0;l<MAX_CREW;l++)
 					if(types[type].crew[l]!=CCLASS_NONE)
