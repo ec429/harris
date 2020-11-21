@@ -106,7 +106,7 @@ int main(void)
 				*r = (struct raid){.list.hash = rec.ac.id, .type = rec.ac.ac_type, .targ = rec.ac.raid.targ};
 				hashtable_insert(&raids, &r->list);
 			}
-			else if (rec.ac.type == AE_CROB && !rec.ac.crob.ob && !rec.ac.fighter)
+			else if (rec.ac.type == AE_CROB && rec.ac.crob.ty == CROB_CR && !rec.ac.fighter)
 			{
 				struct hlist *lr;
 				struct raid *r;

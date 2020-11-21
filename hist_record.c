@@ -251,13 +251,19 @@ int parse_ac(struct ac_record *rec)
 	if (!strcmp(word, "CR"))
 	{
 		rec->type = AE_CROB;
-		rec->crob.ob = false;
+		rec->crob.ty = CROB_CR;
+		return 0;
+	}
+	if (!strcmp(word, "SC"))
+	{
+		rec->type = AE_CROB;
+		rec->crob.ty = CROB_SC;
 		return 0;
 	}
 	if (!strcmp(word, "OB"))
 	{
 		rec->type = AE_CROB;
-		rec->crob.ob = true;
+		rec->crob.ty = CROB_OB;
 		return 0;
 	}
 	fprintf(stderr, "Unrecognised A-event class '%s'\n", word);

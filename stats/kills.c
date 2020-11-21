@@ -285,133 +285,141 @@ int main(int argc, char **argv)
 				if (b->src.ds == DS_NONE)
 					b->src.ds = DS_MECH;
 			}
-			else if (rec.ac.type == AE_CROB && !rec.ac.crob.ob)
+			else if (rec.ac.type == AE_CROB && rec.ac.crob.ty == CROB_CR)
 			{
-				writedate(rec.date, outbuf);
-				fputs(outbuf, stdout);
-				putchar(' ');
-				if (rec.ac.fighter)
+				switch (rec.ac.crob.ty)
 				{
-					struct hlist *fl = hashtable_lookup(&fighters, rec.ac.id), *bl;
-					struct fighter *f;
-					struct bomber *b;
-
-					if (!fl)
-					{
-						fprintf(stderr, "Unknown fighter %08x crashed\n", rec.ac.id);
-						return 7;
-					}
-					f = container_of(fl, struct fighter, list);
-					printf("F %u ", f->ftype);
-					switch (f->src.ds)
-					{
-					case DS_FIGHTER:
-					case DS_FLAK:
-					case DS_TFLK:
-						puts("FF"); // friendly-fire, can't happen
-						break;
-					case DS_MECH: // can't happen
-						puts("MECH");
-						break;
-					case DS_BOMBER:
-						bl = hashtable_lookup(&bombers, f->src.idx);
-						if (!bl)
+					case CROB_CR:
+						writedate(rec.date, outbuf);
+						fputs(outbuf, stdout);
+						putchar(' ');
+						if (rec.ac.fighter)
 						{
-							fprintf(stderr, "Fighter %08x killed by unknown bomber %08x\n", rec.ac.id, f->src.idx);
-							return 7;
-						}
-						b = container_of(bl, struct bomber, list);
-						printf("BT %u\n", b->type);
-						break;
-					case DS_NONE: // assume FUEL, since the log doesn't record that directly
-					case DS_FUEL:
-						puts("FUEL");
-						break;
-					default: // can't happen
-						printf("%u %u\n", f->src.ds, f->src.idx);
-					}
-					f->dead = true;
-				}
-				else
-				{
-					struct hlist *bl = hashtable_lookup(&bombers, rec.ac.id), *fl;
-					struct bomber *b;
-					struct fighter *f;
+							struct hlist *fl = hashtable_lookup(&fighters, rec.ac.id), *bl;
+							struct fighter *f;
+							struct bomber *b;
 
-					if (!bl)
-					{
-						fprintf(stderr, "Unknown bomber %08x crashed\n", rec.ac.id);
-						return 7;
-					}
-					b = container_of(bl, struct bomber, list);
-					printf("B %u ", b->type);
-					switch (b->src.ds) // enum {DS_NONE, DS_FIGHTER, DS_FLAK, DS_TFLK, DS_MECH, DS_BOMBER, DS_FUEL} ds;
-					{
-					case DS_NONE: // can't happen
-						puts("NONE");
-						break;
-					case DS_FIGHTER:
-						fl = hashtable_lookup(&fighters, b->src.idx);
-						if (!fl)
+							if (!fl)
+							{
+								fprintf(stderr, "Unknown fighter %08x crashed\n", rec.ac.id);
+								return 7;
+							}
+							f = container_of(fl, struct fighter, list);
+							printf("F %u ", f->ftype);
+							switch (f->src.ds)
+							{
+							case DS_FIGHTER:
+							case DS_FLAK:
+							case DS_TFLK:
+								puts("FF"); // friendly-fire, can't happen
+								break;
+							case DS_MECH: // can't happen
+								puts("MECH");
+								break;
+							case DS_BOMBER:
+								bl = hashtable_lookup(&bombers, f->src.idx);
+								if (!bl)
+								{
+									fprintf(stderr, "Fighter %08x killed by unknown bomber %08x\n", rec.ac.id, f->src.idx);
+									return 7;
+								}
+								b = container_of(bl, struct bomber, list);
+								printf("BT %u\n", b->type);
+								break;
+							case DS_NONE: // assume FUEL, since the log doesn't record that directly
+							case DS_FUEL:
+								puts("FUEL");
+								break;
+							default: // can't happen
+								printf("%u %u\n", f->src.ds, f->src.idx);
+							}
+							f->dead = true;
+						}
+						else
 						{
-							fprintf(stderr, "Bomber %08x killed by unknown fighter %08x\n", rec.ac.id, b->src.idx);
-							return 7;
+							struct hlist *bl = hashtable_lookup(&bombers, rec.ac.id), *fl;
+							struct bomber *b;
+							struct fighter *f;
+
+							if (!bl)
+							{
+								fprintf(stderr, "Unknown bomber %08x crashed\n", rec.ac.id);
+								return 7;
+							}
+							b = container_of(bl, struct bomber, list);
+							printf("B %u ", b->type);
+							switch (b->src.ds) // enum {DS_NONE, DS_FIGHTER, DS_FLAK, DS_TFLK, DS_MECH, DS_BOMBER, DS_FUEL} ds;
+							{
+							case DS_NONE: // can't happen
+								puts("NONE");
+								break;
+							case DS_FIGHTER:
+								fl = hashtable_lookup(&fighters, b->src.idx);
+								if (!fl)
+								{
+									fprintf(stderr, "Bomber %08x killed by unknown fighter %08x\n", rec.ac.id, b->src.idx);
+									return 7;
+								}
+								f = container_of(fl, struct fighter, list);
+								printf("FT %u\n", f->ftype);
+								break;
+							case DS_FLAK:
+								printf("FL %u\n", b->src.idx);
+								break;
+							case DS_TFLK:
+								printf("TF %u\n",b->src.idx);
+								break;
+							case DS_MECH:
+								puts("MECH");
+								break;
+							case DS_BOMBER: // friendly-fire, can't happen
+								puts("FF");
+								break;
+							case DS_FUEL: // can't happen
+								puts("FUEL");
+								break;
+							default: // can't happen
+								printf("%u %u\n", b->src.ds, b->src.idx);
+							}
+							b->dead = true;
 						}
-						f = container_of(fl, struct fighter, list);
-						printf("FT %u\n", f->ftype);
 						break;
-					case DS_FLAK:
-						printf("FL %u\n", b->src.idx);
-						break;
-					case DS_TFLK:
-						printf("TF %u\n",b->src.idx);
-						break;
-					case DS_MECH:
-						puts("MECH");
-						break;
-					case DS_BOMBER: // friendly-fire, can't happen
-						puts("FF");
-						break;
-					case DS_FUEL: // can't happen
-						puts("FUEL");
-						break;
-					default: // can't happen
-						printf("%u %u\n", b->src.ds, b->src.idx);
-					}
-					b->dead = true;
-				}
-			}
-			else if (rec.ac.type == AE_CROB && rec.ac.crob.ob)
-			{
-				if (rec.ac.fighter)
-				{
-					struct hlist *fl = hashtable_lookup(&fighters, rec.ac.id);
-					struct fighter *f;
+					case CROB_SC:
+					case CROB_OB:
+						if (rec.ac.fighter)
+						{
+							struct hlist *fl = hashtable_lookup(&fighters, rec.ac.id);
+							struct fighter *f;
 
-					if (!fl)
-					{
-						fprintf(stderr, "Warning: unknown fighter %08x scrapped\n", rec.ac.id);
-					}
-					else
-					{
-						f = container_of(fl, struct fighter, list);
-						f->dead = true;
-					}
-				}
-				else
-				{
-					struct hlist *bl = hashtable_lookup(&bombers, rec.ac.id);
-					struct bomber *b;
+							if (!fl)
+							{
+								fprintf(stderr, "Warning: unknown fighter %08x scrapped\n", rec.ac.id);
+							}
+							else
+							{
+								f = container_of(fl, struct fighter, list);
+								f->dead = true;
+							}
+						}
+						else
+						{
+							struct hlist *bl = hashtable_lookup(&bombers, rec.ac.id);
+							struct bomber *b;
 
-					if (!bl)
-					{
-						fprintf(stderr, "Warning: Unknown bomber %08x scrapped\n", rec.ac.id);
-					}
-					else
-					{
-						b = container_of(bl, struct bomber, list);
-						b->dead = true;
-					}
+							if (!bl)
+							{
+								fprintf(stderr, "Warning: Unknown bomber %08x scrapped\n", rec.ac.id);
+							}
+							else
+							{
+								b = container_of(bl, struct bomber, list);
+								b->dead = true;
+							}
+						}
+						break;
+					default:
+						fprintf(stderr, "Unknown crob event type %d\n", rec.ac.crob.ty);
+						return 7;
 				}
 			}
 			else if (rec.ac.type == AE_RAID)

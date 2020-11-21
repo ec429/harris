@@ -62,10 +62,17 @@ struct fail_record
 };
 
 // <crsh-ev>::= CR
+// <scrp-ev>::= SC
 // <obs-ev> ::= OB
+enum crob_type
+{
+	CROB_CR,
+	CROB_SC,
+	CROB_OB,
+};
 struct crob_record
 {
-	bool ob;
+	enum crob_type ty;
 };
 
 /* <data>   ::= A <ac-uid> <b-or-f><type:int> <a-event> | ...
