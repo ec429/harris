@@ -1834,6 +1834,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									heat[l]++;
 									nij[l][type]++;
 									tij[l][type]+=state->bombers[k].b_hc+state->bombers[k].b_gp+state->bombers[k].b_in+state->bombers[k].b_ti;
+									targs[l].hit=true;
 									state->bombers[k].bombed=false;
 								}
 							}
@@ -1851,6 +1852,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									cidam+=dmg*((berlin&&targs[l].berlin)?2.0:1.0);
 									state->dmg[l]-=dmg;
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
+									targs[l].hit=true;
 									nij[l][type]++;
 									tij[l][type]+=he;
 								}
@@ -1917,6 +1919,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									tdm_append(&state->hist, state->now, maketime(state->bombers[k].bt), l, dmg, state->dmg[l]);
 									nij[l][type]++;
 									tij[l][type]+=state->bombers[k].b_le;
+									targs[l].hit=true;
 									state->bombers[k].bombed=false;
 								}
 							}

@@ -463,19 +463,25 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				state->flk[i]+=dflk;
 				if(dflk)
 					tfk_append(&state->hist, state->now, (harris_time){11, 45}, i, dflk, state->flk[i]);
-				double ddmg=min(state->dmg[i]*.1*reprate/(double)rcity, 100-state->dmg[i]);
-				state->dmg[i]+=ddmg;
-				if(ddmg)
-					tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
+				if(!targs[i].hit)
+				{
+					double ddmg=min(state->dmg[i]*.1*reprate/(double)rcity, 100-state->dmg[i]);
+					state->dmg[i]+=ddmg;
+					if(ddmg)
+						tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
+				}
 				produce(i, state, state->dmg[i]*targs[i].prod*0.8);
 			}
 			break;
 			case TCLASS_LEAFLET:
 			{
-				double ddmg=min(state->dmg[i]*.2/(double)rother, 100-state->dmg[i]);
-				state->dmg[i]+=ddmg;
-				if(ddmg)
-					tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
+				if(!targs[i].hit)
+				{
+					double ddmg=min(state->dmg[i]*.2/(double)rother, 100-state->dmg[i]);
+					state->dmg[i]+=ddmg;
+					if(ddmg)
+						tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
+				}
 				produce(i, state, state->dmg[i]*targs[i].prod/20.0);
 			}
 			break;
@@ -498,9 +504,12 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					double ddmg=min(state->dmg[i]*reprate/(double)rother, 100-state->dmg[i]), cscale=targs[i].city<0?1.0:state->dmg[targs[i].city]/100.0;
 					if(cscale==0)
 						goto unflak;
-					state->dmg[i]+=ddmg;
-					if(ddmg)
-						tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
+					if(!targs[i].hit)
+					{
+						state->dmg[i]+=ddmg;
+						if(ddmg)
+							tdm_append(&state->hist, state->now, (harris_time){11, 45}, i, ddmg, state->dmg[i]);
+					}
 					produce(i, state, state->dmg[i]*targs[i].prod*cscale/2.0);
 				}
 				else
@@ -517,6 +526,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				fprintf(stderr, "Bad targs[%d].class = %d\n", i, targs[i].class);
 			break;
 		}
+		targs[i].hit=false;
 	}
 	state->gprod[ICLASS_ARM]*=datebefore(state->now, event[EVENT_BARBAROSSA])?0.96:0.94;
 	state->gprod[ICLASS_BB]*=0.99;

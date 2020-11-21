@@ -282,6 +282,7 @@ typedef struct
 	int skym; // time of last skymarker over target
 	/* misc */
 	unsigned int shots; // number of shots the flak already fired this tick
+	bool hit; // Was this target hit last night?  Prevents repair (certain tclasses only)
 }
 target;
 
