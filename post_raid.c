@@ -158,12 +158,15 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					for(unsigned int j=0;j<MAX_CREW;j++)
 					{
 						int k=state->bombers[i].crew[j];
+						int s=state->crews[k].squadron;
 						if(k<0)
 							continue;
 						if(state->crews[k].class!=types[bt].crew[j])
 						{
 							state->bombers[i].crew[j]=-1;
 							state->crews[k].assignment=-1;
+							if(s>=0)
+								state->squads[s].nc[state->crews[k].class]++;
 						}
 					}
 				}
