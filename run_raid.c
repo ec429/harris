@@ -781,11 +781,9 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				sun_overlay=render_sun(convert_ht(now));
 			}
 			if(tameboar)
-			{
 				memset(boxes, 0, sizeof(boxes));
-				sumx=sumy=0;
-				velx=vely=0;
-			}
+			sumx=sumy=0;
+			velx=vely=0;
 			for(unsigned int i=0;i<ntargs;i++)
 				targs[i].shots=0;
 			for(unsigned int i=0;i<nflaks;i++)
@@ -1290,7 +1288,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					}
 				}
 			bool boar_up=false;
-			double boarx,boary,boarvx,boarvy;
+			double boarx=0,boary=0,boarvx=0,boarvy=0;
 			if(tameboar)
 			{
 				int ox=topx;
@@ -1308,7 +1306,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							if(abs(findx-ox)+abs(findy-oy)<2)
 								val*=3;
 						}
-						if(val>topval)
+						if(val>=topval)
 						{
 							topx=findx;
 							topy=findy;

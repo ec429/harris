@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	bool localdat = false;
 	char cwd_buf[1024];
 	unsigned int (*bcounts)[3];
-	int ca[2];
+	int ca[2] = {0, 0};
 	date current = {0, 0, 0};
 	int arg;
 	int rc;

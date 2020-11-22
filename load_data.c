@@ -1765,7 +1765,8 @@ int load_starts(void)
 	else
 	{
 		char *line;
-		unsigned int n, state=0;
+		// n=0 is a bogus initialisation, needed because gcc doesn't understand our state machine and warns about it
+		unsigned int n=0, state=0;
 		string description=null_string();
 		while((line=fgetl(stfp)))
 		{
