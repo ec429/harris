@@ -2,6 +2,9 @@
 
 import sys, zlib, struct, random, math
 
+acids = set()
+cmids = set()
+
 def multiply(line):
     if len(line) > 1:
         if line[0] == '*' and line[1].isdigit():
@@ -21,6 +24,16 @@ def genids(line, i):
         z = '_'.join((salt, str(i), line))
         ha = zlib.crc32(z) & 0xffffffff
         h = hex(ha)[2:].rstrip('L')
+        if line.startswith("Type "):
+            if h in acids:
+                raise ValueError("Duplicate ac", line, "idgen", h)
+            acids.add(h)
+        elif line.startswith("CG ") or line.startswith("CG2 "):
+            if h in cmids:
+                raise ValueError("Duplicate cm", line, "idgen", h)
+            cmids.add(h)
+        else:
+            raise ValueError("genids for", line)
         return line.replace('NOID', h.zfill(8))
     else:
         return line
