@@ -431,7 +431,7 @@ typedef struct
 	unsigned int btype;
 	unsigned int rtime; // days until readiness
 	bool third_flight;
-	bool rh, rl; // require nonzero heavy/lanc skill for new postings
+	bool allow[TPIPE__MAX][2]; // allow new postings with skill corresponding to [TPIPE_*] on [0]first or [1]later tour
 	/* nb: number of bombers[flight]
 	 * nc: number of crews[cclass] without assigned aircraft
 	 */

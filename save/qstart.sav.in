@@ -125,28 +125,28 @@ Bases:59
 %59%Base %d:0
 Paving:-1,0
 Squadrons:22
-Squad 0:9,38,0,2,0,0,0 # Waddington/5/Hampden (hist: Honington, we don't have it)
-Squad 1:15,57,0,3,0,0,0 # Gransden Lodge/3/Wellington (hist: Fairey Battles in the AASF.  But never mind)
-Squad 2:49,34,0,2,0,0,0 # Scampton/5/Hampden
-Squad 3:83,34,0,2,0,0,0 # Scampton/5/Hampden
-Squad 4:101,11,0,0,0,0,0 # West Raynham/2/Blenheim
-Squad 5:110,15,0,0,0,0,0 # Wattisham/2/Blenheim
-Squad 6:107,15,0,0,0,0,0 # Wattisham/2/Blenheim
-Squad 7:7,36,1,2,0,0,0 # Fiskerton/5/Hampden (hist: Group Pool training unit at Finningley)
-Squad 8:102,26,1,1,0,0,0 # Lissett/4/Whitley (hist: Driffield, we don't have it)
-Squad 9:149,20,0,3,0,0,0 # Mildenhall/3/Wellington
-Squad 10:99,20,0,3,0,0,0 # Mildenhall/3/Wellington
-Squad 11:38,19,0,3,0,0,0 # Lakenheath/3/Wellington (hist: Marham, we don't have it)
-Squad 12:12,8,0,3,0,0,0 # Wickenby/1/Wellington (hist: more AASF Battles)
-Squad 13:300,9,0,3,0,0,0 # Hemswell/1/Wellington (hist: did not exist until later)
-Squad 14:458,31,1,1,0,0,0 # Holme-on-Spalding-Moor/4/Whitley
-Squad 15:103,0,0,1,0,0,0 # Elsham Wolds/1/Whitley (hist: yet more AASF Battles)
-Squad 16:21,10,0,0,0,0,0 # Watton/2/Blenheim
-Squad 17:82,10,0,0,0,0,0 # Watton/2/Blenheim
-Squad 18:90,11,0,0,0,0,0 # West Raynham/2/Blenheim
-Squad 19:114,54,0,0,0,0,0 # Wyton/2/Blenheim
-Squad 20:51,50,0,1,0,0,0 # Linton-on-Ouse/6/Whitley (hist: 4 Group at this time.  6 (Canadian) Group was formed later)
-Squad 21:58,50,0,1,0,0,0 # Linton-on-Ouse/6/Whitley (hist: 4 Group again)
+Squad 0:9,38,0,2,0,9 # Waddington/5/Hampden (hist: Honington, we don't have it)
+Squad 1:15,57,0,3,0,9 # Gransden Lodge/3/Wellington (hist: Fairey Battles in the AASF.  But never mind)
+Squad 2:49,34,0,2,0,9 # Scampton/5/Hampden
+Squad 3:83,34,0,2,0,9 # Scampton/5/Hampden
+Squad 4:101,11,0,0,0,9 # West Raynham/2/Blenheim
+Squad 5:110,15,0,0,0,9 # Wattisham/2/Blenheim
+Squad 6:107,15,0,0,0,9 # Wattisham/2/Blenheim
+Squad 7:7,36,1,2,0,9 # Fiskerton/5/Hampden (hist: Group Pool training unit at Finningley)
+Squad 8:102,26,1,1,0,9 # Lissett/4/Whitley (hist: Driffield, we don't have it)
+Squad 9:149,20,0,3,0,9 # Mildenhall/3/Wellington
+Squad 10:99,20,0,3,0,9 # Mildenhall/3/Wellington
+Squad 11:38,19,0,3,0,9 # Lakenheath/3/Wellington (hist: Marham, we don't have it)
+Squad 12:12,8,0,3,0,9 # Wickenby/1/Wellington (hist: more AASF Battles)
+Squad 13:300,9,0,3,0,9 # Hemswell/1/Wellington (hist: did not exist until later)
+Squad 14:458,31,1,1,0,9 # Holme-on-Spalding-Moor/4/Whitley
+Squad 15:103,0,0,1,0,9 # Elsham Wolds/1/Whitley (hist: yet more AASF Battles)
+Squad 16:21,10,0,0,0,9 # Watton/2/Blenheim
+Squad 17:82,10,0,0,0,9 # Watton/2/Blenheim
+Squad 18:90,11,0,0,0,9 # West Raynham/2/Blenheim
+Squad 19:114,54,0,0,0,9 # Wyton/2/Blenheim
+Squad 20:51,50,0,1,0,9 # Linton-on-Ouse/6/Whitley (hist: 4 Group at this time.  6 (Canadian) Group was formed later)
+Squad 21:58,50,0,1,0,9 # Linton-on-Ouse/6/Whitley (hist: 4 Group again)
 Crews:2090
 *500*CG Crewman P:30,120,0,0,-1,0,-1,NOID
 *440*CG Crewman N:40,120,0,0,-1,0,-1,NOID

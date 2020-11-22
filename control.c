@@ -2381,6 +2381,7 @@ bool ensure_crewed(game *state, unsigned int i)
 			int best=-1;
 			for(unsigned int k=0;k<state->ncrews;k++)
 			{
+				enum tpipe trained;
 				if(state->crews[k].class!=types[type].crew[j])
 					continue;
 				if(state->crews[k].status!=CSTATUS_CREWMAN)
@@ -2390,9 +2391,13 @@ bool ensure_crewed(game *state, unsigned int i)
 					continue;
 				if(is_pff(state, i)&&(CREWOPS(k)<(types[type].noarm?30:15)))
 					continue;
-				if(state->squads[s].rh&&state->crews[k].heavy < 1.0)
-					continue;
-				if(state->squads[s].rl&&state->crews[k].lanc < 1.0)
+				if(state->crews[k].lanc >= 1.0)
+					trained = TPIPE_LFS;
+				else if(state->crews[k].heavy >= 1.0)
+					trained = TPIPE_HCU;
+				else
+					trained = TPIPE_OTU;
+				if(!state->squads[s].allow[trained][state->crews[k].full_tours?1:0])
 					continue;
 				if(best<0 ||
 					   (lanc ? (0.25+state->crews[k].lanc)*(0.25+state->crews[k].heavy) >

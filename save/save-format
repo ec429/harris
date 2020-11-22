@@ -34,7 +34,7 @@ for(i=0;i<nbases;i++)
     "Base %u:%u\n", i, bases[i].paved
 "Squadrons:%u\n", nsquads
 for(i=0;i<nsquads;i++)
-	"Squad %u:%u,%u,%u,%u,%u,%d,%d\n", i, squad[i].number, squad[i].base, squad[i].third_flight, squad[i].btype, squad[i].rtime, squad[i].rh, squad[i].rl
+	"Squad %u:%u,%u,%u,%u,%u,%u\n", i, squad[i].number, squad[i].base, squad[i].third_flight, squad[i].btype, squad[i].rtime, squad[i].allow[][<<3]
 "SNums:%u\n", nsnums // unused squadron numbers
 for(i=0;i<nsnums;i++)
 	"SNum %u\n", snum[i]

@@ -32,7 +32,7 @@ atg_element **HS_btrow, **HS_btcvt;
 char **HS_btnum;
 atg_element *HS_stl, *HS_stoper, *HS_stclmp, *HS_stshim, *HS_stpaved, *HS_stpaving, *HS_stpavebtn, *HS_sqbtn[2], *HS_nosq, *HS_stshim2, *HS_mbw;
 char *HS_stname, *HS_stpavetime, *HS_stsqnum[2], *HS_mbe, *HS_wp, *HS_wt;
-atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_sqdis, *HS_sqrh, *HS_sqrl, *HS_flbtn[3];
+atg_element *HS_sqncr[CREW_CLASSES], *HS_rtimer, *HS_remust, *HS_grow, *HS_split, *HS_sqdis, *HS_sqal[TPIPE__MAX][2], *HS_flbtn[3];
 char *HS_sqname, *HS_btman, *HS_btnam, *HS_sqest, *HS_sqnc[CREW_CLASSES], *HS_rtime;
 SDL_Surface *HS_btpic;
 atg_element **HS_flcr;
@@ -878,47 +878,44 @@ int handle_squadrons_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
-	if(!hbox)
+	for(unsigned int u=0;u<2;u++)
 	{
-		fprintf(stderr, "atg_create_element_box failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(HS_sqnbox, hbox))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	atg_element *req=atg_create_element_label("Require: ", 11, (atg_colour){127, 127, 127, ATG_ALPHA_OPAQUE});
-	if(!req)
-	{
-		fprintf(stderr, "atg_create_element_label failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(hbox, req))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	if(!(HS_sqrh=atg_create_element_toggle("HCU", false, (atg_colour){159, 159, 111, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
-	{
-		fprintf(stderr, "atg_create_element_toggle failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(hbox, HS_sqrh))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	if(!(HS_sqrl=atg_create_element_toggle("LFS", false, (atg_colour){159, 159, 111, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
-	{
-		fprintf(stderr, "atg_create_element_toggle failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(hbox, HS_sqrl))
-	{
-		perror("atg_ebox_pack");
-		return(1);
+		atg_element *hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+		if(!hbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HS_sqnbox, hbox))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *req=atg_create_element_label(u ? "Veterans:" : "Sprogs:", 11, (atg_colour){127, 127, 127, ATG_ALPHA_OPAQUE});
+		if(!req)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		req->w=120;
+		if(atg_ebox_pack(hbox, req))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		for(unsigned int t=0;t<TPIPE__MAX;t++)
+		{
+			if(!(HS_sqal[t][u]=atg_create_element_toggle(tpipe_names[t], false, (atg_colour){159, 159, 111, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+			{
+				fprintf(stderr, "atg_create_element_toggle failed\n");
+				return(1);
+			}
+			if(atg_ebox_pack(hbox, HS_sqal[t][u]))
+			{
+				perror("atg_ebox_pack");
+				return(1);
+			}
+		}
 	}
 	atg_element *spare=atg_create_element_label("Spare bods:", 10, (atg_colour){143, 143, 143, ATG_ALPHA_OPAQUE});
 	if(!spare)
@@ -1577,12 +1574,14 @@ void update_sqn_info(game *state)
 		snprintf(HS_btman, 40, types[type].manu);
 		snprintf(HS_btnam, 40, types[type].name);
 	}
-	HS_sqrh->hidden=type>=ntypes||!types[type].heavy;
-	t=HS_sqrh->elemdata;
-	t->state=state->squads[selsqn].rh;
-	HS_sqrl->hidden=type>=ntypes||!types[type].lfs;
-	t=HS_sqrl->elemdata;
-	t->state=state->squads[selsqn].rl;
+	for(unsigned int stage=0;stage<TPIPE__MAX;stage++)
+	{
+		for(unsigned int u=0;u<2;u++)
+		{
+			t=HS_sqal[stage][u]->elemdata;
+			t->state=state->squads[selsqn].allow[stage][u];
+		}
+	}
 	unsigned int sv=0, nom=0, act=0, flts=state->squads[selsqn].third_flight?3:2;
 	for(unsigned int i=0;i<state->nbombers;i++)
 		if(state->bombers[i].squadron==selsqn)
@@ -1890,11 +1889,12 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 							.btype=state->squads[selsqn].btype,
 							.rtime=state->squads[selsqn].rtime+7,
 							.third_flight=false,
-							.rh=state->squads[selsqn].rh,
-							.rl=state->squads[selsqn].rl,
 							.nb[0]=state->squads[selsqn].nb[2],
 							.nc={0},
 						};
+						for(unsigned int t=0;t<TPIPE__MAX;t++)
+							for(unsigned int u=0;u<2;u++)
+								state->squads[newsqn].allow[t][u]=state->squads[selsqn].allow[t][u];
 						state->squads[selsqn].third_flight=false;
 						state->squads[selsqn].nb[2]=0;
 						for(unsigned int i=0;i<state->nbombers;i++)
@@ -2035,17 +2035,15 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 						remustering=toggle.state;
 						break;
 					}
-					if(toggle.e==HS_sqrh&&selsqn>=0)
-					{
-						state->squads[selsqn].rh=toggle.state;
-						break;
-					}
-					if(toggle.e==HS_sqrl&&selsqn>=0)
-					{
-						state->squads[selsqn].rl=toggle.state;
-						break;
-					}
+					for(unsigned int t=0;t<TPIPE__MAX;t++)
+						for(unsigned int u=0;u<2;u++)
+							if(toggle.e==HS_sqal[t][u]&&selsqn>=0)
+							{
+								state->squads[selsqn].allow[t][u]=toggle.state;
+								goto found;
+							}
 					fprintf(stderr, "Clicked on unknown toggle!\n");
+found:
 				break;
 				default:
 				break;
