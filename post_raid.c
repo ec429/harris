@@ -359,6 +359,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		unsigned int type=state->bombers[i].type;
 		if(state->bombers[i].wear >= 99.99)
 		{
+scrap:
 			sc_append(&state->hist, state->now, (harris_time){11, 42}, state->bombers[i].id, false, type);
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
@@ -371,7 +372,10 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		{
 			clear_sqn(state, i);
 			clear_crew(state, i);
-			state->bombers[i].train=true;
+			if(types[type].noarm)
+				goto scrap;
+			else
+				state->bombers[i].train=true;
 		}
 	}
 	// crews go to instructors and vice-versa; escapees return home
