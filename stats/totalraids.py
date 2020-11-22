@@ -15,7 +15,7 @@ def daily_total(d, bombers, start, stop): # updates bombers
 			if h['data']['type']['fb'] == 'B':
 				if h['data']['etyp'] == 'CT':
 					bombers[acid]=False
-				elif h['data']['etyp'] in ['CR', 'OB']:
+				elif h['data']['etyp'] in ['CR', 'SC', 'OB']:
 					del bombers[acid]
 				elif h['data']['etyp'] == 'RA':
 					if acid not in bombers:
