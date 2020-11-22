@@ -1436,7 +1436,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		/* Count up unfilled I.E. of each crew class */
 		for(unsigned int j=0;j<MAX_CREW;j++)
 			for(unsigned int f=0;f<flights;f++)
-				ucls[types[type].crew[j]]+=(10-state->squads[s].nb[f]);
+				if(types[type].crew[j]<CREW_CLASSES)
+					ucls[types[type].crew[j]]+=(10-state->squads[s].nb[f]);
 		bool surplus=false;
 		for(unsigned int c=0;c<CREW_CLASSES;c++)
 			if(state->squads[s].nc[c]>ucls[c])
