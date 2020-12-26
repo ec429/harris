@@ -248,7 +248,7 @@ int load_bombers(void)
 					return(1);
 				}
 				conv++;
-				const char *cat=strchr(conv, ':');
+				char *cat=strchr(conv, ':');
 				if(!cat)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
@@ -256,11 +256,11 @@ int load_bombers(void)
 					return(1);
 				}
 				unsigned int convlen=cat-conv;
-				cat++;
+				*cat++=0;
 				this.convertfrom=-1;
 				if(convlen)
 					for(unsigned int i=0;i<ntypes;i++)
-						if(convlen==strlen(types[i].name) && !strcmp(conv, types[i].name))
+						if(!strcmp(conv, types[i].name))
 						{
 							this.convertfrom=i;
 							break;
