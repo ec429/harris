@@ -1651,6 +1651,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 				SDL_BlitSurface(weather_overlay, NULL, map_img->data, NULL);
 			if (overlays[OVERLAY_ROUTE].selected)
 			{
+				SDL_FreeSurface(route_overlay);
 				route_overlay=render_current_route(state, seltarg);
 				SDL_BlitSurface(route_overlay, NULL, map_img->data, NULL);
 			}
