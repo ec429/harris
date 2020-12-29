@@ -44,6 +44,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		unsigned int type=state->bombers[i].type;
 		if(!datewithin(tomorrow, types[type].entry, types[type].exit))
 		{
+			clear_sqn(state, i);
+			clear_crew(state, i);
 			ob_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type);
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
@@ -359,6 +361,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		unsigned int type=state->bombers[i].type;
 		if(state->bombers[i].wear >= 99.99)
 		{
+			clear_sqn(state, i);
+			clear_crew(state, i);
 scrap:
 			sc_append(&state->hist, state->now, (harris_time){11, 42}, state->bombers[i].id, false, type);
 			state->nbombers--;
