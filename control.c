@@ -37,7 +37,7 @@ atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff, *GB_clamp;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
-atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2];
+atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], *GB_rsrow, *GB_rsbtn[5];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 char *GB_suntimes[2];
@@ -53,6 +53,8 @@ bool filter_apply(const game *state, unsigned int i);
 int update_raidbox(const game *state, int seltarg);
 void update_btcount(const game *state, unsigned int type, bool shownav);
 int update_raidnums(const game *state, int seltarg);
+void save_route(unsigned int seltarg, unsigned int j);
+void load_route(unsigned int seltarg, unsigned int j);
 
 bool shortof[CREW_CLASSES];
 
@@ -1034,6 +1036,61 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(!(GB_rsrow=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_raid, GB_rsrow))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *rslbl=atg_create_element_label("Saved routes: ", 10, (atg_colour){239, 239, 159, ATG_ALPHA_OPAQUE});
+	if(!rslbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_rsrow, rslbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int j=0;j<3;j++)
+	{
+		char lbl[3]={'#', '1'+j, 0};
+		if(!(GB_rsbtn[j]=atg_create_element_button(lbl, (atg_colour){239, 239, 159, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(GB_rsrow, GB_rsbtn[j]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	if(!(GB_rsbtn[3]=atg_create_element_toggle("Save", false, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_toggle failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_rsrow, GB_rsbtn[3]))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(GB_rsbtn[4]=atg_create_element_button("Auto", (atg_colour){239, 159, 239, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(GB_rsrow, GB_rsbtn[4]))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	if(!(GB_rbrow=calloc(ntypes, sizeof(atg_element *))))
 	{
 		perror("calloc");
@@ -1557,6 +1614,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		if(atg_value_event(GB_overlay[i], &e)==0 && e.type==ATG_EV_TOGGLE)
 			overlays[i].selected=e.event.toggle.state;
 	}
+	atg_toggle *sroute_toggle=GB_rsbtn[3]->elemdata;
+	sroute_toggle->state=false;
 	update_raidbox(state, seltarg);
 	bool rfsh=true;
 	while(1)
@@ -1910,7 +1969,15 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									}
 									if(state->raids[seltarg].nbombers&&!datebefore(state->now, event[EVENT_GEE])&&!state->raids[seltarg].routed)
 									{
-										genroute((unsigned int [2]){0, 0}, seltarg, targs[seltarg].route, state, 10000);
+										unsigned int j;
+										for(j=0;j<3;j++)
+											if(targs[seltarg].hroute[j])
+											{
+												load_route(seltarg, j);
+												break;
+											}
+										if(j==3)
+											genroute((unsigned int [2]){0, 0}, seltarg, targs[seltarg].route, state, 10000);
 										state->raids[seltarg].routed=true;
 									}
 									update_raidbox(state, seltarg);
@@ -2071,6 +2138,35 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						{
 							return(SCRN_SAVEGAME);
 						}
+						if(seltarg>=0)
+						{
+							for(unsigned int j=0;j<3;j++)
+								if(trigger.e==GB_rsbtn[j])
+								{
+									if(sroute_toggle->state)
+									{
+										if(state->raids[seltarg].routed)
+										{
+											save_route(seltarg, j);
+											sroute_toggle->state=false;
+											update_raidbox(state, seltarg);
+										}
+									}
+									else
+									{
+										load_route(seltarg, j);
+										state->raids[seltarg].routed=true;
+										rfsh=true;
+									}
+								}
+							if(trigger.e==GB_rsbtn[4])
+							{
+								genroute((unsigned int [2]){0, 0}, seltarg, targs[seltarg].route, state, 10000);
+								state->raids[seltarg].routed=true;
+								sroute_toggle->state=false;
+								rfsh=true;
+							}
+						}
 						for(unsigned int i=0;i<MAXMSGS;i++)
 							if((trigger.e==GB_msgrow[i])&&state->msg[i])
 							{
@@ -2093,7 +2189,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						}
 						if(i==NUM_OVERLAYS)
 						{
-							fprintf(stderr, "Clicked on an unknown toggle\n");
+							if(toggle.e==GB_rsbtn[3])
+								update_raidbox(state, seltarg);
+							else
+								fprintf(stderr, "Clicked on an unknown toggle\n");
 						}
 					}
 				break;
@@ -2557,16 +2656,20 @@ int update_raidbox(const game *state, int seltarg)
 			break;
 		}
 	}
-	if(GB_zhbox)
+	bool stream=!datebefore(state->now, event[EVENT_GEE]);
+	if(!(GB_rsrow->hidden=(seltarg<0)||!stream))
 	{
-		bool stream=!datebefore(state->now, event[EVENT_GEE]);
+		atg_toggle *t=GB_rsbtn[3]->elemdata;
+		for(unsigned int j=0;j<3;j++)
+			GB_rsbtn[j]->hidden=!(targs[seltarg].hroute[j]||t->state);
+	}
+	if(GB_zhbox)
 		if(!(GB_zhbox->hidden=(seltarg<0)||!stream))
 			if(GB_zh)
 			{
 				atg_spinner *s=GB_zh->elemdata;
 				s->value=state->raids[seltarg].zerohour;
 			}
-	}
 	bool pffyes[ntypes], pffno[ntypes];
 	memset(pffyes, 0, sizeof(pffyes));
 	memset(pffno, 0, sizeof(pffno));
@@ -2716,6 +2819,29 @@ int update_raidnums(const game *state, int seltarg)
 			GB_estcap[i][0]=0;
 	}
 	return(0);
+}
+
+void save_route(unsigned int seltarg, unsigned int j)
+{
+	for(unsigned int stage=0;stage<8;stage++)
+	{
+		targs[seltarg].sroute[j][stage][0]=targs[seltarg].route[stage][0];
+		targs[seltarg].sroute[j][stage][1]=targs[seltarg].route[stage][1];
+	}
+	targs[seltarg].hroute[j]=true;
+}
+
+void load_route(unsigned int seltarg, unsigned int j)
+{
+	if(!targs[seltarg].hroute[j])
+		return;
+	for(unsigned int stage=0;stage<8;stage++)
+	{
+		targs[seltarg].route[stage][0]=targs[seltarg].sroute[j][stage][0];
+		targs[seltarg].route[stage][1]=targs[seltarg].sroute[j][stage][1];
+	}
+	targs[seltarg].route[4][0]=targs[seltarg].lat;
+	targs[seltarg].route[4][1]=targs[seltarg].lon;
 }
 
 void game_preinit(game *state)
