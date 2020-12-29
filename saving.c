@@ -60,6 +60,9 @@ int loadgame(const char *fn, game *state)
 		for(unsigned int m=0;m<MAX_MARKS;m++)
 			types[j].twear[m]=30;
 	}
+	for(unsigned int i=0;i<ntargs;i++)
+		for(unsigned int r=0;r<3;r++)
+			targs[i].hroute[r]=false;
 	for(unsigned int i=0;i<DIFFICULTY_CLASSES;i++) // default everything to medium
 		state->difficulty[i]=1;
 	for(unsigned int i=0;i<nflaks;i++) // all flaksites are unmapped if not saved
@@ -929,6 +932,45 @@ int loadgame(const char *fn, game *state)
 				}
 			}
 		}
+		else if(strcmp(tag, "SRoute")==0)
+		{
+			unsigned int i,j;
+			int n;
+			f=sscanf(dat, "%u:%u%n", &i, &j, &n);
+			if(f!=2)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else
+			{
+				const char *p=dat+n;
+				for(unsigned int stage=0;stage<8;stage++)
+				{
+					if(stage==4) continue;
+					if(*p!=(stage?';':':'))
+					{
+						fprintf(stderr, "32 Malformed value in tag \"%s\n", tag);
+						e|=32;
+						break;
+					}
+					p++;
+					unsigned int lat,lon;
+					f=sscanf(p, "%u,%u%n", &lat, &lon, &n);
+					if(f!=2)
+					{
+						fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+						e|=1;
+						break;
+					}
+					targs[i].sroute[j][stage][0]=lat;
+					targs[i].sroute[j][stage][1]=lon;
+					p+=n;
+				}
+				if(!e)
+					targs[i].hroute[j]=true;
+			}
+		}
 		else if(strcmp(tag, "Weather state")==0)
 		{
 			state->weather.seed=0;
@@ -1323,6 +1365,19 @@ int savegame(const char *fn, game state)
 		double flk = (targs[i].flak?state.flk[i]*100.0/(double)targs[i].flak:0);
 		fprintf(fs, "Targ %u:"FLOAT","FLOAT","FLOAT","FLOAT"\n", i, CAST_FLOAT state.dmg[i], CAST_FLOAT flk, CAST_FLOAT state.heat[i], CAST_FLOAT state.flam[i]);
 	}
+	for(unsigned int i=0;i<ntargs;i++)
+		for(unsigned int j=0;j<3;j++)
+			if(targs[i].hroute[j])
+			{
+				fprintf(fs, "SRoute:%u:%u:", i, j);
+				for(unsigned int stage=0;stage<8;stage++)
+				{
+					int lat=targs[i].sroute[j][stage][0], lon=targs[i].sroute[j][stage][1];
+					if(stage==4) continue;
+					fprintf(fs, "%s%u,%u", stage?";":"", lat, lon);
+				}
+				fprintf(fs, "\n");
+			}
 	fprintf(fs, "Weather state:"FLOAT","FLOAT"\n", CAST_FLOAT state.weather.push, CAST_FLOAT state.weather.slant);
 	for(unsigned int x=0;x<256;x++)
 	{

@@ -70,6 +70,10 @@ or
 {
 	"Targets init:%la,%la,%la,%la\n", targs[*].dmg, targs[*].flk, targs[*].heat, targs[*].flam
 }
+for(i=0;i<ntargs;i++)
+	for(j=0;j<3;j++)
+		if(targs[i].hroute[j])
+			"SRoute:%u:%u:%u,%u;%u,%u;%u,%u;%u,%u;%u,%u;%u,%u;%u,%u", i, j, targs[i].sroute[j][].(x, y)
 either
 {
 	"Weather state:%la,%la\n", push, slant

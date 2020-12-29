@@ -278,6 +278,8 @@ typedef struct
 	unsigned int nfighters; // # of fighters covering this target
 	/* for bomber guidance */
 	unsigned int route[8][2]; // [0123 out, 4 bmb, 567 in][0 lat, 1 lon]. {0, 0} indicates "not used, skip to next routestage"
+	bool hroute[3]; // have a saved route
+	unsigned int sroute[3][8][2];
 	double fires; // level of fires (and TIs) illuminating the target
 	int skym; // time of last skymarker over target
 	/* misc */
