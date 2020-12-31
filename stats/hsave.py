@@ -210,6 +210,8 @@ class Save(object):
 			dmg, flk, heat, flam = rest.split(',', 3)
 			self.targets = [dict({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat), 'flam':readfloat(flam)}) for i in xrange(self.ntargets)]
 			return None, False
+		if tag == 'SRoute': # just ignore them
+			return None, False
 		if tag == 'Weather state':
 			self._wline = 0
 			return self.Wstate, True
