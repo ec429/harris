@@ -196,7 +196,7 @@ There are also certain achievements which, owing to their propaganda value, will
 Reference
 ~~~~~~~~~
 
-The data files which specify various objects in Harris all live in the folder "dat", and all have a simple 'colon-separated values' format.  The details of each column are given in comments (lines beginning with '#').
+The data files which specify various objects in Harris all live in the folder "dat", and most have a simple 'colon-separated values' format.  The details of each column are given in comments (lines beginning with '#').  Files of textual messages instead consist of marker lines ("==Title of Item==") and paragraphs of manually-wrapped text.
 The files are:
  dat/bombers  - details of bomber types (stats, dates)
  dat/events   - dates of various events
