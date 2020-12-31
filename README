@@ -10,6 +10,7 @@ Harris is licensed under the GPLv3+ (see the file COPYING).
 
 The game manual is in the file 'HOWTOPLAY', and includes a short tutorial.  Alternatively, there is a series of tutorial videos at <https://www.youtube.com/playlist?list=PLhaUuAr7h0jdKzOKJGSp40fMG-BXmCtcn>.
 For installation instructions see the file 'INSTALL'.
+Incomplete notes on strategy and the historical background of the game can be found in files 'STRATEGY' and 'HISTORICAL' respectively.
 
 Harris uses SDL and a simple graphics toolkit called "libatg" (for A Tiny Gui).  The former can be found at <http://www.libsdl.org> and the latter at <https://github.com/ec429/libatg>.  It also depends (via atg) on the Liberation Mono font, which Debian users can get from the package "fonts-liberation".  SDL packages needed: sdl, sdl-devel, sdl-image, sdl-image-devel, sdl-ttf, sdl-ttf-dev, sdl-gfx, sdl-gfx-dev.
 
