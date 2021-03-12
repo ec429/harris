@@ -175,6 +175,11 @@ int set_init_state(game *state)
 			perror("malloc");
 			return(1);
 		}
+		if(!(state->raids[i].window=calloc(ntypes, sizeof(winlvl))))
+		{
+			perror("malloc");
+			return(1);
+		}
 		for(unsigned int j=0;j<ntypes;j++)
 		{
 			state->raids[i].loads[j]=BL_USUAL;

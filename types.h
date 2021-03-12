@@ -343,6 +343,7 @@ typedef struct
 	bool nav[NNAVAIDS];
 	unsigned int mark;
 	unsigned int b_hc, b_gp, b_in, b_ti, b_le; // bombload carried: high capacity explosive, general purpose high explosive or mines, incendiaries, target indicator flares, leaflets
+	winlvl window; // configured Windowing intensity
 	bool bombed;
 	bool crashed;
 	bool failed; // for forces, read as !svble
@@ -399,6 +400,7 @@ typedef struct
 	unsigned int *bombers; // offsets into the game.bombers list
 	bombload *loads; // indexed by type
 	bombload *pffloads; // indexed by type
+	winlvl *window; // indexed by type
 	unsigned int zerohour; // as an rrtime
 	bool routed;
 }

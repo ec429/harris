@@ -704,6 +704,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				b_roundto(le, 1000);
 				//fprintf(stderr, "%s: %ulb hc + %u lb gp + %ulb in + %ulb ti = %ulb\n", types[type].name, state->bombers[k].b_hc, state->bombers[k].b_gp, state->bombers[k].b_in, state->bombers[k].b_ti, loadweight(state->bombers[k]));
 				#undef b_roundto
+				state->bombers[k].window=state->raids[i].window[type];
 			}
 		}
 		oboe.k=-1;

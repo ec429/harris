@@ -37,7 +37,7 @@ atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff, *GB_clamp;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
-atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], *GB_rsrow, *GB_rsbtn[5];
+atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], **GB_winbox, *(*GB_window)[NWINLVLS], *GB_rsrow, *GB_rsbtn[5];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 char *GB_suntimes[2];
@@ -50,6 +50,7 @@ bool filter_groups[7];
 atg_element *GB_filter_groups;
 
 bool filter_apply(const game *state, unsigned int i);
+void update_winlvl(unsigned int i, winlvl window);
 int update_raidbox(const game *state, int seltarg);
 void update_btcount(const game *state, unsigned int type, bool shownav);
 int update_raidnums(const game *state, int seltarg);
@@ -1116,6 +1117,16 @@ int control_create(void)
 		perror("calloc");
 		return(1);
 	}
+	if(!(GB_window=calloc(ntypes, sizeof(atg_element *[NWINLVLS]))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	if(!(GB_winbox=calloc(ntypes, sizeof(atg_element *))))
+	{
+		perror("calloc");
+		return(1);
+	}
 	if(!(GB_estcap=calloc(ntypes, sizeof(char *))))
 	{
 		perror("calloc");
@@ -1156,7 +1167,7 @@ int control_create(void)
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		vbox->w=186;
+		vbox->w=170;
 		if(atg_ebox_pack(GB_rbrow[i], vbox))
 		{
 			perror("atg_ebox_pack");
@@ -1174,7 +1185,7 @@ int control_create(void)
 				return(1);
 			}
 			name->cache=true;
-			name->w=184;
+			name->w=168;
 			if(atg_ebox_pack(vbox, name))
 			{
 				perror("atg_ebox_pack");
@@ -1216,6 +1227,32 @@ int control_create(void)
 				return(1);
 			}
 			GB_raidload[i][j]=NULL;
+		}
+		if(!(GB_winbox[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		GB_winbox[i]->w=16;
+		if(atg_ebox_pack(GB_rbrow[i], GB_winbox[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		for(unsigned int l=0;l<NWINLVLS;l++)
+		{
+			if(!(GB_window[i][l]=atg_create_element_image(winpic[l])))
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+				return(1);
+			}
+			GB_window[i][l]->clickable=true;
+			GB_window[i][l]->hidden=true;
+			if(atg_ebox_pack(GB_winbox[i], GB_window[i][l]))
+			{
+				perror("atg_ebox_pack");
+				return(1);
+			}
 		}
 		if(!(GB_estcap[i]=malloc(24)))
 		{
@@ -2027,6 +2064,28 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 									}
 									update_raidbox(state, seltarg);
 								}
+								for(unsigned int l=0;l<NWINLVLS;l++)
+								{
+									if(c.e==GB_window[i][l])
+									{
+										winlvl *window=state->raids[seltarg].window + i;
+										switch(b)
+										{
+											case ATG_MB_RIGHT:
+											case ATG_MB_SCROLLUP:
+												*window = (*window + NWINLVLS - 1) % NWINLVLS;
+											break;
+											case ATG_MB_LEFT:
+											case ATG_MB_SCROLLDN:
+												*window = (*window + 1) % NWINLVLS;
+											break;
+											default:
+											break;
+										}
+										update_winlvl(i, *window);
+										break;
+									}
+								}
 								break;
 							}
 							if(c.e==GB_btint[i])
@@ -2640,6 +2699,12 @@ void fixup_crew_assignments(game *state, unsigned int i, bool kill, double wskil
 	}
 }
 
+void update_winlvl(unsigned int i, winlvl window)
+{
+	for(unsigned int l=0;l<NWINLVLS;l++)
+		GB_window[i][l]->hidden=(l!=window);
+}
+
 int update_raidbox(const game *state, int seltarg)
 {
 	if(GB_raid_label)
@@ -2689,6 +2754,7 @@ int update_raidbox(const game *state, int seltarg)
 			atg_ebox_empty(GB_raidloadbox[i][j]);
 			GB_raidload[i][j]=NULL;
 		}
+		GB_winbox[i]->hidden=datebefore(state->now, event[EVENT_WINDOW]);
 		if(seltarg>=0 && targs[seltarg].class==TCLASS_CITY)
 		{
 			if(!(GB_raidload[i][0]=create_load_selector(&types[i], &state->raids[seltarg].loads[i])))
@@ -2713,6 +2779,8 @@ int update_raidbox(const game *state, int seltarg)
 				return(1);
 			}
 			GB_raidload[i][1]->hidden=!pffyes[i];
+			winlvl window=state->raids[seltarg].window[i];
+			update_winlvl(i, window);
 		}
 	}
 	return(update_raidnums(state, seltarg));
