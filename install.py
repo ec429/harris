@@ -131,6 +131,12 @@ manifest = {
 					'uboot.png',
 					'nothing.png',
 				]},
+			'window': {'.':[
+					'none.png',
+					'normal.png',
+					'extra.png',
+					'full.png',
+				]},
 			'.':['cross.png',
 				'exit.png',
 				'fullscreen.png',
