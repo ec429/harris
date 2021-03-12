@@ -398,7 +398,7 @@ typedef struct
 	unsigned int nbombers;
 	unsigned int *bombers; // offsets into the game.bombers list
 	bombload *loads; // indexed by type
-	bombload *pffloads; // indexed by type, only used for LanI/LanX (which have partial PFF)
+	bombload *pffloads; // indexed by type
 	unsigned int zerohour; // as an rrtime
 	bool routed;
 }
