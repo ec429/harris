@@ -1564,6 +1564,15 @@ int load_images(void)
 		}
 		SDL_SetAlpha(navpic[n], 0, SDL_ALPHA_OPAQUE);
 	}
+	for(unsigned int l=0;l<NWINLVLS;l++)
+	{
+		if(!(winpic[l]=IMG_Load(winpicfn[l])))
+		{
+			fprintf(stderr, "Window-level icon %s: IMG_Load: %s\n", winpicfn[l], IMG_GetError());
+			return(1);
+		}
+		SDL_SetAlpha(winpic[l], 0, SDL_ALPHA_OPAQUE);
+	}
 	if(!(elitepic=IMG_Load("art/filters/elite.png")))
 	{
 		fprintf(stderr, "Elite icon: IMG_Load: %s\n", IMG_GetError());

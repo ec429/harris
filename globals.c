@@ -16,6 +16,8 @@ const char * const navpicfn[NNAVAIDS]={"art/navaids/gee.png", "art/navaids/h2s.p
 unsigned int navevent[NNAVAIDS]={EVENT_GEE, EVENT_H2S, EVENT_OBOE, EVENT_GH};
 unsigned int navprod[NNAVAIDS]={3, 7, 22, 12}; // 10/productionrate; later 25/productionrate
 
+const char * const winpicfn[NWINLVLS]={"art/window/none.png", "art/window/normal.png", "art/window/extra.png", "art/window/full.png"};
+
 double todays_delta, todays_eqn; // values for the almanack
 
 date event[NEVENTS];
@@ -84,6 +86,7 @@ SDL_Surface *yellowhair=NULL;
 SDL_Surface *intelbtn=NULL;
 SDL_Surface *nointelbtn=NULL;
 SDL_Surface *navpic[NNAVAIDS];
+SDL_Surface *winpic[NWINLVLS];
 SDL_Surface *elitepic=NULL;
 SDL_Surface *studentpic=NULL;
 SDL_Surface *markpic[4];

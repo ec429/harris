@@ -22,6 +22,8 @@ extern const char * const navpicfn[NNAVAIDS];
 extern unsigned int navevent[NNAVAIDS];
 extern unsigned int navprod[NNAVAIDS];
 
+extern const char * const winpicfn[NWINLVLS];
+
 extern double todays_delta, todays_eqn;
 
 extern date event[NEVENTS];
@@ -59,7 +61,7 @@ extern flaksite *flaks;
 extern unsigned int nstarts;
 extern startpoint *starts;
 
-extern SDL_Surface *terrain, *location, *yellowhair, *nointelbtn, *intelbtn, *navpic[NNAVAIDS], *elitepic, *studentpic, *resizebtn, *fullbtn, *exitbtn, *markpic[4], *grouppic[8], *england;
+extern SDL_Surface *terrain, *location, *yellowhair, *nointelbtn, *intelbtn, *navpic[NNAVAIDS], *winpic[NWINLVLS], *elitepic, *studentpic, *resizebtn, *fullbtn, *exitbtn, *markpic[4], *grouppic[8], *england;
 
 extern SDL_Surface *grey_overlay, *yellow_overlay;
 extern SDL_Surface *weather_overlay, *sun_overlay, *city_overlay, *target_overlay, *flak_overlay, *route_overlay, *xhair_overlay, *seltarg_overlay;

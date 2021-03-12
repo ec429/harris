@@ -73,6 +73,16 @@ w_state;
 
 typedef enum
 {
+	WL_NONE,
+	WL_NORMAL,
+	WL_EXTRA,
+	WL_FULL,
+	NWINLVLS
+}
+winlvl;
+
+typedef enum
+{
 	BL_ABNORMAL,
 	BL_PPLUS,
 	BL_PLUMDUFF,
