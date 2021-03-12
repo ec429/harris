@@ -1167,7 +1167,7 @@ int control_create(void)
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		vbox->w=170;
+		vbox->w=186;
 		if(atg_ebox_pack(GB_rbrow[i], vbox))
 		{
 			perror("atg_ebox_pack");
@@ -1185,7 +1185,7 @@ int control_create(void)
 				return(1);
 			}
 			name->cache=true;
-			name->w=168;
+			name->w=184;
 			if(atg_ebox_pack(vbox, name))
 			{
 				perror("atg_ebox_pack");
@@ -1213,6 +1213,32 @@ int control_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		atg_element *vbox2=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+		if(!vbox2)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		vbox2->w=32;
+		if(atg_ebox_pack(GB_rbrow[i], vbox2))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(vbox2);
+			return(1);
+		}
+		atg_element *hbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+		if(!hbox)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		hbox->w=32;
+		if(atg_ebox_pack(vbox2, hbox))
+		{
+			perror("atg_ebox_pack");
+			atg_free_element(hbox);
+			return(1);
+		}
 		for(int j=1;j>=0;j--)
 		{
 			if(!(GB_raidloadbox[i][j]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE})))
@@ -1221,7 +1247,7 @@ int control_create(void)
 				return(1);
 			}
 			GB_raidloadbox[i][j]->w=16;
-			if(atg_ebox_pack(GB_rbrow[i], GB_raidloadbox[i][j]))
+			if(atg_ebox_pack(hbox, GB_raidloadbox[i][j]))
 			{
 				perror("atg_ebox_pack");
 				return(1);
@@ -1233,8 +1259,20 @@ int control_create(void)
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		GB_winbox[i]->w=16;
-		if(atg_ebox_pack(GB_rbrow[i], GB_winbox[i]))
+		GB_winbox[i]->w=32;
+		if(atg_ebox_pack(vbox2, GB_winbox[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *wbshim=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+		if(!wbshim)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		wbshim->w=16;
+		if(atg_ebox_pack(GB_winbox[i], wbshim))
 		{
 			perror("atg_ebox_pack");
 			return(1);
