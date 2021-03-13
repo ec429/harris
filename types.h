@@ -294,6 +294,7 @@ typedef struct
 	int skym; // time of last skymarker over target
 	/* misc */
 	unsigned int shots; // number of shots the flak already fired this tick
+	double window; // ewma of window dropped nearby (for flak)
 	bool hit; // Was this target hit last night?  Prevents repair (certain tclasses only)
 }
 target;
@@ -308,6 +309,7 @@ typedef struct
 	unsigned int heat; // number of bombers in the vicinity
 	signed int ftr; // index of fighter under this radar's control (-1 for none)
 	unsigned int shots; // number of shots already fired this tick
+	double window; // ewma of window dropped near this flaksite
 }
 flaksite;
 

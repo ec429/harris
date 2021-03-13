@@ -350,6 +350,38 @@ double get_skill(const game *state, unsigned int i, unsigned int j)
 	(_c).skill = _new; \
 	} while(0);
 
+int wintense(const ac_bomber *b)
+{
+	static const int basew[NWINLVLS] = {
+		[WL_NONE] = 0,
+		[WL_NORMAL] = 1,
+		[WL_EXTRA] = 2,
+		[WL_FULL] = 4,
+	};
+	winlvl w=b->window;
+	if(w>=NWINLVLS)
+		return 0;
+	if(b->routestage==4)
+		w=min(w+1, WL_FULL);
+	return basew[w];
+}
+
+double wintai(const ac_bomber *b)
+{
+	static const double basew[NWINLVLS] = {
+		[WL_NONE] = 1.0,
+		[WL_NORMAL] = 0.8,
+		[WL_EXTRA] = 0.68,
+		[WL_FULL] = 0.56,
+	};
+	winlvl w=b->window;
+	if(w>=NWINLVLS)
+		return 1.0;
+	if(b->routestage==4)
+		w=min(w+1, WL_FULL);
+	return basew[w];
+}
+
 int run_raid_create(void)
 {
 	run_raid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
@@ -465,9 +497,13 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 		targs[i].nfighters=0;
 		targs[i].fires=0;
 		targs[i].skym=-1;
+		targs[i].window=0;
 	}
 	for(unsigned int i=0;i<nflaks;i++)
+	{
 		flaks[i].ftr=-1;
+		flaks[i].window=0;
+	}
 	for(unsigned int i=0;i<state->nfighters;i++)
 	{
 		state->fighters[i].targ=-1;
@@ -786,11 +822,15 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 			sumx=sumy=0;
 			velx=vely=0;
 			for(unsigned int i=0;i<ntargs;i++)
+			{
 				targs[i].shots=0;
+				targs[i].window*=0.98;
+			}
 			for(unsigned int i=0;i<nflaks;i++)
 			{
 				flaks[i].shots=0;
 				flaks[i].heat=0;
+				flaks[i].window*=0.98;
 			}
 			for(unsigned int i=0;i<ntargs;i++)
 				for(unsigned int j=0;j<state->raids[i].nbombers;j++)
@@ -1030,6 +1070,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						if(!datewithin(state->now, targs[i].entry, targs[i].exit)) continue;
 						double dx=state->bombers[k].lon-targs[i].lon, dy=state->bombers[k].lat-targs[i].lat, dd=dx*dx+dy*dy;
 						double range;
+						if(window&&dd<9)
+							targs[i].window+=wintense(&state->bombers[k]);
 						switch(targs[i].class)
 						{
 							case TCLASS_CITY:
@@ -1102,10 +1144,16 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							unsigned int x=flaks[i].lon/2, y=flaks[i].lat/2;
 							double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
 							double preccap=160.0/(5.0*(illum+.3)/(double)(8+max(4-wea, 0)));
+							double rpc=480.0;
+							if(window)
+							{
+								flaks[i].window+=wintense(&state->bombers[k]);
+								rpc+=min(flaks[i].window, 720.0);
+							}
 							// We have been fired at by this flak, so we know it exists
 							if(!flaks[i].mapped)
 								state->bombers[k].flakreport=i;
-							if(rad) preccap=min(preccap, window?960.0:480.0);
+							if(rad) preccap=min(preccap, rpc);
 							if(brandp(flaks[i].strength*flakscale/min((12+flaks[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
@@ -1390,7 +1438,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					}
 					if(window) radcon=false;
 					bool airad=state->fighters[j].radar;
-					if(airad&&wairad) airad=brandp(0.8);
+					if(airad&&wairad) airad=brandp(wintai(&state->bombers[k]));
 					unsigned int x=state->fighters[j].lon/2, y=state->fighters[j].lat/2;
 					double wea=((x<128)&&(y<128))?state->weather.p[x][y]-1000:0;
 					double seerange=airad?2.0:7.0/(double)(8+max(4-wea, 0));
