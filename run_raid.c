@@ -1323,7 +1323,8 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						if(0<=boxx&&boxx<16&&0<=boxy&&boxy<16)
 						{
 							unsigned int size=bstats(state->bombers[k]).capbulk/1000; // how big a signal on Freya ground radar
-							// TODO: extra WINDOW (will need UI support in raid planning)
+							if(window)
+								size+=wintense(&state->bombers[k])*7.0;
 							size*=irandu(3);
 							boxes[boxx][boxy]+=size;
 							if(boxx==topx&&boxy==topy)
