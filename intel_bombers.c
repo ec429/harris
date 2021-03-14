@@ -521,7 +521,7 @@ int intel_bombers_create(void)
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
-		force_lbl->w=120;
+		force_lbl->w=140;
 		if(atg_ebox_pack(IB_breakdown_row[m], force_lbl))
 		{
 			perror("atg_ebox_pack");
