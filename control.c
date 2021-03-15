@@ -34,7 +34,7 @@ atg_element *control_box;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
-atg_element **GB_btrow, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
+atg_element **GB_btrow, **GB_btnuml, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_diff, *GB_clamp;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], **GB_winbox, *(*GB_window)[NWINLVLS], *GB_rsrow, *GB_rsbtn[5];
@@ -193,6 +193,11 @@ int control_create(void)
 		perror("calloc");
 		return(1);
 	}
+	if(!(GB_btnuml=calloc(ntypes, sizeof(atg_element *))))
+	{
+		perror("calloc");
+		return(1);
+	}
 	if(!(GB_btpic=calloc(ntypes, sizeof(atg_element *))))
 	{
 		perror("calloc");
@@ -326,13 +331,13 @@ int control_create(void)
 			return(1);
 		}
 		snprintf(GB_btnum[i], 20, " ");
-		atg_element *btnum=atg_create_element_label_nocopy(GB_btnum[i], 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE});
-		if(!btnum)
+		GB_btnuml[i]=atg_create_element_label_nocopy(GB_btnum[i], 12, (atg_colour){159, 191, 255, ATG_ALPHA_OPAQUE});
+		if(!GB_btnuml[i])
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
-		if(atg_ebox_pack(vbox, btnum))
+		if(atg_ebox_pack(vbox, GB_btnuml[i]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -1599,8 +1604,11 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	GB_clamp->hidden=!clampany;
 	for(unsigned int i=0;i<ntypes;i++)
 	{
+		bool exist=datewithin(state->now, types[i].entry, types[i].train);
+		if(types[i].otub)
+			exist=!datebefore(state->now, types[i].entry);
 		if(GB_btrow[i])
-			GB_btrow[i]->hidden=!datewithin(state->now, types[i].entry, types[i].train)||!state->btypes[i];
+			GB_btrow[i]->hidden=!exist||!state->btypes[i];
 		if(GB_btpc[i])
 			GB_btpc[i]->h=18-min(types[i].pcbuf/10000, 18);
 		if(GB_btnew[i])
@@ -1768,7 +1776,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						SDL_Surface *pic=img->data;
 						SDL_FillRect(pic, &(SDL_Rect){0, 0, pic->w, pic->h}, SDL_MapRGB(pic->format, 0, 0, 0));
 						SDL_BlitSurface(types[i].picture, NULL, pic, NULL);
-						if((avail[i]&&!reach[i])||(seltarg==-2&&types[i].noarm))
+						if((avail[i]&&!reach[i])||(seltarg==-2&&types[i].noarm)||(types[i].otub&&!datebefore(state->now, types[i].train)))
 							SDL_BlitSurface(grey_overlay, NULL, pic, NULL);
 					}
 				}
@@ -2849,7 +2857,8 @@ void update_btcount(const game *state, unsigned int type, bool shownav)
 			}
 		snprintf(GB_btnum[type], 20, "%u/%u/%u I.E.", svble, types[type].count, types[type].nestab);
 	}
-	GB_navrow[type]->hidden=!shownav;
+	GB_navrow[type]->hidden=!shownav||!datebefore(state->now, types[type].train);
+	GB_btnuml[type]->hidden=!datebefore(state->now, types[type].train);
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		update_navbtn(*state, GB_navbtn, type, n, grey_overlay, yellow_overlay);

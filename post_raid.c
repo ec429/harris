@@ -200,7 +200,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				ct_append(&state->hist, state->now, (harris_time){11, 25}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
 			}
 		}
-		if(!datewithin(state->now, types[i].entry, types[i].train)) continue;
+		if(!datewithin(state->now, types[i].entry, types[i].otub?types[i].exit:types[i].train)) continue;
 		types[i].pcbuf=min(types[i].pcbuf, 180000)+types[i].pc;
 	}
 	// purchase additional planes based on priorities and subject to production capacity constraints
@@ -210,7 +210,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		for(unsigned int i=1;i<ntypes;i++)
 		{
 			if(!state->btypes[i]) continue;
-			if(!datewithin(state->now, types[i].entry, types[i].train)) continue;
+			if(!datewithin(state->now, types[i].entry, types[i].otub?types[i].exit:types[i].train)) continue;
 			if(types[i].pribuf>types[m].pribuf) m=i;
 		}
 		if(types[m].pribuf<8)
@@ -219,7 +219,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			for(unsigned int i=0;i<ntypes;i++)
 			{
 				if(!state->btypes[i]) continue;
-				if(!datewithin(state->now, types[i].entry, types[i].train)) continue;
+				if(!datewithin(state->now, types[i].entry, types[i].otub?types[i].exit:types[i].train)) continue;
 				unsigned int prio=(unsigned int [4]){0, 1, 3, 6}[types[i].prio];
 				if(datebefore(state->now, types[i].novelty)) prio=max(prio, 1);
 				types[i].pribuf+=prio;
