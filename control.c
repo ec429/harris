@@ -2796,7 +2796,7 @@ int update_raidbox(const game *state, int seltarg)
 			atg_ebox_empty(GB_raidloadbox[i][j]);
 			GB_raidload[i][j]=NULL;
 		}
-		GB_winbox[i]->hidden=datebefore(state->now, event[EVENT_WINDOW]);
+		GB_winbox[i]->hidden=seltarg>=0 && datebefore(state->now, event[EVENT_WINDOW]);
 		if(seltarg>=0 && targs[seltarg].class==TCLASS_CITY)
 		{
 			if(!(GB_raidload[i][0]=create_load_selector(&types[i], &state->raids[seltarg].loads[i])))
