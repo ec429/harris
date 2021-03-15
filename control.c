@@ -2797,32 +2797,35 @@ int update_raidbox(const game *state, int seltarg)
 			GB_raidload[i][j]=NULL;
 		}
 		GB_winbox[i]->hidden=seltarg>=0 && datebefore(state->now, event[EVENT_WINDOW]);
-		if(seltarg>=0 && targs[seltarg].class==TCLASS_CITY)
+		if(seltarg>=0)
 		{
-			if(!(GB_raidload[i][0]=create_load_selector(&types[i], &state->raids[seltarg].loads[i])))
-			{
-				fprintf(stderr, "create_load_selector failed\n");
-				return(1);
-			}
-			if(atg_ebox_pack(GB_raidloadbox[i][0], GB_raidload[i][0]))
-			{
-				perror("atg_ebox_pack");
-				return(1);
-			}
-			GB_raidload[i][0]->hidden=!pffno[i];
-			if(!(GB_raidload[i][1]=create_load_selector(&types[i], &state->raids[seltarg].pffloads[i])))
-			{
-				fprintf(stderr, "create_load_selector failed\n");
-				return(1);
-			}
-			if(atg_ebox_pack(GB_raidloadbox[i][1], GB_raidload[i][1]))
-			{
-				perror("atg_ebox_pack");
-				return(1);
-			}
-			GB_raidload[i][1]->hidden=!pffyes[i];
 			winlvl window=state->raids[seltarg].window[i];
 			update_winlvl(i, window);
+			if(targs[seltarg].class==TCLASS_CITY)
+			{
+				if(!(GB_raidload[i][0]=create_load_selector(&types[i], &state->raids[seltarg].loads[i])))
+				{
+					fprintf(stderr, "create_load_selector failed\n");
+					return(1);
+				}
+				if(atg_ebox_pack(GB_raidloadbox[i][0], GB_raidload[i][0]))
+				{
+					perror("atg_ebox_pack");
+					return(1);
+				}
+				GB_raidload[i][0]->hidden=!pffno[i];
+				if(!(GB_raidload[i][1]=create_load_selector(&types[i], &state->raids[seltarg].pffloads[i])))
+				{
+					fprintf(stderr, "create_load_selector failed\n");
+					return(1);
+				}
+				if(atg_ebox_pack(GB_raidloadbox[i][1], GB_raidload[i][1]))
+				{
+					perror("atg_ebox_pack");
+					return(1);
+				}
+				GB_raidload[i][1]->hidden=!pffyes[i];
+			}
 		}
 	}
 	return(update_raidnums(state, seltarg));
