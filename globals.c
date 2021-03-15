@@ -208,6 +208,7 @@ int set_init_state(game *state)
 					return(1);
 				}
 			}
+			state->raids[i].window[j]=WL_NORMAL;
 		}
 	}
 	clear_raids(state);
