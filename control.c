@@ -1971,6 +1971,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										snprintf(GB_raidnum[i], 32, "%u", count);
 									update_btcount(state, i, shownav);
 								}
+								else
+								{
+									break;
+								}
 								/* Some a/c or crews may have been made available */
 								fill_flights(state);
 								for(unsigned int k=0;k<state->nbombers;k++)
