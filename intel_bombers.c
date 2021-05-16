@@ -744,7 +744,6 @@ void update_intel_bombers(const game *state)
 		IB_mark_lbl->hidden=false;
 		IB_mark_prev->hidden=!(IB_mark_noprev->hidden=IB_showmark);
 		IB_mark_next->hidden=!(IB_mark_nonext->hidden=IB_showmark<types[IB_i].newmark);
-		IB_breakdown_box->hidden=false;
 		for(unsigned int m=0;m<MAX_MARKS;m++)
 		{
 			IB_breakdown_row[m]->hidden=m>types[IB_i].newmark;
@@ -756,7 +755,13 @@ void update_intel_bombers(const game *state)
 		IB_mark_lbl->hidden=true;
 		IB_mark_prev->hidden=IB_mark_noprev->hidden=true;
 		IB_mark_next->hidden=IB_mark_nonext->hidden=true;
-		IB_breakdown_box->hidden=true;
+		IB_breakdown_row[0]->hidden=false;
+		snprintf(IB_mark_count_buf[0], 30, "%u/%u", IB_mark_count[0][0], IB_mark_count[0][1]);
+		for(unsigned int m=1;m<MAX_MARKS;m++)
+		{
+			IB_breakdown_row[m]->hidden=true;
+			snprintf(IB_mark_count_buf[m], 30, "%s %u/%u", types[IB_i].markname[m], IB_mark_count[m][0], IB_mark_count[m][1]);
+		}
 	}
 	atg_ebox_empty(IB_stat_box);
 	for(unsigned int i=0;i<NUM_STATS;i++)
