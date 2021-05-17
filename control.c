@@ -2975,10 +2975,10 @@ void game_preinit(game *state)
 		unsigned int type=state->bombers[i].type;
 		if(!state->btypes[type])
 		{
+			fixup_crew_assignments(state, i, false, 0);
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
 				state->bombers[j]=state->bombers[j+1];
-			fixup_crew_assignments(state, i, false, 0);
 			i--;
 			stripped++;
 			continue;

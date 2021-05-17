@@ -1195,10 +1195,19 @@ fail:
 		if(f>(state->squads[s].third_flight ? 2 : 1))
 		{
 			fprintf(stderr, "Warning, removing bomber %u from nonexistent flt %u of sqn %d\n", i, f, s);
-			f=state->bombers[i].flight=-1;
+			state->bombers[i].squadron=-1;
+			state->bombers[i].flight=-1;
+			continue;
 		}
 		if(f<0)
 			continue;
+		if(state->squads[s].nb[f]>=10)
+		{
+			fprintf(stderr, "Warning, removing bomber %u over establishment flt %u of sqn %d\n", i, f, s);
+			state->bombers[i].squadron=-1;
+			state->bombers[i].flight=-1;
+			continue;
+		}
 		state->squads[s].nb[f]++;
 	}
 	for(unsigned int i=0;i<state->ncrews;i++)

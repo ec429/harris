@@ -34,8 +34,52 @@ int post_raid_create(void)
 	return(0);
 }
 
+#ifdef PARANOID_NB_CHECKS
+static bool valid=true;
+
+static void validate_nb(const char *prefix, const game *state)
+{
+	if(!valid) return;
+	unsigned int nb[state->nsquads][3];
+	memset(nb, 0, sizeof(nb));
+	for(unsigned int i=0;i<state->nbombers;i++)
+	{
+		int s=state->bombers[i].squadron, f=state->bombers[i].flight;
+		if(s<0) continue;
+		if(f<0)
+		{
+			fprintf(stderr, "%s: Warning, bomber %u has flt %d but no sqn\n", prefix, i, f);
+			continue;
+		}
+		nb[s][f]++;
+	}
+	for(unsigned int s=0;s<state->nsquads;s++)
+	{
+		for(unsigned int f=0;f<3;f++)
+		{
+			if(state->squads[s].nb[f]!=nb[s][f] || nb[s][f]>10)
+			{
+				fprintf(stderr, "%s: Warning, nb mismatch (%u.%u) %u!=%u\n", prefix, s, f, state->squads[s].nb[f], nb[s][f]);
+				valid=false;
+				for(unsigned int i=0;i<state->nbombers;i++)
+				{
+					if(state->bombers[i].squadron==(int)s && state->bombers[i].flight==(int)f)
+						fprintf(stderr, "%s: Found bomber %u (trn %d wear %g)\n", prefix, i, state->bombers[i].train, state->bombers[i].wear);
+				}
+			}
+		}
+		if(!state->squads[s].third_flight && nb[s][2])
+			fprintf(stderr, "%s: Warning, ghost third flight with %u a/c in sqn %u\n", prefix, nb[s][2], s);
+
+	}
+}
+#else
+static inline void validate_nb(const char *prefix __attribute__((unused)), const game *state __attribute__((unused))) {}
+#endif
+
 screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *state)
 {
+	validate_nb("init post_raid", state);
 	co_append(&state->hist, state->now, (harris_time){11, 05}, state->confid);
 	mo_append(&state->hist, state->now, (harris_time){11, 05}, state->morale);
 	date tomorrow=nextday(state->now);
@@ -47,10 +91,10 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			clear_sqn(state, i);
 			clear_crew(state, i);
 			ob_append(&state->hist, state->now, (harris_time){11, 10}, state->bombers[i].id, false, type);
+			fixup_crew_assignments(state, i, false, 0);
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
 				state->bombers[j]=state->bombers[j+1];
-			fixup_crew_assignments(state, i, false, 0);
 			i--;
 			continue;
 		}
@@ -71,6 +115,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		if(mixed_group(state, base_grp(bases[b]), &eff))
 			bases[b].eff*=eff;
 	}
+	validate_nb("after obs", state);
 	for(unsigned int i=0;i<state->nbombers;i++)
 	{
 		unsigned int type=state->bombers[i].type;
@@ -203,6 +248,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		if(!datewithin(state->now, types[i].entry, types[i].otub?types[i].exit:types[i].train)) continue;
 		types[i].pcbuf=min(types[i].pcbuf, 180000)+types[i].pc;
 	}
+	validate_nb("before prodn", state);
 	// purchase additional planes based on priorities and subject to production capacity constraints
 	while(true)
 	{
@@ -321,6 +367,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		if(types[type].lfs)
 			state->crews[i].lanc=min(state->crews[i].lanc+50.0/max_dwell[TPIPE_HCU], 100.0);
 	}
+	validate_nb("after training", state);
 	// update squadrons
 	for(unsigned int s=0;s<state->nsquads;s++)
 	{
@@ -355,31 +402,45 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 	// train crews, and recruit more
 	train_students(state);
 	refill_students(state, true);
+	validate_nb("before scrap", state);
 	// scrap worn-out aircraft, move partly-worn aircraft to training unit
 	for(unsigned int i=0;i<state->nbombers;i++)
 	{
 		unsigned int type=state->bombers[i].type;
 		if(state->bombers[i].wear >= 99.99)
 		{
+#ifdef PARANOID_NB_CHECKS
+			fprintf(stderr, "Scrapping bomber %u (sqn %d flt %d)\n", i, state->bombers[i].squadron, state->bombers[i].flight);
+			validate_nb("scrappage", state);
+#endif
 			clear_sqn(state, i);
 			clear_crew(state, i);
 scrap:
 			sc_append(&state->hist, state->now, (harris_time){11, 42}, state->bombers[i].id, false, type);
+			fixup_crew_assignments(state, i, false, 0);
 			state->nbombers--;
 			for(unsigned int j=i;j<state->nbombers;j++)
 				state->bombers[j]=state->bombers[j+1];
-			fixup_crew_assignments(state, i, false, 0);
 			i--;
+			validate_nb("scrapped", state);
 			continue;
 		}
 		if(state->bombers[i].wear>=types[type].twear[state->bombers[i].mark])
 		{
+#ifdef PARANOID_NB_CHECKS
+			if(!state->bombers[i].train)
+			{
+				fprintf(stderr, "Pensioning bomber %u type %u (sqn %d flt %d)\n", i, type, state->bombers[i].squadron, state->bombers[i].flight);
+				validate_nb("pension", state);
+			}
+#endif
 			clear_sqn(state, i);
 			clear_crew(state, i);
 			if(types[type].noarm)
 				goto scrap;
 			else
 				state->bombers[i].train=true;
+			validate_nb("sent to train", state);
 		}
 	}
 	// crews go to instructors and vice-versa; escapees return home
@@ -445,6 +506,7 @@ scrap:
 			break;
 		}
 	}
+	validate_nb("after tops", state);
 	// German production
 	unsigned int rcity=GET_DC(state,RCITY),
 	             rother=GET_DC(state,ROTHER);
@@ -677,6 +739,7 @@ scrap:
 		}
 	}
 	state->now=tomorrow;
+	validate_nb("fini post_raid", state);
 	return(SCRN_CONTROL);
 }
 
