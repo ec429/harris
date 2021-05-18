@@ -19,25 +19,6 @@ def multiply(line):
                 return [line[l+1:] % i for i in xrange(n)]
     return [line]
 
-def genids(line, i):
-    if ',NOID' in line:
-        z = '_'.join((salt, str(i), line))
-        ha = zlib.crc32(z) & 0xffffffff
-        h = hex(ha)[2:].rstrip('L')
-        if line.startswith("Type "):
-            if h in acids:
-                raise ValueError("Duplicate ac", line, "idgen", h)
-            acids.add(h)
-        elif line.startswith("CG ") or line.startswith("CG2 "):
-            if h in cmids:
-                raise ValueError("Duplicate cm", line, "idgen", h)
-            cmids.add(h)
-        else:
-            raise ValueError("genids for", line)
-        return line.replace('NOID', h.zfill(8))
-    else:
-        return line
-
 def poisson(lamb):
     if lamb <= 0:
         return 0
@@ -48,6 +29,29 @@ def poisson(lamb):
         k += 1
         p *= random.random()
     return k - 1
+
+def genids(line, i, inb):
+    if ',NOID' in line:
+        z = '_'.join((salt, str(i), line))
+        ha = zlib.crc32(z) & 0xffffffff
+        h = hex(ha)[2:].rstrip('L')
+        if line.startswith("Type "):
+            if h in acids:
+                raise ValueError("Duplicate ac", line, "idgen", h)
+            acids.add(h)
+            if inb and len(line.split(',')) == 8:
+                typf, nav, wear, acid, mark, train, sqn, flt = line.split(',')
+                wear = str(poisson(int(wear)))
+                line = ','.join((typf, nav, wear, acid, mark, train, sqn, flt))
+        elif line.startswith("CG ") or line.startswith("CG2 "):
+            if h in cmids:
+                raise ValueError("Duplicate cm", line, "idgen", h)
+            cmids.add(h)
+        else:
+            raise ValueError("genids for", line)
+        return line.replace('NOID', h.zfill(8))
+    else:
+        return line
 
 def gencrews(line, i, cgv=1):
     words = line.split(':')
@@ -106,10 +110,15 @@ def float_to_hex(value):
     i, = struct.unpack('>q', bytes)
     return '%016x'%i
 
+inb = False
 for line in sys.stdin.readlines():
+    if line.startswith("Bombers:"):
+        inb = True
+    elif line.startswith("Fighters:"):
+        inb = False
     lines = multiply(line)
     for i,line in enumerate(lines):
-        line = genids(line, i)
+        line = genids(line, i, inb)
         if line.startswith("CG "):
             line = gencrews(line, i, 1)
         elif line.startswith("CG2 "):
