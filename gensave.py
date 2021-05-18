@@ -34,6 +34,7 @@ def genids(line, i, inb):
     if ',NOID' in line:
         z = '_'.join((salt, str(i), line))
         ha = zlib.crc32(z) & 0xffffffff
+        random.seed(ha)
         h = hex(ha)[2:].rstrip('L')
         if line.startswith("Type "):
             if h in acids:
