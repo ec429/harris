@@ -7,6 +7,8 @@
 	crew: crew member handling
 */
 
+#include <stdbool.h>
+
 enum cclass
 {
 	CCLASS_P,
@@ -26,6 +28,7 @@ typedef struct
 	const char *desc;
 	unsigned int initpool, pupils;
 	enum cclass extra_pupil;
+	bool eats;
 }
 cclass_data;
 extern const cclass_data cclasses[CREW_CLASSES];

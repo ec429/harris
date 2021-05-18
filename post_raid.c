@@ -840,6 +840,7 @@ void produce(int targ, game *state, double amount)
 void refill_students(game *state, bool refill)
 {
 	unsigned int pool[CREW_CLASSES];
+	bool eats=!datebefore(state->now, event[EVENT_EATS]);
 	for(unsigned int i=0;i<CREW_CLASSES;i++)
 	{
 		unsigned int scount=0, acount=0;
@@ -856,7 +857,11 @@ void refill_students(game *state, bool refill)
 			else if(state->crews[j].status==CSTATUS_INSTRUC)
 			{
 				if(state->crews[j].class==i)
+				{
 					pool[i]+=cclasses[i].pupils;
+					if(eats&&cclasses[i].eats)
+						pool[i]++;
+				}
 				else if(cclasses[state->crews[j].class].extra_pupil==i)
 					pool[i]++;
 			}

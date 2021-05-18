@@ -889,6 +889,7 @@ void update_crews(game *state)
 		pool[i]=cclasses[i].initpool;
 	}
 	bool agroup=false;
+	bool eats=!datebefore(state->now, event[EVENT_EATS]);
 	for(unsigned int g=0;g<8;g++)
 		if(hc_filter_groups[g]>0)
 			agroup=true;
@@ -920,6 +921,8 @@ void update_crews(game *state)
 			unsigned int top=state->crews[i].tour_ops;
 			tops[cls][1][min(top/6, 30)]++;
 			pool[cls]+=cclasses[cls].pupils;
+			if(eats&&cclasses[cls].eats)
+				pool[cls]++;
 			if(cclasses[cls].extra_pupil!=CCLASS_NONE)
 				pool[cclasses[cls].extra_pupil]++;
 		}
