@@ -1006,7 +1006,7 @@ void train_students(game *state)
 		switch(stage)
 		{
 			case TPIPE_OTU:
-				if((state->crews[i].skill<1)||brandp(3.0/pow(state->crews[i].skill, 1.2)))
+				if((state->crews[i].skill<1)||brandp(1.0/pow(state->crews[i].skill, 0.8)))
 				{
 					double new=min(state->crews[i].skill+irandu(state->crews[i].lrate)/50.0, 100.0);
 					if(floor(new)>floor(state->crews[i].skill))
