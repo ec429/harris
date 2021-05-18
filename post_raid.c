@@ -973,7 +973,7 @@ void train_students(game *state)
 		if(k<0&&!(state->crews[i].class==CCLASS_E&&stage==TPIPE_OTU)) // engineers don't need an a/c for OTU-equivalent training
 			continue;
 		if(k>=0&&state->bombers[k].crew[0]==(int)i)
-			apply_wear(&state->bombers[k], 0.4);
+			apply_wear(&state->bombers[k], 0.5);
 		if((int)state->crews[i].tour_ops++>=state->tpipe[stage].dwell)
 		{
 			int c;
