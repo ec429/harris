@@ -127,12 +127,16 @@ int main(int argc, char **argv)
 		if (rec.type == HT_INIT)
 		{
 			char savbuf[80];
+			char *savp = savbuf;
 
-			snprintf(savbuf, 80, "save/%s", rec.init);
-			rc = loadgame(savbuf, &initgame);
+			if (rec.init[0] == '/')
+				savp = rec.init;
+			else
+				snprintf(savbuf, 80, "save/%s", rec.init);
+			rc = loadgame(savp, &initgame);
 			if (rc)
 			{
-				fprintf(stderr, "Error %d loading INITgame '%s'\n", rc, savbuf);
+				fprintf(stderr, "Error %d loading INITgame '%s'\n", rc, savp);
 				return 6;
 			}
 			for (unsigned int i = 0; i < initgame.nfighters; i++)
