@@ -208,7 +208,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 						int s=state->crews[k].squadron;
 						if(k<0)
 							continue;
-						if(state->crews[k].class!=types[bt].crew[j])
+						if(state->crews[k].class!=bstats(state->bombers[i]).crew[j])
 						{
 							state->bombers[i].crew[j]=-1;
 							state->crews[k].assignment=-1;
@@ -240,7 +240,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					nb[n].nav[j]=false;
 				for(unsigned int j=0;j<MAX_CREW;j++)
 					nb[n].crew[j]=-1;
-				if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[i].nav[NAV_GEE])
+				if((!datebefore(state->now, event[EVENT_ALLGEE]))&&bstats(nb[n]).nav[NAV_GEE])
 					nb[n].nav[NAV_GEE]=true;
 				ct_append(&state->hist, state->now, (harris_time){11, 25}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
 			}
@@ -290,7 +290,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		(state->bombers=nb)[n]=(ac_bomber){.type=m, .failed=false, .id=rand_acid(), .mark=types[m].newmark, .squadron=-1, .flight=-1, .wear=0};
 		for(unsigned int j=0;j<NNAVAIDS;j++)
 			nb[n].nav[j]=false;
-		if((!datebefore(state->now, event[EVENT_ALLGEE]))&&types[m].nav[NAV_GEE])
+		if((!datebefore(state->now, event[EVENT_ALLGEE]))&&bstats(nb[n]).nav[NAV_GEE])
 			nb[n].nav[NAV_GEE]=true;
 		for(unsigned int j=0;j<MAX_CREW;j++)
 			nb[n].crew[j]=-1;
@@ -316,7 +316,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 		{
 			if(i<0)
 			{
-				if(!types[state->bombers[j].type].nav[n]) continue;
+				if(!bstats(state->bombers[j]).nav[n]) continue;
 			}
 			else
 			{
@@ -930,7 +930,7 @@ void refill_students(game *state, bool refill)
 			}
 			for(unsigned int c=0;c<MAX_CREW;c++)
 			{
-				enum cclass i=types[type].crew[c];
+				enum cclass i=bstats(state->bombers[k]).crew[c];
 				if(i==CCLASS_NONE) {
 					if(types[type].otub&&!datebefore(state->now, event[EVENT_OTUB]))
 						i=CCLASS_B;

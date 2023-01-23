@@ -21,43 +21,42 @@ int apply_mod(unsigned int m)
 		types[bt].newmark=mark;
 	for(;mark<MAX_MARKS;mark++)
 	{
+		struct bomberstats *bm=types[bt].mark+mark;
 		switch(mods[m].s)
 		{
 			case BSTAT_COST:
-				types[bt].mark[mark].cost=mods[m].v.i;
+				bm->cost=mods[m].v.i;
 				break;
 			case BSTAT_SPEED:
-				types[bt].mark[mark].speed=mods[m].v.i;
+				bm->speed=mods[m].v.i;
 				break;
 			case BSTAT_ALT:
-				types[bt].mark[mark].alt=mods[m].v.i;
+				bm->alt=mods[m].v.i;
 				break;
 			case BSTAT_CAPWT:
-				types[bt].mark[mark].capwt=mods[m].v.i;
+				bm->capwt=mods[m].v.i;
 				break;
 			case BSTAT_CAPBULK:
-				types[bt].mark[mark].capbulk=mods[m].v.i;
+				bm->capbulk=mods[m].v.i;
 				break;
 			case BSTAT_SVP:
-				types[bt].mark[mark].svp=mods[m].v.i;
+				bm->svp=mods[m].v.i;
 				break;
 			case BSTAT_DEFN:
-				types[bt].mark[mark].defn=mods[m].v.i;
+				bm->defn=mods[m].v.i;
 				break;
 			case BSTAT_FAIL:
-				types[bt].mark[mark].fail=mods[m].v.i;
+				bm->fail=mods[m].v.i;
 				break;
 			case BSTAT_ACCU:
-				types[bt].mark[mark].accu=mods[m].v.i;
+				bm->accu=mods[m].v.i;
 				break;
 			case BSTAT_RANGE:
-				types[bt].mark[mark].range=mods[m].v.i;
+				bm->range=mods[m].v.i;
 				return(0);
 			case BSTAT_CREW:
-				if(mods[m].mark)
-					fprintf(stderr, "Warning, mod %s tries to change crew on mark %u, but crew is not marked\n", mods[m].desc, mods[m].mark);
 				for(unsigned int c=0;c<MAX_CREW;c++)
-					types[bt].crew[c]=mods[m].v.crew[c];
+					bm->crew[c]=mods[m].v.crew[c];
 				return(0);
 			case BSTAT_LOADS:
 				if(mods[m].mark)
@@ -70,34 +69,30 @@ int apply_mod(unsigned int m)
 				fprintf(stderr, "ignoring excessive bombload ID %d\n", mods[m].v.i);
 				return(1);
 			case BSTAT_NAVS:
-				if(mods[m].mark)
-					fprintf(stderr, "Warning, mod %s tries to change navs on mark %u, but navaids are not marked\n", mods[m].desc, mods[m].mark);
 				if(mods[m].v.i<NNAVAIDS)
 				{
-					types[bt].nav[mods[m].v.i]=true;
+					bm->nav[mods[m].v.i]=true;
 					return(0);
 				}
 				fprintf(stderr, "ignoring excessive navaid ID %d\n", mods[m].v.i);
 				return(1);
 			case BSTAT_FLAGS:
-				if(mods[m].mark)
-					fprintf(stderr, "Warning, mod %s tries to change flags on mark %u, but flags are not marked\n", mods[m].desc, mods[m].mark);
 				switch(mods[m].v.f)
 				{
 					case BFLAG_OVLTANK:
-						types[bt].ovltank=true;
+						bm->ovltank=true;
 						return(0);
 					case BFLAG_CREWBG:
-						types[bt].crewbg=true;
+						bm->crewbg=true;
 						return(0);
 					case BFLAG_NCREWBG:
-						types[bt].crewbg=false;
+						bm->crewbg=false;
 						return(0);
 					case BFLAG_CREWWG:
-						types[bt].crewwg=true;
+						bm->crewwg=true;
 						return(0);
 					case BFLAG_NCREWWG:
-						types[bt].crewwg=false;
+						bm->crewwg=false;
 						return(0);
 					default:
 						fprintf(stderr, "ignoring unsupported flag %d\n", mods[m].v.f);

@@ -116,6 +116,9 @@ struct bomberstats
 	unsigned int fail;
 	unsigned int accu;
 	unsigned int range;
+	enum cclass crew[MAX_CREW];
+	bool crewbg, crewwg, ovltank;
+	bool nav[NNAVAIDS];
 };
 
 #define MAX_MARKS	4
@@ -127,11 +130,8 @@ typedef struct
 	char * name;
 	struct bomberstats mark[MAX_MARKS];
 	char *markname[MAX_MARKS];
-	enum cclass crew[MAX_CREW];
-	bool nav[NNAVAIDS];
 	bool load[NBOMBLOADS];
-	bool crewbg, crewwg;
-	bool noarm, heavy, inc, extra, ovltank, slowgrow, otub, lfs, smbay;
+	bool noarm, heavy, inc, extra, slowgrow, otub, lfs, smbay;
 	date entry;
 	date novelty;
 	date train;

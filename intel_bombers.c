@@ -905,7 +905,7 @@ void update_intel_bombers(const game *state)
 		crew_buf[cbp]=0;
 		for(unsigned int j=0;j<MAX_CREW;j++)
 		{
-			enum cclass cls=types[IB_i].crew[j];
+			enum cclass cls=types[IB_i].mark[IB_showmark].crew[j];
 			if(cls!=CCLASS_NONE)
 				crew_buf[cbp++]=cclasses[cls].letter;
 			crew_buf[cbp]=0;

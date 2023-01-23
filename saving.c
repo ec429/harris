@@ -1232,7 +1232,7 @@ fail:
 				{
 					unsigned int j, type=state->bombers[k].type;
 					for(j=0;j<MAX_CREW;j++) {
-						enum cclass c=types[type].crew[j];
+						enum cclass c=bstats(state->bombers[k]).crew[j];
 						if(c==CCLASS_NONE && state->bombers[k].train && types[type].otub && !datebefore(state->now, event[EVENT_OTUB]))
 							c=CCLASS_B;
 						if(c==state->crews[i].class)

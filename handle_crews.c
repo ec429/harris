@@ -943,7 +943,7 @@ void update_crews(game *state)
 				continue;
 			for(unsigned int j=0;j<MAX_CREW;j++)
 			{
-				enum cclass ct=types[state->bombers[i].type].crew[j];
+				enum cclass ct=bstats(state->bombers[i]).crew[j];
 				if(ct!=CCLASS_NONE)
 					need[ct]++;
 			}

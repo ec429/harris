@@ -27,7 +27,7 @@ void update_navbtn(game state, atg_element *(*GB_navbtn)[NNAVAIDS], unsigned int
 		SDL_Surface *pic=img->data;
 		if(pic)
 		{
-			if(!types[i].nav[n])
+			if(!newstats(types[i]).nav[n])
 				SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 63, 63, 63, SDL_ALPHA_OPAQUE));
 			else
 			{

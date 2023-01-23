@@ -576,12 +576,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				double askill=0; // Airmanship
 				for(unsigned int l=0;l<MAX_CREW;l++)
 				{
-					if(types[type].crew[l]==CCLASS_E)
+					if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
 					{
 						askill=get_skill(state, k, l);
 						break;
 					}
-					else if(types[type].crew[l]==CCLASS_P)
+					else if(bstats(state->bombers[k]).crew[l]==CCLASS_P)
 					{
 						askill=max(askill, get_skill(state, k, l)*.5);
 					}
@@ -852,25 +852,25 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					crewman *bac=NULL; // Bomb-aimer
 					for(unsigned int l=0;l<MAX_CREW;l++)
 					{
-						if(types[type].crew[l]==CCLASS_E)
+						if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
 						{
 							sdc+=(askill=get_skill(state, k, l));
 						}
-						else if(types[type].crew[l]==CCLASS_W)
+						else if(bstats(state->bombers[k]).crew[l]==CCLASS_W)
 						{
 							sdc+=get_skill(state, k, l);
 						}
-						else if(types[type].crew[l]==CCLASS_N)
+						else if(bstats(state->bombers[k]).crew[l]==CCLASS_N)
 						{
 							nskill=get_skill(state, k, l);
 							if(!bac)
 								bac=get_crew(state, k, l);
 						}
-						else if(types[type].crew[l]==CCLASS_B)
+						else if(bstats(state->bombers[k]).crew[l]==CCLASS_B)
 						{
 							bac=get_crew(state, k, l);
 						}
-						else if(types[type].crew[l]==CCLASS_P)
+						else if(bstats(state->bombers[k]).crew[l]==CCLASS_P)
 						{
 							// we assume P are always before E in crew order
 							// thus we get "max of Pskill*.5" if there are no E, otherwise we get Eskill.
@@ -881,7 +881,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					{
 						// E practise
 						for(unsigned int l=1;l<MAX_CREW;l++)
-							if(types[type].crew[l]==CCLASS_E)
+							if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
 								practise(*get_crew(state, k, l), 0.05);
 						if(!brandp(askill/200))
 						{
@@ -995,7 +995,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							{
 								// B practise (if no B, the N doesn't practise even though they're 'bac')
 								for(unsigned int l=1;l<MAX_CREW;l++)
-									if(types[type].crew[l]==CCLASS_B)
+									if(bstats(state->bombers[k]).crew[l]==CCLASS_B)
 										practise(*get_crew(state, k, l), 1);
 								for(unsigned int ta=0;ta<ntargs;ta++)
 								{
@@ -1042,7 +1042,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					practise(*get_crew(state, k, 0), 1/600.0);
 					for(unsigned int l=1;l<MAX_CREW;l++)
 					{
-						switch(types[type].crew[l])
+						switch(bstats(state->bombers[k]).crew[l])
 						{
 							case CCLASS_P:
 								practise(*get_crew(state, k, l), 1e-3);
@@ -1112,7 +1112,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									ddmg=irandu(bstats(state->bombers[k]).defn)/5.0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
-										if(types[type].crew[l]==CCLASS_E)
+										if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
 											practise(*get_crew(state, k, l), 0.5);
 									while(ddmg&&brandp(sdc/(sdc+100.0)))
 										ddmg=max(ddmg-1,0);
@@ -1164,7 +1164,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									ddmg=irandu(bstats(state->bombers[k]).defn)/10.0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
-										if(types[type].crew[l]==CCLASS_E)
+										if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
 											practise(*get_crew(state, k, l), 0.5);
 									while(ddmg&&brandp(sdc/(sdc+100.0)))
 										ddmg=max(ddmg-1,0);
@@ -1466,23 +1466,23 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						unsigned int ng=0, nl=0;
 						for(unsigned int l=1;l<MAX_CREW;l++)
 						{
-							if(types[bt].crew[l]==CCLASS_P)
+							if(bstats(state->bombers[k]).crew[l]==CCLASS_P)
 								pskill=max(pskill, get_skill(state, k, l));
-							else if((types[bt].crew[l]==CCLASS_G)||(types[bt].crew[l]==CCLASS_W&&types[bt].crewwg))
+							else if((bstats(state->bombers[k]).crew[l]==CCLASS_G)||(bstats(state->bombers[k]).crew[l]==CCLASS_W&&bstats(state->bombers[k]).crewwg))
 							{
 								if(ng<3)
 									gskill[ng++]=get_skill(state, k, l);
 								slskill+=get_skill(state, k, l);
 								nl++;
 							}
-							else if(types[bt].crew[l]==CCLASS_B&&types[bt].crewbg)
+							else if(bstats(state->bombers[k]).crew[l]==CCLASS_B&&bstats(state->bombers[k]).crewbg)
 							{
 								if(ng<3)
 									gskill[ng++]=get_skill(state, k, l)*0.75;
 								slskill+=get_skill(state, k, l)*0.75;
 								nl++;
 							}
-							else if(types[bt].crew[l]==CCLASS_W)
+							else if(bstats(state->bombers[k]).crew[l]==CCLASS_W)
 							{
 								slskill+=get_skill(state, k, l);
 								nl++;
@@ -1498,12 +1498,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								// Damage control; also E practise (even if dmg==0)
 								for(unsigned int l=1;l<MAX_CREW;l++)
 								{
-									if(types[bt].crew[l]==CCLASS_E)
+									if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
 									{
 										sdc+=get_skill(state, k, l);
 										practise(*get_crew(state, k, l), 0.5);
 									}
-									else if(types[bt].crew[l]==CCLASS_W)
+									else if(bstats(state->bombers[k]).crew[l]==CCLASS_W)
 									{
 										sdc+=get_skill(state, k, l);
 									}
@@ -1539,7 +1539,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							}
 							// G practise (even if we missed)
 							for(unsigned int l=1;l<MAX_CREW;l++)
-								if(types[bt].crew[l]==CCLASS_G)
+								if(bstats(state->bombers[k]).crew[l]==CCLASS_G)
 									practise(*get_crew(state, k, l), 1);
 						}
 					}
@@ -1844,7 +1844,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				apply_wear(&state->bombers[k], 0.6 + state->bombers[k].damage*0.01);
 				if(!state->bombers[k].bombed) continue;
 				for(unsigned int l=0;l<MAX_CREW;l++)
-					if(types[type].crew[l]!=CCLASS_NONE)
+					if(bstats(state->bombers[k]).crew[l]!=CCLASS_NONE)
 					{
 						if(state->bombers[k].crew[l]<0) // can't happen
 						{
@@ -2025,7 +2025,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				double wskill=0; // Wireless-Op
 				for(unsigned int j=0;j<MAX_CREW;j++)
 				{
-					if(types[type].crew[j]==CCLASS_W)
+					if(bstats(state->bombers[i]).crew[j]==CCLASS_W)
 					{
 						wskill=get_skill(state, i, j);
 						break;

@@ -440,8 +440,6 @@ int control_create(void)
 			}
 			GB_navbtn[i][n]->w=GB_navbtn[i][n]->h=16;
 			GB_navbtn[i][n]->clickable=true;
-			if(!types[i].nav[n])
-				SDL_FillRect(pic, &(SDL_Rect){.x=0, .y=0, .w=16, .h=16}, SDL_MapRGBA(pic->format, 63, 63, 63, SDL_ALPHA_OPAQUE));
 			SDL_FreeSurface(pic); // Drop the extra reference
 			if(atg_ebox_pack(GB_navrow[i], GB_navbtn[i][n]))
 			{
@@ -1573,8 +1571,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		/* Count up unfilled I.E. of each crew class */
 		for(unsigned int j=0;j<MAX_CREW;j++)
 			for(unsigned int f=0;f<flights;f++)
-				if(types[type].crew[j]<CREW_CLASSES)
-					ucls[types[type].crew[j]]+=(10-state->squads[s].nb[f]);
+				if(newstats(types[type]).crew[j]<CREW_CLASSES)
+					ucls[newstats(types[type]).crew[j]]+=(10-state->squads[s].nb[f]);
 		bool surplus=false;
 		for(unsigned int c=0;c<CREW_CLASSES;c++)
 			if(state->squads[s].nc[c]>ucls[c])
@@ -1758,7 +1756,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					if(bases[b].clamped) continue;
 					signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 					bool unpaved=types[type].heavy&&!bases[b].paved;
-					double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[type].ovltank?1.3:1.5);
+					double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(bstats(state->bombers[j]).ovltank?1.3:1.5);
 					if(state->bombers[j].failed) continue;
 					if(!state->bombers[j].landed) continue;
 					if(!filter_apply(state, j)) continue;
@@ -1878,7 +1876,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 											state->nap[n]=-1;
 										else if((m&KMOD_ALT)&&(m&KMOD_SHIFT))
 											state->nap[n]=ntypes;
-										else if(types[i].nav[n]&&!datebefore(state->now, event[navevent[n]]))
+										else if(newstats(types[i]).nav[n]&&!datebefore(state->now, event[navevent[n]]))
 											state->nap[n]=i;
 									}
 									else if(b==ATG_MB_RIGHT)
@@ -2027,7 +2025,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										if(bases[b].clamped) continue;
 										signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 										bool unpaved=types[i].heavy&&!bases[b].paved;
-										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(types[i].ovltank?1.3:1.5);
+										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(newstats(types[i]).ovltank?1.3:1.5);
 										if(newstats(types[i]).range*(unpaved?0.8:1.0)<dist)
 											continue;
 										if(state->bombers[j].failed) continue;
@@ -2455,11 +2453,19 @@ bool fully_crewed(const game *state, unsigned int i)
 {
 	for(unsigned int j=0;j<MAX_CREW;j++)
 	{
-		if(types[state->bombers[i].type].crew[j]==CCLASS_NONE)
+		if(bstats(state->bombers[i]).crew[j]==CCLASS_NONE)
 			continue;
 		if(state->bombers[i].crew[j]<0)
 			return false;
 	}
+	return true;
+}
+
+bool same_crew(game *state, unsigned int i, unsigned int k)
+{
+	for(unsigned int j=0;j<MAX_CREW;j++)
+		if(bstats(state->bombers[i]).crew[j]!=bstats(state->bombers[k]).crew[j])
+			return false;
 	return true;
 }
 
@@ -2495,11 +2501,11 @@ bool ensure_crewed(game *state, unsigned int i)
 	unsigned int grp=base_grp(bases[state->squads[s].base]);
 	for(unsigned int j=0;j<MAX_CREW;j++)
 	{
-		if(types[type].crew[j]==CCLASS_NONE)
+		if(bstats(state->bombers[i]).crew[j]==CCLASS_NONE)
 			continue;
 		int k=state->bombers[i].crew[j];
 		// 0. Deassign current crewman if unsuitable
-		if(k>=0 && state->crews[k].class!=types[type].crew[j]) // cclass changed under us
+		if(k>=0 && state->crews[k].class!=bstats(state->bombers[i]).crew[j]) // cclass changed under us
 		{
 			int cs=state->crews[k].squadron;
 			if(state->crews[k].assignment!=(int)i) /* can't happen */
@@ -2515,7 +2521,7 @@ bool ensure_crewed(game *state, unsigned int i)
 			int best=-1;
 			for(unsigned int k=0;k<state->ncrews;k++)
 			{
-				if(state->crews[k].class!=types[type].crew[j])
+				if(state->crews[k].class!=bstats(state->bombers[i]).crew[j])
 					continue;
 				if(state->crews[k].status!=CSTATUS_CREWMAN)
 					continue;
@@ -2576,11 +2582,13 @@ bool ensure_crewed(game *state, unsigned int i)
 						continue;
 					if(!state->bombers[k].failed)
 						continue;
-					if(fully_crewed(state, k))
-					{
-						swap_crews(state, i, k);
-						break;
-					}
+					if(!fully_crewed(state, k))
+						continue;
+					// marked crews mean we might not have the same set of seats
+					if(!same_crew(state, i, k))
+						continue;
+					swap_crews(state, i, k);
+					break;
 				}
 			}
 		}
@@ -2591,7 +2599,7 @@ bool ensure_crewed(game *state, unsigned int i)
 			for(unsigned int k=0;k<state->ncrews;k++)
 			{
 				enum tpipe trained;
-				if(state->crews[k].class!=types[type].crew[j])
+				if(state->crews[k].class!=bstats(state->bombers[i]).crew[j])
 					continue;
 				if(state->crews[k].status!=CSTATUS_CREWMAN)
 					continue;
@@ -2647,7 +2655,7 @@ bool ensure_crewed(game *state, unsigned int i)
 		if(state->bombers[i].crew[j]<0)
 		{
 			// 4. Give up, and don't allow assigning this bomber to any raid
-			shortof[types[type].crew[j]]=true;
+			shortof[bstats(state->bombers[i]).crew[j]]=true;
 			ok=false;
 		}
 	}

@@ -1491,10 +1491,10 @@ void update_flt_info(game *state)
 	snprintf(HS_flcond, 12, " ");
 	for(unsigned int i=0;i<MAX_CREW;i++)
 	{
-		if((HS_flcr[i]->hidden=types[type].crew[i]>=CCLASS_NONE))
+		if((HS_flcr[i]->hidden=newstats(types[type]).crew[i]>=CCLASS_NONE))
 			snprintf(HS_flcc[i], 16, " ");
 		else
-			snprintf(HS_flcc[i], 16, cclasses[types[type].crew[i]].name);
+			snprintf(HS_flcc[i], 16, cclasses[newstats(types[type]).crew[i]].name);
 		snprintf(HS_flcrew[i], 12, " ");
 	}
 	unsigned int nb=0;
@@ -1513,10 +1513,10 @@ void update_flt_info(game *state)
 				snprintf(HS_flcond+nb, 12-nb, "%d", cond);
 			for(unsigned int j=0;j<MAX_CREW;j++)
 			{
-				if(types[type].crew[j]>=CCLASS_NONE)
-					continue;
 				int k=state->bombers[i].crew[j];
-				if(k<0)
+				if(bstats(state->bombers[i]).crew[j]>=CCLASS_NONE)
+					snprintf(HS_flcrew[j]+nb, 12-nb, " ");
+				else if(k<0)
 					snprintf(HS_flcrew[j]+nb, 12-nb, "-");
 				else
 				{

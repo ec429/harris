@@ -166,17 +166,16 @@ int load_bombers(void)
 				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM:CATEGORY
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
+				struct bomberstats *bm=this.mark;
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &this.mark[0].cost, &this.mark[0].speed, &this.mark[0].alt, &this.mark[0].capwt, &this.mark[0].svp, &this.mark[0].defn, &this.mark[0].fail, &this.mark[0].accu, &this.mark[0].range, &db))!=11)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &bm->cost, &bm->speed, &bm->alt, &bm->capwt, &bm->svp, &bm->defn, &bm->fail, &bm->accu, &bm->range, &db))!=11)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
 					return(1);
 				}
-				this.mark[0].capbulk=this.mark[0].capwt;
-				for(unsigned int m=1;m<MAX_MARKS;m++)
-					this.mark[m]=this.mark[0];
+				bm->capbulk=bm->capwt;
 				size_t nlen=strlen(this.name)+1;
 				this.name=realloc(this.name, nlen);
 				this.entry=readdate(next+db, (date){0, 0, 0});
@@ -212,7 +211,7 @@ int load_bombers(void)
 					fprintf(stderr, "  missing :CREW\n");
 					return(1);
 				}
-				if(parse_crew(++crew, this.crew))
+				if(parse_crew(++crew, bm->crew))
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					return(1);
@@ -226,20 +225,22 @@ int load_bombers(void)
 				}
 				nav++;
 				for(unsigned int i=0;i<NNAVAIDS;i++)
-					this.nav[i]=strstr(nav, navaids[i]);
+					bm->nav[i]=strstr(nav, navaids[i]);
 				this.noarm=strstr(nav, "NOARM");
 				this.heavy=strstr(nav, "HEAVY");
 				this.inc=strstr(nav, "INC");
 				this.extra=strstr(nav, "EXTRA");
-				this.crewwg=strstr(nav, "CREWWG");
-				this.crewbg=strstr(nav, "CREWBG");
-				this.ovltank=strstr(nav, "OVLTANK");
+				bm->crewwg=strstr(nav, "CREWWG");
+				bm->crewbg=strstr(nav, "CREWBG");
+				bm->ovltank=strstr(nav, "OVLTANK");
 				this.slowgrow=strstr(nav, "SLOWGROW");
 				this.otub=strstr(nav, "OTUB");
 				this.lfs=strstr(nav, "LFS");
 				this.smbay=strstr(nav, "SMBAY");
 				for(unsigned int l=0;l<NBOMBLOADS;l++)
 					this.load[l]=strstr(nav, bombloads[l].name);
+				for(unsigned int m=1;m<MAX_MARKS;m++)
+					this.mark[m]=this.mark[0];
 				const char *conv=strchr(nav, ':');
 				if(!conv)
 				{
