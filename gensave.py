@@ -113,6 +113,8 @@ def float_to_hex(value):
 
 inb = False
 for line in sys.stdin.readlines():
+    if line.startswith("#"): # comment
+        continue
     if line.startswith("Bombers:"):
         inb = True
     elif line.startswith("Fighters:"):
