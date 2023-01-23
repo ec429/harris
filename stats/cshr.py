@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """cshr - cash rate (budget) tracking"""
 
 import sys

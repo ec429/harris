@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """totalraidsgraph - graph of number of bombers deployed per night
 
 Requires matplotlib, see http://matplotlib.org or search your package

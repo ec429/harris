@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """prodloss - production and loss figures"""
 
 import sys
@@ -26,4 +26,4 @@ if __name__ == '__main__':
 	entries = hhist.import_from_save(sys.stdin)
 	prodloss = extract_prodloss(entries)
 	for d in sorted(prodloss):
-		print '%s: %s' % (d, prodloss[d])
+		print('%s: %s' % (d, prodloss[d]))

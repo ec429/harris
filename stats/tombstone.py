@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """tombstone - total number of aircrew lost"""
 
 import sys

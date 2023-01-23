@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """extra_data - additional data on Harris entities, for the stats
 
 This module currently provides the following data:
@@ -28,6 +28,12 @@ Bombers = {
 	"Halifax III":{"short":"HAL3", "colour":'y',      },
 	"Windsor":    {"short":"WIND", "colour":'m',      },
 	"Selkirk":    {"short":"SELK", "colour":'0.5',    },
+	"Benjamin":   {"short":"BENJ", "colour":'0.5',    },
+	"Thomas":     {"short":"THOM", "colour":'y',      },
+	"Wallis":     {"short":"WALL", "colour":'c',      },
+	"Stuart":     {"short":"STUA", "colour":'#806000',},
+	"Alfred":     {"short":"ALFR", "colour":'b',      },
+	"Martin":     {"short":"MART", "colour":'r',      },
 	}
 
 Fighters = {

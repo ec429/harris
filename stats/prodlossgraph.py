@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """prodlossgraph - graph of production & losses
 
 Requires matplotlib, see http://matplotlib.org or search your package
@@ -18,11 +18,12 @@ if __name__ == '__main__':
 	ax = fig.add_subplot(1,1,1)
 	dates = [key.ordinal() for key in sorted(data)]
 	total = [[sum(d[0] for d in data[key]), sum(d[1] for d in data[key])] for key in sorted(data)]
-	top = max(zip(*total)[0])
-	bottom = min(zip(*total)[1])
+	zipped = list(zip(*total))
+	top = max(zipped[0])
+	bottom = min(zipped[1])
 	plt.axis(ymax=max(top, -bottom), ymin=min(-top, bottom))
-	gt = plt.plot_date(dates, zip(*total)[0], fmt='k+-', tz=None, xdate=True, ydate=False, label='total', zorder=-2)
-	gb = plt.plot_date(dates, zip(*total)[1], fmt='k+-', tz=None, xdate=True, ydate=False, label=None, zorder=-2)
+	gt = plt.plot_date(dates, zipped[0], fmt='k+-', tz=None, xdate=True, ydate=False, label='total', zorder=-2)
+	gb = plt.plot_date(dates, zipped[1], fmt='k+-', tz=None, xdate=True, ydate=False, label=None, zorder=-2)
 	for bi,b in enumerate(hdata.Bombers.data):
 		bprod = [data[key][bi][0] for key in sorted(data) if hdata.inservice(key, b)]
 		bloss = [data[key][bi][1] for key in sorted(data) if hdata.inservice(key, b)]

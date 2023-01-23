@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """hhist - Harris history parsing
 
 The hhist module provides support for parsing Harris history events and
@@ -7,6 +7,7 @@ lists thereof.
 
 import sys
 import datetime
+from functools import total_ordering
 
 class BadHistLine(Exception): pass
 class NoSuchEvent(BadHistLine): pass
@@ -16,6 +17,7 @@ class NoSuchCrewClass(BadHistLine): pass
 class ExcessData(BadHistLine): pass
 class OutOfOrder(Exception): pass
 
+@total_ordering
 class date(object):
 	monthdays=[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 	def __init__(self, day, month, year):
@@ -34,6 +36,12 @@ class date(object):
 		if self.year != other.year: return self.year - other.year
 		if self.month != other.month: return self.month - other.month
 		return self.day - other.day
+	def __eq__(self, other):
+		return self.__cmp__(other) == 0
+	def __ne__(self, other):
+		return self.__cmp__(other) != 0
+	def __lt__(self, other):
+		return self.__cmp__(other) < 0
 	def __hash__(self):
 		return hash(self.ordinal())
 	def copy(self):
@@ -72,7 +80,7 @@ class date(object):
 				prev.month = 12
 		return prev
 	def ordinal(self):
-		return datetime.date(self.year, self.month, self.day).toordinal()
+		return datetime.date(self.year, self.month, self.day).toordinal() - datetime.date(1970, 1, 1).toordinal()
 
 def ac_parse(text):
 	def ct_parse(text):
@@ -269,4 +277,4 @@ def import_from_save(f, crew_hist=False):
 
 if __name__ == '__main__':
 	entries = import_from_save(sys.stdin)
-	print 'Imported %d entries' % len(entries)
+	print('Imported %d entries' % len(entries))

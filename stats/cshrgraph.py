@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """cshrgraph - graph of cash rate (budget)
 
 Requires matplotlib, see http://matplotlib.org or search your package

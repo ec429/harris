@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """value - total value tracking"""
 
 import sys
@@ -10,7 +10,7 @@ this_script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 # Intention for this report is to compute (total value of all bombers + cash) for each day
 def extract_value(f):
-	output = subprocess.check_output([os.path.join(this_script_path, 'bombers'), '--localdat'], stdin=f)
+	output = subprocess.check_output([os.path.join(this_script_path, 'bombers'), '--localdat'], stdin=f).decode('utf8')
 	records = {}
 	first = None
 	current = None
@@ -28,7 +28,7 @@ def extract_value(f):
 			bcounts = data.split()
 			if len(bcounts) != len(hdata.Bombers) and key != '$':
 				raise Exception("Bad bcounts[%s] at %r, len(%r) != %d" % (key, current, bcounts, len(hdata.Bombers)))
-			crecord[key] = map(int, bcounts)
+			crecord[key] = list(map(int, bcounts))
 	if crecord and current is not None:
 		records[current] = crecord
 	broughton = hdata.Events.find('id', 'BROUGHTON')
@@ -46,7 +46,7 @@ def extract_value(f):
 		for i,b in enumerate(hdata.Bombers):
 			if b['exit'] and d == b['exit'].next():
 				if bcount[i]:
-					print 'Warning: %d leftover %s' % (bcount[i], b['name'])
+					print('Warning: %d leftover %s' % (bcount[i], b['name']))
 					bcount[i] = 0 # force it to 0
 		bvalues = [b*hdata.Bombers[i]['cost'] for i,b in enumerate(bcount)]
 		built = records[d]['+']
@@ -68,4 +68,4 @@ def extract_value(f):
 if __name__ == '__main__':
 	value = extract_value(sys.stdin)
 	for row in value:
-		print '%s: %s; %7d+%6d/ => %8d (%+7d)'%(row['date'], ','.join('%3d'%b for b in row['bombers']), row['cash'], row['cshr'], row['project'], row.get('deltap', 0))
+		print('%s: %s; %7d+%6d/ => %8d (%+7d)'%(row['date'], ','.join('%3d'%b for b in row['bombers']), row['cash'], row['cshr'], row['project'], row.get('deltap', 0)))

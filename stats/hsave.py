@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """hsave - Harris savefiles
 
 The hsave module reads Harris savefiles, including initfiles
@@ -52,8 +52,8 @@ class Save(object):
 				else:
 					stage, nosplit = self.handle(tag, rest)
 			except Exception as e:
-				print 'Choked on the following line:'
-				print line
+				print('Choked on the following line:')
+				print(line)
 				raise
 		if check_integrity:
 			self.check_integrity()
@@ -347,6 +347,6 @@ class Save(object):
 
 if __name__ == '__main__':
 	save = Save.parse(sys.stdin)
-	print 'Parsed save OK'#; replaying event log...'
+	print('Parsed save OK')#; replaying event log...'
 	#save.check_integrity()
-	#print 'Integrity OK'
+	#print('Integrity OK')

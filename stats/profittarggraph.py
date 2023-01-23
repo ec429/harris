@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """profittarggraph - graph of effectiveness by target
 
 Requires matplotlib, see http://matplotlib.org or search your package

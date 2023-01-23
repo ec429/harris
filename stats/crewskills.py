@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """crewskills - graph of crew skill distribution against time
 
 Requires matplotlib, see http://matplotlib.org or search your package

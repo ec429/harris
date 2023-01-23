@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """valuegraph - graph of total value
 
 Requires matplotlib, see http://matplotlib.org or search your package

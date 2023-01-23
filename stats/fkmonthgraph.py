@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """fkmonthgraph - graph of enemy fighter kills & losses, by month
 
 Requires matplotlib, see http://matplotlib.org or search your package

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """plmonthgraph - graph of production & losses, by month
 
 Requires matplotlib, see http://matplotlib.org or search your package

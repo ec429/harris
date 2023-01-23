@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """totalraids - number of bombers deployed per night"""
 
 import sys

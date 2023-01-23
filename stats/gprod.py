@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """gprod - German production tracking"""
 
 import sys
@@ -7,7 +7,7 @@ import subprocess
 import pprint
 
 def extract_gprod(f):
-	records = subprocess.check_output(['grep', ' 11:55 M GP '], stdin=f)
+	records = subprocess.check_output(['grep', ' 11:55 M GP '], stdin=f).decode('utf8')
 	res = []
 	d = None
 	day = {}

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """losstypegraph - graph of loss rates by type
 
 Requires matplotlib, see http://matplotlib.org or search your package

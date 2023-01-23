@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """profittimegraph - graph of effectiveness per type, versus time
 
 Requires matplotlib, see http://matplotlib.org or search your package

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """hdata - Harris game data
 
 The hdata module provides access to the Harris game data from the files
@@ -42,11 +42,9 @@ class Table(object):
 		if len(values) > len(self.keys):
 			raise ExcessValues(values, self.keys)
 		return {key: parse(value) for ((key, parse), value) in zip(self.keys, values)}
-	def __unicode__(self):
-		widths = {k:max(len(str(k[0])), max((len(unicode(row[k[0]])) for row in self.data))) for k in self.keys}
-		return '\n'.join((' '.join((str(k[0]).ljust(widths[k]) for k in self.keys)), '\n'.join((' '.join((unicode(row[k[0]]).ljust(widths[k]) for k in self.keys)) for row in self.data))))
 	def __str__(self):
-		return unicode(self).encode('utf-8')
+		widths = {k:max(len(str(k[0])), max((len(str(row[k[0]])) for row in self.data))) for k in self.keys}
+		return '\n'.join((' '.join((str(k[0]).ljust(widths[k]) for k in self.keys)), '\n'.join((' '.join((str(row[k[0]]).ljust(widths[k]) for k in self.keys)) for row in self.data))))
 	def __repr__(self):
 		return repr(self.data)
 	def __len__(self):
@@ -60,7 +58,7 @@ class Table(object):
 		return None
 
 def parse_string(text):
-	return unicode(text.strip(), encoding='utf8')
+	return text.strip()
 parse_int = int
 def parse_date(text):
 	if text.strip():
@@ -160,23 +158,23 @@ Locations.read(open('dat/locations'))
 
 if __name__ == "__main__":
 	if '--bombers' in sys.argv or '--all' in sys.argv:
-		print '%d bombers' % len(Bombers)
-		print Bombers
+		print('%d bombers' % len(Bombers))
+		print(Bombers)
 	if '--events' in sys.argv or '--all' in sys.argv:
-		print '%d events' % len(Events)
-		print Events
+		print('%d events' % len(Events))
+		print(Events)
 	if '--fighters' in sys.argv or '--all' in sys.argv:
-		print '%d fighters' % len(Fighters)
-		print Fighters
+		print('%d fighters' % len(Fighters))
+		print(Fighters)
 	if '--flaksites' in sys.argv or '--all' in sys.argv:
-		print '%d flaksites' % len(Flak)
-		print Flak
+		print('%d flaksites' % len(Flak))
+		print(Flak)
 	if '--ftrbases' in sys.argv or '--all' in sys.argv:
-		print '%d ftrbases' % len(Ftrbases)
-		print Ftrbases
+		print('%d ftrbases' % len(Ftrbases))
+		print(Ftrbases)
 	if '--locations' in sys.argv or '--all' in sys.argv:
-		print '%d locations' % len(Locations)
-		print Locations
+		print('%d locations' % len(Locations))
+		print(Locations)
 	if '--targets' in sys.argv or '--all' in sys.argv:
-		print '%d targets' % len(Targets)
-		print Targets
+		print('%d targets' % len(Targets))
+		print(Targets)
