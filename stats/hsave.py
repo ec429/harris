@@ -185,7 +185,7 @@ class Save(object):
 			return self.Crews, False
 		if tag == 'GProd':
 			self.iclasses = int(rest)
-			self.gprod = {i:0 for i in xrange(self.iclasses)}
+			self.gprod = {i:0 for i in range(self.iclasses)}
 			return self.GProd, False
 		if tag == 'FTypes':
 			self.nftypes = int(rest)
@@ -208,7 +208,7 @@ class Save(object):
 		if tag == 'Targets init':
 			self.ntargets = len(hdata.Targets)
 			dmg, flk, heat, flam = rest.split(',', 3)
-			self.targets = [dict({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat), 'flam':readfloat(flam)}) for i in xrange(self.ntargets)]
+			self.targets = [dict({'dmg':readfloat(dmg), 'flk':readfloat(flk), 'heat':readfloat(heat), 'flam':readfloat(flam)}) for i in range(self.ntargets)]
 			return None, False
 		if tag == 'SRoute': # just ignore them
 			return None, False

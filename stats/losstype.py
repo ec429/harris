@@ -16,7 +16,7 @@ def extract_raids(f):
 	crecord = {}
 	records = {}
 	for line in output.splitlines():
-		key, data = line.split(None, 1)
+		key, data = line.decode().split(None, 1)
 		if key == '@':
 			if current:
 				records[current] = crecord
@@ -77,7 +77,7 @@ def stratified_losstype(f, after=None, before=None):
 		for i,l in enumerate(losstype):
 			t[i] += lr[i]
 			w[i] += l[1]
-	for i in xrange(len(ul)):
+	for i in range(len(ul)):
 		ul[i] = ul[i] + (t[i] * 100 * uo[2] / float(w[i]) if w[i] else None,)
 	uo = uo + (sum(t) * 100 * uo[2] / float(sum(w)) if sum(w) else None,) # should come out equal to uo[2], unless there is a type with sorties but no losses
 	return uo, ul
@@ -91,7 +91,7 @@ def parse_args(argv):
 
 if __name__ == '__main__':
 	def tbl_row(n, s, l, p):
-		print "%s: %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5))
+		print("%s: %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5)))
 	def tbl_nrow(n, s, l, p):
 		tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ")
 	opts, args = parse_args(sys.argv)
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 	if opts.stratify:
 		overall, losstype = stratified_losstype(sys.stdin, after, before)
 		def tbl_row(n, s, l, p, q):
-			print "%s: %s %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5), q.rjust(5))
+			print("%s: %s %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5), q.rjust(5)))
 		def tbl_nrow(n, s, l, p, q):
 			tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ", "%5.2f"%q if q is not None else "  -  ")
 		tbl_row("NAME", "Sorties", "Losses", "Loss%", "Strat%")
@@ -112,7 +112,7 @@ if __name__ == '__main__':
 	else:
 		overall, losstype = extract_losstype(sys.stdin, after, before)
 		def tbl_row(n, s, l, p):
-			print "%s: %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5))
+			print("%s: %s %s %s"%(n.rjust(4), s.rjust(7), l.rjust(7), p.rjust(5)))
 		def tbl_nrow(n, s, l, p):
 			tbl_row(n, str(s), str(l), "%5.2f"%p if p is not None else "  -  ")
 		tbl_row("NAME", "Sorties", "Losses", "Loss%")

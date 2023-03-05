@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	data = []
 	month = save.history[0]['date']
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
-	targets = [[t['dmg'], 0, dict((i,0) for i in xrange(save.ntypes))] for t in save.init.targets]
+	targets = [[t['dmg'], 0, dict((i,0) for i in range(save.ntypes))] for t in save.init.targets]
 	classes = [[profit.tcls,profit.tcls], [profit.icls,profit.icls]]
 	history = sorted(hhist.group_by_date(save.history))
 	i = 0
@@ -49,26 +49,26 @@ if __name__ == '__main__':
 			bombers = {i:bombers[i] for i in bombers if bombers[i][3]}
 			d = d.next()
 			i += 1
-		results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
-		full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
-		deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
-		dead = {i: (len(deadresults[i]), sum(v[1] for v in deadresults[i].itervalues())) for i in results}
+		results = {i: {k:v for k,v in bombers.items() if v[0] == i} for i in range(save.ntypes)}
+		full = {i: (len(results[i]), sum(v[1] for v in results[i].values())) for i in results}
+		deadresults = {i: {k:v for k,v in results[i].items() if not v[2]} for i in results}
+		dead = {i: (len(deadresults[i]), sum(v[1] for v in deadresults[i].values())) for i in results}
 		p = {i: {'full':full[i], 'fullr':full[i][1]/full[i][0] if full[i][0] else 0,
 				'dead':dead[i], 'deadr':dead[i][1]/dead[i][0] if dead[i][0] else 0,
 				'opti':full[i][1]/dead[i][0] if dead[i][0] else 0}
 			for i in results}
 		if opts.opti:
-			value = {i: (p[i]['opti']/float(costs[i])) if p[i]['dead'][0] else None for i in xrange(save.ntypes)}
+			value = {i: (p[i]['opti']/float(costs[i])) if p[i]['dead'][0] else None for i in range(save.ntypes)}
 		elif opts.dead:
-			value = {i: (p[i]['deadr']/float(costs[i])) if p[i]['dead'][0] else None for i in xrange(save.ntypes)}
+			value = {i: (p[i]['deadr']/float(costs[i])) if p[i]['dead'][0] else None for i in range(save.ntypes)}
 		else:
-			value = {i: (p[i]['fullr']/float(costs[i])) if p[i]['full'][0] else None for i in xrange(save.ntypes)}
+			value = {i: (p[i]['fullr']/float(costs[i])) if p[i]['full'][0] else None for i in range(save.ntypes)}
 		data.append((month, value))
 		bombers = {i:[bombers[i][0], 0, True, True] for i in bombers if bombers[i][2]}
 		month = next
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	dates = zip(*data)[0]
+	dates = list(zip(*data))[0]
 	values = dict(data)
 	for bi,b in enumerate(hdata.Bombers):
 		bdate = [d.ordinal() for d in dates if values[d][bi] is not None]

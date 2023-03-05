@@ -37,7 +37,7 @@ if __name__ == '__main__':
 	mr = float(max([bar[1]['full'][0] for bar in fbars]))/0.75
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	yl = xrange(1, len(fbars)+1)
+	yl = range(1, len(fbars)+1)
 	plt.barh(yl, [hdata.Bombers[bar[0]]['cost'] for bar in fbars], height=0.8, color='0.5', align='center', label='Cost')
 	plt.barh(yl, [bar[1]['fullr'] for bar in fbars], height=[max(bar[1]['full'][0]/mr, 0.1) for bar in fbars], color='b', align='center', label='All')
 	plt.barh(yl, [bar[1]['opti'] for bar in fbars], height=[max(bar[1]['dead'][0]/mr, 0.06) for bar in fbars], color='g', align='center', label='Optimistic')

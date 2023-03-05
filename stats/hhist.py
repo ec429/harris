@@ -37,10 +37,13 @@ class date(object):
 		if self.month != other.month: return self.month - other.month
 		return self.day - other.day
 	def __eq__(self, other):
+		if not isinstance(other, date): return NotImplemented
 		return self.__cmp__(other) == 0
 	def __ne__(self, other):
+		if not isinstance(other, date): return NotImplemented
 		return self.__cmp__(other) != 0
 	def __lt__(self, other):
+		if not isinstance(other, date): return NotImplemented
 		return self.__cmp__(other) < 0
 	def __hash__(self):
 		return hash(self.ordinal())

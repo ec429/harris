@@ -18,11 +18,13 @@ if london is None:
 tcls = len(hdata.T_CLASSES)
 icls = len(hdata.I_CLASSES)
 
+# bombers = {acid: [type, earned, live, live_at_start]}
+# targets = {ti: [dmg, shbr_earned, losses]}
 def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=None): # updates bombers, targets
 	lasthi = None
 	if stop:
 		return
-	berlin = (d >= london['date'])
+	berlin = (d[0] >= london['date'])
 	ra = {}
 	for h in d[1]:
 		if h['class'] == 'A':
@@ -32,7 +34,7 @@ def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=No
 					bombers[acid]=[int(h['data']['type']['ti']), 0, True, True]
 				else:
 					if acid not in bombers:
-						print 'Warning: un-inited bomber %08x (%d)'%(acid, h['data']['type']['ti'])
+						print('Warning: un-inited bomber %08x (%d)'%(acid, h['data']['type']['ti']))
 						bombers[acid] = [int(h['data']['type']['ti']), 0, True, True]
 					if h['data']['etyp'] in ['CR', 'SC', 'OB']:
 						bombers[acid][2] = False
@@ -76,7 +78,7 @@ def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=No
 								f *= 2
 						if 'UBOOT' in targ['flags']:
 							f *= 1.2
-						for ign in xrange(2):
+						for ign in range(2):
 							tp = classes[ign][0]
 							if tp < tcls:
 								if hdata.T_CLASSES[tp] in targ['flags']:
@@ -136,16 +138,16 @@ def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=No
 
 def extract_profit(save, before=None, after=None, targ_id=None):
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
-	targets = [[t['dmg'], 0, {i:0 for i in xrange(save.ntypes)}] for t in save.init.targets]
+	targets = [[t['dmg'], 0, {i:0 for i in range(save.ntypes)}] for t in save.init.targets]
 	classes = [[tcls,tcls], [icls,icls]]
 	days = sorted(hhist.group_by_date(save.history))
 	for d in days:
 		daily_profit(d, bombers, targets, classes, d[0]>=after if after else True, d[0]>=before if before else False, targ_id=targ_id)
 	bombers = {i:bombers[i] for i in bombers if bombers[i][3]}
-	results = {i: {k:v for k,v in bombers.iteritems() if v[0] == i} for i in xrange(save.ntypes)}
-	full = {i: (len(results[i]), sum(v[1] for v in results[i].itervalues())) for i in results}
-	deadresults = {i: {k:v for k,v in results[i].iteritems() if not v[2]} for i in results}
-	dead = {i: (len(deadresults[i]), sum(v[1] for v in deadresults[i].itervalues())) for i in results}
+	results = {i: {k:v for k,v in bombers.items() if v[0] == i} for i in range(save.ntypes)}
+	full = {i: (len(results[i]), sum(v[1] for v in results[i].values())) for i in results}
+	deadresults = {i: {k:v for k,v in results[i].items() if not v[2]} for i in results}
+	dead = {i: (len(deadresults[i]), sum(v[1] for v in deadresults[i].values())) for i in results}
 	if targ_id is None:
 		return {i: {'full':full[i], 'fullr':full[i][1]/full[i][0] if full[i][0] else 0,
 					'dead':dead[i], 'deadr':dead[i][1]/dead[i][0] if dead[i][0] else 0,
@@ -161,14 +163,14 @@ def extract_profit(save, before=None, after=None, targ_id=None):
 
 def extract_targ_profit(save, before=None, after=None, typ=None):
 	bombers = {b['id']:[b['type'], 0, True, True] for b in save.init.bombers}
-	targets = [[t['dmg'], 0, dict((i,0) for i in xrange(save.ntypes))] for t in save.init.targets]
+	targets = [[t['dmg'], 0, dict((i,0) for i in range(save.ntypes))] for t in save.init.targets]
 	days = sorted(hhist.group_by_date(save.history))
 	classes = [[tcls,tcls], [icls,icls]]
 	for d in days:
 		daily_profit(d, bombers, targets, classes, d[0]>=after if after else True, d[0]>=before if before else False, typ=typ)
 	gains, losses = zip(*targets)[1:]
 	lossvalue = [sum(l*hdata.Bombers[i]['cost'] for i,l in loss.items()) for loss in losses]
-	return {i: {'gain': gains[i], 'loss': losses[i], 'cost': lossvalue[i]} for i in xrange(save.init.ntargets)}
+	return {i: {'gain': gains[i], 'loss': losses[i], 'cost': lossvalue[i]} for i in range(save.init.ntargets)}
 
 def parse_args(argv):
 	x = optparse.OptionParser()
@@ -218,7 +220,7 @@ if __name__ == '__main__':
 			else:
 				if not gain: continue
 				ratio = '--'
-			print "%s: %9d / %9d = %s" % (name, gain, loss, ratio)
+			print("%s: %9d / %9d = %s" % (name, gain, loss, ratio))
 	else:
 		profit = extract_profit(save, before, after, targ_id=opts.targ)
 		for i in profit:
@@ -226,4 +228,4 @@ if __name__ == '__main__':
 			full = "(%d) = %g" % (profit[i]['full'][0], profit[i]['fullr'])
 			dead = "(%d) = %g" % (profit[i]['dead'][0], profit[i]['deadr'])
 			opti = "%g" % (profit[i]['opti'])
-			print "%s: all%s, dead%s, optimistic %s, cost %d" % (name, full, dead, opti, hdata.Bombers[i]['cost'])
+			print("%s: all%s, dead%s, optimistic %s, cost %d" % (name, full, dead, opti, hdata.Bombers[i]['cost']))
