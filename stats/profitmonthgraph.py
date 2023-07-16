@@ -15,6 +15,7 @@ def parse_args(argv):
 	x = optparse.OptionParser()
 	x.add_option('--opti', action='store_true')
 	x.add_option('--dead', action='store_true')
+	x.add_option('--cr-only', action='store_true')
 	x.add_option('--legend', action='store_true', default=True)
 	x.add_option('--nolegend', dest='legend', action='store_false')
 	opts, args = x.parse_args()
@@ -53,12 +54,18 @@ if __name__ == '__main__':
 		full = {i: (len(results[i]), sum(v[1] for v in results[i].values())) for i in results}
 		deadresults = {i: {k:v for k,v in results[i].items() if not v[2]} for i in results}
 		dead = {i: (len(deadresults[i]), sum(v[1] for v in deadresults[i].values())) for i in results}
+		cd = dead
+		if opts.cr_only:
+			crresults = {i: {k:v for k,v in deadresults[i].items() if v[4]} for i in results}
+			cr = {i: (len(crresults[i]),) for i in results}
+			cd = cr
 		p = {i: {'full':full[i], 'fullr':full[i][1]/full[i][0] if full[i][0] else 0,
 				'dead':dead[i], 'deadr':dead[i][1]/dead[i][0] if dead[i][0] else 0,
-				'opti':full[i][1]/dead[i][0] if dead[i][0] else 0}
+				'cr':cr[i] if opts.cr_only else None,
+				'opti':full[i][1]/cd[i][0] if cd[i][0] else 0}
 			for i in results}
 		if opts.opti:
-			value = {i: (p[i]['opti']/float(costs[i])) if p[i]['dead'][0] else None for i in range(save.ntypes)}
+			value = {i: (p[i]['opti']/float(costs[i])) if p[i]['cr' if opts.cr_only else 'dead'][0] else None for i in range(save.ntypes)}
 		elif opts.dead:
 			value = {i: (p[i]['deadr']/float(costs[i])) if p[i]['dead'][0] else None for i in range(save.ntypes)}
 		else:

@@ -18,9 +18,15 @@ if london is None:
 tcls = len(hdata.T_CLASSES)
 icls = len(hdata.I_CLASSES)
 
-# bombers = {acid: [type, earned, live, live_at_start]}
+# bombers = {acid: [type, earned, live, live_at_start, death_was_cr]}
 # targets = {ti: [dmg, shbr_earned, losses]}
 def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=None): # updates bombers, targets
+	# Callers don't (necessarily) provide death_was_cr, so tack it on the end
+	for b in bombers.values():
+		if len(b) == 4:
+			b.append(False)
+		else: # if any have it assume all the rest do, to save time
+			break
 	lasthi = None
 	if stop:
 		return
@@ -31,13 +37,14 @@ def daily_profit(d, bombers, targets, classes, start, stop, typ=None, targ_id=No
 			acid = h['data']['acid']
 			if h['data']['type']['fb'] == 'B':
 				if h['data']['etyp'] == 'CT':
-					bombers[acid]=[int(h['data']['type']['ti']), 0, True, True]
+					bombers[acid]=[int(h['data']['type']['ti']), 0, True, True, False]
 				else:
 					if acid not in bombers:
 						print('Warning: un-inited bomber %08x (%d)'%(acid, h['data']['type']['ti']))
 						bombers[acid] = [int(h['data']['type']['ti']), 0, True, True]
 					if h['data']['etyp'] in ['CR', 'SC', 'OB']:
 						bombers[acid][2] = False
+						bombers[acid][4] = h['data']['etyp'] == 'CR'
 						if not start:
 							bombers[acid][3] = False
 						elif h['data']['etyp'] == 'CR':
