@@ -13,7 +13,7 @@ CFLAGS += -Wall -Wextra -Werror --std=gnu11 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDI
 
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
-SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS) handle_crews.o handle_squadrons.o
+SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS) handle_crews.o handle_squadrons.o builder.o
 OBJS := globals.o weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o mods.o almanack.o $(SCREEN_OBJS)
 INCLUDES := $(OBJS:.o=.h) types.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
@@ -102,6 +102,8 @@ intel_targets.o: ui.h globals.h bits.h date.h render.h
 handle_crews.o: ui.h globals.h date.h post_raid.h bits.h render.h widgets.h
 
 handle_squadrons.o: ui.h globals.h date.h bits.h control.h rand.h render.h run_raid.h
+
+builder.o: ui.h globals.h bits.h date.h
 
 mods.o: ui.h globals.h bits.h render.h
 

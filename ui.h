@@ -36,6 +36,7 @@ typedef enum
 	SCRN_INTELTRG,
 	SCRN_HCREWS,
 	SCRN_SQUADRONS,
+	SCRN_BUILDER,
 	NUM_SCREENS,
 }
 screen_id;
@@ -64,6 +65,7 @@ int intel_fighters_create(void);
 int intel_targets_create(void);
 int handle_crews_create(void);
 int handle_squadrons_create(void);
+int builder_create(void);
 
 screen_id main_menu_screen(atg_canvas *, game *);
 screen_id setup_game_screen(atg_canvas *, game *);
@@ -80,6 +82,7 @@ screen_id intel_fighters_screen(atg_canvas *, game *);
 screen_id intel_targets_screen(atg_canvas *, game *);
 screen_id handle_crews_screen(atg_canvas *, game *);
 screen_id handle_squadrons_screen(atg_canvas *, game *);
+screen_id builder_screen(atg_canvas *, game *);
 
 void main_menu_free(void);
 void setup_game_free(void);
@@ -96,6 +99,7 @@ void intel_fighters_free(void);
 void intel_targets_free(void);
 void handle_crews_free(void);
 void handle_squadrons_free(void);
+void builder_free(void);
 
 extern screen_id intel_caller;
 extern SDL_Surface *ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED+1];

@@ -44,6 +44,7 @@
 #include "intel_targets.h"
 #include "handle_crews.h"
 #include "handle_squadrons.h"
+#include "builder.h"
 
 #include "version.h"
 
@@ -210,6 +211,7 @@ int main(int argc, char *argv[])
 	screens[SCRN_INTELTRG]=MAKE_SCRN(intel_targets);
 	screens[SCRN_HCREWS]=MAKE_SCRN(handle_crews);
 	screens[SCRN_SQUADRONS]=MAKE_SCRN(handle_squadrons);
+	screens[SCRN_BUILDER]=MAKE_SCRN(builder);
 	#undef MAKE_SCRN
 
 	for(unsigned int i=0;i<NUM_SCREENS;i++)
