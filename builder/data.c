@@ -82,7 +82,7 @@ out:
 
 int load_guns(struct list_head *head)
 {
-	int fd = open("guns", O_RDONLY), rc;
+	int fd = open("builder/dat/guns", O_RDONLY), rc;
 
 	if (fd < 0)
 		return -errno;
@@ -190,7 +190,7 @@ out:
 
 int load_engines(struct list_head *head)
 {
-	int fd = open("eng", O_RDONLY), rc;
+	int fd = open("builder/dat/eng", O_RDONLY), rc;
 
 	if (fd < 0)
 		return -errno;
@@ -317,7 +317,7 @@ out:
 
 int load_manfs(struct list_head *head)
 {
-	int fd = open("manu", O_RDONLY), rc;
+	int fd = open("builder/dat/manu", O_RDONLY), rc;
 	struct manf_loader loader;
 
 	if (fd < 0)
@@ -548,7 +548,7 @@ out:
 int load_techs(struct list_head *head, struct list_head *engines,
 	       struct list_head *guns)
 {
-	int fd = open("tech", O_RDONLY), rc;
+	int fd = open("builder/dat/tech", O_RDONLY), rc;
 	struct tech_loader loader;
 
 	loader.head = head;

@@ -149,6 +149,13 @@ manifest = {
 				'yellowhair.png',
 				]
 		},
+	'builder': {'dat': {'.':[
+					'eng',
+					'guns',
+					'manu',
+					'tech',
+					]
+		}},
 	'dat': {'cities': {'.':[
 					'Augsburg.pbm',
 					'Berlin.pbm',
