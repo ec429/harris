@@ -2,7 +2,7 @@
 	harris - a strategy game
 	Copyright (C) 2012-2015 Edward Cree
 
-	licensed under GPLv3+ - see top of harris.c for details
+	licensed under GPLv2 - see top of harris.c for details
 	
 	stats/read_history: parse a game event log for stats purposes.  Just a test/demo of the hist_record API
 */

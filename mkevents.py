@@ -11,7 +11,7 @@ if sys.argv[1] == 'h':
 	harris - a strategy game
 	Copyright (C) 2012-2013 Edward Cree
 
-	licensed under GPLv3+ - see top of harris.c for details
+	licensed under GPLv2 - see top of harris.c for details
 
 	events: maps event names to ids
 */
@@ -37,7 +37,7 @@ else:
 	harris - a strategy game
 	Copyright (C) 2012-2013 Edward Cree
 
-	licensed under GPLv3+ - see top of harris.c for details
+	licensed under GPLv2 - see top of harris.c for details
 
 	events: maps event names to ids
 */
