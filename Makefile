@@ -9,12 +9,13 @@ DATIDIR ?= $(PREFIX)/share/games/harris
 USAVDIR := .local/share/harris
 
 CC ?= gcc
-CFLAGS += -Wall -Wextra -Werror --std=gnu11 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDIR=\"$(USAVDIR)\" -Wno-format-truncation
+CFLAGS += -Wall -Wextra -Werror --std=gnu11 -g -DDATIDIR=\"$(DATIDIR)\" -DUSAVDIR=\"$(USAVDIR)\" -Wno-format-truncation -Wno-missing-field-initializers
 
 LIBS := -latg -lm
 INTEL_OBJS := intel_bombers.o intel_fighters.o intel_targets.o
 SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_game.o save_game.o control.o run_raid.o raid_results.o post_raid.o $(INTEL_OBJS) handle_crews.o handle_squadrons.o builder.o
-OBJS := globals.o weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o mods.o almanack.o $(SCREEN_OBJS)
+BUILDER_OBJS := builder/data.o builder/calc.o builder/init.o builder/save.o builder/parse.o
+OBJS := globals.o weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o mods.o almanack.o $(SCREEN_OBJS) $(BUILDER_OBJS)
 INCLUDES := $(OBJS:.o=.h) types.h version.h
 SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
 
@@ -104,6 +105,14 @@ handle_crews.o: ui.h globals.h date.h post_raid.h bits.h render.h widgets.h
 handle_squadrons.o: ui.h globals.h date.h bits.h control.h rand.h render.h run_raid.h
 
 builder.o: ui.h globals.h bits.h date.h
+
+builder/calc.o: builder/list.h builder/data.h
+
+builder/data.o: builder/list.h builder/parse.h
+
+builder/init.o: builder/list.h builder/calc.h builder/data.h
+
+builder/save.o: builder/list.h builder/calc.h builder/data.h builder/parse.h
 
 mods.o: ui.h globals.h bits.h render.h
 

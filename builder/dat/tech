@@ -1,0 +1,72 @@
+_MB:G4T=0:G4C=0:UBL=1:n=Medium Bombers:y=0
+_CA:CMI=165:CES=100:CCC=100:n=Crew Accommodation:y=0
+_PD:CLT=20:n=Pre-War Doctrine:y=0
+_BF:FTN=150:FTT=100:FTS=90:FTG=170:FDN=50:FDT=40:FDS=72:FDG=54:FWT=135:FSN=30:FST=64:FSS=27:FSG=20:FFN=30:FFT=40:FFS=27:FFG=20:FVN=20:FVT=30:FVS=20:FVG=8:n=Basic Fuselages:y=0
+_BM:CCN=100:CCT=160:CCS=80:CCG=100:FCN=100:FCT=160:FCS=70:FCG=110:n=Basic Manufacturing:y=0
+_CW:WTS=150:WTC=120:WTF=100:WLD=108:WCF=100:n=Cantilever Wings:y=0
+_FT:FUT=120:FUV=100:FGV=80:SFT=0:SFV=0:SFC=0:FUC=60:n=Fuel Tanks:y=0
+_PE:e=Merc:e=Mer4:e=Tigr:ETF=150:EDF=100:EES=0:EET=0:EEC=0:EMC=100:n=Pre-War Engines:y=0
+_BT:t=Ngun:t=Nose:t=Chin:t=Dor1:t=Daf1:t=Vaf1:t=Ven1:t=Beam:t=Tail:t=Ta4e:t=For1:t=Fore:t=For4:GTF=75:GDF=24:GCF=100:GAC=30:GAM=180:n=Basic Turrets:y=0
+_IB:BTS=70:BTM=100:BTC=0:BMC=0:BBB=8:BBF=2:CSB=0:n=Internal Bay:y=0
+_ED:ESL=0:n=Engine Dynamo:y=0
+_BN:NAG=0:NAH=0:NAO=0:n=Basic Navigation:y=0
+_GR:RGS=90:RGG=50:RCS=0:RCG=0:n=Grass Runways:y=0
+FEB:G4T=180:G4C=100:n=Four Engined Bombers:y=1939:m=11:d=Allows the construction of aircraft with 4 or more engines.
+MFE:G4T=80:G4C=95:r=FEB:n=Mature Four-Engine Layout:y=1941:m=4:d=Reduces the weight and cost penalty for using 4+ engines.
+CRS:CMI=170:CES=110:CCC=105:n=Crew Stations:y=1940:m=5:d=Improves crew performance, at a slight weight and cost penalty.
+ICS:CMI=135:CCC=108:r=CRS:n=Improved Crew Stations:y=1942:m=10:d=Reduces the weight of each crewman's equipment.
+DHA:CLT=27:n=High Altitude Doctrine:y=1941:m=3:d=Allows the aircraft to spend longer climbing, for a higher ceiling.
+IGF:FTG=140:FCG=120:n=Improved Geodetics:y=1940:m=6:d=Lighter and cheaper geodetic fuselage structures.
+RFF:FTN=110:FTT=80:FDN=45:FDT=36:FCN=150:FCT=220:FDS=68:n=Refined Fuselages:y=1941:m=2:d=Reduces weight and drag of normal and slender fuselage.
+GSF:FDG=48:FCG=130:r=IGF:n=Geodetic Streamlining:y=1941:m=1:d=Reduces drag of geodetic fuselage, at a slight cost penalty.
+SCF:FTN=80:FTT=60:FTS=50:FCN=220:FCT=300:FCS=140:FWT=125:r=RFF:n=Fuselage Stressing Calcs:y=1942:m=12:d=Reduces weight of fuselages (not geodetic).  Cost up slightly.
+LWW:WTF=90:WCF=120:n=Lightweight Wings:y=1940:m=9:d=Reduces weight of wings.
+ISW:WTS=145:WTC=120:WTF=110:WCF=115:r=LWW:n=Improved Wing Structures:y=1941:m=4:d=Reduces weight of large wings.
+SCW:WTS=140:WTC=110:WTF=165:WCF=135:r=ISW:n=Wing Stressing Calcs:y=1942:m=9:d=Further reduces weight of large wings.
+AER:WLD=111:n=Improved Aerofoils:y=1940:m=12:d=Improves lift-to-drag ratio of wings.
+RFA:WLD=115:r=AER:n=Refined Aerofoils:y=1943:m=2:d=Further improves lift-to-drag ratio of wings.
+SST:SFT=110:SFV=50:SFC=125:n=Self-Sealing Tanks:y=1939:m=9:d=Allows installing self-sealing fuel tanks to reduce losses.
+FUG:FGV=72:n=Fuel for Geodetics:y=1940:m=4:d=Reduces vulnerability of fuel tanks in geodetic wings.
+ISS:SFV=35:r=SST:n=Improved Self-Sealing:y=1940:m=8:d=Increases the effectiveness of self-sealing fuel tanks.
+LFT:FUT=100:FUC=81:n=Lightweight Fuel Tanks:y=1940:m=11:d=Reduces the empty weight of fuel tankage.
+IFT:FUT=90:FUV=90:FUC=96:r=LFT:n=Improved Fuel Tanks:y=1942:m=3:d=Lighter, less vulnerable fuel tankage.
+HPE:ESL=1:n=High Power Electrics:y=1940:m=4:d=High-power electrics allow various aids to navigation.
+SVS:ESL=2:r=HPE:n=Stable Voltage Supply:y=1941:m=7:d=Allows installation of sophisticated radionavigation equipment.
+LPE:e=Pega:e=MerX:e=Dagg:n=1939 Engines:y=2:d=Unlocks the Pegasus XVIII, Merlin X and Dagger VIII.
+X24:e=Vult:e=Sab2:n=24-Cylinder Engines:y=1939:m=9:d=Unlocks the Vulture I and Sabre II.
+VUR:e=Vul5:r=X24:n=Vulture Reliability:y=1941:m=8:d=Unlocks the Vulture V.
+SAB:e=Sab5:r=X24:n=Evolved Sabre:y=1944:m=2:d=Unlocks the Sabre V.
+V12:e=MeXX:n=V-12 Development:y=1940:m=12:d=Unlocks the Merlin XX.
+TSS:e=Mer6:r=V12:n=Two-Stage Supercharging:y=1942:m=1:d=Unlocks the Merlin 60.
+SLV:e=Her3:e=Cent:n=Sleeve Valve:y=1940:m=3:d=Unlocks the Hercules III and Centaurus I.
+RSV:e=HeXI:r=SLV:n=Reliable Sleeve Valve:y=1940:m=12:d=Unlocks the Hercules XI.
+SVG:e=He18:e=Cen7:r=RSV:n=Sleeve Valve Growth:y=1942:m=10:d=Unlocks the Hercules XVIII and Centaurus VII.
+TRR:e=Deer:n=Triple-Row Radials:y=1940:m=9:d=Unlocks the Deerhound II.
+CLE:EDF=90:EMC=110:n=Clean Entry:y=1941:m=11:d=Reduces the drag of engine mountings.
+EGG:EES=90:EET=105:EEC=95:n=Power Egg:y=1941:m=4:d=Power Egg mounts improve serviceability, and speed up engine refits.
+IEM:ETF=125:EMC=120:r=CLE:n=Improved Engine Mountings:y=1943:m=1:d=Reduces the weight of engine installations.
+PAP:n=Paddleblade Prop:y=1943:m=3:d=Unimplemented feature.
+DUT:t=Vent:n=Dustbin Turret:y=2:d=Unlocks the Ventral dustbin (twin) turret.
+ARM:t=Dors:t=Daft:t=Vaft:t=Wast:n=Armament Improvements:y=1939:m=9:d=Unlocks twin dorsal turret, twin dorsal or ventral after mounts, and waist guns.
+QUT:t=Dor4:t=Tai4:r=ARM:n=Quad Turrets:y=1940:m=10:d=Unlocks four-gun dorsal and rear turrets.
+IVT:t=Ven2:r=DUT:n=Improved Ventral Turrets:y=1942:m=2:d=Unlocks the Ventral turret (twin).
+BAT:t=Ball:t=Bal4:r=IVT:n=Ball Turret:y=1942:m=11:d=Unlocks twin and quad ventral ball turrets.
+FCT:t=Dor5:t=Tai5:r=QUT:n=.50 Caliber Turret:y=1943:m=5:d=Unlocks dorsal and rear twin 50-cal turrets.
+GLT:t=Aglt:r=QUT:r=SVS:n=Gun-Laying Radar:y=1944:m=5:d=Unlocks the Rear turret (radar).
+IHY:GTF=60:GCF=105:n=Improved Hydraulics:y=1940:m=9:d=Reduces the weight of gun turrets.
+TUF:GDF=18:n=Turret Fairings:y=1941:m=8:d=Reduces the drag of gun turrets.
+LAT:GAM=135:GAC=24:n=Lightweight Ammo Tracks:y=1941:m=2:d=Reduces the per-gun weight associated with ammunition.
+GRL:r=QUT:n=Gransden Lodge Turret:y=1942:m=10:d=Unimplemented feature.
+HCB:BTM=90:BMC=1:n=High Capacity Bombs:y=1940:m=1:d=Medium-girth bomb bays are lighter, and can carry cookies externally.
+BCE:BTS=55:n=Bomb Cells:y=1939:m=12:d=Reduced structure weight for small-girth bomb bays.
+LBB:BTC=110:BBF=3:r=HCB:n=Large Bomb Bay:y=1940:m=2:d=Unlocks large-girth bomb bays, and reduces the weight penalty for very large payloads.
+BBS:BTM=80:BTC=100:BBB=10:r=LBB:n=Bomb Bay Structures:y=1941:m=3:d=Reduces the weight of bomb bays, particularly high capacities.
+CSB:CSB=1:n=Mark XIV Course-Setting Bombsight:y=1941:m=10:d=Allows installing the CSBS to improve bombing accuracy.
+GEE:NAG=1:r=HPE:n=Hyperbolic Navigation:y=1942:m=1:d=Allows installing GEE sets for coarse navigational assistance.
+H2S:NAH=1:r=SVS:n=Terrain Radar:y=1942:m=10:d=Allows installing H2S sets for blind bombing through cloud.
+OBO:NAO=1:r=SVS:n=Ranging Transponder:y=1942:m=4:d=Allows installing OBOE sets for precise radionavigation.
+GMP:NAG=2:r=GEE:n=Mass-Produced GEE:y=1942:m=8:d=Increases the supply of GEE sets
+IGR:RGS=98:RGG=50:n=Improved Grass Runways:y=1939:m=9:d=Raises the max. take-off speed and weight for grass runways to 98mph/50klb.
+CCR:RGS=100:RGG=60:RCS=106:RCG=70:r=IGR:n=Concrete Runways:y=1940:m=4:d=Allows the construction of concrete runways (106mph/70klb); slightly improves grass too.
+ICR:RCS=110:RCG=75:r=CCR:n=Improved Concrete Runways:y=1941:m=5:d=Raises the max. take-off speed and weight for concrete runways to 110mph/75klb.
+UAB:UBL=2:n=Unarmed Bomber:y=1940:m=7:d=Allows the construction of twin-engined bombers without defensive armament.

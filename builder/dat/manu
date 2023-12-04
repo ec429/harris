@@ -1,0 +1,9 @@
+**:WAP=8:WLD=100:BTS=100:BTM=100:BTC=100:BBB=0:WCF=100:WCP=120:WC4=120:WT4=140:ACC=100:ACT=100:e=:GEO=0:TPL=16:FDN=100:FDT=100:FDS=100:FDG=100:FTN=100:FTT=100:FTS=100:FTG=100:SVP=0:BOF=100
+AR:WAP=6:e=Armstrong Siddeley:FTS=90:n=Armstrong Whitworth:d=Good at slabby fuselages and low-aspect-ratio wings.
+AV:BTC=92:BBB=1:WCF=105:ACC=105:WT4=125:n=Avro:d=Good at big bomb bays and four-engined wing design.
+BR:e=Bristol:TPL=18:n=Bristol:d=Increased manoevrability - better turn rates.
+DH:FDN=75:FTN=110:BOF=90:n=de Havilland:d=Good at low-drag (normal-type) fuselages.
+HP:n=Handley Page:d=No special features.
+SH:ACT=108:ACC=80:WCF=240:WCP=110:WC4=100:SVP=15:n=Short:d=Good at building large airframes cheaply.
+SU:WLD=105:FDN=90:FDT=90:FDS=90:BOF=72:n=Supermarine:d=Better lift-drag ratios, but slower development.
+VI:GEO=1:BOF=110:n=Vickers:d=Faster development, and can construct geodetics.
