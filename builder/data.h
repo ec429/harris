@@ -77,6 +77,9 @@ enum bb_girth {
 
 	BB_COUNT
 };
+const char *describe_bbg(enum bb_girth girth);
+const char *ident_bbg(enum bb_girth girth);
+const char *describe_bbg_long(enum bb_girth girth);
 
 enum fuse_type {
 	FT_NORMAL,
@@ -86,6 +89,8 @@ enum fuse_type {
 
 	FT_COUNT
 };
+const char *ident_ft(enum fuse_type ft);
+const char *describe_ft(enum fuse_type ft);
 
 struct manf {
 	struct list_head list;
@@ -108,6 +113,7 @@ enum nav_aid {
 
 	NA_COUNT
 };
+const char *describe_navaid(enum nav_aid na);
 
 struct tech_numbers {
 	/* These MUST all be `unsigned int`!  Copying code assumes this. */

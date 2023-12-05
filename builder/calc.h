@@ -107,6 +107,7 @@ enum elec_level {
 
 	ESL_COUNT
 };
+const char *describe_esl(enum elec_level esl);
 
 struct electrics {
 	/* Inputs */
@@ -140,6 +141,7 @@ enum refit_level {
 
 	REFIT_LEVELS
 };
+const char *describe_refit(enum refit_level refit);
 
 struct randomisation {
 	bool rolled;

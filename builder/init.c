@@ -35,7 +35,7 @@ static void empty_techs(struct list_head *techs)
 	struct tech *tech;
 
 	list_for_each_entry(tech, techs)
-		tech->unlocked = !tech->year;
+		tech->unlocked = 1||!tech->year;
 }
 
 int load_builder(void)

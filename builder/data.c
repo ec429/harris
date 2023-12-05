@@ -10,6 +10,94 @@
 #include "data.h"
 #include "parse.h"
 
+const char *describe_bbg(enum bb_girth girth)
+{
+	switch (girth) {
+	case BB_SMALL:
+		return "small bombs";
+	case BB_MEDIUM:
+		return "medium bombs";
+	case BB_COOKIE:
+		return "large bombs";
+	default:
+		return "error!  unknown girth";
+	}
+}
+
+const char *ident_bbg(enum bb_girth girth)
+{
+	switch (girth) {
+	case BB_SMALL:
+		return "SMA";
+	case BB_MEDIUM:
+		return "MED";
+	case BB_COOKIE:
+		return "COO";
+	default:
+		return "err";
+	}
+}
+
+const char *describe_bbg_long(enum bb_girth girth)
+{
+	switch (girth) {
+	case BB_SMALL:
+		return "Sized to carry a multitude of small bombs internally.";
+	case BB_MEDIUM:
+		return "Can enclose small bombs, or carry cookies externally.";
+	case BB_COOKIE:
+		return "Fully-enclosed carriage of large 'cookie' bombs.";
+	default:
+		return "error!  unknown girth";
+	}
+}
+
+const char *ident_ft(enum fuse_type ft)
+{
+	switch (ft) {
+	case FT_NORMAL:
+		return "NOR";
+	case FT_SLENDER:
+		return "SLE";
+	case FT_SLABBY:
+		return "SLA";
+	case FT_GEODETIC:
+		return "GEO";
+	default:
+		return "err";
+	}
+}
+
+const char *describe_ft(enum fuse_type ft)
+{
+	switch (ft) {
+	case FT_NORMAL:
+		return "Normal fuselage design balances weight, drag and space.";
+	case FT_SLENDER:
+		return "A slender fuselage reduces drag, but is cramped and weak.";
+	case FT_SLABBY:
+		return "Slab-sided fuselages are draggy but cheap to build.";
+	case FT_GEODETIC:
+		return "Geodetic fuselage structure is strong and light.";
+	default:
+		return "error!  unknown fuselage type";
+	}
+}
+
+const char *describe_navaid(enum nav_aid na)
+{
+	switch (na) {
+	case NA_GEE:
+		return "GEE";
+	case NA_H2S:
+		return "H₂S";
+	case NA_OBOE:
+		return "OBOE";
+	default:
+		return "error!  unknown navaid";
+	}
+}
+
 #define INT_KEY(obj, kn, vn)						\
 	if (!strcmp(key, kn)) {						\
 		if (sscanf(value, "%u", &obj->vn) != 1)			\

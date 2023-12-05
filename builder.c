@@ -18,9 +18,11 @@
 
 atg_element *builder_box;
 atg_element *BB_full, *BB_cont;
-unsigned int selmanf, seleng;
-atg_element *BB_manf, *BB_engc, *BB_egg, *BB_over, *BB_eng;
+unsigned int selmanf, seleng, selft, selgirth;
+atg_element *BB_manf, *BB_engc, *BB_egg, *BB_over, *BB_eng, *BB_wa, *BB_wr;
+atg_element *BB_fuse, *BB_girth;
 char *BB_manf_buf, *BB_manf_dbuf, *BB_eng_buf, *BB_eng_dbuf, *BB_eng_obuf;
+char *BB_fuse_dbuf, *BB_girth_dbuf;
 /*atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box, *IB_crew_box;
 unsigned int IB_i, IB_showmark;
 char *IB_mark_buf;
@@ -83,6 +85,58 @@ atg_element *create_eng_selector(unsigned int *eng)
 		}
 	}
 	rv->userdata=eng;
+	return(rv);
+}
+
+atg_element *create_fuse_selector(unsigned int *ft)
+{
+	atg_element *rv=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+	if(!rv) return(NULL);
+	rv->type="selector";
+	rv->match_click_callback=selector_match_click_callback;
+	rv->render_callback=selector_render_callback;
+	for(enum fuse_type i=0;i<FT_COUNT;i++)
+	{
+		atg_element *btn=atg_create_element_button(ident_ft(i), (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+		if(!btn)
+		{
+			atg_free_element(rv);
+			return(NULL);
+		}
+		if(atg_ebox_pack(rv, btn))
+		{
+			atg_free_element(btn);
+			atg_free_element(rv);
+			return(NULL);
+		}
+	}
+	rv->userdata=ft;
+	return(rv);
+}
+
+atg_element *create_bbg_selector(unsigned int *girth)
+{
+	atg_element *rv=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+	if(!rv) return(NULL);
+	rv->type="selector";
+	rv->match_click_callback=selector_match_click_callback;
+	rv->render_callback=selector_render_callback;
+	for(enum bb_girth i=0;i<BB_COUNT;i++)
+	{
+		atg_element *btn=atg_create_element_button(ident_bbg(i), (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+		if(!btn)
+		{
+			atg_free_element(rv);
+			return(NULL);
+		}
+		if(atg_ebox_pack(rv, btn))
+		{
+			atg_free_element(btn);
+			atg_free_element(rv);
+			return(NULL);
+		}
+	}
+	rv->userdata=girth;
 	return(rv);
 }
 
@@ -179,7 +233,7 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	manf_box->h=50;
+	manf_box->h=48;
 	if(atg_ebox_pack(left_box, manf_box))
 	{
 		perror("atg_ebox_pack");
@@ -293,7 +347,7 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	eng_box->h=90;
+	eng_box->h=93;
 	if(atg_ebox_pack(left_box, eng_box))
 	{
 		perror("atg_ebox_pack");
@@ -373,7 +427,7 @@ int builder_create(void)
 		fprintf(stderr, "create_eng_selector failed\n");
 		return(1);
 	}
-	BB_eng->w=300;
+	BB_eng->w=left_box->w;
 	if(atg_ebox_pack(eng_box, BB_eng))
 	{
 		perror("atg_ebox_pack");
@@ -385,7 +439,7 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	eng_tg->w=300;
+	eng_tg->w=left_box->w;
 	if(atg_ebox_pack(eng_box, eng_tg))
 	{
 		perror("atg_ebox_pack");
@@ -464,7 +518,257 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	/* TODO: W, F, B, L, N, U, G */
+	atg_element *wing_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!wing_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	wing_box->h=20;
+	if(atg_ebox_pack(left_box, wing_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *wa_lbl=atg_create_element_label("Wing Area: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	if(!wa_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(wing_box, wa_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	BB_wa=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 200, 2400, 10, 240, "%04u", (atg_colour){0, 115, 223, ATG_ALPHA_OPAQUE}, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE});
+	if(!BB_wa)
+	{
+		fprintf(stderr, "atg_create_element_spinner failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(wing_box, BB_wa))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *ws_lbl=atg_create_element_label("sq.ft. ", 11, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	if(!ws_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(wing_box, ws_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *wr_lbl=atg_create_element_label("Aspect: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	if(!wr_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(wing_box, wr_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	BB_wr=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 10, 150, 1, 70, "%03u", (atg_colour){0, 115, 223, ATG_ALPHA_OPAQUE}, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE});
+	if(!BB_wr)
+	{
+		fprintf(stderr, "atg_create_element_spinner failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(wing_box, BB_wr))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *wrt_lbl=atg_create_element_label("/10", 11, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	if(!wrt_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(wing_box, wrt_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *fuse_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!fuse_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	fuse_box->h=34;
+	if(atg_ebox_pack(left_box, fuse_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *fuse_row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!fuse_row)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(fuse_box, fuse_row))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *fuse_lbl=atg_create_element_label("Fuselage: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	if(!fuse_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(fuse_row, fuse_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	BB_fuse=create_fuse_selector(&selft);
+	if(!BB_fuse)
+	{
+		fprintf(stderr, "create_fuse_selector failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(fuse_row, BB_fuse))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *fuse_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!fuse_tg)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	fuse_tg->w=left_box->w;
+	if(atg_ebox_pack(fuse_box, fuse_tg))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=2;
+	shim->h=8;
+	if(atg_ebox_pack(fuse_tg, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(BB_fuse_dbuf=malloc(64)))
+	{
+		perror("malloc");
+		return(1);
+	}
+	atg_element *fuse_desc=atg_create_element_label_nocopy(BB_fuse_dbuf, 9, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	if(!fuse_desc)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(fuse_tg, fuse_desc))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *bomb_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!bomb_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	bomb_box->h=72;
+	if(atg_ebox_pack(left_box, bomb_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *bomb_row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!bomb_row)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(bomb_box, bomb_row))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *bbg_lbl=atg_create_element_label("Bombbay girth: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	if(!bbg_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(bomb_row, bbg_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	BB_girth=create_bbg_selector(&selgirth);
+	if(!BB_girth)
+	{
+		fprintf(stderr, "create_bbg_selector failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(bomb_row, BB_girth))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *bomb_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!bomb_tg)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	bomb_tg->w=left_box->w;
+	if(atg_ebox_pack(bomb_box, bomb_tg))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=2;
+	shim->h=8;
+	if(atg_ebox_pack(bomb_tg, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(BB_girth_dbuf=malloc(64)))
+	{
+		perror("malloc");
+		return(1);
+	}
+	atg_element *bomb_desc=atg_create_element_label_nocopy(BB_girth_dbuf, 9, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	if(!bomb_desc)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(bomb_tg, bomb_desc))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	/* TODO: B, L, N, U, G */
 	atg_element *mid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!mid_box)
 	{
@@ -507,10 +811,13 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 	while(1)
 	{
 		const char *manf_name="", *manf_desc="";
+		unsigned int manf_geo=0;
 		if(selmanf<builder->entities.nmanf)
 		{
-			manf_name=builder->entities.manf[selmanf]->name;
-			manf_desc=builder->entities.manf[selmanf]->desc;
+			struct manf *manf=builder->entities.manf[selmanf];
+			manf_name=manf->name;
+			manf_desc=manf->desc;
+			manf_geo=manf->geo;
 		}
 		strncpy(BB_manf_buf, manf_name, 32);
 		strncpy(BB_manf_dbuf, manf_desc, 64);
@@ -530,6 +837,9 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 			snprintf(BB_eng_obuf, 64, "Mounts overbuilt for %s.", eng_over);
 		else
 			*BB_eng_obuf=0;
+		((atg_box *)BB_fuse->elemdata)->elems[FT_GEODETIC]->hidden=!manf_geo;
+		strncpy(BB_fuse_dbuf, describe_ft(selft), 64);
+		strncpy(BB_girth_dbuf, describe_bbg_long(selgirth), 64);
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{

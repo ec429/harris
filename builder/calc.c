@@ -6,20 +6,6 @@
 #include <errno.h>
 #include "calc.h"
 
-const char *describe_bbg(enum bb_girth girth)
-{
-	switch (girth) {
-	case BB_SMALL:
-		return "small bombs";
-	case BB_MEDIUM:
-		return "medium bombs";
-	case BB_COOKIE:
-		return "large bombs";
-	default:
-		return "error!  unknown girth";
-	}
-}
-
 const char *describe_esl(enum elec_level esl)
 {
 	switch (esl) {
@@ -31,20 +17,6 @@ const char *describe_esl(enum elec_level esl)
 		return "high power, stable voltage";
 	default:
 		return "error!  unknown electric supply level";
-	}
-}
-
-const char *describe_navaid(enum nav_aid na)
-{
-	switch (na) {
-	case NA_GEE:
-		return "GEE";
-	case NA_H2S:
-		return "H₂S";
-	case NA_OBOE:
-		return "OBOE";
-	default:
-		return "error!  unknown navaid";
 	}
 }
 
