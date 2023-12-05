@@ -494,6 +494,14 @@ int builder_create(void)
 
 screen_id builder_screen(atg_canvas *canvas, game *state)
 {
+	/* Hide stuff for which tech is not unlocked yet */
+	for(unsigned int i=0;i<builder->entities.neng;i++)
+	{
+		struct engine *eng=builder->entities.eng[i];
+		atg_box *b=BB_eng->elemdata;
+		b->elems[i]->hidden=!eng->unlocked;
+	}
+	BB_egg->hidden=!builder->tn.ees;
 	(void)state;
 	atg_event e;
 	while(1)
