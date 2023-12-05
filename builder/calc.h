@@ -100,15 +100,6 @@ struct fuselage {
 	float drag;
 };
 
-enum elec_level {
-	ESL_LOW,
-	ESL_HIGH,
-	ESL_STABLE,
-
-	ESL_COUNT
-};
-const char *describe_esl(enum elec_level esl);
-
 struct electrics {
 	/* Inputs */
 	enum elec_level esl;
@@ -132,16 +123,6 @@ struct tanks {
 	float ratio;
 	float vuln;
 };
-
-enum refit_level {
-	REFIT_FRESH, // A clean-sheet design
-	REFIT_MARK, // A new design based on an old one
-	REFIT_MOD, // Alterations to existing airframes
-	REFIT_DOCTRINE, // Effect of doctrine changes
-
-	REFIT_LEVELS
-};
-const char *describe_refit(enum refit_level refit);
 
 struct randomisation {
 	bool rolled;

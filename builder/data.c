@@ -84,6 +84,48 @@ const char *describe_ft(enum fuse_type ft)
 	}
 }
 
+const char *describe_esl(enum elec_level esl)
+{
+	switch (esl) {
+	case ESL_LOW:
+		return "low power";
+	case ESL_HIGH:
+		return "high power";
+	case ESL_STABLE:
+		return "high power, stable voltage";
+	default:
+		return "error!  unknown electric supply level";
+	}
+}
+
+const char *ident_esl(enum elec_level esl)
+{
+	switch (esl) {
+	case ESL_LOW:
+		return "LO";
+	case ESL_HIGH:
+		return "HI";
+	case ESL_STABLE:
+		return "SV";
+	default:
+		return "er";
+	}
+}
+
+const char *describe_esl_long(enum elec_level esl)
+{
+	switch (esl) {
+	case ESL_LOW:
+		return "Low power: basic instruments only.";
+	case ESL_HIGH:
+		return "High power: can use beams and beacons, supports GEE.";
+	case ESL_STABLE:
+		return "Stable voltage supply: supports advanced navaids.";
+	default:
+		return "error!  unknown electric supply level";
+	}
+}
+
 const char *describe_navaid(enum nav_aid na)
 {
 	switch (na) {
@@ -95,6 +137,22 @@ const char *describe_navaid(enum nav_aid na)
 		return "OBOE";
 	default:
 		return "error!  unknown navaid";
+	}
+}
+
+const char *describe_refit(enum refit_level refit)
+{
+	switch (refit) {
+	case REFIT_FRESH:
+		return "Clean-sheet";
+	case REFIT_MARK:
+		return "Mark";
+	case REFIT_MOD:
+		return "Mod";
+	case REFIT_DOCTRINE:
+		return "Doctrine";
+	default:
+		return "error!  unknown refit";
 	}
 }
 

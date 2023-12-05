@@ -6,36 +6,6 @@
 #include <errno.h>
 #include "calc.h"
 
-const char *describe_esl(enum elec_level esl)
-{
-	switch (esl) {
-	case ESL_LOW:
-		return "low power";
-	case ESL_HIGH:
-		return "high power";
-	case ESL_STABLE:
-		return "high power, stable voltage";
-	default:
-		return "error!  unknown electric supply level";
-	}
-}
-
-const char *describe_refit(enum refit_level refit)
-{
-	switch (refit) {
-	case REFIT_FRESH:
-		return "Clean-sheet";
-	case REFIT_MARK:
-		return "Mark";
-	case REFIT_MOD:
-		return "Mod";
-	case REFIT_DOCTRINE:
-		return "Doctrine";
-	default:
-		return "error!  unknown refit";
-	}
-}
-
 void init_bomber(struct bomber *b, struct manf *m, struct engine *e)
 {
 	memset(b, 0, sizeof(*b));

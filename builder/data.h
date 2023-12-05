@@ -106,6 +106,17 @@ struct manf {
 int load_manfs(struct list_head *head);
 int free_manfs(struct list_head *head);
 
+enum elec_level {
+	ESL_LOW,
+	ESL_HIGH,
+	ESL_STABLE,
+
+	ESL_COUNT
+};
+const char *describe_esl(enum elec_level esl);
+const char *ident_esl(enum elec_level esl);
+const char *describe_esl_long(enum elec_level esl);
+
 enum nav_aid {
 	NA_GEE,
 	NA_H2S,
@@ -114,6 +125,16 @@ enum nav_aid {
 	NA_COUNT
 };
 const char *describe_navaid(enum nav_aid na);
+
+enum refit_level {
+	REFIT_FRESH, // A clean-sheet design
+	REFIT_MARK, // A new design based on an old one
+	REFIT_MOD, // Alterations to existing airframes
+	REFIT_DOCTRINE, // Effect of doctrine changes
+
+	REFIT_LEVELS
+};
+const char *describe_refit(enum refit_level refit);
 
 struct tech_numbers {
 	/* These MUST all be `unsigned int`!  Copying code assumes this. */
