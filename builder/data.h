@@ -3,8 +3,7 @@
 
 #include <stdbool.h>
 #include "list.h"
-
-#define ARRAY_SIZE(x)	(sizeof(x) / sizeof(*x))
+#include "../bits.h"
 
 enum turret_location {
 	LXN_UNSPEC,
@@ -61,7 +60,7 @@ struct engine {
 	unsigned int scl;
 	unsigned int twt;
 	unsigned int drg;
-	struct engine *u; /* can mod to us with overbuilt mounts */
+	struct engine *u; /* can mod to this with overbuilt mounts */
 	char *manu;
 	char *name;
 	char *desc;
@@ -208,6 +207,12 @@ struct entities {
 	struct engine **eng;
 	struct manf **manf;
 	struct tech **tech;
+};
+
+struct builder_data {
+	struct list_head guns, engines, manfs, techs;
+	struct entities entities;
+	struct tech_numbers tn;
 };
 
 int populate_entities(struct entities *ent, struct list_head *guns,

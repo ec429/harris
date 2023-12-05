@@ -21,6 +21,7 @@
 #include "render.h"
 #include "ui.h"
 #include "widgets.h"
+#include "builder/init.h"
 
 #ifdef WINDOWS /* I hate having to put in these ugly warts */
 #define ssize_t	int
@@ -140,6 +141,11 @@ int load_data(void)
 	if((rc=load_starts()))
 	{
 		fprintf(stderr, "Failed to load startpoints, rc=%d\n", rc);
+		return(rc);
+	}
+	if((rc=load_builder()))
+	{
+		fprintf(stderr, "Failed to load HBuilder data, rc=%d\n", rc);
 		return(rc);
 	}
 	return(0);

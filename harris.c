@@ -26,6 +26,7 @@
 #include "events.h"
 #include "load_data.h"
 #include "globals.h"
+#include "builder/init.h"
 
 /* UI screens */
 #include "main_menu.h"
@@ -263,5 +264,6 @@ int main(int argc, char *argv[])
 	SDL_FreeSurface(england);
 	SDL_FreeSurface(terrain);
 	SDL_FreeSurface(location);
+	free_builder_data();
 	return(0);
 }

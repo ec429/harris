@@ -81,3 +81,6 @@ extern bool fullscreen;
 
 extern bool localdat, localsav;
 extern char *cwd;
+
+/* Builder */
+extern struct builder_data *builder;

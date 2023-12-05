@@ -16,16 +16,16 @@
 const char *prio_labels[4]={"NONE","LOW","MED","HIGH"};
 atg_colour prio_colours[4]={{31, 31, 95, 0}, {95, 31, 31, 0}, {95, 95, 15, 0}, {31, 159, 31, 0}};
 
-SDL_Surface *priority_selector_render_callback(const struct atg_element *e);
-void priority_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
+SDL_Surface *selector_render_callback(const struct atg_element *e);
+void selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
 
 atg_element *create_priority_selector(unsigned int *prio)
 {
 	atg_element *rv=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
 	if(!rv) return(NULL);
 	rv->type="priority_selector";
-	rv->match_click_callback=priority_selector_match_click_callback;
-	rv->render_callback=priority_selector_render_callback;
+	rv->match_click_callback=selector_match_click_callback;
+	rv->render_callback=selector_render_callback;
 	for(unsigned int i=0;i<4;i++)
 	{
 		atg_colour fg=prio_colours[i];
@@ -46,7 +46,7 @@ atg_element *create_priority_selector(unsigned int *prio)
 	return(rv);
 }
 
-SDL_Surface *priority_selector_render_callback(const struct atg_element *e)
+SDL_Surface *selector_render_callback(const struct atg_element *e)
 {
 	if(!e) return(NULL);
 	atg_box *b=e->elemdata;
@@ -68,7 +68,7 @@ SDL_Surface *priority_selector_render_callback(const struct atg_element *e)
 	return(atg_render_box(e));
 }
 
-void priority_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff)
+void selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff)
 {
 	atg_box *b=element->elemdata;
 	if(!b->elems) return;

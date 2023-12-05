@@ -128,7 +128,7 @@ static int calc_engines(struct bomber *b)
 		design_error(b, "Mount type not specified!\n");
 		return -EINVAL;
 	}
-	if (e->mou != e->typ && e->mou->u != e->typ)
+	if (e->mou != e->typ && e->mou != e->typ->u)
 		design_error(b, "Mounts are for wrong engine type %s!\n",
 			     e->mou->name);
 	if (!e->typ->unlocked)

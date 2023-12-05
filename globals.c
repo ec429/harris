@@ -117,6 +117,8 @@ bool localdat=false, localsav=false;
 char *cwd;
 #endif
 
+struct builder_data *builder;
+
 int set_init_state(game *state)
 {
 	state->nbombers=state->nfighters=0;

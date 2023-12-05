@@ -3,10 +3,7 @@
 
 #include <stdbool.h>
 #include "data.h"
-#include "../crew.h"
-
-#define min(a, b)	((a) < (b) ? (a) : (b))
-#define max(a, b)	((a) < (b) ? (b) : (a))
+#include "../types.h"
 
 struct engines {
 	/* Inputs */
@@ -62,8 +59,6 @@ struct crewman {
 	enum cclass pos;
 	bool gun;
 };
-
-#define MAX_CREW	16
 
 struct crew {
 	/* Inputs */

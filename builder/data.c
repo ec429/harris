@@ -146,7 +146,11 @@ static int load_engine_word(const char *key, const char *value, void *data)
 
 		list_for_each_entry(ueng, loader->engines) {
 			if (!strcmp(value, ueng->ident)) {
-				eng->u = ueng;
+				if (ueng->u) {
+					fprintf(stderr, "load_engine_word: u-engine '%s' already upgrades to '%s'\n", ueng->ident, ueng->u->ident);
+					return -EEXIST;
+				}
+				ueng->u = eng;
 				return 0;
 			}
 		}

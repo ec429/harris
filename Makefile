@@ -72,7 +72,7 @@ render.o: bits.h almanack.h globals.h date.h weather.h widgets.h
 
 ui.o: globals.h date.h
 
-load_data.o: globals.h bits.h date.h render.h ui.h widgets.h
+load_data.o: globals.h bits.h date.h render.h ui.h widgets.h builder/init.h
 
 main_menu.o: ui.h globals.h saving.h setup_game.h control.h date.h
 
@@ -104,15 +104,15 @@ handle_crews.o: ui.h globals.h date.h post_raid.h bits.h render.h widgets.h
 
 handle_squadrons.o: ui.h globals.h date.h bits.h control.h rand.h render.h run_raid.h
 
-builder.o: ui.h globals.h bits.h date.h
+builder.o: ui.h globals.h bits.h date.h widgets.h builder/data.h builder/list.h
 
-builder/calc.o: builder/list.h builder/data.h
+builder/calc.o: builder/list.h builder/data.h bits.h
 
-builder/data.o: builder/list.h builder/parse.h
+builder/data.o: builder/list.h builder/parse.h bits.h
 
-builder/init.o: builder/list.h builder/calc.h builder/data.h
+builder/init.o: builder/list.h builder/calc.h builder/data.h globals.h bits.h
 
-builder/save.o: builder/list.h builder/calc.h builder/data.h builder/parse.h
+builder/save.o: builder/list.h builder/calc.h builder/data.h builder/parse.h bits.h
 
 mods.o: ui.h globals.h bits.h render.h
 

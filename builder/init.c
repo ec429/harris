@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 
+#include "init.h"
 #include "data.h"
 #include "calc.h"
+#include "../globals.h"
 
 static void error(const char *msg, int rc)
 {
@@ -35,71 +38,74 @@ static void empty_techs(struct list_head *techs)
 		tech->unlocked = !tech->year;
 }
 
-/* This isn't used by anything yet, and loading into locals obviously
- * doesn't make sense; when we integrate a bit further the entities,
- * tech_numbers etc. will live in Harris globals and we'll split the
- * freeing at the end of this function into a separate function.
- */
 int load_builder(void)
 {
-	struct list_head guns, engines, manfs, techs;
-	struct entities entities;
-	struct tech_numbers tn;
 	int rc;
 
-	INIT_LIST_HEAD(&guns);
-	INIT_LIST_HEAD(&engines);
-	INIT_LIST_HEAD(&manfs);
-	INIT_LIST_HEAD(&techs);
+	builder = calloc(1, sizeof(*builder));
+	if (!builder) {
+		error("Failed to allocate builder data", -ENOMEM);
+		return 1;
+	}
+	INIT_LIST_HEAD(&builder->guns);
+	INIT_LIST_HEAD(&builder->engines);
+	INIT_LIST_HEAD(&builder->manfs);
+	INIT_LIST_HEAD(&builder->techs);
 
-	rc = load_guns(&guns);
+	rc = load_guns(&builder->guns);
 	if (rc < 0) {
 		error("Failed to load guns", rc);
 		return 1;
 	}
 	fprintf(stderr, "Loaded %d guns\n", rc);
 
-	rc = load_engines(&engines);
+	rc = load_engines(&builder->engines);
 	if (rc < 0) {
 		error("Failed to load engines", rc);
 		return 1;
 	}
 	fprintf(stderr, "Loaded %d engines\n", rc);
 
-	rc = load_manfs(&manfs);
+	rc = load_manfs(&builder->manfs);
 	if (rc < 0) {
 		error("Failed to load manfs", rc);
 		return 1;
 	}
 	fprintf(stderr, "Loaded %d manfs\n", rc);
 
-	rc = load_techs(&techs, &engines, &guns);
+	rc = load_techs(&builder->techs, &builder->engines, &builder->guns);
 	if (rc < 0) {
 		error("Failed to load techs", rc);
 		return 1;
 	}
 	fprintf(stderr, "Loaded %d techs\n", rc);
 
-	rc = populate_entities(&entities, &guns, &engines, &manfs, &techs);
+	rc = populate_entities(&builder->entities, &builder->guns,
+			       &builder->engines, &builder->manfs,
+			       &builder->techs);
 	if (rc < 0) {
 		error("Failed to create entity arrays", rc);
 		return 1;
 	}
 
-	empty_guns(&guns);
-	empty_engines(&engines);
-	empty_techs(&techs);
-	rc = apply_techs(&entities, &tn);
+	empty_guns(&builder->guns);
+	empty_engines(&builder->engines);
+	empty_techs(&builder->techs);
+	rc = apply_techs(&builder->entities, &builder->tn);
 	if (rc < 0) {
 		error("Failed to init techs", rc);
 		return 1;
 	}
 	fprintf(stderr, "Initialised tech state\n");
-
-	fprintf(stderr, "Cleaning up...\n");
-	free_techs(&techs);
-	free_guns(&guns);
-	free_engines(&engines);
-	free_manfs(&manfs);
 	return 0;
+}
+
+void free_builder_data(void)
+{
+	free_techs(&builder->techs);
+	free_guns(&builder->guns);
+	free_engines(&builder->engines);
+	free_manfs(&builder->manfs);
+	free(builder);
+	return;
 }
