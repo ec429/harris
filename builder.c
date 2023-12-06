@@ -894,7 +894,7 @@ int builder_create(void)
 	BB_esl=create_esl_selector(&selesl);
 	if(!BB_esl)
 	{
-		fprintf(stderr, "create_bbg_selector failed\n");
+		fprintf(stderr, "create_esl_selector failed\n");
 		return(1);
 	}
 	if(atg_ebox_pack(elec_row, BB_esl))
