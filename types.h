@@ -14,7 +14,15 @@
 #include "crew.h"
 #include "events.h"
 
-#define NNAVAIDS	4
+enum nav_aid {
+	NAV_GEE,
+	NAV_H2S,
+	NAV_OBOE,
+	NAV_GH,
+
+	NNAVAIDS
+};
+
 #define MAXMSGS		8
 
 #define HIST_LINE	240

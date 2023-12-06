@@ -434,10 +434,11 @@ static int calc_fuselage(struct bomber *b)
 	return 0;
 }
 
-static unsigned int nacost[NA_COUNT] = {
-	[NA_GEE] = 500,
-	[NA_H2S] = 2500,
-	[NA_OBOE] = 3000,
+static unsigned int nacost[NNAVAIDS] = {
+	[NAV_GEE] = 500,
+	[NAV_H2S] = 2500,
+	[NAV_OBOE] = 3000,
+	[NAV_GH] = 0, // XXX it doesn't do anything yet, so don't charge for it
 };
 
 static int calc_electrics(struct bomber *b)
@@ -453,17 +454,17 @@ static int calc_electrics(struct bomber *b)
 		design_error(b, "Electrics %s not developed yet!\n",
 			     describe_esl(e->esl));
 	e->ncost = 0.0f;
-	for (i = 0; i < NA_COUNT; i++)
+	for (i = 0; i < NNAVAIDS; i++)
 		if (e->navaid[i]) {
 			if (!tn->na[i])
 				design_error(b, "Navaid %s not developed yet!\n",
 					     describe_navaid(i));
-			else if (e->esl < (i == NA_GEE ? ESL_HIGH : ESL_STABLE))
+			else if (e->esl < (i == NAV_GEE ? ESL_HIGH : ESL_STABLE))
 				design_error(b, "Navaid %s requires better electrics!\n",
 					     describe_navaid(i));
 			e->ncost += nacost[i];
 		}
-	if (b->turrets.typ[LXN_VENTRAL] && e->navaid[NA_H2S])
+	if (b->turrets.typ[LXN_VENTRAL] && e->navaid[NAV_H2S])
 		design_error(b, "H₂S conflicts with turret in ventral position!\n");
 	/* This is all hard-coded; datafiles / techlevels don't get to
 	 * change these coefficients.

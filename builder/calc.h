@@ -103,7 +103,7 @@ struct fuselage {
 struct electrics {
 	/* Inputs */
 	enum elec_level esl;
-	bool navaid[NA_COUNT];
+	bool navaid[NNAVAIDS];
 	/* Output cache */
 	float cost;
 	float ncost;

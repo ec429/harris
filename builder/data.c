@@ -129,12 +129,14 @@ const char *describe_esl_long(enum elec_level esl)
 const char *describe_navaid(enum nav_aid na)
 {
 	switch (na) {
-	case NA_GEE:
+	case NAV_GEE:
 		return "GEE";
-	case NA_H2S:
-		return "H₂S";
-	case NA_OBOE:
+	case NAV_H2S:
+		return "H2S";
+	case NAV_OBOE:
 		return "OBOE";
+	case NAV_GH:
+		return "GH";
 	default:
 		return "error!  unknown navaid";
 	}
@@ -578,9 +580,10 @@ int try_load_tn_word(const char *key, const char *value,
 	INT_KEY(tn, "BBF", bbf);
 	INT_KEY(tn, "ESL", esl);
 	INT_KEY(tn, "CSB", csb);
-	INT_KEY(tn, "NAG", na[NA_GEE]);
-	INT_KEY(tn, "NAH", na[NA_H2S]);
-	INT_KEY(tn, "NAO", na[NA_OBOE]);
+	INT_KEY(tn, "NAG", na[NAV_GEE]);
+	INT_KEY(tn, "NAH", na[NAV_H2S]);
+	INT_KEY(tn, "NAO", na[NAV_OBOE]);
+	INT_KEY(tn, "NAJ", na[NAV_GH]);
 	INT_KEY(tn, "RGS", rgs);
 	INT_KEY(tn, "RGG", rgg);
 	INT_KEY(tn, "RCS", rcs);

@@ -20,7 +20,7 @@ atg_element *builder_box;
 atg_element *BB_full, *BB_cont;
 unsigned int selmanf, seleng, selft, selgirth, selesl;
 atg_element *BB_manf, *BB_engc, *BB_egg, *BB_over, *BB_eng, *BB_wa, *BB_wr;
-atg_element *BB_fuse, *BB_girth, *BB_cap, *BB_csbs, *BB_esl;
+atg_element *BB_fuse, *BB_girth, *BB_cap, *BB_csbs, *BB_esl, *BB_na[NNAVAIDS];
 char *BB_manf_buf, *BB_manf_dbuf, *BB_eng_buf, *BB_eng_dbuf, *BB_eng_obuf;
 char *BB_fuse_dbuf, *BB_girth_dbuf, *BB_esl_dbuf;
 /*atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box, *IB_crew_box;
@@ -902,6 +902,31 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *nav_lbl=atg_create_element_label(" Nav: ", 14, BB_INFG_COLOUR);
+	if(!nav_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(elec_row, nav_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(enum nav_aid i=0;i<NNAVAIDS;i++)
+	{
+		BB_na[i]=atg_create_element_toggle(describe_navaid(i), false, BB_INFG_COLOUR, BB_OFF_COLOUR);
+		if(!(BB_na[i]))
+		{
+			fprintf(stderr, "atg_create_element_toggle failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(elec_row, BB_na[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
 	atg_element *elec_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
 	if(!elec_tg)
 	{
@@ -943,7 +968,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	/* TODO: LN, U, G */
+	/* TODO: U, G */
 	atg_element *mid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!mid_box)
 	{

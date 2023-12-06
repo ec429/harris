@@ -47,9 +47,9 @@ static void save_tn(FILE *f, const struct tech_numbers *tn)
 		tn->gtf, tn->gdf, tn->gcf, tn->esl, tn->sft, tn->sfv, tn->sfc);
 	fprintf(f, "TN=1:CMI=%u:CES=%u:CCC=%u:GAM=%u:GAC=%u:CSB=%u\n",
 		tn->cmi, tn->ces, tn->ccc, tn->gam, tn->gac, tn->csb);
-	fprintf(f, "TN=1:NAG=%u:NAH=%u:NAO=%u:CLT=%u:BMC=%u\n",
-		tn->na[NA_GEE], tn->na[NA_H2S], tn->na[NA_OBOE],
-		tn->clt, tn->bmc);
+	fprintf(f, "TN=1:NAG=%u:NAH=%u:NAO=%u:NAJ=%u:CLT=%u:BMC=%u\n",
+		tn->na[NAV_GEE], tn->na[NAV_H2S], tn->na[NAV_OBOE],
+		tn->na[NAV_GH], tn->clt, tn->bmc);
 	fprintf(f, "TN=2:RGS=%u:RGG=%u:RCS=%u:RCG=%u\n",
 		tn->rgs, tn->rgg, tn->rcs, tn->rcg);
 }
@@ -81,7 +81,7 @@ int save_design(FILE *f, const struct bomber *b)
 		b->bay.csbs ? 1 : 0);
 	fprintf(f, "FUS=%d\n", (int)b->fuse.typ);
 	fprintf(f, "ESL=%d:NAV=", (int)b->elec.esl);
-	for (i = 0; i < NA_COUNT; i++)
+	for (i = 0; i < NNAVAIDS; i++)
 		fputc(b->elec.navaid[i] ? '1' : '0', f);
 	fputc('\n', f);
 	fprintf(f, "TAN=%u:PCT=%u:SST=%d\n", b->tanks.hlb, b->tanks.pct,
@@ -302,7 +302,7 @@ static int load_nav(const char *value, struct loaddata *l)
 {
 	unsigned int i;
 
-	for (i = 0; i < NA_COUNT; i++) {
+	for (i = 0; i < NNAVAIDS; i++) {
 		switch (value[i]) {
 		case '0':
 			break;

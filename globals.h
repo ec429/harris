@@ -10,11 +10,6 @@
 #include "types.h"
 #include "events.h"
 
-#define NAV_GEE		0
-#define NAV_H2S		1
-#define NAV_OBOE	2
-#define NAV_GH		3
-
 int set_init_state(game *state);
 
 extern const char * const navaids[NNAVAIDS];

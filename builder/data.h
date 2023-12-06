@@ -117,13 +117,6 @@ const char *describe_esl(enum elec_level esl);
 const char *ident_esl(enum elec_level esl);
 const char *describe_esl_long(enum elec_level esl);
 
-enum nav_aid {
-	NA_GEE,
-	NA_H2S,
-	NA_OBOE,
-
-	NA_COUNT
-};
 const char *describe_navaid(enum nav_aid na);
 
 enum refit_level {
@@ -198,7 +191,7 @@ struct tech_numbers {
 	unsigned int gac; // Gun Ammo track Cost * 10
 	// Equipment
 	unsigned int csb; // Mk XIV Course-Setting Bombsight (flag)
-	unsigned int na[NA_COUNT]; // Nav Aid (flag)
+	unsigned int na[NNAVAIDS]; // Nav Aid (flag)
 	/* Doctrine block.  Changes even without refit. */
 	unsigned int doctrine_block[0];
 	unsigned int clt; // CLimb Time
