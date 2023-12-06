@@ -32,6 +32,12 @@ unsigned int IB_mark_count[MAX_MARKS][2];
 char *IB_mark_count_buf[MAX_MARKS];
 SDL_Surface *IB_blank;*/
 
+const atg_colour BB_INFG_COLOUR		= {47, 79, 223, ATG_ALPHA_OPAQUE},
+		 BB_PAPER_COLOUR	= {239, 239, 239, ATG_ALPHA_OPAQUE},
+		 BB_INK_COLOUR		= {31, 31, 31, ATG_ALPHA_OPAQUE},
+		 BB_SPIN_FG_COLOUR	= {0, 115, 223, ATG_ALPHA_OPAQUE},
+		 BB_SPIN_BG_COLOUR	= {31, 15, 15, ATG_ALPHA_OPAQUE};
+
 atg_element *create_manf_selector(unsigned int *manf)
 {
 	atg_element *rv=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
@@ -42,8 +48,7 @@ atg_element *create_manf_selector(unsigned int *manf)
 	for(unsigned int i=0;i<builder->entities.nmanf;i++)
 	{
 		const char *name = builder->entities.manf[i]->ident;
-		atg_colour fg=(atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE};
-		atg_element *btn=atg_create_element_button(name, fg, GAME_BG_COLOUR);
+		atg_element *btn=atg_create_element_button(name, BB_INFG_COLOUR, GAME_BG_COLOUR);
 		if(!btn)
 		{
 			atg_free_element(rv);
@@ -70,8 +75,7 @@ atg_element *create_eng_selector(unsigned int *eng)
 	for(unsigned int i=0;i<builder->entities.neng;i++)
 	{
 		const char *name = builder->entities.eng[i]->ident;
-		atg_colour fg=(atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE};
-		atg_element *btn=atg_create_element_button(name, fg, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+		atg_element *btn=atg_create_element_button(name, BB_INFG_COLOUR, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
 		if(!btn)
 		{
 			atg_free_element(rv);
@@ -97,7 +101,7 @@ atg_element *create_fuse_selector(unsigned int *ft)
 	rv->render_callback=selector_render_callback;
 	for(enum fuse_type i=0;i<FT_COUNT;i++)
 	{
-		atg_element *btn=atg_create_element_button(ident_ft(i), (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+		atg_element *btn=atg_create_element_button(ident_ft(i), BB_INFG_COLOUR, GAME_BG_COLOUR);
 		if(!btn)
 		{
 			atg_free_element(rv);
@@ -123,7 +127,7 @@ atg_element *create_bbg_selector(unsigned int *girth)
 	rv->render_callback=selector_render_callback;
 	for(enum bb_girth i=0;i<BB_COUNT;i++)
 	{
-		atg_element *btn=atg_create_element_button(ident_bbg(i), (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+		atg_element *btn=atg_create_element_button(ident_bbg(i), BB_INFG_COLOUR, GAME_BG_COLOUR);
 		if(!btn)
 		{
 			atg_free_element(rv);
@@ -149,7 +153,7 @@ atg_element *create_esl_selector(unsigned int *esl)
 	rv->render_callback=selector_render_callback;
 	for(enum elec_level i=0;i<ESL_COUNT;i++)
 	{
-		atg_element *btn=atg_create_element_button(ident_esl(i), (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+		atg_element *btn=atg_create_element_button(ident_esl(i), BB_INFG_COLOUR, GAME_BG_COLOUR);
 		if(!btn)
 		{
 			atg_free_element(rv);
@@ -276,7 +280,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *manf_lbl=atg_create_element_label("Manufacturer: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *manf_lbl=atg_create_element_label("Manufacturer: ", 14, BB_INFG_COLOUR);
 	if(!manf_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -298,7 +302,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *manf_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	atg_element *manf_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
 	if(!manf_tg)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -310,7 +314,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
 	if(!shim)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -323,7 +327,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *manf_tb=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	atg_element *manf_tb=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
 	if(!manf_tb)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -340,7 +344,7 @@ int builder_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *manf_name=atg_create_element_label_nocopy(BB_manf_buf, 11, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *manf_name=atg_create_element_label_nocopy(BB_manf_buf, 11, BB_INK_COLOUR);
 	if(!manf_name)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -356,7 +360,7 @@ int builder_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *manf_desc=atg_create_element_label_nocopy(BB_manf_dbuf, 9, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *manf_desc=atg_create_element_label_nocopy(BB_manf_dbuf, 9, BB_INK_COLOUR);
 	if(!manf_desc)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -390,7 +394,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *eng_lbl=atg_create_element_label("Engines: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *eng_lbl=atg_create_element_label("Engines: ", 14, BB_INFG_COLOUR);
 	if(!eng_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -401,7 +405,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	BB_engc=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 1, 8, 1, 1, "%u", (atg_colour){0, 115, 223, ATG_ALPHA_OPAQUE}, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE});
+	BB_engc=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 1, 8, 1, 1, "%u", BB_SPIN_FG_COLOUR, BB_SPIN_BG_COLOUR);
 	if(!BB_engc)
 	{
 		fprintf(stderr, "atg_create_element_spinner failed\n");
@@ -425,7 +429,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	BB_egg=atg_create_element_toggle("Power Egg", false, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	BB_egg=atg_create_element_toggle("Power Egg", false, BB_INFG_COLOUR, GAME_BG_COLOUR);
 	if(!BB_egg)
 	{
 		fprintf(stderr, "atg_create_element_toggle failed\n");
@@ -436,7 +440,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	BB_over=atg_create_element_toggle("Overbuild mounts", false, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	BB_over=atg_create_element_toggle("Overbuild mounts", false, BB_INFG_COLOUR, GAME_BG_COLOUR);
 	if(!BB_over)
 	{
 		fprintf(stderr, "atg_create_element_toggle failed\n");
@@ -459,7 +463,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *eng_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	atg_element *eng_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
 	if(!eng_tg)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -471,7 +475,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
 	if(!shim)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -484,7 +488,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *eng_tb=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	atg_element *eng_tb=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
 	if(!eng_tb)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -501,7 +505,7 @@ int builder_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *eng_name=atg_create_element_label_nocopy(BB_eng_buf, 11, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *eng_name=atg_create_element_label_nocopy(BB_eng_buf, 11, BB_INK_COLOUR);
 	if(!eng_name)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -517,7 +521,7 @@ int builder_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *eng_desc=atg_create_element_label_nocopy(BB_eng_dbuf, 9, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *eng_desc=atg_create_element_label_nocopy(BB_eng_dbuf, 9, BB_INK_COLOUR);
 	if(!eng_desc)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -533,7 +537,7 @@ int builder_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *eng_over=atg_create_element_label_nocopy(BB_eng_obuf, 9, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *eng_over=atg_create_element_label_nocopy(BB_eng_obuf, 9, BB_INK_COLOUR);
 	if(!eng_over)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -556,7 +560,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *wa_lbl=atg_create_element_label("Wing Area: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *wa_lbl=atg_create_element_label("Wing Area: ", 14, BB_INFG_COLOUR);
 	if(!wa_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -567,7 +571,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	BB_wa=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 200, 2400, 10, 240, "%04u", (atg_colour){0, 115, 223, ATG_ALPHA_OPAQUE}, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE});
+	BB_wa=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 200, 2400, 10, 240, "%04u", BB_SPIN_FG_COLOUR, BB_SPIN_BG_COLOUR);
 	if(!BB_wa)
 	{
 		fprintf(stderr, "atg_create_element_spinner failed\n");
@@ -578,7 +582,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *ws_lbl=atg_create_element_label("sq.ft. ", 11, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *ws_lbl=atg_create_element_label("sq.ft. ", 11, BB_INFG_COLOUR);
 	if(!ws_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -589,7 +593,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *wr_lbl=atg_create_element_label("Aspect: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *wr_lbl=atg_create_element_label("Aspect: ", 14, BB_INFG_COLOUR);
 	if(!wr_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -600,7 +604,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	BB_wr=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 10, 150, 1, 70, "%03u", (atg_colour){0, 115, 223, ATG_ALPHA_OPAQUE}, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE});
+	BB_wr=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 10, 150, 1, 70, "%03u", BB_SPIN_FG_COLOUR, BB_SPIN_BG_COLOUR);
 	if(!BB_wr)
 	{
 		fprintf(stderr, "atg_create_element_spinner failed\n");
@@ -611,7 +615,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *wrt_lbl=atg_create_element_label("/10", 11, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *wrt_lbl=atg_create_element_label("/10", 11, BB_INFG_COLOUR);
 	if(!wrt_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -645,7 +649,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *fuse_lbl=atg_create_element_label("Fuselage: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *fuse_lbl=atg_create_element_label("Fuselage: ", 14, BB_INFG_COLOUR);
 	if(!fuse_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -667,7 +671,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *fuse_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	atg_element *fuse_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
 	if(!fuse_tg)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -679,7 +683,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
 	if(!shim)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -697,7 +701,7 @@ int builder_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *fuse_desc=atg_create_element_label_nocopy(BB_fuse_dbuf, 9, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *fuse_desc=atg_create_element_label_nocopy(BB_fuse_dbuf, 9, BB_INK_COLOUR);
 	if(!fuse_desc)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -731,7 +735,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *bbg_lbl=atg_create_element_label("Bombbay girth: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *bbg_lbl=atg_create_element_label("Bombbay girth: ", 14, BB_INFG_COLOUR);
 	if(!bbg_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -753,7 +757,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *bomb_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	atg_element *bomb_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
 	if(!bomb_tg)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -765,7 +769,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
 	if(!shim)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -783,7 +787,7 @@ int builder_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *bomb_desc=atg_create_element_label_nocopy(BB_girth_dbuf, 9, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *bomb_desc=atg_create_element_label_nocopy(BB_girth_dbuf, 9, BB_INK_COLOUR);
 	if(!bomb_desc)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -805,7 +809,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *cap_lbl=atg_create_element_label("Capacity: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *cap_lbl=atg_create_element_label("Capacity: ", 14, BB_INFG_COLOUR);
 	if(!cap_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -816,7 +820,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	BB_cap=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 500, 25000, 100, 1000, "%05u", (atg_colour){0, 115, 223, ATG_ALPHA_OPAQUE}, (atg_colour){31, 15, 15, ATG_ALPHA_OPAQUE});
+	BB_cap=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 500, 25000, 100, 1000, "%05u", BB_SPIN_FG_COLOUR, BB_SPIN_BG_COLOUR);
 	if(!BB_cap)
 	{
 		fprintf(stderr, "atg_create_element_spinner failed\n");
@@ -840,7 +844,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	BB_csbs=atg_create_element_toggle("CSBS", false, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	BB_csbs=atg_create_element_toggle("CSBS", false, BB_INFG_COLOUR, GAME_BG_COLOUR);
 	if(!BB_csbs)
 	{
 		fprintf(stderr, "atg_create_element_spinner failed\n");
@@ -874,7 +878,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *esl_lbl=atg_create_element_label("Electrics: ", 14, (atg_colour){47, 79, 223, ATG_ALPHA_OPAQUE});
+	atg_element *esl_lbl=atg_create_element_label("Electrics: ", 14, BB_INFG_COLOUR);
 	if(!esl_lbl)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -896,7 +900,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *elec_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	atg_element *elec_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
 	if(!elec_tg)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -908,7 +912,7 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
 	if(!shim)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -926,7 +930,7 @@ int builder_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *elec_desc=atg_create_element_label_nocopy(BB_esl_dbuf, 9, (atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE});
+	atg_element *elec_desc=atg_create_element_label_nocopy(BB_esl_dbuf, 9, BB_INK_COLOUR);
 	if(!elec_desc)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
