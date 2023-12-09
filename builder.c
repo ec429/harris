@@ -22,7 +22,7 @@ unsigned int selmanf, seleng, selft, selgirth, selesl, selgun[LXN_COUNT];
 atg_element *BB_manf, *BB_engc, *BB_egg, *BB_over, *BB_eng, *BB_wa, *BB_wr;
 atg_element *BB_fuse, *BB_girth, *BB_cap, *BB_csbs, *BB_esl, *BB_na[NNAVAIDS];
 atg_element *BB_fuel, *BB_fill, *BB_sst, *BB_gross, *BB_agw;
-atg_element *BB_gun[LXN_COUNT];
+atg_element *BB_gun[LXN_COUNT], *BB_cc[CREW_CLASSES], *BB_cd[CREW_CLASSES];
 char *BB_manf_buf, *BB_manf_dbuf, *BB_eng_buf, *BB_eng_dbuf, *BB_eng_obuf;
 char *BB_fuse_dbuf, *BB_girth_dbuf, *BB_esl_dbuf, *BB_gun_dbuf[LXN_COUNT];
 SDL_Surface *BB_bp;
@@ -1003,7 +1003,119 @@ int builder_create(void)
 			return(1);
 		}
 	}
-	/* TODO: T*, C, C* */
+	/* TODO: T* */
+	atg_element *crew_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
+	if(!crew_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	crew_box->h=128;
+	if(atg_ebox_pack(left_box, crew_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *crew_title_row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BG_COLOUR);
+	if(!crew_title_row)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(crew_box, crew_title_row))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *crew_lbl=atg_create_element_label("Crew:", 14, BB_INFG_COLOUR);
+	if(!crew_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	crew_lbl->w=120;
+	if(atg_ebox_pack(crew_title_row, crew_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *dual_lbl=atg_create_element_label("Dual-role as gunner:", 14, BB_INFG_COLOUR);
+	if(!dual_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(crew_title_row, dual_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(enum cclass i=0;i<CREW_CLASSES;i++)
+	{
+		atg_element *crew_row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BG_COLOUR);
+		if(!crew_row)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(crew_box, crew_row))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *crew_left=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BG_COLOUR);
+		if(!crew_left)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		crew_left->w=crew_lbl->w;
+		if(atg_ebox_pack(crew_row, crew_left))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		char label[16];
+		snprintf(label, sizeof(label), "%s: ", cclasses[i].name);
+		atg_element *ccls_lbl=atg_create_element_label(label, 14, BB_INFG_COLOUR);
+		if(!ccls_lbl)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		ccls_lbl->w=100;
+		if(atg_ebox_pack(crew_left, ccls_lbl))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		BB_cc[i]=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 0, 7, 1, 0, "%u", BB_SPIN_FG_COLOUR, BB_SPIN_BG_COLOUR);
+		if(!BB_cc[i])
+		{
+			fprintf(stderr, "atg_create_element_spinner failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(crew_left, BB_cc[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		// Engineers and Gunners can't be dual-role.
+		// There's currently no OCP=1 turret (only OCP=2 LXN_FIXED guns)
+		if(i==CCLASS_P||i==CCLASS_E||i==CCLASS_G)
+			continue;
+		BB_cd[i]=atg_create_element_spinner(ATG_SPINNER_RIGHTCLICK_STEP10, 0, 7, 1, 0, "%u", BB_SPIN_FG_COLOUR, BB_SPIN_BG_COLOUR);
+		if(!BB_cd[i])
+		{
+			fprintf(stderr, "atg_create_element_spinner failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(crew_row, BB_cd[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
 	atg_element *elec_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!elec_box)
 	{
