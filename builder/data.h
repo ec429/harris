@@ -6,7 +6,6 @@
 #include "../bits.h"
 
 enum turret_location {
-	LXN_UNSPEC,
 	LXN_NOSE,
 	LXN_DORSAL,
 	LXN_TAIL,

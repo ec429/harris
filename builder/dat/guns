@@ -1,26 +1,26 @@
-Ngun:SRV=2:TWT=25:DRG=4:LXN=1:GUN=1:GCF=10:OCN=1:OCB=1:n=Nose gun (single):d=A single .303 gun in a flexible nose mount.  May be operated by N* or B*.
-Nose:SRV=5:TWT=100:DRG=6:LXN=1:GUN=2:GCF=20:GCD=20:OCB=1:n=Nose turret (twin):d=Front turret with two .303s.  May be operated by B*.
-Chin:SRV=7:TWT=50:DRG=5:LXN=6:GUN=2:GCL=12:OCN=1:n=Rearward chin mount:d=Twin .303s firing backwards below the aircraft.  May be operated by N*.
-Daf1:SRV=4:TWT=20:DRG=5:LXN=2:GUN=1:GCH=10:n=Dorsal after (single):d=Top rearward-facing mount for a single .303 gun.
-Dor1:SRV=6:TWT=70:DRG=8:LXN=2:GUN=1:GCF=5:GCD=10:GCH=10:n=Dorsal turret (single):d=Top turret with a single .303 gun.
-Dors:SRV=5:TWT=100:DRG=9:LXN=2:GUN=2:GCF=10:GCD=20:GCH=20:n=Dorsal turret (twin):d=Top turret with two .303s.
-Dor4:SRV=6:TWT=170:DRG=12:LXN=2:GUN=4:GCF=20:GCD=40:GCH=40:n=Dorsal turret (quad):d=Top turret with four .303s.
-Dor5:SRV=7:TWT=160:DRG=10:LXN=2:GUN=5:GCF=25:GCD=50:GCH=50:n=Dorsal turret (.50):d=Top turret with two .50-cal heavy guns.
-Daft:SRV=4:TWT=30:DRG=6:LXN=2:GUN=2:GCH=20:n=Dorsal after mount:d=Top rearward-facing mount for a pair of .303s.
-Beam:SRV=3:TWT=25:DRG=4:LXN=4:GUN=2:GCD=10:GCV=4:n=Beam mount:d=One .303 gun on each side, firing over the wings.
-Wast:SRV=3:TWT=30:DRG=3:LXN=4:GUN=2:GCD=10:GCV=10:n=Waist mount:d=One .303 gun on each side, with a good field of fire.
-Vaf1:SRV=5:TWT=36:DRG=7:LXN=5:GUN=1:GCL=10:GCB=10:n=Ventral after (single):d=Rearward-facing underside mount for a single .303 gun.
-Vaft:SRV=5:TWT=50:DRG=8:LXN=5:GUN=2:GCL=20:GCB=20:n=Ventral after mount:d=Rearward-facing underside mount for a pair of .303s.
-Ven1:SRV=9:TWT=40:DRG=8:LXN=5:GUN=1:GCV=7:GCL=8:GCB=7:n=Ventral (single):d=Bottom turret.  One .303 gun with poor field of fire.
-Vent:SRV=10:TWT=90:DRG=8:LXN=5:GUN=2:GCV=15:GCL=15:GCB=15:n=Ventral dustbin (twin):d=Bottom turret.  Two .303 guns, with poor field of fire.
-Ven2:SRV=6:TWT=120:DRG=10:LXN=5:GUN=2:GCV=20:GCL=20:GCB=15:n=Ventral turret (twin):d=Bottom turret with two .303 guns.
-Ball:SRV=8:TWT=110:DRG=9:LXN=5:GUN=2:GCV=20:GCL=20:GCB=20:n=Ventral ball (twin):d=Low-drag bottom turret with two .303 guns.
-Bal4:SRV=10:TWT=200:DRG=11:LXN=5:GUN=4:GCV=40:GCL=40:GCB=40:n=Ventral ball (quad):d=Bottom turret with four .303 guns.
-Tail:SRV=5:TWT=120:DRG=7:LXN=3:GUN=2:GCH=20:GCL=20:n=Rear turret (twin):d=Rear turret with two .303 guns.
-Ta4e:SRV=8:TWT=220:DRG=10:LXN=3:GUN=4:GCH=30:GCL=36:SLB=1:n=Rear turret (quad, early):d=Draggy, with poor fields of fire.  Requires slab-sided fuselage.
-Tai4:SRV=5:TWT=190:DRG=7:LXN=3:GUN=4:GCH=40:GCL=40:n=Rear turret (quad):d=Four-gun tail turret.
-Tai5:SRV=6:TWT=180:DRG=8:LXN=3:GUN=5:GCH=50:GCL=50:n=Rear turret (.50):d=Tail turret with twin .50-cal heavy guns.
-Aglt:SRV=12:TWT=300:DRG=9:LXN=3:GUN=4:GCH=75:GCL=75:ESL=2:n=Rear turret (radar):d=Tail turret with radar aiming for the quad .303 guns.
-For1:SRV=1:TWT=15:DRG=0:LXN=7:GUN=1:GCF=6:OCP=2:n=Fixed gun:d=A single wing-mounted .303 gun, fixed to fire forwards.  Operated by P.
-Fore:SRV=1:TWT=30:DRG=0:LXN=7:GUN=2:GCF=12:OCP=2:n=Fixed guns (twin):d=A pair of .303 guns mounted in the wings.  Operated by P.
-For4:SRV=1:TWT=50:DRG=0:LXN=7:GUN=4:GCF=24:OCP=2:n=Fixed guns (quad):d=Four .303 guns, two in each wing.  Operated by P.
+Ngun:SRV=2:TWT=25:DRG=4:LXN=0:GUN=1:GCF=10:OCN=1:OCB=1:n=Nose gun (single):d=Single .303 in flexible mount; may be operated by N* or B*.
+Nose:SRV=5:TWT=100:DRG=6:LXN=0:GUN=2:GCF=20:GCD=20:OCB=1:n=Nose turret (twin):d=Front turret with two .303s.  May be operated by B*.
+Chin:SRV=7:TWT=50:DRG=5:LXN=5:GUN=2:GCL=12:OCN=1:n=Rearward chin mount:d=Twin .303s firing aft below the a/c; may be operated by N*.
+Daf1:SRV=4:TWT=20:DRG=5:LXN=1:GUN=1:GCH=10:n=Dorsal after (single):d=Top rearward-facing mount for a single .303 gun.
+Dor1:SRV=6:TWT=70:DRG=8:LXN=1:GUN=1:GCF=5:GCD=10:GCH=10:n=Dorsal turret (single):d=Top turret with a single .303 gun.
+Dors:SRV=5:TWT=100:DRG=9:LXN=1:GUN=2:GCF=10:GCD=20:GCH=20:n=Dorsal turret (twin):d=Top turret with two .303s.
+Dor4:SRV=6:TWT=170:DRG=12:LXN=1:GUN=4:GCF=20:GCD=40:GCH=40:n=Dorsal turret (quad):d=Top turret with four .303s.
+Dor5:SRV=7:TWT=160:DRG=10:LXN=1:GUN=5:GCF=25:GCD=50:GCH=50:n=Dorsal turret (.50):d=Top turret with two .50-cal heavy guns.
+Daft:SRV=4:TWT=30:DRG=6:LXN=1:GUN=2:GCH=20:n=Dorsal after mount:d=Top rearward-facing mount for a pair of .303s.
+Beam:SRV=3:TWT=25:DRG=4:LXN=3:GUN=2:GCD=10:GCV=4:n=Beam mount:d=One .303 gun on each side, firing over the wings.
+Wast:SRV=3:TWT=30:DRG=3:LXN=3:GUN=2:GCD=10:GCV=10:n=Waist mount:d=One .303 gun on each side, with a good field of fire.
+Vaf1:SRV=5:TWT=36:DRG=7:LXN=4:GUN=1:GCL=10:GCB=10:n=Ventral after (single):d=Rearward-facing underside mount for a single .303 gun.
+Vaft:SRV=5:TWT=50:DRG=8:LXN=4:GUN=2:GCL=20:GCB=20:n=Ventral after mount:d=Rearward-facing underside mount for a pair of .303s.
+Ven1:SRV=9:TWT=40:DRG=8:LXN=4:GUN=1:GCV=7:GCL=8:GCB=7:n=Ventral (single):d=Bottom turret.  One .303 gun with poor field of fire.
+Vent:SRV=10:TWT=90:DRG=8:LXN=4:GUN=2:GCV=15:GCL=15:GCB=15:n=Ventral dustbin (twin):d=Bottom turret.  Two .303 guns, with poor field of fire.
+Ven2:SRV=6:TWT=120:DRG=10:LXN=4:GUN=2:GCV=20:GCL=20:GCB=15:n=Ventral turret (twin):d=Bottom turret with two .303 guns.
+Ball:SRV=8:TWT=110:DRG=9:LXN=4:GUN=2:GCV=20:GCL=20:GCB=20:n=Ventral ball (twin):d=Low-drag bottom turret with two .303 guns.
+Bal4:SRV=10:TWT=200:DRG=11:LXN=4:GUN=4:GCV=40:GCL=40:GCB=40:n=Ventral ball (quad):d=Bottom turret with four .303 guns.
+Tail:SRV=5:TWT=120:DRG=7:LXN=2:GUN=2:GCH=20:GCL=20:n=Rear turret (twin):d=Rear turret with two .303 guns.
+Ta4e:SRV=8:TWT=220:DRG=10:LXN=2:GUN=4:GCH=30:GCL=36:SLB=1:n=Rear turret (quad, early):d=Draggy; poor fields of fire.  Requires slab-sided fuselage.
+Tai4:SRV=5:TWT=190:DRG=7:LXN=2:GUN=4:GCH=40:GCL=40:n=Rear turret (quad):d=Four-gun tail turret.
+Tai5:SRV=6:TWT=180:DRG=8:LXN=2:GUN=5:GCH=50:GCL=50:n=Rear turret (.50):d=Tail turret with twin .50-cal heavy guns.
+Aglt:SRV=12:TWT=300:DRG=9:LXN=2:GUN=4:GCH=75:GCL=75:ESL=2:n=Rear turret (radar):d=Tail turret with radar aiming for the quad .303 guns.
+For1:SRV=1:TWT=15:DRG=0:LXN=6:GUN=1:GCF=6:OCP=2:n=Fixed gun:d=Single wing-mounted .303, firing forwards.  Operated by P.
+Fore:SRV=1:TWT=30:DRG=0:LXN=6:GUN=2:GCF=12:OCP=2:n=Fixed guns (twin):d=A pair of .303 guns mounted in the wings.  Operated by P.
+For4:SRV=1:TWT=50:DRG=0:LXN=6:GUN=4:GCF=24:OCP=2:n=Fixed guns (quad):d=Four .303 guns, two in each wing.  Operated by P.

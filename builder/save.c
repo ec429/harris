@@ -260,7 +260,7 @@ static int load_tur(const char *value, struct loaddata *l)
 {
 	if (sscanf(value, "%u", &l->ti) != 1)
 		return -EINVAL;
-	if (l->ti <= LXN_UNSPEC || l->ti >= LXN_COUNT)
+	if (l->ti >= LXN_COUNT)
 		return -EINVAL;
 	return 0;
 }

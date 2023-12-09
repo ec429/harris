@@ -18,22 +18,18 @@
 
 atg_element *builder_box;
 atg_element *BB_full, *BB_cont;
-unsigned int selmanf, seleng, selft, selgirth, selesl;
+unsigned int selmanf, seleng, selft, selgirth, selesl, selgun[LXN_COUNT];
 atg_element *BB_manf, *BB_engc, *BB_egg, *BB_over, *BB_eng, *BB_wa, *BB_wr;
 atg_element *BB_fuse, *BB_girth, *BB_cap, *BB_csbs, *BB_esl, *BB_na[NNAVAIDS];
 atg_element *BB_fuel, *BB_fill, *BB_sst, *BB_gross, *BB_agw;
+atg_element *BB_gun[LXN_COUNT];
 char *BB_manf_buf, *BB_manf_dbuf, *BB_eng_buf, *BB_eng_dbuf, *BB_eng_obuf;
-char *BB_fuse_dbuf, *BB_girth_dbuf, *BB_esl_dbuf;
-/*atg_element **IB_types, **IB_namebox, *IB_side_image, *IB_text_box, *IB_stat_box, *IB_crew_box;
-unsigned int IB_i, IB_showmark;
-char *IB_mark_buf;
-atg_element *IB_mark_box, *IB_mark_lbl, *IB_mark_prev, *IB_mark_noprev, *IB_mark_next, *IB_mark_nonext;
-atg_element *IB_breakdown_box, *IB_breakdown_row[MAX_MARKS], *IB_tw_spin[MAX_MARKS];
-unsigned int IB_mark_count[MAX_MARKS][2];
-char *IB_mark_count_buf[MAX_MARKS];
-SDL_Surface *IB_blank;*/
+char *BB_fuse_dbuf, *BB_girth_dbuf, *BB_esl_dbuf, *BB_gun_dbuf[LXN_COUNT];
+SDL_Surface *BB_bp;
 
 const atg_colour BB_BG_COLOUR		= {81, 102, 189, ATG_ALPHA_OPAQUE},
+		 BB_BP_COLOUR		= {81, 102, 189, ATG_ALPHA_OPAQUE},
+		 BB_BP_BORDER		= {63, 79, 171, ATG_ALPHA_OPAQUE},
 		 BB_INFG_COLOUR		= {223, 223, 79, ATG_ALPHA_OPAQUE},
 		 BB_OFF_COLOUR		= {31, 31, 31, ATG_ALPHA_OPAQUE},
 		 BB_PAPER_COLOUR	= {239, 239, 239, ATG_ALPHA_OPAQUE},
@@ -170,6 +166,55 @@ atg_element *create_esl_selector(unsigned int *esl)
 		}
 	}
 	rv->userdata=esl;
+	return(rv);
+}
+
+atg_element *create_gun_selector(unsigned int *gun, enum turret_location lxn)
+{
+	atg_element *rv=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BG_COLOUR);
+	if(!rv) return(NULL);
+	rv->type="selector";
+	rv->match_click_callback=selector_match_click_callback;
+	rv->render_callback=selector_render_callback;
+	atg_element *nobtn=atg_create_element_button("None", BB_INFG_COLOUR, BB_OFF_COLOUR);
+	if(!nobtn)
+	{
+		atg_free_element(rv);
+		return(NULL);
+	}
+	if(atg_ebox_pack(rv, nobtn))
+	{
+		atg_free_element(nobtn);
+		atg_free_element(rv);
+		return(NULL);
+	}
+	for(unsigned int i=0;i<builder->entities.ngun;i++)
+	{
+		const char *name=builder->entities.gun[i]->ident;
+		if(builder->entities.gun[i]->lxn!=lxn)
+			continue;
+		atg_element *btn=atg_create_element_button(name, BB_INFG_COLOUR, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
+		if(!btn)
+		{
+			atg_free_element(rv);
+			return(NULL);
+		}
+		btn->userdata=malloc(sizeof(i));
+		if(!btn->userdata)
+		{
+			atg_free_element(btn);
+			atg_free_element(rv);
+			return(NULL);
+		}
+		*(unsigned int *)btn->userdata=i;
+		if(atg_ebox_pack(rv, btn))
+		{
+			atg_free_element(btn);
+			atg_free_element(rv);
+			return(NULL);
+		}
+	}
+	rv->userdata=gun;
 	return(rv);
 }
 
@@ -869,6 +914,96 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *guns_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
+	if(!guns_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	guns_box->h=222;
+	if(atg_ebox_pack(left_box, guns_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *guns_title=atg_create_element_label("Turrets: ", 14, BB_INFG_COLOUR);
+	if(!guns_title)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(guns_box, guns_title))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(enum turret_location i=0;i<LXN_COUNT;i++)
+	{
+		atg_element *guns_row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BG_COLOUR);
+		if(!guns_row)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(guns_box, guns_row))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		BB_gun[i]=create_gun_selector(selgun+i, i);
+		if(!BB_gun[i])
+		{
+			fprintf(stderr, "create_gun_selector failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(guns_box, BB_gun[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		atg_element *gun_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
+		if(!gun_tg)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		gun_tg->w=left_box->w;
+		if(atg_ebox_pack(guns_box, gun_tg))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
+		if(!shim)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		shim->w=2;
+		shim->h=8;
+		if(atg_ebox_pack(gun_tg, shim))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(BB_gun_dbuf[i]=malloc(64)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		atg_element *gun_desc=atg_create_element_label_nocopy(BB_gun_dbuf[i], 9, BB_INK_COLOUR);
+		if(!gun_desc)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(gun_tg, gun_desc))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	/* TODO: T*, C, C* */
 	atg_element *elec_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!elec_box)
 	{
@@ -1173,18 +1308,19 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *mid_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
-	if(!mid_box)
+	atg_element *gutter=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
+	if(!gutter)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	if(atg_ebox_pack(main_box, mid_box))
+	gutter->w=24;
+	gutter->h=2;
+	if(atg_ebox_pack(main_box, gutter))
 	{
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	/* TODO: pic, outputs, actions */
 	atg_element *right_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!right_box)
 	{
@@ -1196,7 +1332,67 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	/* TODO: T, T*, C, C* */
+	atg_element *bp_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BP_BORDER);
+	if(!bp_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	bp_box->w=418;
+	bp_box->h=154;
+	if(atg_ebox_pack(right_box, bp_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BP_BORDER);
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=418;
+	shim->h=2;
+	if(atg_ebox_pack(bp_box, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BP_BORDER);
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=2;
+	shim->h=152;
+	if(atg_ebox_pack(bp_box, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	BB_bp=SDL_CreateRGBSurface(SDL_HWSURFACE, 414, 150, 24, 0xff0000, 0xff00, 0xff, 0);
+	if(!BB_bp)
+	{
+		fprintf(stderr, "BB_bp: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(1);
+	}
+	atg_colour bp_bg=BB_BP_COLOUR;
+	SDL_FillRect(BB_bp, &(SDL_Rect){0, 0, BB_bp->w, BB_bp->h}, SDL_MapRGB(BB_bp->format, bp_bg.r, bp_bg.g, bp_bg.b));
+	atg_element *blueprint=atg_create_element_image(BB_bp);
+	if(!blueprint)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	blueprint->w=414;
+	blueprint->h=150;
+	if(atg_ebox_pack(bp_box, blueprint))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	/* TODO: outputs, actions */
 	return(0);
 }
 
@@ -1216,6 +1412,17 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 		b->elems[i]->hidden=!builder->tn.bt[i];
 	}
 	BB_csbs->hidden=!builder->tn.csb;
+	for(enum turret_location i=0;i<LXN_COUNT;i++)
+	{
+		atg_box *b=BB_gun[i]->elemdata;
+		for(unsigned int j=1;j<b->nelems;j++)
+		{
+			unsigned int *k=b->elems[j]->userdata;
+			if(!k) continue;
+			struct turret *gun=builder->entities.gun[*k];
+			b->elems[j]->hidden=!gun->unlocked;
+		}
+	}
 	for(enum elec_level i=0;i<ESL_COUNT;i++)
 	{
 		atg_box *b=BB_esl->elemdata;
@@ -1259,6 +1466,19 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 		strncpy(BB_fuse_dbuf, describe_ft(selft), 64);
 		strncpy(BB_girth_dbuf, describe_bbg_long(selgirth), 64);
 		strncpy(BB_esl_dbuf, describe_esl_long(selesl), 64);
+		for(enum turret_location i=0;i<LXN_COUNT;i++)
+		{
+			atg_box *b=BB_gun[i]->elemdata;
+			if(selgun[i]>=b->nelems)
+				*BB_gun_dbuf[i]=0;
+			unsigned int *g=b->elems[selgun[i]]->userdata;
+			if(!g)
+				strncpy(BB_gun_dbuf[i], "No turret in this position.", 64);
+			else if(*g>=builder->entities.ngun)
+				strncpy(BB_gun_dbuf[i], "Unknown turret type.", 64);
+			else
+				strncpy(BB_gun_dbuf[i], builder->entities.gun[*g]->desc, 64);
+		}
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
