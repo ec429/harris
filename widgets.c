@@ -16,9 +16,6 @@
 const char *prio_labels[4]={"NONE","LOW","MED","HIGH"};
 atg_colour prio_colours[4]={{31, 31, 95, 0}, {95, 31, 31, 0}, {95, 95, 15, 0}, {31, 159, 31, 0}};
 
-SDL_Surface *selector_render_callback(const struct atg_element *e);
-void selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff);
-
 atg_element *create_priority_selector(unsigned int *prio)
 {
 	atg_element *rv=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE});
@@ -107,6 +104,80 @@ void selector_match_click_callback(struct atg_event_list *list, atg_element *ele
 	}
 	if(element->userdata&&(*(unsigned int *)element->userdata!=oldval))
 		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=*(unsigned int *)element->userdata}});
+}
+
+SDL_Surface *multi_selector_render_callback(const struct atg_element *e)
+{
+	if(!e) return(NULL);
+	struct multi_sel *m=e->userdata;
+	atg_box *b=e->elemdata;
+	if(!b) return(NULL);
+	if(!b->elems) return(NULL);
+	for(unsigned int i=0;i<b->nelems;i++)
+	{
+		atg_button *button=b->elems[i]->elemdata;
+		if(m)
+		{
+			if(m->sel==i)
+				button->content->bgcolour=(atg_colour){159, 159, 159, ATG_ALPHA_OPAQUE};
+			else if(m->semi==i)
+				button->content->bgcolour=(atg_colour){115, 127, 115, ATG_ALPHA_OPAQUE};
+			else
+				button->content->bgcolour=(atg_colour){31, 31, 31, ATG_ALPHA_OPAQUE};
+		}
+		else
+			button->content->bgcolour=(atg_colour){63, 63, 63, ATG_ALPHA_OPAQUE};
+	}
+	return(atg_render_box(e));
+}
+
+void multi_selector_match_click_callback(struct atg_event_list *list, atg_element *element, SDL_MouseButtonEvent button, unsigned int xoff, unsigned int yoff)
+{
+	struct multi_sel *ms=element->userdata;
+	if (!ms) return;
+	atg_box *b=element->elemdata;
+	if(!b->elems) return;
+	struct atg_event_list sub_list={.list=NULL, .last=NULL};
+	for(unsigned int i=0;i<b->nelems;i++)
+		atg__match_click_recursive(&sub_list, b->elems[i], button, xoff+element->display.x, yoff+element->display.y);
+	unsigned int oldval=0, oldsem=0;
+	oldval=ms->sel;
+	oldsem=ms->semi;
+	SDLMod m = SDL_GetModState();
+	bool semi=(m&KMOD_CTRL)||(m&KMOD_SHIFT);
+	while(sub_list.list)
+	{
+		atg_event event=sub_list.list->event;
+		if(event.type==ATG_EV_TRIGGER)
+		{
+			if(event.event.trigger.button==ATG_MB_LEFT||event.event.trigger.button==ATG_MB_RIGHT)
+			{
+				for(unsigned int i=0;i<b->nelems;i++)
+				{
+					if(event.event.trigger.e==b->elems[i])
+					{
+						if (semi||event.event.trigger.button==ATG_MB_RIGHT)
+							ms->semi=i;
+						else
+							ms->sel=i;
+					}
+				}
+			}
+			else if(event.event.trigger.button==ATG_MB_SCROLLDN && !semi)
+			{
+				ms->sel=(1+ms->sel)%b->nelems;
+			}
+			else if(event.event.trigger.button==ATG_MB_SCROLLUP && !semi)
+			{
+				ms->sel=(b->nelems-1+ms->sel)%b->nelems;
+			}
+		}
+		atg__event_list *next=sub_list.list->next;
+		free(sub_list.list);
+		sub_list.list=next;
+	}
+	if(ms->sel!=oldval||ms->semi!=oldsem)
+		atg__push_event(list, (atg_event){.type=ATG_EV_VALUE, .event.value=(atg_ev_value){.e=element, .value=0 /* non-meaningful value since we don't have space for both */}});
 }
 
 SDL_Surface *filter_switch_render_callback(const struct atg_element *e);

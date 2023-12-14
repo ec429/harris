@@ -18,7 +18,8 @@
 
 atg_element *builder_box;
 atg_element *BB_full, *BB_cont;
-unsigned int selmanf, seleng, selft, selgirth, selesl, selgun[LXN_COUNT];
+unsigned int selmanf, seleng, selft, selgirth, selesl;
+struct multi_sel selgun[LXN_COUNT];
 atg_element *BB_manf, *BB_engc, *BB_egg, *BB_over, *BB_eng, *BB_wa, *BB_wr;
 atg_element *BB_fuse, *BB_girth, *BB_cap, *BB_csbs, *BB_esl, *BB_na[NNAVAIDS];
 atg_element *BB_fuel, *BB_fill, *BB_sst, *BB_gross, *BB_agw;
@@ -169,13 +170,13 @@ atg_element *create_esl_selector(unsigned int *esl)
 	return(rv);
 }
 
-atg_element *create_gun_selector(unsigned int *gun, enum turret_location lxn)
+atg_element *create_gun_selector(struct multi_sel *gun, enum turret_location lxn)
 {
 	atg_element *rv=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BG_COLOUR);
 	if(!rv) return(NULL);
 	rv->type="selector";
-	rv->match_click_callback=selector_match_click_callback;
-	rv->render_callback=selector_render_callback;
+	rv->match_click_callback=multi_selector_match_click_callback;
+	rv->render_callback=multi_selector_render_callback;
 	atg_element *nobtn=atg_create_element_button("None", BB_INFG_COLOUR, BB_OFF_COLOUR);
 	if(!nobtn)
 	{
@@ -1003,7 +1004,6 @@ int builder_create(void)
 			return(1);
 		}
 	}
-	/* TODO: T* */
 	atg_element *crew_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!crew_box)
 	{
@@ -1531,8 +1531,9 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 		{
 			unsigned int *k=b->elems[j]->userdata;
 			if(!k) continue;
+			atg_button *btn=b->elems[j]->elemdata;
 			struct turret *gun=builder->entities.gun[*k];
-			b->elems[j]->hidden=!gun->unlocked;
+			btn->fgcolour=gun->unlocked?BB_INFG_COLOUR:BB_OFF_COLOUR;
 		}
 	}
 	for(enum elec_level i=0;i<ESL_COUNT;i++)
@@ -1581,9 +1582,9 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 		for(enum turret_location i=0;i<LXN_COUNT;i++)
 		{
 			atg_box *b=BB_gun[i]->elemdata;
-			if(selgun[i]>=b->nelems)
+			if(selgun[i].sel>=b->nelems)
 				*BB_gun_dbuf[i]=0;
-			unsigned int *g=b->elems[selgun[i]]->userdata;
+			unsigned int *g=b->elems[selgun[i].sel]->userdata;
 			if(!g)
 				strncpy(BB_gun_dbuf[i], "No turret in this position.", 64);
 			else if(*g>=builder->entities.ngun)
