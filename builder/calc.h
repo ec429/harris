@@ -186,6 +186,7 @@ struct bomber {
 
 const struct bomber *mod_ancestor(const struct bomber *b);
 void count_crew(const struct crew *c, unsigned int *v);
+void count_dcrew(const struct crew *c, unsigned int *v);
 
 void init_bomber(struct bomber *b, struct manf *m, struct engine *e);
 int calc_bomber(struct bomber *b, struct tech_numbers *tn);

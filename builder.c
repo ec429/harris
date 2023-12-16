@@ -15,6 +15,7 @@
 #include "date.h"
 #include "widgets.h"
 #include "builder/data.h"
+#include "builder/calc.h"
 
 atg_element *builder_box;
 atg_element *BB_full, *BB_cont;
@@ -1508,6 +1509,127 @@ int builder_create(void)
 	return(0);
 }
 
+/* Update the Controller from the Model state.
+ * Used on e.g. New or Load.
+ */
+void builder_update_m2c(const struct bomber *b)
+{
+	for(unsigned int i=0;i<builder->entities.nmanf;i++)
+		if(b->manf==builder->entities.manf[i])
+		{
+			selmanf = i;
+			break;
+		}
+	for(unsigned int i=0;i<builder->entities.neng;i++)
+		if(b->engines.typ==builder->entities.eng[i])
+		{
+			seleng = i;
+			break;
+		}
+	selft=b->fuse.typ;
+	selgirth=b->bay.girth;
+	selesl=b->elec.esl;
+	for(unsigned int i=0;i<LXN_COUNT;i++)
+	{
+		if(!b->turrets.typ[i])
+			selgun[i].sel=0;
+		if(!b->turrets.mou[i])
+			selgun[i].semi=0;
+		if(!b->turrets.typ[i]&&!b->turrets.mou[i])
+			continue;
+		for(unsigned int j=0;j<builder->entities.ngun;j++)
+		{
+			if(b->turrets.typ[i]==builder->entities.gun[j])
+				selgun[i].sel=j;
+			if(b->turrets.mou[i]==builder->entities.gun[j])
+				selgun[i].semi=j;
+		}
+	}
+	if(BB_engc)
+	{
+		atg_spinner *spin=BB_engc->elemdata;
+		if(spin) spin->value=b->engines.number;
+	}
+	if(BB_egg)
+	{
+		atg_toggle *tog=BB_egg->elemdata;
+		if(tog) tog->state=b->engines.egg;
+	}
+	if(BB_over)
+	{
+		atg_toggle *tog=BB_over->elemdata;
+		if(tog) tog->state=b->engines.mou!=b->engines.typ;
+	}
+	if(BB_wa)
+	{
+		atg_spinner *spin=BB_wa->elemdata;
+		if(spin) spin->value=b->wing.area;
+	}
+	if(BB_wr)
+	{
+		atg_spinner *spin=BB_wr->elemdata;
+		if(spin) spin->value=b->wing.art;
+	}
+	if(BB_cap)
+	{
+		atg_spinner *spin=BB_cap->elemdata;
+		if(spin) spin->value=b->bay.cap;
+	}
+	if(BB_csbs)
+	{
+		atg_toggle *tog=BB_csbs->elemdata;
+		if(tog) tog->state=b->bay.csbs;
+	}
+	for(unsigned int i=0;i<NNAVAIDS;i++)
+		if(BB_na[i])
+		{
+			atg_toggle *tog=BB_na[i]->elemdata;
+			if(tog) tog->state=b->elec.navaid[i];
+		}
+	if(BB_fuel)
+	{
+		atg_spinner *spin=BB_fuel->elemdata;
+		if(spin) spin->value=b->tanks.hlb*100;
+	}
+	if(BB_fill)
+	{
+		atg_spinner *spin=BB_fill->elemdata;
+		if(spin) spin->value=b->tanks.pct;
+	}
+	if(BB_sst)
+	{
+		atg_toggle *tog=BB_sst->elemdata;
+		if(tog) tog->state=b->tanks.sst;
+	}
+	if(BB_gross)
+	{
+		atg_spinner *spin=BB_gross->elemdata;
+		if(spin) spin->value=ceil(b->mtow/100.0);
+	}
+	if(BB_agw)
+	{
+		atg_toggle *tog=BB_agw->elemdata;
+		if(tog) tog->state=!b->user_mtow;
+	}
+	unsigned int dcount[CREW_CLASSES];
+	unsigned int count[CREW_CLASSES];
+	count_crew(&b->crew, count);
+	count_dcrew(&b->crew, dcount);
+	for(unsigned int i=0;i<CREW_CLASSES;i++)
+	{
+		if(BB_cc[i])
+		{
+			atg_spinner *spin=BB_cc[i]->elemdata;
+			if(spin) spin->value=count[i];
+		}
+		if(BB_cd[i])
+		{
+			atg_spinner *spin=BB_cd[i]->elemdata;
+			if(spin) spin->value=dcount[i];
+		}
+	}
+}
+
 screen_id builder_screen(atg_canvas *canvas, game *state)
 {
 	/* Hide stuff for which tech is not unlocked yet */
@@ -1544,6 +1666,10 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 	for(enum nav_aid i=0;i<NNAVAIDS;i++)
 		BB_na[i]->hidden=!builder->tn.na[i];
 	BB_sst->hidden=!builder->tn.sft;
+	struct bomber b;
+	init_bomber(&b, builder->entities.manf[0], builder->entities.eng[0]);
+	calc_bomber(&b, &builder->tn);
+	builder_update_m2c(&b);
 	(void)state;
 	atg_event e;
 	while(1)

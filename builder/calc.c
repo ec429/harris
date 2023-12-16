@@ -258,6 +258,16 @@ void count_crew(const struct crew *c, unsigned int *v)
 		v[c->men[i].pos]++;
 }
 
+void count_dcrew(const struct crew *c, unsigned int *v)
+{
+	memset(v, 0, sizeof(*v) * CREW_CLASSES);
+	unsigned int i;
+
+	for (i = 0; i < c->n; i++)
+		if (c->men[i].gun)
+			v[c->men[i].pos]++;
+}
+
 static int calc_crew(struct bomber *b)
 {
 	const struct tech_numbers *tn = &b->tn;

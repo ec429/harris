@@ -104,7 +104,7 @@ handle_crews.o: ui.h globals.h date.h post_raid.h bits.h render.h widgets.h
 
 handle_squadrons.o: ui.h globals.h date.h bits.h control.h rand.h render.h run_raid.h
 
-builder.o: ui.h globals.h bits.h date.h widgets.h builder/data.h builder/list.h
+builder.o: ui.h globals.h bits.h date.h widgets.h builder/data.h builder/list.h builder/calc.h
 
 builder/calc.o: builder/list.h builder/data.h bits.h
 
