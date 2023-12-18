@@ -17,6 +17,20 @@
 #include "builder/data.h"
 #include "builder/calc.h"
 
+enum out_row {
+	OUT_DIM,
+	OUT_WGT,
+	OUT_SPD,
+	OUT_CRC, /* Ceiling, Range, Climb */
+	OUT_DEF,
+	OUT_FSA, /* FAil, SVp, ACcuracy */
+	OUT_CST,
+	OUT_ERR,
+	OUT_NOERR,
+
+	OUT_ROWS
+};
+
 atg_element *builder_box;
 atg_element *BB_full, *BB_cont;
 unsigned int selmanf, seleng, selft, selgirth, selesl;
@@ -27,6 +41,7 @@ atg_element *BB_fuel, *BB_fill, *BB_sst, *BB_gross, *BB_agw;
 atg_element *BB_gun[LXN_COUNT], *BB_cc[CREW_CLASSES], *BB_cd[CREW_CLASSES];
 char *BB_manf_buf, *BB_manf_dbuf, *BB_eng_buf, *BB_eng_dbuf, *BB_eng_obuf;
 char *BB_fuse_dbuf, *BB_girth_dbuf, *BB_esl_dbuf, *BB_gun_dbuf[LXN_COUNT];
+char *BB_out_buf[OUT_ROWS];
 SDL_Surface *BB_bp;
 
 const atg_colour BB_BG_COLOUR		= {81, 102, 189, ATG_ALPHA_OPAQUE},
@@ -36,6 +51,7 @@ const atg_colour BB_BG_COLOUR		= {81, 102, 189, ATG_ALPHA_OPAQUE},
 		 BB_OFF_COLOUR		= {31, 31, 31, ATG_ALPHA_OPAQUE},
 		 BB_PAPER_COLOUR	= {239, 239, 239, ATG_ALPHA_OPAQUE},
 		 BB_INK_COLOUR		= {31, 31, 31, ATG_ALPHA_OPAQUE},
+		 BB_ERR_COLOUR		= {79, 15, 15, ATG_ALPHA_OPAQUE},
 		 BB_SPIN_FG_COLOUR	= {191, 191, 47, ATG_ALPHA_OPAQUE},
 		 BB_SPIN_BG_COLOUR	= {15, 31, 47, ATG_ALPHA_OPAQUE};
 
@@ -1440,6 +1456,7 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
+	right_box->w=418;
 	if(atg_ebox_pack(main_box, right_box))
 	{
 		perror("atg_ebox_pack");
@@ -1504,6 +1521,64 @@ int builder_create(void)
 	{
 		perror("atg_ebox_pack");
 		return(1);
+	}
+	atg_element *out_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
+	if(!out_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	out_box->w=right_box->w;
+	if(atg_ebox_pack(right_box, out_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=2;
+	shim->h=8;
+	if(atg_ebox_pack(out_box, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *out_tg=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
+	if(!out_tg)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(out_box, out_tg))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(enum out_row i=0;i<OUT_ROWS;i++)
+	{
+		if(!(BB_out_buf[i]=malloc(80)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		atg_colour fgcolour=BB_INK_COLOUR;
+		if(i==OUT_ERR)
+			fgcolour=BB_ERR_COLOUR;
+		atg_element *outtext=atg_create_element_label_nocopy(BB_out_buf[i], 9, fgcolour);
+		if(!outtext)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(out_tg, outtext))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	/* TODO: outputs, actions */
 	return(0);
@@ -1630,6 +1705,43 @@ void builder_update_m2c(const struct bomber *b)
 	}
 }
 
+
+/* Update the View from the Model state */
+void builder_update_m2v(const struct bomber *b)
+{
+	snprintf(BB_out_buf[OUT_DIM], 80,
+		 "Dimensions: span %.1fft, chord %.1fft",
+		 b->wing.span, b->wing.chord);
+	snprintf(BB_out_buf[OUT_WGT], 80,
+		 "Weights: tare %.0flb, gross %.0flb; wing loading %.1flb/sq ft, L/D %.1f",
+		 b->tare, b->gross, b->wing.wl, b->wing.ld);
+	snprintf(BB_out_buf[OUT_SPD], 80,
+		 "Speeds: take-off %.1fmph, max %.1fmph, cruise %.1fmph at %.0fft",
+		 b->takeoff_spd, b->deck_spd, b->cruise_spd, b->cruise_alt * 1000.0f);
+	snprintf(BB_out_buf[OUT_CRC], 80,
+		 "Service ceiling: %.0fft; range: %.0fmi (%.1fhr); initial climb %.0ffpm",
+		 b->ceiling * 1000.0f, b->range, b->tanks.hours, b->init_climb);
+	snprintf(BB_out_buf[OUT_DEF], 80,
+		 "Defence: %.1f/%.1f (flak %.1f)",
+		 b->defn[0], b->defn[1], b->flak_factor);
+	snprintf(BB_out_buf[OUT_FSA], 80,
+		 "Failure: %.1f; Serviceability: %.1f; Accuracy: %.1f",
+		 b->fail * 100.0f, b->serv * 100.0f, b->accu * 100.0f);
+	snprintf(BB_out_buf[OUT_CST], 80,
+		 "Cost: %.0f funds",
+		 b->cost);
+	if(b->new)
+	{
+		snprintf(BB_out_buf[OUT_ERR], 80, b->ew[0]);
+		*BB_out_buf[OUT_NOERR]=0;
+	}
+	else
+	{
+		*BB_out_buf[OUT_ERR]=0;
+		snprintf(BB_out_buf[OUT_NOERR], 80, "No errors or warnings.");
+	}
+}
+
 screen_id builder_screen(atg_canvas *canvas, game *state)
 {
 	/* Hide stuff for which tech is not unlocked yet */
@@ -1670,6 +1782,7 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 	init_bomber(&b, builder->entities.manf[0], builder->entities.eng[0]);
 	calc_bomber(&b, &builder->tn);
 	builder_update_m2c(&b);
+	builder_update_m2v(&b);
 	(void)state;
 	atg_event e;
 	while(1)
@@ -1809,7 +1922,10 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 			}
 		}
 		if(changed)
+		{
 			calc_bomber(&b, &builder->tn);
+			builder_update_m2v(&b);
+		}
 		SDL_Delay(50);
 	}
 }
