@@ -1912,6 +1912,16 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 							b.engines.mou=b.engines.typ;
 						changed=true;
 					}
+					else if(v.e==BB_wa)
+					{
+						b.wing.area=v.value;
+						changed=true;
+					}
+					else if(v.e==BB_wr)
+					{
+						b.wing.art=v.value;
+						changed=true;
+					}
 					else
 					{
 						fprintf(stderr, "Clicked on unknown spinner!\n");
