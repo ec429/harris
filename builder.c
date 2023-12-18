@@ -1719,6 +1719,7 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 				strncpy(BB_gun_dbuf[i], builder->entities.gun[*g]->desc, 64);
 		}
 		atg_flip(canvas);
+		bool changed=false;
 		while(atg_poll_event(&e, canvas))
 		{
 			switch(e.type)
@@ -1757,10 +1758,19 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 						fprintf(stderr, "Clicked on unknown button!\n");
 				break;
 				case ATG_EV_TOGGLE:;
-					//atg_ev_toggle v=e.event.toggle;
-					if(false)
+					atg_ev_toggle t=e.event.toggle;
+					if(t.e==BB_over)
 					{
-						//
+						if (t.state)
+							b.engines.mou=b.engines.typ->u;
+						else
+							b.engines.mou=b.engines.typ;
+						changed=true;
+					}
+					else if (t.e==BB_egg)
+					{
+						b.engines.egg=t.state;
+						changed=true;
 					}
 					else
 					{
@@ -1768,10 +1778,26 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 					}
 				break;
 				case ATG_EV_VALUE:;
-					//atg_ev_value v=e.event.value;
-					if(false)
+					atg_ev_value v=e.event.value;
+					if(v.e==BB_manf)
 					{
-						//
+						b.manf=builder->entities.manf[selmanf];
+						changed=true;
+					}
+					else if(v.e==BB_engc)
+					{
+						b.engines.number=v.value;
+						changed=true;
+					}
+					else if(v.e==BB_eng)
+					{
+						atg_toggle *tog=BB_over->elemdata;
+						b.engines.typ=builder->entities.eng[seleng];
+						if (tog->state)
+							b.engines.mou=b.engines.typ->u;
+						else
+							b.engines.mou=b.engines.typ;
+						changed=true;
 					}
 					else
 					{
@@ -1782,6 +1808,8 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 				break;
 			}
 		}
+		if(changed)
+			calc_bomber(&b, &builder->tn);
 		SDL_Delay(50);
 	}
 }
