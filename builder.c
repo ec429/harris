@@ -25,10 +25,10 @@ enum out_row {
 	OUT_DEF,
 	OUT_FSA, /* FAil, SVp, ACcuracy */
 	OUT_CST,
-	OUT_ERR,
 	OUT_NOERR,
+	OUT_ERR,
 
-	OUT_ROWS
+	OUT_ROWS=OUT_ERR+8
 };
 
 atg_element *builder_box;
@@ -1566,7 +1566,7 @@ int builder_create(void)
 			return(1);
 		}
 		atg_colour fgcolour=BB_INK_COLOUR;
-		if(i==OUT_ERR)
+		if(i>=OUT_ERR)
 			fgcolour=BB_ERR_COLOUR;
 		atg_element *outtext=atg_create_element_label_nocopy(BB_out_buf[i], 9, fgcolour);
 		if(!outtext)
@@ -1731,15 +1731,14 @@ void builder_update_m2v(const struct bomber *b)
 		 "Cost: %.0f funds",
 		 b->cost);
 	if(b->new)
-	{
-		snprintf(BB_out_buf[OUT_ERR], 80, b->ew[0]);
 		*BB_out_buf[OUT_NOERR]=0;
-	}
 	else
-	{
-		*BB_out_buf[OUT_ERR]=0;
 		snprintf(BB_out_buf[OUT_NOERR], 80, "No errors or warnings.");
-	}
+	for(unsigned int i=0;i+OUT_ERR<OUT_ROWS;i++)
+		if(i<b->new)
+			snprintf(BB_out_buf[i+OUT_ERR], 80, b->ew[i]);
+		else
+			*BB_out_buf[i+OUT_ERR]=0;
 }
 
 screen_id builder_screen(atg_canvas *canvas, game *state)
