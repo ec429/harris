@@ -896,7 +896,7 @@ static int calc_dev(struct bomber *b)
 	return 0;
 }
 
-static int calc_refit(struct bomber *b, struct tech_numbers *tn)
+static int calc_refit(struct bomber *b, const struct tech_numbers *tn)
 {
 	size_t start;
 
@@ -928,7 +928,7 @@ static int calc_refit(struct bomber *b, struct tech_numbers *tn)
 	return 0;
 }
 
-int calc_bomber(struct bomber *b, struct tech_numbers *tn)
+int calc_bomber(struct bomber *b, const struct tech_numbers *tn)
 {
 	int rc;
 

@@ -22,6 +22,7 @@ enum out_row {
 	OUT_WGT,
 	OUT_SPD,
 	OUT_CRC, /* Ceiling, Range, Climb */
+	OUT_RAN, /* Max Range condition */
 	OUT_DEF,
 	OUT_FSA, /* FAil, SVp, ACcuracy */
 	OUT_CST,
@@ -1723,6 +1724,24 @@ void builder_update_m2c(const struct bomber *b)
 /* Update the View from the Model state */
 void builder_update_m2v(const struct bomber *b)
 {
+	const struct tech_numbers *tn=&builder->tn;
+	struct bomber bmr=*b; /* bomber at Max Range */
+	unsigned int mptow, mts, mtg;
+	bool concrete = tn->rcs;
+	int delta;
+	bmr.tanks.pct=100;
+	bmr.user_mtow=true; /* force it to use *b's mtow */
+	calc_bomber(&bmr, tn);
+	mts = concrete ? tn->rcs : tn->rgs;
+	mtg = concrete ? tn->rcg : tn->rgg;
+	mptow = floor(wing_lift(&bmr.wing, mts / 1.6f));
+	mptow = min(mptow, mtg * 1000);
+	mptow = min(mptow, bmr.mtow);
+	delta = bmr.gross - mptow;
+	if((int)bmr.bay.load < delta)
+		bmr.bay.load = 0;
+	else
+		bmr.bay.load = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
 	snprintf(BB_out_buf[OUT_DIM], 80,
 		 "Dimensions: span %.1fft, chord %.1fft",
 		 b->wing.span, b->wing.chord);
@@ -1735,6 +1754,9 @@ void builder_update_m2v(const struct bomber *b)
 	snprintf(BB_out_buf[OUT_CRC], 80,
 		 "Service ceiling: %.0fft; range: %.0fmi (%.1fhr); initial climb %.0ffpm",
 		 b->ceiling * 1000.0f, b->range, b->tanks.hours, b->init_climb);
+	snprintf(BB_out_buf[OUT_RAN], 80,
+		 "Max range: %.0fmi with %ulb bombs",
+		 bmr.range, bmr.bay.load);
 	snprintf(BB_out_buf[OUT_DEF], 80,
 		 "Defence: %.1f/%.1f (flak %.1f): manu %.1f, evade %.1f, vuln %.2f (fr %.2f)",
 		 b->defn[0], b->defn[1], b->flak_factor, b->manu_pen,
@@ -1938,7 +1960,13 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 					}
 					else if (t.e==BB_agw)
 					{
-						b.user_mtow=!t.state;
+						b.mtow=ceil(b.gross);
+						if((b.user_mtow=!t.state))
+						{
+							atg_spinner *spin=BB_gross?BB_gross->elemdata:NULL;
+							if(spin)
+								b.mtow=spin->value*100;
+						}
 						changed=true;
 					}
 					else
