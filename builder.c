@@ -1756,6 +1756,33 @@ void builder_update_m2v(const struct bomber *b)
 			*BB_out_buf[i+OUT_ERR]=0;
 }
 
+/* Update the Model's crew from the Controller state */
+void update_crew_c2m(struct bomber *b)
+{
+	b->crew.n=0;
+	for(enum cclass i=0;i<CREW_CLASSES;i++)
+	{
+		atg_spinner *cspin=NULL, *dspin=NULL;
+		unsigned int cc=0, cd=0;
+		if(BB_cc[i])
+			cspin=BB_cc[i]->elemdata;
+		if(BB_cd[i])
+			dspin=BB_cd[i]->elemdata;
+		if(cspin)
+			cc=cspin->value;
+		if(dspin)
+			cd=dspin->value;
+		for(unsigned int j=0;j<cc;j++)
+		{
+			if(b->crew.n<MAX_CREW)
+				b->crew.men[b->crew.n++]=(struct crewman){
+					.pos=i,
+					.gun=j<cd,
+				};
+		}
+	}
+}
+
 screen_id builder_screen(atg_canvas *canvas, game *state)
 {
 	/* Hide stuff for which tech is not unlocked yet */
@@ -2030,6 +2057,23 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 								break;
 							}
 						if(i<LXN_COUNT)
+							break;
+						for(i=0;i<CREW_CLASSES;i++)
+						{
+							if(v.e==BB_cc[i])
+							{
+								update_crew_c2m(&b);
+								changed=true;
+								break;
+							}
+							if(v.e==BB_cd[i])
+							{
+								update_crew_c2m(&b);
+								changed=true;
+								break;
+							}
+						}
+						if(i<CREW_CLASSES)
 							break;
 						fprintf(stderr, "Clicked on unknown spinner!\n");
 					}
