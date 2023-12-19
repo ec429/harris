@@ -237,6 +237,49 @@ atg_element *create_gun_selector(struct multi_sel *gun, enum turret_location lxn
 	return(rv);
 }
 
+static int builder_divider(atg_element *box)
+{
+	atg_element *div_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
+	if(!div_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	div_box->w=box->w;
+	div_box->h=5;
+	if(atg_ebox_pack(box, div_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->h=2;
+	if(atg_ebox_pack(div_box, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *divider=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_INFG_COLOUR);
+	if(!divider)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	divider->w=div_box->w;
+	divider->h=1;
+	if(atg_ebox_pack(div_box, divider))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	return(0);
+}
+
 int builder_create(void)
 {
 	if(!(builder_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR)))
@@ -438,6 +481,8 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *eng_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!eng_box)
 	{
@@ -615,6 +660,8 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *wing_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BG_COLOUR);
 	if(!wing_box)
 	{
@@ -693,6 +740,8 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *fuse_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!fuse_box)
 	{
@@ -779,6 +828,8 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *bomb_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!bomb_box)
 	{
@@ -933,6 +984,8 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *guns_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!guns_box)
 	{
@@ -1022,6 +1075,8 @@ int builder_create(void)
 			return(1);
 		}
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *crew_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!crew_box)
 	{
@@ -1134,6 +1189,8 @@ int builder_create(void)
 			return(1);
 		}
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *elec_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!elec_box)
 	{
@@ -1245,6 +1302,8 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *fuel_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!fuel_box)
 	{
@@ -1358,6 +1417,8 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	if(builder_divider(left_box))
+		return(1);
 	atg_element *gross_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
 	if(!gross_box)
 	{
