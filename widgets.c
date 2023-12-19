@@ -159,7 +159,11 @@ void multi_selector_match_click_callback(struct atg_event_list *list, atg_elemen
 						if (semi||event.event.trigger.button==ATG_MB_RIGHT)
 							ms->semi=i;
 						else
+						{
+							if(!ms->semi||ms->semi==ms->sel)
+								ms->semi=i;
 							ms->sel=i;
+						}
 					}
 				}
 			}

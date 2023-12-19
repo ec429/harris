@@ -1612,11 +1612,25 @@ void builder_update_m2c(const struct bomber *b)
 			selgun[i].semi=0;
 		if(!b->turrets.typ[i]&&!b->turrets.mou[i])
 			continue;
+		if(!BB_gun[i]) continue;
+		atg_box *box=BB_gun[i]->elemdata;
+		if(!box) continue;
+		unsigned int sel=builder->entities.ngun;
+		unsigned int semi=builder->entities.ngun;
 		for(unsigned int j=0;j<builder->entities.ngun;j++)
 		{
 			if(b->turrets.typ[i]==builder->entities.gun[j])
-				selgun[i].sel=j;
+				sel=j;
 			if(b->turrets.mou[i]==builder->entities.gun[j])
+				semi=j;
+		}
+		for(unsigned int j=0;j<box->nelems;j++)
+		{
+			unsigned int *k=box->elems[j]->userdata;
+			if(!k) continue;
+			if(*k==sel)
+				selgun[i].sel=j;
+			if(*k==semi)
 				selgun[i].semi=j;
 		}
 	}
@@ -1722,8 +1736,9 @@ void builder_update_m2v(const struct bomber *b)
 		 "Service ceiling: %.0fft; range: %.0fmi (%.1fhr); initial climb %.0ffpm",
 		 b->ceiling * 1000.0f, b->range, b->tanks.hours, b->init_climb);
 	snprintf(BB_out_buf[OUT_DEF], 80,
-		 "Defence: %.1f/%.1f (flak %.1f)",
-		 b->defn[0], b->defn[1], b->flak_factor);
+		 "Defence: %.1f/%.1f (flak %.1f): manu %.1f, evade %.1f, vuln %.2f (fr %.2f)",
+		 b->defn[0], b->defn[1], b->flak_factor, b->manu_pen,
+		 b->evade_factor, b->vuln, b->tanks.ratio);
 	snprintf(BB_out_buf[OUT_FSA], 80,
 		 "Failure: %.1f; Serviceability: %.1f; Accuracy: %.1f",
 		 b->fail * 100.0f, b->serv * 100.0f, b->accu * 100.0f);
@@ -1884,8 +1899,33 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 						b.engines.egg=t.state;
 						changed=true;
 					}
+					else if (t.e==BB_csbs)
+					{
+						b.bay.csbs=t.state;
+						changed=true;
+					}
+					else if (t.e==BB_sst)
+					{
+						b.tanks.sst=t.state;
+						changed=true;
+					}
+					else if (t.e==BB_agw)
+					{
+						b.user_mtow=!t.state;
+						changed=true;
+					}
 					else
 					{
+						unsigned int i;
+						for(i=0;i<NNAVAIDS;i++)
+							if(t.e==BB_na[i])
+							{
+								b.elec.navaid[i]=t.state;
+								changed=true;
+								break;
+							}
+						if(i<NNAVAIDS)
+							break;
 						fprintf(stderr, "Clicked on unknown toggle!\n");
 					}
 				break;
@@ -1921,8 +1961,76 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 						b.wing.art=v.value;
 						changed=true;
 					}
+					else if(v.e==BB_fuse)
+					{
+						b.fuse.typ=selft;
+						changed=true;
+					}
+					else if(v.e==BB_girth)
+					{
+						b.bay.girth=selgirth;
+						changed=true;
+					}
+					else if(v.e==BB_cap)
+					{
+						b.bay.load=b.bay.cap=v.value;
+						changed=true;
+					}
+					else if(v.e==BB_esl)
+					{
+						b.elec.esl=selesl;
+						changed=true;
+					}
+					else if(v.e==BB_fuel)
+					{
+						b.tanks.hlb=(v.value+99)/100;
+						changed=true;
+					}
+					else if(v.e==BB_fill)
+					{
+						b.tanks.pct=v.value;
+						changed=true;
+					}
+					else if(v.e==BB_gross)
+					{
+						b.mtow=v.value*100;
+						if(BB_agw)
+						{
+							atg_toggle *tog=BB_agw->elemdata;
+							if(tog) tog->state=false;
+						}
+						b.user_mtow=true;
+						changed=true;
+					}
 					else
 					{
+						unsigned int i;
+						for(i=0;i<LXN_COUNT;i++)
+							if(v.e==BB_gun[i])
+							{
+								atg_box *box=BB_gun[i]->elemdata;
+								if(!box) break;
+								if(selgun[i].sel && selgun[i].sel<box->nelems)
+								{
+									unsigned int *j=box->elems[selgun[i].sel]->userdata;
+									if(j&&*j<builder->entities.ngun)
+										b.turrets.typ[i]=builder->entities.gun[*j];
+								}
+								else
+									b.turrets.typ[i]=NULL;
+								if(selgun[i].semi && selgun[i].semi<box->nelems)
+								{
+									unsigned int *j=box->elems[selgun[i].semi]->userdata;
+									if(j&&*j<builder->entities.ngun)
+										b.turrets.mou[i]=builder->entities.gun[*j];
+								}
+								else
+									b.turrets.mou[i]=NULL;
+								changed=true;
+								break;
+							}
+						if(i<LXN_COUNT)
+							break;
 						fprintf(stderr, "Clicked on unknown spinner!\n");
 					}
 				break;
@@ -1933,6 +2041,14 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 		if(changed)
 		{
 			calc_bomber(&b, &builder->tn);
+			/* Don't call m2c for the very few things calc can
+			 * change; just handle them ourselves in open code.
+			 */
+			if(BB_gross)
+			{
+				atg_spinner *spin=BB_gross->elemdata;
+				spin->value=ceil(b.mtow/100.0);
+			}
 			builder_update_m2v(&b);
 		}
 		SDL_Delay(50);

@@ -638,11 +638,12 @@ static int calc_perf(struct bomber *b)
 		  b->engines.tare * tn->etf / 100.0f;
 	b->gross = b->tare + b->tanks.mass + b->turrets.ammo +
 		   b->crew.gross + b->bay.load;
-	if (!b->user_mtow) {
-		if (b->refit < REFIT_MOD)
+	if (b->refit < REFIT_MOD) {
+		if (!b->user_mtow)
 			b->mtow = ceil(b->gross);
-		else
-			b->mtow = b->parent->mtow;
+	} else {
+		/* Cannot change structure in MOD or DOCTRINE refit */
+		b->mtow = b->parent->mtow;
 	}
 	if (floor(b->gross) > b->mtow)
 		design_error(b, "Exceeded MTOW of %ulb", b->mtow);
