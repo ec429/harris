@@ -2,8 +2,11 @@
 # DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY:[MARK]
 # Description is not used in-game except for MARK and in debugging messages
 # ACNAME should match NAME from dat/bombers
-# Stat is one of cost, speed, alt, capwt, capbulk, svp, defn, fail, accu, range, crew, loads, navs, flags, nil
+# Stat is one of cost, speed, alt, capwt, capbulk, svp, defn, fail, accu, range, crew, loads, navs, flags, nil,
+#                mrcap, mran, crcap, cran, cmcap, cmran
 #   nil is used with MARK to set the name of mark 0; it sets no stat
+#   mr is max-range condition, cr is concrete runway, cmr is both
+#   if not flags.HEAVY, cr and cmr automatically get grass mods copied
 # old is ignored by game
 # new is the new value of the stat (or, for flags, the flag to set)
 # MARK indicates this only affects new-build aircraft (only supports a limited selection of stats)
@@ -27,12 +30,17 @@ Mk IV                   :Mosquito   :nil  :       :       :00-00-0000:0
 Mk I                    :Windsor    :nil  :       :       :00-00-0000:0
 Mk I                    :Selkirk    :nil  :       :       :00-00-0000:0
 Mk IV                   :Whitley    :speed:    155:    165:00-00-0000:1
-Mk IV                   :Whitley    :range:    300:    320:00-00-0000:1
+Mk IV                   :Whitley    :range:    350:    385:00-00-0000:1
 Mk IV                   :Whitley    :defn :     35:     32:00-00-0000:1
 Mk IV                   :Whitley    :alt  :    150:    176:00-00-0000:1
+Mk IV                   :Whitley    :capwt:   3500:   5500:00-00-0000:1
+Mk IV                   :Whitley    :mrcap:   1500:   2750:00-00-0000:1
+Mk IV                   :Whitley    :mran :    600:    635:00-00-0000:1
 Mk V                    :Whitley    :speed:    165:    170:00-00-0000:2
-Mk V                    :Whitley    :range:    320:    330:00-00-0000:2
+Mk V                    :Whitley    :range:    385:    410:00-00-0000:2
 Mk V                    :Whitley    :defn :     32:     31:00-00-0000:2
+Mk V                    :Whitley    :capwt:   5500:   7000:00-00-0000:2
+Mk V                    :Whitley    :mrcap:   2750:   3750:00-00-0000:2
 Twin guns in turret     :Blenheim   :defn :     28:     27:11-01-1940:
 Extra dorsal guns       :Hampden    :defn :     24:     23:11-01-1940:
 Self-sealing tank       :Whitley    :defn :     35:     33:06-02-1940:
@@ -63,44 +71,76 @@ Exactor priming         :Stirling   :svp  :     40:     45:21-10-1941:
 Mk II                   :Halifax    :speed:    227:    224:25-10-1941:1
 Mk II                   :Halifax    :alt  :    192:    215:25-10-1941:1
 Mk II                   :Halifax    :defn :     22:     21:25-10-1941:1
-Mk II                   :Halifax    :range:    335:    348:25-10-1941:1
+Mk II                   :Halifax    :mran :    645:    626:25-10-1941:1
+Mk II                   :Halifax    :mrcap:    900:   1750:25-10-1941:1
+Mk II                   :Halifax    :cran :    390:    405:25-10-1941:1
+Mk II                   :Halifax    :cmran:    645:    626:25-10-1941:1
+Mk II                   :Halifax    :cmcap:   7500:   8450:25-10-1941:1
 # Mk I figures
 Exhaust shrouds         :Halifax    :defn :     22:     20:02-12-1941:
 Exhaust shrouds         :Halifax    :fail :      6:      8:02-12-1941:
 Exhaust shrouds         :Halifax    :speed:    227:    216:02-12-1941:
 Exhaust shrouds         :Halifax    :alt  :    192:    184:02-12-1941:
-Exhaust shrouds         :Halifax    :range:    335:    320:02-12-1941:
+Exhaust shrouds         :Halifax    :range:     50:     48:02-12-1941:
+Exhaust shrouds         :Halifax    :mran :    645:    615:02-12-1941:
+Exhaust shrouds         :Halifax    :cran :    390:    372:02-12-1941:
+Exhaust shrouds         :Halifax    :cmran:    645:    615:02-12-1941:
 # Mk II figures (where different)
 Exhaust shrouds         :Halifax    :defn :     21:     19:02-12-1941:1
 Exhaust shrouds         :Halifax    :speed:    224:    212:02-12-1941:1
 Exhaust shrouds         :Halifax    :alt  :    215:    196:02-12-1941:1
-Exhaust shrouds         :Halifax    :range:    348:    333:02-12-1941:1
+Exhaust shrouds         :Halifax    :mran :    626:    600:02-12-1941:1
+Exhaust shrouds         :Halifax    :cran :    405:    388:02-12-1941:1
+Exhaust shrouds         :Halifax    :cmran:    626:    600:02-12-1941:1
 Bulbous rudder          :Halifax    :defn :     20:     16:15-01-1942:
 Bulbous rudder          :Halifax    :defn :     19:     15:15-01-1942:1
 Remove exhaust shrouds  :Halifax    :defn :     16:     18:12-03-1942:
 Remove exhaust shrouds  :Halifax    :fail :      8:      6:12-03-1942:
 Remove exhaust shrouds  :Halifax    :speed:    216:    227:12-03-1942:
 Remove exhaust shrouds  :Halifax    :alt  :    184:    192:12-03-1942:
-Remove exhaust shrouds  :Halifax    :range:    320:    335:12-03-1942:
+Remove exhaust shrouds  :Halifax    :range:     48:     50:12-03-1942:
+Remove exhaust shrouds  :Halifax    :mran :    615:    645:12-03-1942:
+Remove exhaust shrouds  :Halifax    :cran :    372:    390:12-03-1942:
+Remove exhaust shrouds  :Halifax    :cmran:    615:    645:12-03-1942:
 Remove exhaust shrouds  :Halifax    :defn :     15:     17:12-03-1942:1
 Remove exhaust shrouds  :Halifax    :speed:    212:    224:12-03-1942:1
 Remove exhaust shrouds  :Halifax    :alt  :    196:    215:12-03-1942:1
-Remove exhaust shrouds  :Halifax    :range:    333:    348:12-03-1942:1
+Remove exhaust shrouds  :Halifax    :mran :    600:    626:12-03-1942:1
+Remove exhaust shrouds  :Halifax    :cran :    388:    405:12-03-1942:1
+Remove exhaust shrouds  :Halifax    :cmran:    600:    626:12-03-1942:1
 4,000lb installation    :Halifax    :loads:       :Pd     :11-04-1942:
 Type XIV Bomb Sight     :Lancaster  :accu :     60:     72:19-04-1942:
-Overload tanks          :Halifax    :flags:       :OVLTANK:09-05-1942:
+Overload tanks          :Halifax    :mran :    645:    670:09-05-1942:
+Overload tanks          :Halifax    :mrcap:    900:    400:09-05-1942:
+Overload tanks          :Halifax    :cmran:    645:    670:09-05-1942:
+Overload tanks          :Halifax    :cmcap:   7500:   7000:09-05-1942:
+Overload tanks          :Halifax    :mran :    626:    696:09-05-1942:1
+Overload tanks          :Halifax    :mrcap:   1750:    400:09-05-1942:1
+Overload tanks          :Halifax    :cmran:    626:    696:09-05-1942:1
+Overload tanks          :Halifax    :cmcap:   8450:   7000:09-05-1942:1
 Type XIV Bomb Sight     :Halifax    :accu :     62:     68:27-06-1942:
 Remove nose turret      :Halifax    :speed:    227:    230:21-08-1942:
-Remove nose turret      :Halifax    :range:    335:    340:21-08-1942:
+Remove nose turret      :Halifax    :range:     50:     53:21-08-1942:
+Remove nose turret      :Halifax    :mran :    670:    680:21-08-1942:
+Remove nose turret      :Halifax    :mrcap:    400:    600:21-08-1942:
+Remove nose turret      :Halifax    :cran :    390:    398:21-08-1942:
+Remove nose turret      :Halifax    :cmcap:   7000:   7200:21-08-1942:
+Remove nose turret      :Halifax    :cmran:    670:    680:21-08-1942:
 Remove nose turret      :Halifax    :crew :PNWEGGG:PNBWEGG:21-08-1942:
 Remove nose turret      :Halifax    :speed:    224:    227:21-08-1942:1
-Remove nose turret      :Halifax    :range:    348:    353:21-08-1942:1
+Remove nose turret      :Halifax    :range:     50:     53:21-08-1942:1
+Remove nose turret      :Halifax    :mran :    696:    706:21-08-1942:1
+Remove nose turret      :Halifax    :mrcap:    400:    600:21-08-1942:1
+Remove nose turret      :Halifax    :cran :    405:    415:21-08-1942:1
+Remove nose turret      :Halifax    :cmcap:   7000:   7200:21-08-1942:1
+Remove nose turret      :Halifax    :cmran:    696:    706:21-08-1942:1
 Type XIV Bomb Sight     :Southampton:accu :     50:     62:14-10-1942:
 Type XIV Bomb Sight     :Stirling   :accu :     50:     56:07-11-1942:
 Mk X                    :Wellington :speed:    200:    205:10-11-1942:3
 Mk X                    :Wellington :alt  :    185:    195:10-11-1942:3
-Mk X                    :Wellington :range:    311:    318:10-11-1942:3
+Mk X                    :Wellington :range:    433:    442:10-11-1942:3
 Mk X                    :Wellington :svp  :     87:     88:10-11-1942:3
+Mk X                    :Wellington :mran :    640:    650:10-11-1942:3
 OBOE installation       :Mosquito   :navs :       :OBOE   :04-12-1942:
 Mk III                  :Stirling   :speed:    200:    205:08-01-1943:1
 Mk III                  :Stirling   :alt  :    175:    185:08-01-1943:1
@@ -111,13 +151,21 @@ Bulged Bomb Bay         :Mosquito   :capwt:   2000:   4000:03-04-1943:
 Bulged Bomb Bay         :Mosquito   :capbulk: 2000:   4000:03-04-1943:
 Bulged Bomb Bay         :Mosquito   :loads:       :Po     :03-04-1943:
 Bulged Bomb Bay         :Mosquito   :loads:       :Hh     :03-04-1943:
+Bulged Bomb Bay         :Mosquito   :range:    690:    575:03-04-1943:
+Bulged Bomb Bay         :Mosquito   :mran :    800:    775:03-04-1943:
 Mk II Ser IA            :Halifax    :speed:    227:    233:01-06-1943:2
 Mk II Ser IA            :Halifax    :alt  :    215:    210:01-06-1943:2
-Mk II Ser IA            :Halifax    :range:    353:    345:01-06-1943:2
+Mk II Ser IA            :Halifax    :range:     53:     48:01-06-1943:2
+Mk II Ser IA            :Halifax    :mran :    706:    690:01-06-1943:2
+Mk II Ser IA            :Halifax    :mrcap:    600:    400:01-06-1943:2
+Mk II Ser IA            :Halifax    :cran :    415:    400:01-06-1943:2
+Mk II Ser IA            :Halifax    :cmcap:   7200:   7000:01-06-1943:2
+Mk II Ser IA            :Halifax    :cmran:    706:    690:01-06-1943:2
 Mk II Ser IA            :Halifax    :defn :     17:     16:01-06-1943:2
 Mk IX                   :Mosquito   :alt  :    300:    320:22-07-1943:1
-Mk IX                   :Mosquito   :range:    390:    400:22-07-1943:1
+Mk IX                   :Mosquito   :range:    575:    590:22-07-1943:1
 Mk IX                   :Mosquito   :speed:    325:    340:22-07-1943:1
+Mk IX                   :Mosquito   :mran :    775:    795:22-07-1943:1
 Mk IIA                  :Southampton:speed:    230:    250:16-10-1943:1
 Mk IIA                  :Southampton:alt  :    220:    225:16-10-1943:1
 Mk IIA                  :Southampton:defn :     22:     20:16-10-1943:1
@@ -134,4 +182,8 @@ Mk X                    :Lancaster  :svp  :     70:     80:13-02-1944:1
 Mk X                    :Lancaster  :defn :     11:     10:13-02-1944:1
 Mk X                    :Lancaster  :fail :      4:      3:13-02-1944:1
 Mk X                    :Lancaster  :accu :     72:     75:13-02-1944:1
-Mk X                    :Lancaster  :range:    350:    360:13-02-1944:1
+Mk X                    :Lancaster  :range:    180:    183:13-02-1944:1
+Mk X                    :Lancaster  :mran :    700:    710:13-02-1944:1
+Mk X                    :Lancaster  :mrcap:   3500:   5500:13-02-1944:1
+Mk X                    :Lancaster  :cran :    431:    437:13-02-1944:1
+Mk X                    :Lancaster  :cmran:    700:    710:13-02-1944:1
