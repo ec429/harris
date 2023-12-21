@@ -17,7 +17,7 @@
 
 # Description            A/c name    stat    old     new   DD-MM-YYYY
 Mk IV                   :Blenheim   :nil  :       :       :00-00-0000:0
-Mk III                  :Whitley    :nil  :       :       :00-00-0000:0
+Mk III                  :Whitley    :capbulk: 3500:   7000:00-00-0000:0
 Mk I                    :Hampden    :nil  :       :       :00-00-0000:0
 Mk Ia                   :Wellington :nil  :       :       :00-00-0000:0
 Mk Ia                   :Manchester :nil  :       :       :00-00-0000:0
