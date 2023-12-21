@@ -175,7 +175,7 @@ def extract_targ_profit(save, before=None, after=None, typ=None):
 	classes = [[tcls,tcls], [icls,icls]]
 	for d in days:
 		daily_profit(d, bombers, targets, classes, d[0]>=after if after else True, d[0]>=before if before else False, typ=typ)
-	gains, losses = zip(*targets)[1:]
+	gains, losses = list(zip(*targets))[1:]
 	lossvalue = [sum(l*hdata.Bombers[i]['cost'] for i,l in loss.items()) for loss in losses]
 	return {i: {'gain': gains[i], 'loss': losses[i], 'cost': lossvalue[i]} for i in range(save.init.ntargets)}
 
