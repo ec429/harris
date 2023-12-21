@@ -1768,12 +1768,12 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					if(bases[b].clamped) continue;
 					signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 					bool unpaved=types[type].heavy&&!bases[b].paved;
-					double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*1.3;
+					double dist=hypot((blat-(signed)targs[seltarg].lat)*3, (blon-(signed)targs[seltarg].lon)*3);
 					if(state->bombers[j].failed) continue;
 					if(!state->bombers[j].landed) continue;
 					if(!filter_apply(state, j)) continue;
 					avail[type]=true;
-					if(bstats(state->bombers[j]).range*(unpaved?0.8:1.0)>=dist)
+					if((unpaved?bstats(state->bombers[j]).mrange:bstats(state->bombers[j]).cmrange)>=dist)
 						reach[type]=true;
 				}
 			for(unsigned int i=0;i<ntypes;i++)
@@ -2037,8 +2037,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										if(bases[b].clamped) continue;
 										signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 										bool unpaved=types[i].heavy&&!bases[b].paved;
-										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*1.3;
-										if(newstats(types[i]).range*(unpaved?0.8:1.0)<dist)
+										double dist=hypot((blat-(signed)targs[seltarg].lat)*3, (blon-(signed)targs[seltarg].lon)*3);
+										if((unpaved?newstats(types[i]).mrange:newstats(types[i]).cmrange)<dist)
 											continue;
 										if(state->bombers[j].failed) continue;
 										if(!state->bombers[j].landed) continue;
@@ -2921,31 +2921,31 @@ int update_raidnums(const game *state, int seltarg)
 				unsigned int b=state->squads[s].base;
 				signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 				bool unpaved=types[type].heavy&&!bases[b].paved;
-				double dist;
+				struct bomberstats bst=bstats(state->bombers[k]);
+				double dist, srf=1.0;
 				if(stream)
 				{
-					dist=hypot(blat-(signed)targs[seltarg].route[0][0], blon-(signed)targs[seltarg].route[0][1]);
+					dist=hypot((blat-(signed)targs[seltarg].route[0][0])*3, (blon-(signed)targs[seltarg].route[0][1])*3);
 					for(unsigned int l=0;l<4;l++)
 					{
-						double d=hypot((signed)targs[seltarg].route[l+1][0]-(signed)targs[seltarg].route[l][0], (signed)targs[seltarg].route[l+1][1]-(signed)targs[seltarg].route[l][1]);
+						double d=hypot(((signed)targs[seltarg].route[l+1][0]-(signed)targs[seltarg].route[l][0])*3, ((signed)targs[seltarg].route[l+1][1]-(signed)targs[seltarg].route[l][1])*3);
 						dist+=d;
 					}
 				}
 				else
 				{
-					dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*1.07;
+					dist=hypot((blat-(signed)targs[seltarg].lat)*3, (blon-(signed)targs[seltarg].lon)*3)*1.07;
 				}
-				unsigned int cap=bstats(state->bombers[k]).capwt;
-				if(unpaved)
-					cap-=cap/4;
-				unsigned int fuelt=bstats(state->bombers[k]).range*0.6/(bstats(state->bombers[k]).speed/450.0);
-				unsigned int estt=dist*1.1/(bstats(state->bombers[k]).speed/450.0)+12;
-				if(!stream) estt+=36;
-				if(estt>fuelt)
-				{
-					unsigned int fu=estt-fuelt;
-					cap*=120.0/(120.0+fu);
-				}
+				bombload load=is_pff(state, k)?state->raids[seltarg].pffloads[type]:state->raids[seltarg].loads[type];
+				/* Cookies sticking out of the bomb bay slow us down */
+				if(targs[seltarg].class==TCLASS_CITY&&(load==BL_PLUMDUFF||load==BL_PONLY)&&types[i].smbay)
+					srf=0.94;
+				unsigned int cap=bst.capwt;
+				unsigned int mrcap=unpaved?bst.mrcap:bst.cmcap;
+				unsigned int range=(unpaved?bst.range:bst.crange)*srf;
+				unsigned int mrange=(unpaved?bst.mrange:bst.cmrange)*srf;
+				if(dist>range)
+					cap-=(cap-mrcap)*(min(dist, mrange)-range)/(mrange-range);
 				tcap+=cap;
 			}
 			break;

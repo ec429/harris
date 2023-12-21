@@ -39,7 +39,7 @@
 Bristol:Blenheim:            5000:198:205: 1200:55:28:36:23: 6:60:285:  450:390:285:  450:390:          :10-01-1941:20-05-1941:PNG    :Ab::Light Bomber
 Armstrong-Whitworth:Whitley: 8000:155:150: 3500:70:35:48:27: 9:32:350: 1500:600:350: 1500:600:          :18-06-1941:01-04-1942:PNBWG  :GEE,H2S,Ab::Medium Night Bomber
 Handley Page:Hampden:       10000:202:190: 4000:65:24:29:25: 8:48:415: 2000:540:415: 2000:540:          :02-02-1942:16-11-1942:PNWG   :GEE,Ab::Tactical Medium Bomber
-Vickers:Wellington:         12000:185:180: 4500:85:16:20:14: 2:40:433: 2250:640:433: 2250:640:          :21-10-1943:          :PNWGGG :GEE,H2S,OTUB,SMBAY,Ab,Us,Ar::Medium Bomber
+Vickers:Wellington:         12000:185:180: 4500:85:16:20:14: 2:40:433: 1625:640:433: 1625:640:          :21-10-1943:          :PNWGGG :GEE,H2S,OTUB,SMBAY,Ab,Us,Ar::Medium Bomber
 # while Manc's Sv may seem high, remember that its high Fa brings this right down in practice
 Avro:Manchester:            20000:210:185:10350:64:24:32:21:16:55:345: 4500:675:500: 7000:675:05-11-1940:26-06-1942:19-05-1943:PPNBWGG:GEE,H2S,OBOE,CREWBG,HEAVY,Ab,Us,Ar::Heavy Bomber
 Supermarine:Southampton:    33000:230:220:16000:64:22:28:16: 6:50: 60:    0:500:400: 8000:540:25-12-1940:17-11-1943:15-04-1944:PNBWGG :GEE,H2S,HEAVY,EXTRA,Ab,Us,Ar::Heavy Bomber

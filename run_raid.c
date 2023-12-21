@@ -551,16 +551,18 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					}
 				else
 					genroute((unsigned int [2]){blat, blon}, i, state->bombers[k].route, state, 100);
-				double dist=hypot(blat-(signed)state->bombers[k].route[0][0], blon-(signed)state->bombers[k].route[0][1]), outward=dist;
+				double dist=hypot((blat-(signed)state->bombers[k].route[0][0])*3, (blon-(signed)state->bombers[k].route[0][1])*3), outward=dist;
 				for(unsigned int l=0;l<7;l++)
 				{
-					double d=hypot((signed)state->bombers[k].route[l+1][0]-(signed)state->bombers[k].route[l][0], (signed)state->bombers[k].route[l+1][1]-(signed)state->bombers[k].route[l][1]);
+					double d=hypot(((signed)state->bombers[k].route[l+1][0]-(signed)state->bombers[k].route[l][0])*3, ((signed)state->bombers[k].route[l+1][1]-(signed)state->bombers[k].route[l][1])*3);
 					dist+=d;
 					if(l<4) outward+=d;
 				}
-				unsigned int cap=bstats(state->bombers[k]).capwt;
-				if(unpaved)
-					cap-=cap/4;
+				struct bomberstats bst=bstats(state->bombers[k]);
+				unsigned int cap=bst.capwt;
+				unsigned int mrcap=unpaved?bst.mrcap:bst.cmcap;
+				unsigned int range=unpaved?bst.range:bst.crange;
+				unsigned int mrange=unpaved?bst.mrange:bst.cmrange;
 				state->bombers[k].bombed=false;
 				state->bombers[k].crashed=false;
 				state->bombers[k].landed=false;
@@ -576,17 +578,17 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				double askill=0; // Airmanship
 				for(unsigned int l=0;l<MAX_CREW;l++)
 				{
-					if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
+					if(bst.crew[l]==CCLASS_E)
 					{
 						askill=get_skill(state, k, l);
 						break;
 					}
-					else if(bstats(state->bombers[k]).crew[l]==CCLASS_P)
+					else if(bst.crew[l]==CCLASS_P)
 					{
 						askill=max(askill, get_skill(state, k, l)*.5);
 					}
 				}
-				state->bombers[k].speed=(bstats(state->bombers[k]).speed+askill/20.0-2.0-state->bombers[k].wear/20.0)/450.0;
+				state->bombers[k].speed=(bst.speed+askill/20.0-2.0-state->bombers[k].wear/20.0)/450.0;
 				bombload load=is_pff(state, k)?state->raids[i].pffloads[type]:state->raids[i].loads[type];
 				/* Cookies sticking out of the bomb bay slow us down */
 				if(targs[i].class==TCLASS_CITY&&(load==BL_PLUMDUFF||load==BL_PONLY)&&types[i].smbay)
@@ -611,23 +613,25 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				startt=min(startt, state->bombers[k].startt);
 				ra_append(&state->hist, state->now, maketime(state->bombers[k].startt), state->bombers[k].id, false, state->bombers[k].type, i);
 				double eff=0.98+askill/1e3; // engineer fuel factor
-				state->bombers[k].fuelt=state->bombers[k].startt+bstats(state->bombers[k]).range*0.6*eff*(unpaved?0.8:1.0)/(double)state->bombers[k].speed;
+				double srf=state->bombers[k].speed/(bst.speed/450.0); // speed range factor
+				range*=eff*srf;
+				mrange*=eff*srf;
+				// If we somehow end up at longer range than this bomber is officially
+				// capable of (e.g. because wear or askill slowed us down) then just
+				// give it the max-range payload anyway.  Because occasionally sending
+				// out bombers with zero or negative payload would be weird and confuse
+				// the user.
+				if(outward>range)
+					cap-=(cap-mrcap)*(min(outward, mrange)-range)/(mrange-range);
 				unsigned int eta=state->bombers[k].startt+outward*1.1/(double)state->bombers[k].speed+12;
 				if(!stream) eta+=36;
-				if(eta>state->bombers[k].fuelt)
-				{
-					unsigned int fu=eta-state->bombers[k].fuelt;
-					state->bombers[k].fuelt+=fu;
-					cap*=120.0/(120.0+fu);
-				}
-				else
-					state->bombers[k].fuelt=eta;
+				state->bombers[k].fuelt=eta;
 				state->bombers[k].b_hc=0;
 				state->bombers[k].b_gp=0;
 				state->bombers[k].b_in=0;
 				state->bombers[k].b_ti=0;
 				state->bombers[k].b_le=0;
-				unsigned int bulk=bstats(state->bombers[k]).capbulk;
+				unsigned int bulk=bst.capbulk;
 				bool inext=true;
 				switch(targs[i].class)
 				{
@@ -650,7 +654,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									}
 									else
 									{
-										while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
+										while(cap&&(bulk=bst.capbulk-loadbulk(state->bombers[k])))
 										{
 											if(inext)
 												transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
@@ -662,7 +666,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 								else // can't take a cookie, so just gp+in mix (but more gp than BL_USUAL)
 								{
-									while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
+									while(cap&&(bulk=bst.capbulk-loadbulk(state->bombers[k])))
 									{
 										if(inext)
 											transfer(min(bulk/1.5, 300), cap, state->bombers[k].b_in);
@@ -673,15 +677,15 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 							break;
 							case BL_USUAL:
-								if(types[type].load[BL_PLUMDUFF]&&bstats(state->bombers[k]).capwt>=10000&&cap>4000&&!types[type].smbay) // cookie + incendiaries
+								if(types[type].load[BL_PLUMDUFF]&&bst.capwt>=10000&&cap>4000&&!types[type].smbay) // cookie + incendiaries
 								{
 									transfer(4000, cap, state->bombers[k].b_hc);
-									bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k]);
+									bulk=bst.capbulk-loadbulk(state->bombers[k]);
 									state->bombers[k].b_in=min(cap, bulk/1.5);
 								}
 								else // gp+in mix
 								{
-									while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
+									while(cap&&(bulk=bst.capbulk-loadbulk(state->bombers[k])))
 									{
 										if(inext)
 											transfer(min(bulk/1.5, 800), cap, state->bombers[k].b_in);
@@ -702,7 +706,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 								// else fallthrough
 							case BL_ILLUM:
-								while(cap&&(bulk=bstats(state->bombers[k]).capbulk-loadbulk(state->bombers[k])))
+								while(cap&&(bulk=bst.capbulk-loadbulk(state->bombers[k])))
 								{
 									if(inext)
 										transfer(min(bulk/2.0, 250), cap, state->bombers[k].b_ti);
@@ -712,7 +716,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 								}
 							break;
 							case BL_PPLUS: // LanX, up to 12,000lb cookie; LanI, up to 8,000lb cookie
-								transfer(min(bstats(state->bombers[k]).capwt/5333, cap/4000)*4000, cap, state->bombers[k].b_hc);
+								transfer(min(bst.capwt/5333, cap/4000)*4000, cap, state->bombers[k].b_hc);
 								state->bombers[k].b_gp=cap;
 							break;
 							case BL_PONLY:

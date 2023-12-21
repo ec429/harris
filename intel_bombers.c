@@ -83,7 +83,7 @@ static unsigned int get_accu(bombertype b, unsigned int mark)
 }
 static unsigned int get_range(bombertype b, unsigned int mark)
 {
-	return b.mark[mark].range;
+	return b.mark[mark].cmrange;
 }
 
 struct b_stat_row
@@ -116,8 +116,8 @@ struct b_stat_row
 			.v_shift=-20, .v_scale=-1,  .bar_rev=false},
 	[STAT_AC]     ={.name="Accuracy",       .unit=" ",   .unit_first=false, .bar_min=20,    .bar_max=80,    .v_fn=get_accu,
 			.v_shift=0,   .v_scale=1,   .bar_rev=false},
-	[STAT_RANGE]  ={.name="Max. Range",     .unit="mi",  .unit_first=false, .bar_min=450,   .bar_max=1200,  .v_fn=get_range,
-			.v_shift=0,   .v_scale=3,   .bar_rev=false},
+	[STAT_RANGE]  ={.name="Max. Range",     .unit="mi",  .unit_first=false, .bar_min=640,   .bar_max=1440,  .v_fn=get_range,
+			.v_shift=0,   .v_scale=2,   .bar_rev=false},
 };
 
 int intel_bombers_create(void)
