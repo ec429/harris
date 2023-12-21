@@ -407,6 +407,7 @@ typedef struct
 	double damage;
 	dmgsrc ld; // last damage source
 	bool radar;
+	bool musik;
 	unsigned int fuelt;
 	signed int k; // which bomber this fighter is attacking (-1 for none)
 	signed int targ; // which target this fighter is covering (-1 for none)

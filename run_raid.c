@@ -1109,11 +1109,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							if(brandp(state->flk[i]*flakscale/min((9+targs[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
-								if(brandp(bstats(state->bombers[k]).defn/800.0))
+								if(brandp(bstats(state->bombers[k]).deflk/800.0))
 									ddmg=100;
 								else
 								{
-									ddmg=irandu(bstats(state->bombers[k]).defn)/5.0;
+									ddmg=irandu(bstats(state->bombers[k]).deflk)/5.0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
 										if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
@@ -1161,11 +1161,11 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							if(brandp(flaks[i].strength*flakscale/min((12+flaks[i].shots++)*40.0, preccap)))
 							{
 								double ddmg;
-								if(brandp(bstats(state->bombers[k]).defn/1000.0))
+								if(brandp(bstats(state->bombers[k]).deflk/1000.0))
 									ddmg=100;
 								else
 								{
-									ddmg=irandu(bstats(state->bombers[k]).defn)/10.0;
+									ddmg=irandu(bstats(state->bombers[k]).deflk)/10.0;
 									// Damage control; also E practise (even if ddmg==0)
 									for(unsigned int l=1;l<MAX_CREW;l++)
 										if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
@@ -1465,28 +1465,29 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							state->fighters[j].lon+=cx*spd;
 							state->fighters[j].lat+=cy*spd;
 						}
+						struct bomberstats bst=bstats(state->bombers[k]);
 						double pskill=get_skill(state, k, 0);
 						double slskill=0, gskill[3]={0, 0, 0}; // we assume no-one has more than 3 Gs.  If they do, we ignore the excess.
 						unsigned int ng=0, nl=0;
 						for(unsigned int l=1;l<MAX_CREW;l++)
 						{
-							if(bstats(state->bombers[k]).crew[l]==CCLASS_P)
+							if(bst.crew[l]==CCLASS_P)
 								pskill=max(pskill, get_skill(state, k, l));
-							else if((bstats(state->bombers[k]).crew[l]==CCLASS_G)||(bstats(state->bombers[k]).crew[l]==CCLASS_W&&bstats(state->bombers[k]).crewwg))
+							else if((bst.crew[l]==CCLASS_G)||(bst.crew[l]==CCLASS_W&&bst.crewwg))
 							{
 								if(ng<3)
 									gskill[ng++]=get_skill(state, k, l);
 								slskill+=get_skill(state, k, l);
 								nl++;
 							}
-							else if(bstats(state->bombers[k]).crew[l]==CCLASS_B&&bstats(state->bombers[k]).crewbg)
+							else if(bst.crew[l]==CCLASS_B&&bst.crewbg)
 							{
 								if(ng<3)
 									gskill[ng++]=get_skill(state, k, l)*0.75;
 								slskill+=get_skill(state, k, l)*0.75;
 								nl++;
 							}
-							else if(bstats(state->bombers[k]).crew[l]==CCLASS_W)
+							else if(bst.crew[l]==CCLASS_W)
 							{
 								slskill+=get_skill(state, k, l);
 								nl++;
@@ -1497,17 +1498,17 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 						{
 							if(brandp(ftypes[ft].mnv*(2.7+loadness(state->bombers[k]))/(200.0+pskill+mlskill*3)))
 							{
-								unsigned int dmg=irandu(ftypes[ft].arm)*bstats(state->bombers[k]).defn/30.0;
+								unsigned int dmg=irandu(ftypes[ft].arm)*(state->fighters[j].musik?bst.desch:bst.defn)/30.0;
 								double sdc=0;
 								// Damage control; also E practise (even if dmg==0)
 								for(unsigned int l=1;l<MAX_CREW;l++)
 								{
-									if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
+									if(bst.crew[l]==CCLASS_E)
 									{
 										sdc+=get_skill(state, k, l);
 										practise(*get_crew(state, k, l), 0.5);
 									}
-									else if(bstats(state->bombers[k]).crew[l]==CCLASS_W)
+									else if(bst.crew[l]==CCLASS_W)
 									{
 										sdc+=get_skill(state, k, l);
 									}
@@ -1529,7 +1530,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							double rgskill=0;
 							if(ng)
 								rgskill=gskill[irandu(ng)];
-							if(!types[bt].noarm&&(brandp(rgskill*0.008/bstats(state->bombers[k]).defn)))
+							if(!types[bt].noarm&&(brandp(rgskill*0.008/(state->fighters[j].musik?bst.desch:bst.defn))))
 							{
 								unsigned int dmg=irandu(20);
 								state->fighters[j].damage+=dmg;
@@ -1543,7 +1544,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							}
 							// G practise (even if we missed)
 							for(unsigned int l=1;l<MAX_CREW;l++)
-								if(bstats(state->bombers[k]).crew[l]==CCLASS_G)
+								if(bst.crew[l]==CCLASS_G)
 									practise(*get_crew(state, k, l), 1);
 						}
 					}
