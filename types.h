@@ -543,7 +543,7 @@ struct oboe
 struct gee
 {
 	signed int lat, lon;
-	unsigned int range, jrange;
+	unsigned int jrange;
 };
 
 struct region
