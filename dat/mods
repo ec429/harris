@@ -2,8 +2,8 @@
 # DESCRIPTION:ACNAME:STAT:OLD:NEW:DD-MM-YYYY:[MARK]
 # Description is not used in-game except for MARK and in debugging messages
 # ACNAME should match NAME from dat/bombers
-# Stat is one of cost, speed, alt, capwt, capbulk, svp, defn, fail, accu, range, crew, loads, navs, flags, nil,
-#                mrcap, mran, crcap, cran, cmcap, cmran
+# Stat is one of cost, speed, alt, capwt, capbulk, svp, defn, desch, deflk, fail, accu, range, crew, loads,
+#                navs, flags, mrcap, mran, crcap, cran, cmcap, cmran, nil
 #   nil is used with MARK to set the name of mark 0; it sets no stat
 #   mr is max-range condition, cr is concrete runway, cmr is both
 #   if not flags.HEAVY, cr and cmr automatically get grass mods copied
@@ -32,6 +32,8 @@ Mk I                    :Selkirk    :nil  :       :       :00-00-0000:0
 Mk IV                   :Whitley    :speed:    155:    165:00-00-0000:1
 Mk IV                   :Whitley    :range:    350:    385:00-00-0000:1
 Mk IV                   :Whitley    :defn :     35:     32:00-00-0000:1
+Mk IV                   :Whitley    :desch:     48:     44:00-00-0000:1
+Mk IV                   :Whitley    :deflk:     27:     25:00-00-0000:1
 Mk IV                   :Whitley    :alt  :    150:    176:00-00-0000:1
 Mk IV                   :Whitley    :capwt:   3500:   5500:00-00-0000:1
 Mk IV                   :Whitley    :mrcap:   1500:   2750:00-00-0000:1
@@ -39,18 +41,35 @@ Mk IV                   :Whitley    :mran :    600:    635:00-00-0000:1
 Mk V                    :Whitley    :speed:    165:    170:00-00-0000:2
 Mk V                    :Whitley    :range:    385:    410:00-00-0000:2
 Mk V                    :Whitley    :defn :     32:     31:00-00-0000:2
+Mk V                    :Whitley    :desch:     44:     43:00-00-0000:2
+Mk V                    :Whitley    :deflk:     25:     24:00-00-0000:2
 Mk V                    :Whitley    :capwt:   5500:   7000:00-00-0000:2
 Mk V                    :Whitley    :mrcap:   2750:   3750:00-00-0000:2
 Twin guns in turret     :Blenheim   :defn :     28:     27:11-01-1940:
+Twin guns in turret     :Blenheim   :desch:     36:     35:11-01-1940:
 Extra dorsal guns       :Hampden    :defn :     24:     23:11-01-1940:
+Extra dorsal guns       :Hampden    :desch:     29:     28:11-01-1940:
 Self-sealing tank       :Whitley    :defn :     35:     33:06-02-1940:
+Self-sealing tank       :Whitley    :desch:     48:     45:06-02-1940:
+Self-sealing tank       :Whitley    :deflk:     27:     25:06-02-1940:
 Self-sealing tank       :Whitley    :defn :     32:     30:06-02-1940:1
+Self-sealing tank       :Whitley    :desch:     44:     41:06-02-1940:1
+Self-sealing tank       :Whitley    :deflk:     25:     23:06-02-1940:1
 Self-sealing tank       :Whitley    :defn :     31:     29:06-02-1940:2
+Self-sealing tank       :Whitley    :desch:     43:     40:06-02-1940:2
+Self-sealing tank       :Whitley    :deflk:     24:     22:06-02-1940:2
 Self-sealing tank       :Wellington :defn :     16:     15:29-02-1940:
+Self-sealing tank       :Wellington :desch:     20:     19:29-02-1940:
+Self-sealing tank       :Wellington :deflk:     14:     12:29-02-1940:
 Self-sealing tank       :Hampden    :defn :     23:     22:21-03-1940:
+Self-sealing tank       :Hampden    :desch:     28:     26:21-03-1940:
+Self-sealing tank       :Hampden    :deflk:     25:     24:21-03-1940:
 Mk Ic                   :Wellington :defn :     15:     14:02-04-1940:1
+Mk Ic                   :Wellington :desch:     19:     18:02-04-1940:1
 Mk Ic                   :Wellington :speed:    185:    190:02-04-1940:1
 Self-sealing tank       :Blenheim   :defn :     27:     25:04-05-1940:
+Self-sealing tank       :Blenheim   :desch:     35:     33:04-05-1940:
+Self-sealing tank       :Blenheim   :deflk:     23:     21:04-05-1940:
 Electric bomb release   :Whitley    :accu :     32:     36:10-08-1940:
 Blockbuster bomb        :Wellington :loads:       :Po     :27-03-1941:
 Blockbuster bomb        :Manchester :loads:       :Pd     :27-03-1941:
@@ -59,6 +78,8 @@ Crew rationalisation    :Manchester :crew :PPNBWGG:PNBWEGG:22-04-1941:
 Mk III                  :Wellington :speed:    190:    200:17-06-1941:2
 Mk III                  :Wellington :alt  :    180:    185:17-06-1941:2
 Mk III                  :Wellington :defn :     14:     13:17-06-1941:2
+Mk III                  :Wellington :desch:     18:     17:17-06-1941:2
+Mk III                  :Wellington :deflk:     12:     11:17-06-1941:2
 Mk III                  :Wellington :svp  :     85:     87:17-06-1941:2
 Broughton shadow factory:Wellington :cost :  12000:   8000:30-07-1941:
 Remove beam guns        :Halifax    :speed:    225:    227:09-09-1941:
@@ -71,6 +92,8 @@ Exactor priming         :Stirling   :svp  :     40:     45:21-10-1941:
 Mk II                   :Halifax    :speed:    227:    224:25-10-1941:1
 Mk II                   :Halifax    :alt  :    192:    215:25-10-1941:1
 Mk II                   :Halifax    :defn :     22:     21:25-10-1941:1
+Mk II                   :Halifax    :desch:     32:     31:25-10-1941:1
+Mk II                   :Halifax    :deflk:     19:     18:25-10-1941:1
 Mk II                   :Halifax    :mran :    645:    626:25-10-1941:1
 Mk II                   :Halifax    :mrcap:    900:   1750:25-10-1941:1
 Mk II                   :Halifax    :cran :    390:    405:25-10-1941:1
@@ -78,6 +101,8 @@ Mk II                   :Halifax    :cmran:    645:    626:25-10-1941:1
 Mk II                   :Halifax    :cmcap:   7500:   8450:25-10-1941:1
 # Mk I figures
 Exhaust shrouds         :Halifax    :defn :     22:     20:02-12-1941:
+Exhaust shrouds         :Halifax    :desch:     32:     30:02-12-1941:
+Exhaust shrouds         :Halifax    :deflk:     19:     20:02-12-1941:
 Exhaust shrouds         :Halifax    :fail :      6:      8:02-12-1941:
 Exhaust shrouds         :Halifax    :speed:    227:    216:02-12-1941:
 Exhaust shrouds         :Halifax    :alt  :    192:    184:02-12-1941:
@@ -87,14 +112,20 @@ Exhaust shrouds         :Halifax    :cran :    390:    372:02-12-1941:
 Exhaust shrouds         :Halifax    :cmran:    645:    615:02-12-1941:
 # Mk II figures (where different)
 Exhaust shrouds         :Halifax    :defn :     21:     19:02-12-1941:1
+Exhaust shrouds         :Halifax    :desch:     31:     29:02-12-1941:1
+Exhaust shrouds         :Halifax    :deflk:     18:     18:02-12-1941:1
 Exhaust shrouds         :Halifax    :speed:    224:    212:02-12-1941:1
 Exhaust shrouds         :Halifax    :alt  :    215:    196:02-12-1941:1
 Exhaust shrouds         :Halifax    :mran :    626:    600:02-12-1941:1
 Exhaust shrouds         :Halifax    :cran :    405:    388:02-12-1941:1
 Exhaust shrouds         :Halifax    :cmran:    626:    600:02-12-1941:1
 Bulbous rudder          :Halifax    :defn :     20:     16:15-01-1942:
+Bulbous rudder          :Halifax    :desch:     30:     25:15-01-1942:
 Bulbous rudder          :Halifax    :defn :     19:     15:15-01-1942:1
+Bulbous rudder          :Halifax    :desch:     29:     26:15-01-1942:1
 Remove exhaust shrouds  :Halifax    :defn :     16:     18:12-03-1942:
+Remove exhaust shrouds  :Halifax    :desch:     25:     27:12-03-1942:
+Remove exhaust shrouds  :Halifax    :deflk:     20:     19:12-03-1942:
 Remove exhaust shrouds  :Halifax    :fail :      8:      6:12-03-1942:
 Remove exhaust shrouds  :Halifax    :speed:    216:    227:12-03-1942:
 Remove exhaust shrouds  :Halifax    :alt  :    184:    192:12-03-1942:
@@ -103,6 +134,8 @@ Remove exhaust shrouds  :Halifax    :mran :    615:    645:12-03-1942:
 Remove exhaust shrouds  :Halifax    :cran :    372:    390:12-03-1942:
 Remove exhaust shrouds  :Halifax    :cmran:    615:    645:12-03-1942:
 Remove exhaust shrouds  :Halifax    :defn :     15:     17:12-03-1942:1
+Remove exhaust shrouds  :Halifax    :desch:     26:     28:12-03-1942:1
+Remove exhaust shrouds  :Halifax    :deflk:     18:     18:12-03-1942:1
 Remove exhaust shrouds  :Halifax    :speed:    212:    224:12-03-1942:1
 Remove exhaust shrouds  :Halifax    :alt  :    196:    215:12-03-1942:1
 Remove exhaust shrouds  :Halifax    :mran :    600:    626:12-03-1942:1
@@ -146,6 +179,8 @@ Mk III                  :Stirling   :speed:    200:    205:08-01-1943:1
 Mk III                  :Stirling   :alt  :    175:    185:08-01-1943:1
 Mk III                  :Stirling   :svp  :     45:     55:08-01-1943:1
 Mk III                  :Stirling   :defn :     18:     17:08-01-1943:1
+Mk III                  :Stirling   :desch:     27:     26:08-01-1943:1
+Mk III                  :Stirling   :deflk:     15:     14:08-01-1943:1
 T-1 Bomb Sight          :Wellington :accu :     40:     52:13-03-1943:
 Bulged Bomb Bay         :Mosquito   :capwt:   2000:   4000:03-04-1943:
 Bulged Bomb Bay         :Mosquito   :capbulk: 2000:   4000:03-04-1943:
@@ -162,6 +197,7 @@ Mk II Ser IA            :Halifax    :cran :    415:    400:01-06-1943:2
 Mk II Ser IA            :Halifax    :cmcap:   7200:   7000:01-06-1943:2
 Mk II Ser IA            :Halifax    :cmran:    706:    690:01-06-1943:2
 Mk II Ser IA            :Halifax    :defn :     17:     16:01-06-1943:2
+Mk II Ser IA            :Halifax    :desch:     28:     27:01-06-1943:2
 Mk IX                   :Mosquito   :alt  :    300:    320:22-07-1943:1
 Mk IX                   :Mosquito   :range:    575:    590:22-07-1943:1
 Mk IX                   :Mosquito   :speed:    325:    340:22-07-1943:1
@@ -169,10 +205,13 @@ Mk IX                   :Mosquito   :mran :    775:    795:22-07-1943:1
 Mk IIA                  :Southampton:speed:    230:    250:16-10-1943:1
 Mk IIA                  :Southampton:alt  :    220:    225:16-10-1943:1
 Mk IIA                  :Southampton:defn :     22:     20:16-10-1943:1
+Mk IIA                  :Southampton:desch:     28:     26:16-10-1943:1
+Mk IIA                  :Southampton:deflk:     16:     15:16-10-1943:1
 Mk IIA                  :Southampton:cost :  33000:  35000:16-10-1943:1
 Paddleblade prop        :Lancaster  :speed:    232:    236:01-11-1943:
 Paddleblade prop        :Lancaster  :alt  :    225:    230:01-11-1943:
 Gransden Lodge          :Lancaster  :defn :     12:     11:13-02-1944:
+Gransden Lodge          :Lancaster  :desch:     18:     17:13-02-1944:
 Mk X                    :Lancaster  :cost :  40000:  45000:13-02-1944:1
 Mk X                    :Lancaster  :speed:    236:    240:13-02-1944:1
 Mk X                    :Lancaster  :alt  :    230:    240:13-02-1944:1
@@ -180,6 +219,8 @@ Mk X                    :Lancaster  :capwt:  14000:  16000:13-02-1944:1
 Mk X                    :Lancaster  :capbulk:14000:  16000:13-02-1944:1
 Mk X                    :Lancaster  :svp  :     70:     80:13-02-1944:1
 Mk X                    :Lancaster  :defn :     11:     10:13-02-1944:1
+Mk X                    :Lancaster  :desch:     17:     16:13-02-1944:1
+Mk X                    :Lancaster  :deflk:     14:     13:13-02-1944:1
 Mk X                    :Lancaster  :fail :      4:      3:13-02-1944:1
 Mk X                    :Lancaster  :accu :     72:     75:13-02-1944:1
 Mk X                    :Lancaster  :range:    180:    183:13-02-1944:1
