@@ -413,9 +413,9 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			fprintf(stderr, "Scrapping bomber %u (sqn %d flt %d)\n", i, state->bombers[i].squadron, state->bombers[i].flight);
 			validate_nb("scrappage", state);
 #endif
+scrap:
 			clear_sqn(state, i);
 			clear_crew(state, i);
-scrap:
 			sc_append(&state->hist, state->now, (harris_time){11, 42}, state->bombers[i].id, false, type);
 			fixup_crew_assignments(state, i, false, 0);
 			state->nbombers--;
@@ -427,20 +427,19 @@ scrap:
 		}
 		if(state->bombers[i].wear>=types[type].twear[state->bombers[i].mark])
 		{
-#ifdef PARANOID_NB_CHECKS
-			if(!state->bombers[i].train)
-			{
-				fprintf(stderr, "Pensioning bomber %u type %u (sqn %d flt %d)\n", i, type, state->bombers[i].squadron, state->bombers[i].flight);
-				validate_nb("pension", state);
-			}
-#endif
-			clear_sqn(state, i);
-			clear_crew(state, i);
 			if(types[type].noarm)
 				goto scrap;
-			else
+			if(!state->bombers[i].train)
+			{
+#ifdef PARANOID_NB_CHECKS
+				fprintf(stderr, "Pensioning bomber %u type %u (sqn %d flt %d)\n", i, type, state->bombers[i].squadron, state->bombers[i].flight);
+				validate_nb("pension", state);
+#endif
+				clear_sqn(state, i);
+				clear_crew(state, i);
 				state->bombers[i].train=true;
-			validate_nb("sent to train", state);
+				validate_nb("sent to train", state);
+			}
 		}
 	}
 	// crews go to instructors and vice-versa; escapees return home
