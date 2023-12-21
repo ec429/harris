@@ -174,5 +174,7 @@ int main(int argc, char **argv)
 		if (diffdate(rec.date, current))
 			write_counts(current = rec.date, bcounts, ca);
 	}
+	current=nextday(current);
+	write_counts(current, bcounts, ca);
 	return 0;
 }
