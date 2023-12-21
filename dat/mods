@@ -88,6 +88,8 @@ Remove beam guns        :Halifax    :alt  :    190:    192:09-09-1941:
 Engine derating         :Manchester :fail :     16:     14:14-09-1941:
 Engine derating         :Manchester :speed:    210:    206:14-09-1941:
 Engine derating         :Manchester :capwt:  10350:   9000:14-09-1941:
+Engine derating         :Manchester :mrcap:   4500:   3150:14-09-1941:
+Engine derating         :Manchester :cmcap:   7000:   5650:14-09-1941:
 Engine derating         :Manchester :svp  :     64:     66:14-09-1941:
 Exactor priming         :Stirling   :svp  :     40:     45:21-10-1941:
 Mk II                   :Halifax    :speed:    227:    224:25-10-1941:1

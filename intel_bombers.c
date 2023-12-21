@@ -36,6 +36,7 @@ enum b_stat_i
 	STAT_CEILING,
 	STAT_LOAD,
 	STAT_RANGE,
+	STAT_MRCAP,
 	/* Woolly gameplay numbers */
 	STAT_SV,
 	STAT_DE,
@@ -85,6 +86,10 @@ static unsigned int get_range(bombertype b, unsigned int mark)
 {
 	return b.mark[mark].cmrange;
 }
+static unsigned int get_mrcap(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].cmcap;
+}
 
 struct b_stat_row
 {
@@ -118,6 +123,8 @@ struct b_stat_row
 			.v_shift=0,   .v_scale=1,   .bar_rev=false},
 	[STAT_RANGE]  ={.name="Max. Range",     .unit="mi",  .unit_first=false, .bar_min=640,   .bar_max=1440,  .v_fn=get_range,
 			.v_shift=0,   .v_scale=2,   .bar_rev=false},
+	[STAT_MRCAP]  ={.name="Load at same",  .unit="lb",  .unit_first=false, .bar_min=0,     .bar_max=10000, .v_fn=get_mrcap,
+			.v_shift=0,   .v_scale=1,   .bar_rev=false},
 };
 
 int intel_bombers_create(void)
