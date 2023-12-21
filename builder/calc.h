@@ -175,8 +175,7 @@ struct bomber {
 	float roll_pen, turn_pen, manu_pen;
 	float evade_factor;
 	float vuln;
-	float fight_factor[2], flak_factor;
-	float defn[2];
+	float defn[2], flak_factor;
 	float accu;
 	float tproto;
 	float tprod;

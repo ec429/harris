@@ -719,18 +719,16 @@ static int calc_combat(struct bomber *b)
 		  max(3.8f - sqrt(b->crew.dc * b->crew.es), 1.0f) +
 		  b->tanks.vuln;
 	b->vuln *= (100 + b->dice.vuln) / 100.0f;
-	b->flak_factor = b->vuln * 3.0f *
+	b->flak_factor = b->vuln * 6.0f *
 			 sqrt(max(35.0f - b->ceiling, 2.0f) / 1.5f);
 	/* Looks backwards?  Lower is better for gunrate */
 	sgf = max((b->turrets.need_gunners + 1.0f) / (b->crew.gunners + 1.0f),
 		  1.0f);
-	for (sch = 0; sch < 2; sch++) {
-		b->fight_factor[sch] = powf(b->evade_factor, 0.8f) *
-				       (b->vuln * 4.0f +
-					b->turrets.rate[sch] * sgf) /
-				       3.6f;
-		b->defn[sch] = b->fight_factor[sch] + b->flak_factor;
-	}
+	for (sch = 0; sch < 2; sch++)
+		b->defn[sch] = powf(b->evade_factor, 0.8f) *
+			       (b->vuln * 4.0f +
+				b->turrets.rate[sch] * sgf) /
+			       1.8f;
 	/* accu contribs bn, speed, esl */
 	/* bn of 1.45 -> .24
 	 * speed of 210 -> .124; 150 -> .101; 340 -> .165.

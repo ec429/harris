@@ -1819,7 +1819,7 @@ void builder_update_m2v(const struct bomber *b)
 		 "Max range: %.0fmi with %ulb bombs",
 		 bmr.range, bmr.bay.load);
 	snprintf(BB_out_buf[OUT_DEF], 80,
-		 "Defence: %.1f/%.1f (flak %.1f): manu %.1f, evade %.1f, vuln %.2f (fr %.2f)",
+		 "Defence: %.1f (sch %.1f) (flak %.1f): manu %.1f, evade %.1f, vuln %.2f (fr %.2f)",
 		 b->defn[0], b->defn[1], b->flak_factor, b->manu_pen,
 		 b->evade_factor, b->vuln, b->tanks.ratio);
 	snprintf(BB_out_buf[OUT_FSA], 80,
