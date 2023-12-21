@@ -169,13 +169,13 @@ int load_bombers(void)
 			if(*next&&(*next!='#'))
 			{
 				bombertype this={0};
-				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM:CATEGORY
+				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:SCHRAGE:FLAK:FAILURE:ACCURACY:RANGE:MRCAP:MRANGE:CRANGE:CMRCAP:CMRANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM:CATEGORY
 				this.name=strdup(next); // guarantees that enough memory will be allocated
 				this.manu=(char *)malloc(strcspn(next, ":")+1);
 				struct bomberstats *bm=this.mark;
 				ssize_t db;
 				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &bm->cost, &bm->speed, &bm->alt, &bm->capwt, &bm->svp, &bm->defn, &bm->fail, &bm->accu, &bm->range, &db))!=11)
+				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &bm->cost, &bm->speed, &bm->alt, &bm->capwt, &bm->svp, &bm->defn, &bm->desch, &bm->deflk, &bm->fail, &bm->accu, &bm->range, &bm->mrcap, &bm->mrange, &bm->crange, &bm->cmcap, &bm->cmrange, &db))!=18)
 				{
 					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
 					fprintf(stderr, "  sscanf returned %d\n", e);
@@ -238,7 +238,6 @@ int load_bombers(void)
 				this.extra=strstr(nav, "EXTRA");
 				bm->crewwg=strstr(nav, "CREWWG");
 				bm->crewbg=strstr(nav, "CREWBG");
-				bm->ovltank=strstr(nav, "OVLTANK");
 				this.slowgrow=strstr(nav, "SLOWGROW");
 				this.otub=strstr(nav, "OTUB");
 				this.lfs=strstr(nav, "LFS");
@@ -422,12 +421,26 @@ int load_mods(void)
 					this.s=BSTAT_SVP;
 				else if(!strcmp(statname, "defn"))
 					this.s=BSTAT_DEFN;
+				else if(!strcmp(statname, "desch"))
+					this.s=BSTAT_DESCH;
+				else if(!strcmp(statname, "deflk"))
+					this.s=BSTAT_DEFLK;
 				else if(!strcmp(statname, "fail"))
 					this.s=BSTAT_FAIL;
 				else if(!strcmp(statname, "accu"))
 					this.s=BSTAT_ACCU;
 				else if(!strcmp(statname, "range"))
 					this.s=BSTAT_RANGE;
+				else if(!strcmp(statname, "mrcap"))
+					this.s=BSTAT_MRCAP;
+				else if(!strcmp(statname, "mran"))
+					this.s=BSTAT_MRAN;
+				else if(!strcmp(statname, "cran"))
+					this.s=BSTAT_CRAN;
+				else if(!strcmp(statname, "cmcap"))
+					this.s=BSTAT_CMCAP;
+				else if(!strcmp(statname, "cmran"))
+					this.s=BSTAT_CMRAN;
 				else if(!strcmp(statname, "crew"))
 					this.s=BSTAT_CREW;
 				else if(!strcmp(statname, "loads"))
@@ -512,11 +525,7 @@ int load_mods(void)
 				}
 				else if(this.s==BSTAT_FLAGS)
 				{
-					if(!strncmp(newval, "OVLTANK", 7))
-					{
-						this.v.f=BFLAG_OVLTANK;
-					}
-					else if(!strncmp(newval, "CREWBG", 6))
+					if(!strncmp(newval, "CREWBG", 6))
 					{
 						this.v.f=BFLAG_CREWBG;
 					}

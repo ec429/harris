@@ -121,11 +121,18 @@ struct bomberstats
 	unsigned int capbulk;
 	unsigned int svp;
 	unsigned int defn;
+	unsigned int desch;
+	unsigned int deflk;
 	unsigned int fail;
 	unsigned int accu;
 	unsigned int range;
+	unsigned int mrcap;
+	unsigned int mrange;
+	unsigned int crange;
+	unsigned int cmcap;
+	unsigned int cmrange;
 	enum cclass crew[MAX_CREW];
-	bool crewbg, crewwg, ovltank;
+	bool crewbg, crewwg;
 	bool nav[NNAVAIDS];
 };
 
@@ -133,7 +140,7 @@ struct bomberstats
 
 typedef struct
 {
-	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:FAILURE:ACCURACY:RANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM:CATEGORY
+	//MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:SCHRAGE:FLAK:FAILURE:ACCURACY:RANGE:MRCAP:MRANGE:CRANGE:CMRCAP:CMRANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM:CATEGORY
 	char * manu;
 	char * name;
 	struct bomberstats mark[MAX_MARKS];
@@ -172,10 +179,17 @@ typedef enum
 	BSTAT_CAPBULK,
 	BSTAT_SVP,
 	BSTAT_DEFN,
+	BSTAT_DESCH,
+	BSTAT_DEFLK,
 	BSTAT_FAIL,
 	BSTAT_ACCU,
 	BSTAT_RANGE,
-	BSTAT__NUMERIC=BSTAT_RANGE,
+	BSTAT_MRCAP,
+	BSTAT_MRAN,
+	BSTAT_CRAN,
+	BSTAT_CMCAP,
+	BSTAT_CMRAN,
+	BSTAT__NUMERIC=BSTAT_CMRAN,
 	BSTAT_CREW,
 	BSTAT_LOADS,
 	BSTAT_NAVS,
@@ -186,7 +200,6 @@ bstat;
 
 typedef enum
 {
-	BFLAG_OVLTANK,
 	BFLAG_CREWBG,
 	BFLAG_NCREWBG,
 	BFLAG_CREWWG,

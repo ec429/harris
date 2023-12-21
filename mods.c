@@ -15,6 +15,7 @@ int apply_mod(unsigned int m)
 {
 	unsigned int bt=mods[m].bt;
 	unsigned int mark=mods[m].mark;
+	bool heavy=types[bt].heavy;
 	if(mods[m].s==NUM_BSTATS)
 		return(0);
 	if(mark)
@@ -45,6 +46,12 @@ int apply_mod(unsigned int m)
 			case BSTAT_DEFN:
 				bm->defn=mods[m].v.i;
 				break;
+			case BSTAT_DESCH:
+				bm->desch=mods[m].v.i;
+				break;
+			case BSTAT_DEFLK:
+				bm->deflk=mods[m].v.i;
+				break;
 			case BSTAT_FAIL:
 				bm->fail=mods[m].v.i;
 				break;
@@ -53,6 +60,27 @@ int apply_mod(unsigned int m)
 				break;
 			case BSTAT_RANGE:
 				bm->range=mods[m].v.i;
+				if(!heavy)
+					bm->crange=bm->range;
+				return(0);
+			case BSTAT_MRCAP:
+				bm->mrcap=mods[m].v.i;
+				if(!heavy)
+					bm->cmcap=bm->mrcap;
+				return(0);
+			case BSTAT_MRAN:
+				bm->mrange=mods[m].v.i;
+				if(!heavy)
+					bm->cmrange=bm->mrange;
+				return(0);
+			case BSTAT_CRAN:
+				bm->crange=mods[m].v.i;
+				return(0);
+			case BSTAT_CMCAP:
+				bm->cmcap=mods[m].v.i;
+				return(0);
+			case BSTAT_CMRAN:
+				bm->cmrange=mods[m].v.i;
 				return(0);
 			case BSTAT_CREW:
 				for(unsigned int c=0;c<MAX_CREW;c++)
@@ -79,9 +107,6 @@ int apply_mod(unsigned int m)
 			case BSTAT_FLAGS:
 				switch(mods[m].v.f)
 				{
-					case BFLAG_OVLTANK:
-						bm->ovltank=true;
-						return(0);
 					case BFLAG_CREWBG:
 						bm->crewbg=true;
 						return(0);

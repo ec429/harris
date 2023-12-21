@@ -1768,7 +1768,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					if(bases[b].clamped) continue;
 					signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 					bool unpaved=types[type].heavy&&!bases[b].paved;
-					double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(bstats(state->bombers[j]).ovltank?1.3:1.5);
+					double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*1.3;
 					if(state->bombers[j].failed) continue;
 					if(!state->bombers[j].landed) continue;
 					if(!filter_apply(state, j)) continue;
@@ -2037,7 +2037,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										if(bases[b].clamped) continue;
 										signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 										bool unpaved=types[i].heavy&&!bases[b].paved;
-										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*(newstats(types[i]).ovltank?1.3:1.5);
+										double dist=hypot(blat-(signed)targs[seltarg].lat, blon-(signed)targs[seltarg].lon)*1.3;
 										if(newstats(types[i]).range*(unpaved?0.8:1.0)<dist)
 											continue;
 										if(state->bombers[j].failed) continue;

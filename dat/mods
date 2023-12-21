@@ -3,9 +3,9 @@
 # Description is not used in-game except for MARK and in debugging messages
 # ACNAME should match NAME from dat/bombers
 # Stat is one of cost, speed, alt, capwt, capbulk, svp, defn, desch, deflk, fail, accu, range, crew, loads,
-#                navs, flags, mrcap, mran, crcap, cran, cmcap, cmran, nil
+#                navs, flags, mrcap, mran, cran, cmcap, cmran, nil
 #   nil is used with MARK to set the name of mark 0; it sets no stat
-#   mr is max-range condition, cr is concrete runway, cmr is both
+#   mr is max-range condition, cr is concrete runway, cm is both
 #   if not flags.HEAVY, cr and cmr automatically get grass mods copied
 # old is ignored by game
 # new is the new value of the stat (or, for flags, the flag to set)
