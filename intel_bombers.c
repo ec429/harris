@@ -40,6 +40,7 @@ enum b_stat_i
 	/* Woolly gameplay numbers */
 	STAT_SV,
 	STAT_DE,
+	STAT_DEFLK,
 	STAT_FA,
 	STAT_AC,
 
@@ -73,6 +74,10 @@ static unsigned int get_svp(bombertype b, unsigned int mark)
 static unsigned int get_defn(bombertype b, unsigned int mark)
 {
 	return b.mark[mark].defn;
+}
+static unsigned int get_deflk(bombertype b, unsigned int mark)
+{
+	return b.mark[mark].deflk;
 }
 static unsigned int get_fail(bombertype b, unsigned int mark)
 {
@@ -116,6 +121,8 @@ struct b_stat_row
 	[STAT_SV]     ={.name="Serviceability", .unit="%",   .unit_first=false, .bar_min=0,     .bar_max=100,   .v_fn=get_svp,
 			.v_shift=0,   .v_scale=1,   .bar_rev=false},
 	[STAT_DE]     ={.name="Survivability",  .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=40,    .v_fn=get_defn,
+			.v_shift=-40, .v_scale=-1,  .bar_rev=false},
+	[STAT_DEFLK]  ={.name=".. vs Flak",  .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=40,    .v_fn=get_deflk,
 			.v_shift=-40, .v_scale=-1,  .bar_rev=false},
 	[STAT_FA]     ={.name="Reliability",    .unit=" ",   .unit_first=false, .bar_min=0,     .bar_max=20,    .v_fn=get_fail,
 			.v_shift=-20, .v_scale=-1,  .bar_rev=false},
