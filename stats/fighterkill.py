@@ -9,7 +9,7 @@ import hhist, hdata, hsave
 this_script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 def extract_kills(f):
-	records = subprocess.check_output([os.path.join(this_script_path, 'kills'), '--localdat'], stdin=f, stderr=open(os.path.devnull, 'w'))
+	records = subprocess.check_output([os.path.join(this_script_path, 'kills'), '--localdat'], stdin=f, stderr=open(os.path.devnull, 'w')).decode('utf8')
 	res = {}
 	d = None
 	for record in records.splitlines():
@@ -20,10 +20,10 @@ def extract_kills(f):
 		if d:
 			while d < date:
 				d = d.next()
-				res[d] = {'kills':{i:0 for i in xrange(len(hdata.Fighters))}, 'losses':{i:0 for i in xrange(len(hdata.Fighters))}, 'total':{'kills':0, 'losses':0}}
+				res[d] = {'kills':{i:0 for i in range(len(hdata.Fighters))}, 'losses':{i:0 for i in range(len(hdata.Fighters))}, 'total':{'kills':0, 'losses':0}}
 		else:
 			d = date
-			res[d] = {'kills':{i:0 for i in xrange(len(hdata.Fighters))}, 'losses':{i:0 for i in xrange(len(hdata.Fighters))}, 'total':{'kills':0, 'losses':0}}
+			res[d] = {'kills':{i:0 for i in range(len(hdata.Fighters))}, 'losses':{i:0 for i in range(len(hdata.Fighters))}, 'total':{'kills':0, 'losses':0}}
 		typ = int(typ)
 		if bf == 'B':
 			if ds == 'FT':
@@ -39,6 +39,6 @@ def extract_kills(f):
 
 if __name__ == '__main__':
 	kills = extract_kills(sys.stdin)
-	by_type = [(hdata.Fighters[i]['name'], sum([d['kills'][i] for d in kills.values()]), sum([d['losses'][i] for d in kills.values()])) for i in xrange(len(hdata.Fighters))]
+	by_type = [(hdata.Fighters[i]['name'], sum([d['kills'][i] for d in kills.values()]), sum([d['losses'][i] for d in kills.values()])) for i in range(len(hdata.Fighters))]
 	for b in by_type:
-		print "%s: kills=%d losses=%d"%b
+		print("%s: kills=%d losses=%d"%b)
