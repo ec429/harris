@@ -18,7 +18,7 @@ def extract_morale(ents):
 	return ((e['date'], e['morale']) for e in ents if e['etyp'] == 'MO')
 
 def extract_como(f):
-	records = subprocess.check_output(os.path.join(this_script_path, 'como'), stdin=f)
+	records = subprocess.check_output(os.path.join(this_script_path, 'como'), stdin=f).decode('utf8')
 	entries = []
 	for record in records.splitlines():
 		date, etyp, value = record.split(" ")
@@ -48,4 +48,4 @@ def extract_como(f):
 if __name__ == '__main__':
 	como = extract_como(sys.stdin)
 	for cm in como:
-		print '%s: confid=%d morale=%d' % (cm['date'], cm['confid'], cm['morale'])
+		print('%s: confid=%d morale=%d' % (cm['date'], cm['confid'], cm['morale']))

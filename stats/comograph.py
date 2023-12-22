@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	morale = [datum['morale'] for datum in data]
 	gc = plt.plot_date(dates, confid, fmt='bo-', tz=None, xdate=True, ydate=False, label='Confid', zorder=0)
 	gm = plt.plot_date(dates, morale, fmt='r+-', tz=None, xdate=True, ydate=False, label='Morale', zorder=0)
-	for y in xrange(10, 91, 10):
+	for y in range(10, 91, 10):
 		plt.axhline(y=y, xmin=0, xmax=1, c='k', zorder=-1)
 	if legend: plt.legend()
 	plt.show()
