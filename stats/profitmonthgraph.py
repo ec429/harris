@@ -81,6 +81,6 @@ if __name__ == '__main__':
 		bdate = [d.ordinal() for d in dates if values[d][bi] is not None]
 		if not bdate: continue
 		gb = plt.plot_date(bdate, [values[d][bi] for d in dates if values[d][bi] is not None], fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=b['name'], zorder=0)
-	ax.grid(b=True, axis='y')
+	ax.grid(visible=True, axis='y')
 	if opts.legend: plt.legend(ncol=2, loc='upper left')
 	plt.show()

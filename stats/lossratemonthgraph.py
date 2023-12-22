@@ -63,6 +63,6 @@ if __name__ == '__main__':
 	tdate = [d.ordinal() for d in dates if values[d][None] is not None]
 	if tdate:
 		gt = plt.plot_date(tdate, [values[d][None] for d in dates if values[d][None] is not None], fmt='.-', color='g', tz=None, xdate=True, ydate=False, label='Overall', zorder=1)
-	ax.grid(b=True, axis='y')
+	ax.grid(visible=True, axis='y')
 	if opts.legend: plt.legend(ncol=2, loc='upper left')
 	plt.show()

@@ -46,7 +46,7 @@ if __name__ == '__main__':
 		gl = plt.plot_date(bdate, bloss, fmt='o-', mew=0, color=extra[b['name']]['colour'], tz=None, xdate=True, ydate=False, label=None, zorder=0)
 	gt = plt.plot_date([d.ordinal() for d in dates], [total[d][0] for d in dates], fmt='k+-', tz=None, xdate=True, ydate=False, label='total', zorder=-2)
 	gb = plt.plot_date([d.ordinal() for d in dates], [total[d][1] for d in dates], fmt='k+-', tz=None, xdate=True, ydate=False, label=None, zorder=-2)
-	ax.grid(b=True, axis='y')
+	ax.grid(visible=True, axis='y')
 	plt.axhline(y=0, xmin=0, xmax=1, c='k', zorder=-1)
 	if legend: plt.legend(ncol=2, loc='upper left')
 	plt.show()
