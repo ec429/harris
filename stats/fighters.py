@@ -10,7 +10,7 @@ import pprint
 this_script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 def extract_fighters(f):
-	records = subprocess.check_output([os.path.join(this_script_path, 'fighters'), '--localdat'], stdin=f, stderr=open(os.path.devnull, 'w'))
+	records = subprocess.check_output([os.path.join(this_script_path, 'fighters'), '--localdat'], stdin=f, stderr=open(os.path.devnull, 'w')).decode('utf8')
 	res = []
 	d = None
 	day = {}
