@@ -599,7 +599,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 					// PFF should arrive at Zero minus 6, and be finished by Zero minus 2
 					// Zero Hour is t=840, and a minute is two t-steps
 					int tt=is_pff(state, k)?(state->raids[i].zerohour-12+irandu(8)):(state->raids[i].zerohour+irandu(20));
-					int st=tt-(outward/state->bombers[k].speed)-3;
+					int st=tt-(outward/3.0/state->bombers[k].speed)-3;
 					if(is_pff(state, k)) st-=3;
 					if(st<0)
 					{
