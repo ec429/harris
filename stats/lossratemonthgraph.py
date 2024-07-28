@@ -28,7 +28,7 @@ if __name__ == '__main__':
 	while month <= save.history[-1]['date']:
 		next = month.nextmonth()
 		d = month.copy()
-		types = {i:[0,0] for i in xrange(save.ntypes)}
+		types = {i:[0,0] for i in range(save.ntypes)}
 		while d < next:
 			if i >= len(history):
 				d = d.next()
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 		month = next
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	dates = zip(*data)[0]
+	dates = list(zip(*data))[0]
 	values = dict(data)
 	for bi,b in enumerate(hdata.Bombers):
 		bdate = [d.ordinal() for d in dates if values[d][bi] is not None]
