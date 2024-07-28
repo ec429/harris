@@ -62,30 +62,30 @@ int apply_mod(unsigned int m)
 				bm->range=mods[m].v.i;
 				if(!heavy)
 					bm->crange=bm->range;
-				return(0);
+				break;
 			case BSTAT_MRCAP:
 				bm->mrcap=mods[m].v.i;
 				if(!heavy)
 					bm->cmcap=bm->mrcap;
-				return(0);
+				break;
 			case BSTAT_MRAN:
 				bm->mrange=mods[m].v.i;
 				if(!heavy)
 					bm->cmrange=bm->mrange;
-				return(0);
+				break;
 			case BSTAT_CRAN:
 				bm->crange=mods[m].v.i;
-				return(0);
+				break;
 			case BSTAT_CMCAP:
 				bm->cmcap=mods[m].v.i;
-				return(0);
+				break;
 			case BSTAT_CMRAN:
 				bm->cmrange=mods[m].v.i;
-				return(0);
+				break;
 			case BSTAT_CREW:
 				for(unsigned int c=0;c<MAX_CREW;c++)
 					bm->crew[c]=mods[m].v.crew[c];
-				return(0);
+				break;
 			case BSTAT_LOADS:
 				if(mods[m].mark)
 					fprintf(stderr, "Warning, mod %s tries to change loads on mark %u, but loads are not marked\n", mods[m].desc, mods[m].mark);
@@ -100,7 +100,7 @@ int apply_mod(unsigned int m)
 				if(mods[m].v.i<NNAVAIDS)
 				{
 					bm->nav[mods[m].v.i]=true;
-					return(0);
+					break;
 				}
 				fprintf(stderr, "ignoring excessive navaid ID %d\n", mods[m].v.i);
 				return(1);
@@ -109,20 +109,21 @@ int apply_mod(unsigned int m)
 				{
 					case BFLAG_CREWBG:
 						bm->crewbg=true;
-						return(0);
+						break;
 					case BFLAG_NCREWBG:
 						bm->crewbg=false;
-						return(0);
+						break;
 					case BFLAG_CREWWG:
 						bm->crewwg=true;
-						return(0);
+						break;
 					case BFLAG_NCREWWG:
 						bm->crewwg=false;
-						return(0);
+						break;
 					default:
 						fprintf(stderr, "ignoring unsupported flag %d\n", mods[m].v.f);
 						return(1);
 				}
+				break;
 			default:
 				fprintf(stderr, "ignoring unsupported stat %d\n", mods[m].s);
 				return(1);
