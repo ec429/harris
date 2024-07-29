@@ -2639,7 +2639,7 @@ bool ensure_crewed(game *state, unsigned int i)
 						     (state->crews[k].heavy >= 100.0 && state->crews[k].lanc < state->crews[best].lanc)) :
 					    state->crews[k].heavy < state->crews[best].heavy))
 				{
-					if(state->crews[k].assignment<0)
+					if(state->crews[k].assignment<0 || (is_pff(state, i) && state->crews[k].group!=grp && state->bombers[state->crews[k].assignment].failed && !state->bombers[i].failed))
 					{
 						best=k;
 						if(lanc ? (state->crews[k].lanc >= 100.0 && state->crews[k].heavy >= 100.0) :
@@ -2656,15 +2656,24 @@ bool ensure_crewed(game *state, unsigned int i)
 					int cs=state->crews[best].squadron;
 					if(cs>=0 && !(state->squads[cs].nc[state->crews[best].class]--)) /* can't happen */
 						fprintf(stderr, "Warning: sqn nc went negative for %d.%d\n", cs, state->crews[best].class);
-					state->crews[best].squadron=s;
-					state->crews[best].assignment=i;
-					state->bombers[i].crew[j]=best;
-					if(state->crews[best].group!=grp)
+				}
+				else // If we're PFF, we could have stolen an assigned crewman
+				{
+					unsigned int k=state->crews[best].assignment, c;
+					for(c=0;c<MAX_CREW;c++)
 					{
-						if (state->crews[best].group && !is_pff(state, i)) /* can't happen */
-							fprintf(stderr, "Warning: crewman %d jumped groups\n", best);
-						state->crews[best].group=grp;
+						if(state->bombers[k].crew[c]==best)
+							state->bombers[k].crew[c]=-1;
 					}
+				}
+				state->crews[best].squadron=s;
+				state->crews[best].assignment=i;
+				state->bombers[i].crew[j]=best;
+				if(state->crews[best].group!=grp)
+				{
+					if (state->crews[best].group && !is_pff(state, i)) /* can't happen */
+						fprintf(stderr, "Warning: crewman %d jumped groups\n", best);
+					state->crews[best].group=grp;
 				}
 			}
 		}
