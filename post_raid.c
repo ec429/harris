@@ -603,8 +603,10 @@ scrap:
 	state->gprod[ICLASS_OIL]*=0.984;
 	state->gprod[ICLASS_UBOOT]*=0.95; // not actually used for anything
 	// German fighters
-	unsigned int fcount[nftypes];
+	unsigned int fcount[nftypes], frcount=0, fmcount=0;
 	memset(fcount, 0, sizeof(fcount));
+#define RADAR_COST	5000
+#define MUSIK_COST	500
 	unsigned int maxradpri=0;
 	for(unsigned int i=0;i<state->nfighters;i++)
 	{
@@ -622,6 +624,10 @@ scrap:
 		if((!state->fighters[i].radar)&&(ftypes[type].radpri>maxradpri))
 			maxradpri=ftypes[type].radpri;
 		fcount[type]++;
+		if(state->fighters[i].radar)
+			frcount++;
+		if(state->fighters[i].musik)
+			fmcount++;
 		if(brandp(0.1))
 		{
 			unsigned int base;
@@ -635,18 +641,19 @@ scrap:
 		unsigned int rcount=4;
 		for(int i=state->nfighters-1;i>=0;i--)
 		{
-			if(state->gprod[ICLASS_RADAR]<5000 || !rcount) break;
+			if(state->gprod[ICLASS_RADAR]<RADAR_COST || !rcount) break;
 			unsigned int type=state->fighters[i].type;
 			if((!state->fighters[i].radar)&&(ftypes[type].radpri==maxradpri))
 			{
 				state->fighters[i].radar=true;
-				na_append(&state->hist, state->now, (harris_time){11, 49}, state->fighters[i].id, true, type, 0);
-				state->gprod[ICLASS_RADAR]-=5000;
+				frcount++;
+				na_append(&state->hist, state->now, (harris_time){11, 49}, state->fighters[i].id, true, type, FN_RADAR);
+				state->gprod[ICLASS_RADAR]-=RADAR_COST;
 				rcount--;
 			}
 		}
 	}
-	unsigned int mfcost=0;
+	unsigned int mfcost=MUSIK_COST;
 	for(unsigned int i=0;i<nftypes;i++)
 	{
 		if(!datewithin(state->now, ftypes[i].entry, ftypes[i].exit)) continue;
@@ -671,9 +678,30 @@ scrap:
 			p[j]=max(p[j], 0);
 			cumu_p+=p[j];
 		}
+		if(!datebefore(state->now, event[EVENT_MUSIK]))
+			cumu_p*=1.0+2.0*(1.0 - fmcount/(double)frcount);
 		double d=drandu(cumu_p);
 		unsigned int i=0;
-		while(d>=p[i]) d-=p[i++];
+		while(i<nftypes&&d>=p[i]) d-=p[i++];
+		if(i>=nftypes)
+		{
+			if(datebefore(state->now, event[EVENT_MUSIK])) continue; // should be impossible
+			if(state->gprod[ICLASS_AC]<MUSIK_COST) break; // should also be impossible as MUSIK_COST <= mfcost <= state->gprod
+			if(fmcount>=frcount) continue; // should be impossible
+			for(int j=state->nfighters-1;j>=0;j--)
+			{
+				unsigned int type=state->fighters[j].type;
+				if(state->fighters[j].radar&&!state->fighters[j].musik)
+				{
+					state->fighters[j].musik=true;
+					fmcount++;
+					na_append(&state->hist, state->now, (harris_time){11, 50}, state->fighters[j].id, true, type, FN_MUSIK);
+					state->gprod[ICLASS_AC]-=MUSIK_COST;
+					break;
+				}
+			}
+			continue;
+		}
 		if(!datewithin(state->now, ftypes[i].entry, ftypes[i].exit)) continue; // should be impossible as p[i] == 0
 		if(ftypes[i].cost>state->gprod[ICLASS_AC]) break; // should also be impossible as cost <= mfcost <= state->gprod
 		unsigned int n=state->nfighters++;
@@ -690,6 +718,7 @@ scrap:
 		while(!datewithin(state->now, fbases[base].entry, fbases[base].exit));
 		(state->fighters=newf)[n]=(ac_fighter){.type=i, .base=base, .crashed=false, .landed=true, .k=-1, .targ=-1, .damage=0, .id=rand_acid()};
 		state->gprod[ICLASS_AC]-=ftypes[i].cost;
+		fcount[i]++;
 		ct_append(&state->hist, state->now, (harris_time){11, 50}, state->fighters[n].id, true, i, 0 /* No fighter marks (yet?) */);
 	}
 	for(unsigned int i=0;i<ICLASS_MIXED;i++)

@@ -23,6 +23,13 @@ enum nav_aid {
 	NNAVAIDS
 };
 
+enum ftr_aid {
+	FN_RADAR,
+	FN_MUSIK,
+
+	NFTRAIDS
+};
+
 #define MAXMSGS		8
 
 #define HIST_LINE	240

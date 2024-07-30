@@ -55,7 +55,7 @@
 	More overlays for map display (incl. add new overlays for GEE, OBOE, GH range; perhaps also ability to show weather map as isobars/isotherms instead of cloudmap)
 	Implement the remaining Navaids (just Gee-H now)
 	Implement window-control (for diversions)
-	Event effects on fighters (New radars, RCM, Musik, etc.)
+	Event effects on fighters (New radars, RCM, etc.)
 	Implement FISHPOOL as adding Nav skill to lookout skill (mlskill) if H2S
 	Sack player if confid or morale too low
 */

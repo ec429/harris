@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 				struct hlist *fl;
 				struct fighter *f;
 
-				if (rec.ac.fighter)
+				if (rec.ac.fighter && rec.ac.nav.navaid==FN_RADAR)
 				{
 					fl = hashtable_lookup(&fighters, rec.ac.id);
 					if (!fl)
