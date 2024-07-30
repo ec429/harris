@@ -28,6 +28,7 @@ enum f_stat_i
 	/* Counts */
 	STAT_OPER,
 	STAT_RADAR,
+	STAT_MUSIK,
 	/* Numbers with units */
 	STAT_COST,
 	STAT_SPEED,
@@ -41,6 +42,7 @@ enum f_stat_i
 const char *type_fn(unsigned int ti);
 int oper_fn(unsigned int ti, const game *state);
 int radar_fn(unsigned int ti, const game *state);
+int musik_fn(unsigned int ti, const game *state);
 int cost_fn(unsigned int ti, const game *state);
 int speed_fn(unsigned int ti, const game *state);
 int arm_fn(unsigned int ti, const game *state);
@@ -52,6 +54,7 @@ struct f_stat_row
 	char value_buf[6];
 	const char *unit;
 	bool unit_first;
+	int enable_ev;
 	int bar_min, bar_max;
 	bool bar_rev; // reverse colours
 	int (*v_fn)(unsigned int ti, const game *state);
@@ -59,13 +62,14 @@ struct f_stat_row
 }
 f_stat_rows[NUM_STATS]=
 {
-	[STAT_TYPE] ={.name="Type",               .unit=" ",   .unit_first=false, .bar_min=0,   .bar_max=0,     .t_fn=type_fn,  .bar_rev=false},
-	[STAT_OPER] ={.name="Number Operational", .unit=" ",   .unit_first=false, .bar_min=0,   .bar_max=0,     .v_fn=oper_fn,  .bar_rev=false},
-	[STAT_RADAR]={.name="Number with Radar",  .unit=" ",   .unit_first=false, .bar_min=0,   .bar_max=0,     .v_fn=radar_fn, .bar_rev=false},
-	[STAT_COST] ={.name="Cost",               .unit="RM",  .unit_first=false, .bar_min=0,   .bar_max=20000, .v_fn=cost_fn,  .bar_rev=true },
-	[STAT_SPEED]={.name="Speed",              .unit="mph", .unit_first=false, .bar_min=160, .bar_max=400,   .v_fn=speed_fn, .bar_rev=false},
-	[STAT_ARM]  ={.name="Armament",           .unit=" ",   .unit_first=false, .bar_min=0,   .bar_max=100,   .v_fn=arm_fn,   .bar_rev=false},
-	[STAT_MNV]  ={.name="Maneuvrability",     .unit=" ",   .unit_first=false, .bar_min=0,   .bar_max=100,   .v_fn=mnv_fn,   .bar_rev=false},
+	[STAT_TYPE] ={.name="Type",               .unit=" ",   .unit_first=false, .enable_ev=-1, .bar_min=0,   .bar_max=0,     .t_fn=type_fn,  .bar_rev=false},
+	[STAT_OPER] ={.name="Number Operational", .unit=" ",   .unit_first=false, .enable_ev=-1, .bar_min=0,   .bar_max=0,     .v_fn=oper_fn,  .bar_rev=false},
+	[STAT_RADAR]={.name="Number with Radar",  .unit=" ",   .unit_first=false, .enable_ev=EVENT_L_BC, .bar_min=0,   .bar_max=0,     .v_fn=radar_fn, .bar_rev=false},
+	[STAT_MUSIK]={.name=".. Schräge Musik",  .unit=" ",   .unit_first=false, .enable_ev=EVENT_MUSIK, .bar_min=0,   .bar_max=0,     .v_fn=musik_fn, .bar_rev=false},
+	[STAT_COST] ={.name="Cost",               .unit="RM",  .unit_first=false, .enable_ev=-1, .bar_min=0,   .bar_max=20000, .v_fn=cost_fn,  .bar_rev=true },
+	[STAT_SPEED]={.name="Speed",              .unit="mph", .unit_first=false, .enable_ev=-1, .bar_min=160, .bar_max=400,   .v_fn=speed_fn, .bar_rev=false},
+	[STAT_ARM]  ={.name="Armament",           .unit=" ",   .unit_first=false, .enable_ev=-1, .bar_min=0,   .bar_max=100,   .v_fn=arm_fn,   .bar_rev=false},
+	[STAT_MNV]  ={.name="Maneuvrability",     .unit=" ",   .unit_first=false, .enable_ev=-1, .bar_min=0,   .bar_max=100,   .v_fn=mnv_fn,   .bar_rev=false},
 };
 
 int intel_fighters_create(void)
@@ -479,6 +483,7 @@ void update_intel_fighters(const game *state)
 	atg_ebox_empty(IF_stat_box);
 	for(unsigned int i=0;i<NUM_STATS;i++)
 	{
+		if(f_stat_rows[i].enable_ev>=0 && datebefore(state->now, event[f_stat_rows[i].enable_ev])) continue;
 		atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
 		if(!row)
 		{
@@ -635,6 +640,17 @@ int radar_fn(unsigned int ti, const game *state)
 	int rv=0;
 	for(unsigned int i=0;i<state->nfighters;i++)
 		if(state->fighters[i].radar&&state->fighters[i].type==ti)
+			rv++;
+	return(rv);
+}
+
+int musik_fn(unsigned int ti, const game *state)
+{
+	if(!ftypes[ti].radpri)
+		return(-1);
+	int rv=0;
+	for(unsigned int i=0;i<state->nfighters;i++)
+		if(state->fighters[i].musik&&state->fighters[i].type==ti)
 			rv++;
 	return(rv);
 }
