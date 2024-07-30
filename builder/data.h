@@ -100,6 +100,7 @@ struct manf {
 	char *eman; // engine manufacturer
 	char *name;
 	char *desc;
+	int proto_idx, prod_idx;
 };
 
 int load_manfs(struct list_head *head);

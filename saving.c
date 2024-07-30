@@ -57,6 +57,11 @@ int loadgame(const char *fn, game *state)
 	state->builder=false;
 	state->weather.seed=0;
 	state->ndesigns=0;
+	for(unsigned int i=0;i<builder->entities.nmanf;i++)
+	{
+		struct manf *m=builder->entities.manf[i];
+		m->proto_idx=m->prod_idx=-1;
+	}
 	for(unsigned int j=0;j<ntypes;j++)
 	{
 		types[j].newmark=0;
@@ -391,6 +396,61 @@ int loadgame(const char *fn, game *state)
 						}
 					}
 				}
+			}
+		}
+		else if(strcmp(tag, "Manfs")==0)
+		{
+			unsigned int nmanfs;
+			f=sscanf(dat, "%u\n", &nmanfs);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(nmanfs!=builder->entities.nmanf)
+			{
+				fprintf(stderr, "2 Value mismatch: different nmanfs value (%u!=%u)\n", nmanfs, builder->entities.nmanf);
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<nmanfs;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j;
+					int proto, prod;
+					f=sscanf(line, "Manf %u:%d,%d\n", &j, &proto, &prod);
+					if(f!=3)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+					builder->entities.manf[i]->proto_idx=proto;
+					builder->entities.manf[i]->prod_idx=prod;
+				}
+			}
+		}
+		else if(strcmp(tag, "NDNum")==0)
+		{
+			f=sscanf(dat, "%u\n", &state->next_design_number);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
 			}
 		}
 		else if(strcmp(tag, "Bombers")==0)
@@ -1353,6 +1413,12 @@ int savegame(const char *fn, game state)
 		fprintf(fs, "Designs:%u\n", state.ndesigns);
 		for(unsigned int i=0;i<state.ndesigns;i++)
 			save_design(fs, state.designs+i);
+		fprintf(fs, "Manfs:%u\n", builder->entities.nmanf);
+		for(unsigned int i=0;i<builder->entities.nmanf;i++)
+			fprintf(fs, "Manf %u:%d,%d\n", i,
+				builder->entities.manf[i]->proto_idx,
+				builder->entities.manf[i]->prod_idx);
+		fprintf(fs, "NDNum:%u\n", state.next_design_number);
 	}
 	fprintf(fs, "Bombers:%u\n", state.nbombers);
 	for(unsigned int i=0;i<state.nbombers;i++)

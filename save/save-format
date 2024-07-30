@@ -25,6 +25,14 @@ for(i=0;i<ntypes;i++)
 "Navaids:%u\n", NNAVAIDS // should be constant
 for(i=0;i<NNAVAIDS;i++)
 	"Nprio %u:%d,%u\n", i, state.nap[i], state.napb[i]
+if(state.builder)
+	"Designs:%u\n", ndesigns
+	for(i=0;i<ndesigns;i++)
+		/* Design block, in builder format */
+	"Manfs:%u\n", nmanf
+	for(i=0;i<nmanf;i++)
+		"Manf %u:%d,%d", manf[i].proto_idx, manf[i].prod_idx
+	"NDNum:%u", next_design_number
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u,%u,%s,%la,%u,%d,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].wear, pacid(bomber[i].id), bomber[i].mark, bomber[i].train, bomber[i].squadron, bomber[i].flight

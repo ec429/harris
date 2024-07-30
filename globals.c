@@ -123,6 +123,7 @@ int set_init_state(game *state)
 {
 	state->ndesigns=state->nbombers=state->nfighters=0;
 	state->designs=NULL;
+	state->next_design_number=0;
 	state->bombers=NULL;
 	state->fighters=NULL;
 	state->paving=-1;

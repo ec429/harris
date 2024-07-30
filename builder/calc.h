@@ -182,6 +182,7 @@ struct bomber {
 	float tprod;
 	float cproto;
 	float cprod;
+	unsigned int proto_work, prod_work;
 };
 
 const struct bomber *mod_ancestor(const struct bomber *b);

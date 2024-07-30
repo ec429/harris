@@ -773,6 +773,10 @@ static int calc_dev(struct bomber *b)
 	float bof = max(b->manf->bof, 1);
 	unsigned int i;
 
+	if (b->manf->proto_idx >= 0)
+		design_warning(b, "Manufacturer is already building another prototype");
+	else if (b->manf->prod_idx >= 0)
+		design_warning(b, "Manufacturer is already tooling another design");
 	count_crew(&b->crew, count);
 	switch (b->refit) {
 	case REFIT_FRESH:
