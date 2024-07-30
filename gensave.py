@@ -15,7 +15,11 @@ def multiply(line):
         elif line[0] == '%' and line[1].isdigit():
             l = line.find('%', 2)
             if l > 1:
-                n = int(line[1:l])
+                c = line[1:l]
+                if ',' in c:
+                    n = map(int, c.split(','))
+                    return [line[l+1:] % i for i in xrange(*n)]
+                n = int(c)
                 return [line[l+1:] % i for i in xrange(n)]
     return [line]
 

@@ -159,191 +159,207 @@ int load_bombers(void)
 		fprintf(stderr, "Failed to open data file `bombers'!\n");
 		return(1);
 	}
-	else
+	char *typefile=slurp(typefp);
+	fclose(typefp);
+	char *next=typefile?strtok(typefile, "\n"):NULL;
+	while(next)
 	{
-		char *typefile=slurp(typefp);
-		fclose(typefp);
-		char *next=typefile?strtok(typefile, "\n"):NULL;
-		while(next)
+		if(*next&&(*next!='#'))
 		{
-			if(*next&&(*next!='#'))
+			bombertype this={0};
+			// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:SCHRAGE:FLAK:FAILURE:ACCURACY:RANGE:MRCAP:MRANGE:CRANGE:CMRCAP:CMRANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM:CATEGORY
+			this.name=strdup(next); // guarantees that enough memory will be allocated
+			this.manu=(char *)malloc(strcspn(next, ":")+1);
+			struct bomberstats *bm=this.mark;
+			ssize_t db;
+			int e;
+			if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &bm->cost, &bm->speed, &bm->alt, &bm->capwt, &bm->svp, &bm->defn, &bm->desch, &bm->deflk, &bm->fail, &bm->accu, &bm->range, &bm->mrcap, &bm->mrange, &bm->crange, &bm->cmcap, &bm->cmrange, &db))!=18)
 			{
-				bombertype this={0};
-				// MANUFACTURER:NAME:COST:SPEED:CEILING:CAPACITY:SVP:DEFENCE:SCHRAGE:FLAK:FAILURE:ACCURACY:RANGE:MRCAP:MRANGE:CRANGE:CMRCAP:CMRANGE:DD-MM-YYYY:DD-MM-YYYY:DD-MM-YYYY:CREW:NAVAIDS,FLAGS,BOMBLOADS:CONVERTFROM:CATEGORY
-				this.name=strdup(next); // guarantees that enough memory will be allocated
-				this.manu=(char *)malloc(strcspn(next, ":")+1);
-				struct bomberstats *bm=this.mark;
-				ssize_t db;
-				int e;
-				if((e=sscanf(next, "%[^:]:%[^:]:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:%u:"zn, this.manu, this.name, &bm->cost, &bm->speed, &bm->alt, &bm->capwt, &bm->svp, &bm->defn, &bm->desch, &bm->deflk, &bm->fail, &bm->accu, &bm->range, &bm->mrcap, &bm->mrange, &bm->crange, &bm->cmcap, &bm->cmrange, &db))!=18)
-				{
-					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					fprintf(stderr, "  sscanf returned %d\n", e);
-					return(1);
-				}
-				bm->capbulk=bm->capwt;
-				size_t nlen=strlen(this.name)+1;
-				this.name=realloc(this.name, nlen);
-				this.entry=readdate(next+db, (date){0, 0, 0});
-				this.novelty=this.entry;
-				this.novelty.month+=4;
-				if(this.novelty.month>12)
-				{
-					this.novelty.month-=12;
-					this.novelty.year++;
-				}
-				const char *train=strchr(next+db, ':');
-				if(!train)
-				{
-					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					fprintf(stderr, "  missing :TRAIN_ONLY\n");
-					return(1);
-				}
-				train++;
-				this.train=readdate(train, (date){9999, 99, 99});
-				const char *exit=strchr(train, ':');
-				if(!exit)
-				{
-					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					fprintf(stderr, "  missing :EXIT\n");
-					return(1);
-				}
-				exit++;
-				this.exit=readdate(exit, (date){9999, 99, 99});
-				const char *crew=strchr(exit, ':');
-				if(!crew)
-				{
-					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					fprintf(stderr, "  missing :CREW\n");
-					return(1);
-				}
-				if(parse_crew(++crew, bm->crew))
-				{
-					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					return(1);
-				}
-				const char *nav=strchr(crew, ':');
-				if(!nav)
-				{
-					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					fprintf(stderr, "  missing :NAVAIDS,FLAGS,BOMBLOADS\n");
-					return(1);
-				}
-				nav++;
-				for(unsigned int i=0;i<NNAVAIDS;i++)
-					bm->nav[i]=strstr(nav, navaids[i]);
-				this.noarm=strstr(nav, "NOARM");
-				this.heavy=strstr(nav, "HEAVY");
-				this.inc=strstr(nav, "INC");
-				this.extra=strstr(nav, "EXTRA");
-				bm->crewwg=strstr(nav, "CREWWG");
-				bm->crewbg=strstr(nav, "CREWBG");
-				this.slowgrow=strstr(nav, "SLOWGROW");
-				this.otub=strstr(nav, "OTUB");
-				this.lfs=strstr(nav, "LFS");
-				this.smbay=strstr(nav, "SMBAY");
-				for(unsigned int l=0;l<NBOMBLOADS;l++)
-					this.load[l]=strstr(nav, bombloads[l].name);
-				for(unsigned int m=1;m<MAX_MARKS;m++)
-					this.mark[m]=this.mark[0];
-				const char *conv=strchr(nav, ':');
-				if(!conv)
-				{
-					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					fprintf(stderr, "  missing :[CONVERTFROM]\n");
-					return(1);
-				}
-				conv++;
-				char *cat=strchr(conv, ':');
-				if(!cat)
-				{
-					fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
-					fprintf(stderr, "  missing :CATEGORY\n");
-					return(1);
-				}
-				unsigned int convlen=cat-conv;
-				*cat++=0;
-				this.convertfrom=-1;
-				if(convlen)
-					for(unsigned int i=0;i<ntypes;i++)
-						if(!strcmp(conv, types[i].name))
-						{
-							this.convertfrom=i;
-							break;
-						}
-				this.category=strdup(cat);
-				char pn[256];
-				strcpy(pn, "art/bombers/");
-				for(size_t p=0;p<nlen;p++)
-				{
-					if(12+p>=240)
-					{
-						pn[12+p]=0;
-						break;
-					}
-					pn[12+p]=tolower(this.name[p]);
-				}
-				strcat(pn, ".png");
-				SDL_Surface *rawpic;
-				if(!(rawpic=IMG_Load(pn)))
-				{
-					fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
-					if(!this.extra)
-						return(1);
-					this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
-				}
-				else
-				{
-					this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, rawpic->format->BitsPerPixel, rawpic->format->Rmask, rawpic->format->Gmask, rawpic->format->Bmask, rawpic->format->Amask);
-				}
-				if(!this.picture)
-				{
-					fprintf(stderr, "SDL_CreateRGBSurface: %s\n", SDL_GetError());
-					return(1);
-				}
-				SDL_FillRect(this.picture, &(SDL_Rect){0, 0, this.picture->w, this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 0));
-				if(rawpic)
-					SDL_BlitSurface(rawpic, NULL, this.picture, &(SDL_Rect){(36-rawpic->w)>>1, (40-rawpic->h)>>1, 0, 0});
-				char sn[256];
-				strcpy(sn, "art/large/bombers/");
-				for(size_t p=0;p<nlen;p++)
-				{
-					if(18+p>=240)
-					{
-						pn[18+p]=0;
-						break;
-					}
-					sn[18+p]=tolower(this.name[p]);
-				}
-				strcat(sn, "-side.png");
-				if(!(this.side_image=IMG_Load(sn))&&!this.extra)
-				{
-					fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
-					return(1);
-				}
-				this.prio=2;
-				this.pribuf=0;
-				this.pcbuf=0;
-				this.text=this.newtext=NULL;
-				types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
-				types[ntypes]=this;
-				ntypes++;
-			}
-			next=strtok(NULL, "\n");
-		}
-		rawtypes=(bombertype *)malloc(ntypes*sizeof(bombertype));
-		free(typefile);
-		for(unsigned int i=0;i<ntypes;i++)
-		{
-			if(!(types[i].prio_selector=create_priority_selector(&types[i].prio)))
-			{
-				fprintf(stderr, "create_priority_selector failed (i=%u)\n", i);
+				fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+				fprintf(stderr, "  sscanf returned %d\n", e);
 				return(1);
 			}
-			rawtypes[i]=types[i];
+			bm->capbulk=bm->capwt;
+			size_t nlen=strlen(this.name)+1;
+			this.name=realloc(this.name, nlen);
+			this.entry=readdate(next+db, (date){0, 0, 0});
+			this.novelty=this.entry;
+			this.novelty.month+=4;
+			if(this.novelty.month>12)
+			{
+				this.novelty.month-=12;
+				this.novelty.year++;
+			}
+			const char *train=strchr(next+db, ':');
+			if(!train)
+			{
+				fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+				fprintf(stderr, "  missing :TRAIN_ONLY\n");
+				return(1);
+			}
+			train++;
+			this.train=readdate(train, (date){9999, 99, 99});
+			const char *exit=strchr(train, ':');
+			if(!exit)
+			{
+				fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+				fprintf(stderr, "  missing :EXIT\n");
+				return(1);
+			}
+			exit++;
+			this.exit=readdate(exit, (date){9999, 99, 99});
+			const char *crew=strchr(exit, ':');
+			if(!crew)
+			{
+				fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+				fprintf(stderr, "  missing :CREW\n");
+				return(1);
+			}
+			if(parse_crew(++crew, bm->crew))
+			{
+				fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+				return(1);
+			}
+			const char *nav=strchr(crew, ':');
+			if(!nav)
+			{
+				fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+				fprintf(stderr, "  missing :NAVAIDS,FLAGS,BOMBLOADS\n");
+				return(1);
+			}
+			nav++;
+			for(unsigned int i=0;i<NNAVAIDS;i++)
+				bm->nav[i]=strstr(nav, navaids[i]);
+			this.noarm=strstr(nav, "NOARM");
+			this.heavy=strstr(nav, "HEAVY");
+			this.inc=strstr(nav, "INC");
+			this.extra=strstr(nav, "EXTRA");
+			bm->crewwg=strstr(nav, "CREWWG");
+			bm->crewbg=strstr(nav, "CREWBG");
+			this.slowgrow=strstr(nav, "SLOWGROW");
+			this.otub=strstr(nav, "OTUB");
+			this.lfs=strstr(nav, "LFS");
+			this.smbay=strstr(nav, "SMBAY");
+			for(unsigned int l=0;l<NBOMBLOADS;l++)
+				this.load[l]=strstr(nav, bombloads[l].name);
+			for(unsigned int m=1;m<MAX_MARKS;m++)
+				this.mark[m]=this.mark[0];
+			const char *conv=strchr(nav, ':');
+			if(!conv)
+			{
+				fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+				fprintf(stderr, "  missing :[CONVERTFROM]\n");
+				return(1);
+			}
+			conv++;
+			char *cat=strchr(conv, ':');
+			if(!cat)
+			{
+				fprintf(stderr, "Malformed `bombers' line `%s'\n", next);
+				fprintf(stderr, "  missing :CATEGORY\n");
+				return(1);
+			}
+			unsigned int convlen=cat-conv;
+			*cat++=0;
+			this.convertfrom=-1;
+			if(convlen)
+				for(unsigned int i=0;i<ntypes;i++)
+					if(!strcmp(conv, types[i].name))
+					{
+						this.convertfrom=i;
+						break;
+					}
+			this.category=strdup(cat);
+			char pn[256];
+			strcpy(pn, "art/bombers/");
+			for(size_t p=0;p<nlen;p++)
+			{
+				if(12+p>=240)
+				{
+					pn[12+p]=0;
+					break;
+				}
+				pn[12+p]=tolower(this.name[p]);
+			}
+			strcat(pn, ".png");
+			SDL_Surface *rawpic;
+			if(!(rawpic=IMG_Load(pn)))
+			{
+				fprintf(stderr, "Failed to load %s: %s\n", pn, IMG_GetError());
+				if(!this.extra)
+					return(1);
+				this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
+			}
+			else
+			{
+				this.picture=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, rawpic->format->BitsPerPixel, rawpic->format->Rmask, rawpic->format->Gmask, rawpic->format->Bmask, rawpic->format->Amask);
+			}
+			if(!this.picture)
+			{
+				fprintf(stderr, "SDL_CreateRGBSurface: %s\n", SDL_GetError());
+				return(1);
+			}
+			SDL_FillRect(this.picture, &(SDL_Rect){0, 0, this.picture->w, this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 0));
+			if(rawpic)
+				SDL_BlitSurface(rawpic, NULL, this.picture, &(SDL_Rect){(36-rawpic->w)>>1, (40-rawpic->h)>>1, 0, 0});
+			char sn[256];
+			strcpy(sn, "art/large/bombers/");
+			for(size_t p=0;p<nlen;p++)
+			{
+				if(18+p>=240)
+				{
+					pn[18+p]=0;
+					break;
+				}
+				sn[18+p]=tolower(this.name[p]);
+			}
+			strcat(sn, "-side.png");
+			if(!(this.side_image=IMG_Load(sn))&&!this.extra)
+			{
+				fprintf(stderr, "Failed to load %s: %s\n", sn, IMG_GetError());
+				return(1);
+			}
+			this.prio=2;
+			this.pribuf=0;
+			this.pcbuf=0;
+			this.text=this.newtext=NULL;
+			types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
+			types[ntypes]=this;
+			ntypes++;
 		}
-		fprintf(stderr, "Loaded %u bomber types\n", ntypes);
+		next=strtok(NULL, "\n");
 	}
+	rawntypes=ntypes;
+	for(unsigned int i=0;i<MAX_CUSTOM_TYPES;i++)
+	{
+		bombertype this={
+			.manu="<custom>",
+			.name="<custom>",
+			.extra=true,
+			.picture=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff),
+			.prio=2,
+			.pribuf=0,
+			.pcbuf=0,
+			.category="",
+		};
+		SDL_FillRect(this.picture, &(SDL_Rect){0, 0, this.picture->w, this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 0));
+		this.load[BL_USUAL]=true;
+		types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));
+		types[ntypes]=this;
+		ntypes++;
+	}
+	free(typefile);
+	rawtypes=(bombertype *)malloc(ntypes*sizeof(bombertype));
+	for(unsigned int i=0;i<ntypes;i++)
+	{
+		if(!(types[i].prio_selector=create_priority_selector(&types[i].prio)))
+		{
+			fprintf(stderr, "create_priority_selector failed (i=%u)\n", i);
+			return(1);
+		}
+		rawtypes[i]=types[i];
+	}
+	fprintf(stderr, "Loaded %u bomber types\n", ntypes);
 	return(0);
 }
 

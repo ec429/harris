@@ -124,11 +124,11 @@ int main(int argc, char *argv[])
 	rc = load_data();
 	if (rc)
 		return(rc);
-	
+
 	fprintf(stderr, "Data files loaded\n");
-	
+
 	fprintf(stderr, "Allocating game state...\n");
-	
+
 	if((rc = set_init_state(&state)))
 		return(rc);
 

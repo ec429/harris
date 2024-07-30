@@ -22,6 +22,7 @@ void init_bomber(struct bomber *b, struct manf *m, struct engine *e)
 	b->bay.load = b->bay.cap = 1000;
 	b->tanks.hlb = 19;
 	b->tanks.pct = 80;
+	b->par_idx = -1;
 }
 
 static void design_error(struct bomber *b, const char *format, ...)

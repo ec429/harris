@@ -30,6 +30,8 @@ enum ftr_aid {
 	NFTRAIDS
 };
 
+#define MAX_CUSTOM_TYPES	32
+
 #define MAXMSGS		8
 
 #define HIST_LINE	240
@@ -488,10 +490,12 @@ squadron;
 typedef struct
 {
 	date now;
-	bool vermm;
+	bool vermm, builder;
 	unsigned int difficulty[DIFFICULTY_CLASSES]; // [0] is ignored
 	unsigned int cash, cshr;
 	double confid, morale;
+	unsigned int ndesigns;
+	struct bomber *designs; // builder/calc.h
 	unsigned int nbombers;
 	ac_bomber *bombers;
 	unsigned int ncrews;

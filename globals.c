@@ -60,7 +60,7 @@ unsigned int max_dwell[TPIPE__MAX] = {
 char *tpipe_descs[TPIPE__MAX]={0};
 char *tpipe_bt_desc=NULL;
 
-unsigned int ntypes=0;
+unsigned int ntypes=0, rawntypes=0;
 bombertype *types=NULL;
 bombertype *rawtypes=NULL;
 unsigned int nmods=0;
@@ -121,7 +121,8 @@ struct builder_data *builder;
 
 int set_init_state(game *state)
 {
-	state->nbombers=state->nfighters=0;
+	state->ndesigns=state->nbombers=state->nfighters=0;
+	state->designs=NULL;
 	state->bombers=NULL;
 	state->fighters=NULL;
 	state->paving=-1;
@@ -159,6 +160,8 @@ int set_init_state(game *state)
 		perror("malloc");
 		return(1);
 	}
+	for(unsigned int i=0;i<ntypes;i++)
+		state->btypes[i]=!types[i].extra;
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 	{
 		state->nap[n]=0;

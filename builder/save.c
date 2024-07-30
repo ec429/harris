@@ -88,6 +88,7 @@ int save_design(FILE *f, const struct bomber *b)
 		b->tanks.sst ? 1 : 0);
 	fprintf(f, "MTW=%u:USR=%u\n", b->mtow, b->user_mtow ? 1 : 0);
 	fprintf(f, "RFL=%u\n", b->refit);
+	fprintf(f, "PAR=%d\n", b->par_idx);
 	fprintf(f, "RND=%u:DRG=%d:SRV=%d:VUL=%d:MNU=%d:ACC=%d\n",
 		b->dice.rolled ? 1 : 0, b->dice.drag, b->dice.serv,
 		b->dice.vuln, b->dice.manu, b->dice.accu);
@@ -331,6 +332,7 @@ LOADER_INT(srv, dice.serv);
 LOADER_INT(vul, dice.vuln);
 LOADER_INT(mnu, dice.manu);
 LOADER_INT(acc, dice.accu);
+LOADER_INT(par, par_idx);
 
 static int load_tn(const char *value, struct loaddata *l)
 {
@@ -379,6 +381,7 @@ struct loadkey {
 	{"MNU", load_mnu},
 	{"ACC", load_acc},
 	{"TN", load_tn},
+	{"PAR", load_par},
 	{"EOD", load_eod},
 };
 

@@ -150,6 +150,7 @@ struct bomber {
 	enum refit_level refit;
 	struct tech_numbers tn;
 	struct randomisation dice;
+	int par_idx;
 	/* Output cache */
 	bool error;
 	unsigned int new;

@@ -149,7 +149,8 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 						if(!loadgame("save/qstart.sav", state))
 						{
 							fprintf(stderr, "Quick Start Game loaded\n");
-							// Disable the xbombers
+							// Disable the xbombers and builder
+							state->builder=false;
 							for(unsigned int i=0;i<ntypes;i++)
 								state->btypes[i]=!types[i].extra;
 							game_preinit(state);

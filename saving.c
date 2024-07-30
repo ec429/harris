@@ -19,6 +19,7 @@
 #include "history.h"
 #include "mods.h"
 #include "rand.h"
+#include "builder/save.h"
 #include "version.h"
 
 bool version_newer(const unsigned int v1[3], const unsigned int v2[3]) // true iff v1 newer than v2
@@ -53,7 +54,9 @@ int loadgame(const char *fn, game *state)
 	unsigned int s_version[3]={0,0,0};
 	unsigned int version[3]={VER_MAJ,VER_MIN,VER_REV};
 	state->vermm=false;
+	state->builder=false;
 	state->weather.seed=0;
+	state->ndesigns=0;
 	for(unsigned int j=0;j<ntypes;j++)
 	{
 		types[j].newmark=0;
@@ -350,6 +353,43 @@ int loadgame(const char *fn, game *state)
 					}
 					state->nap[j]=prio;
 					state->napb[j]=pbuf;
+				}
+			}
+		}
+		else if(strcmp(tag, "Designs")==0)
+		{
+			state->builder=true;
+			f=sscanf(dat, "%u\n", &state->ndesigns);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else
+			{
+				free(state->designs);
+				state->designs=malloc(state->ndesigns*sizeof(struct bomber));
+				for(unsigned int i=0;i<state->ndesigns;i++)
+				{
+					f=load_design(fs, state->designs+i, &builder->entities);
+					if(f<0)
+					{
+						fprintf(stderr, "32 Design loader error: %s\n", strerror(-f));
+						e|=32;
+					}
+					else if(state->designs[i].par_idx>=0)
+					{
+						unsigned int par_idx=state->designs[i].par_idx;
+						if(par_idx>=i)
+						{
+							fprintf(stderr, "4 Index mismatch in part %u (< %u) of tag \"%s\"\n", i, par_idx, tag);
+							e|=4;
+						}
+						else
+						{
+							state->designs[i].parent=state->designs+par_idx;
+						}
+					}
 				}
 			}
 		}
@@ -1308,6 +1348,12 @@ int savegame(const char *fn, game state)
 	fprintf(fs, "Navaids:%u\n", NNAVAIDS);
 	for(unsigned int n=0;n<NNAVAIDS;n++)
 		fprintf(fs, "NPrio %u:%d,%u\n", n, state.nap[n], state.napb[n]);
+	if(state.builder)
+	{
+		fprintf(fs, "Designs:%u\n", state.ndesigns);
+		for(unsigned int i=0;i<state.ndesigns;i++)
+			save_design(fs, state.designs+i);
+	}
 	fprintf(fs, "Bombers:%u\n", state.nbombers);
 	for(unsigned int i=0;i<state.nbombers;i++)
 	{

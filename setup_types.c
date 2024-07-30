@@ -120,22 +120,22 @@ int setup_types_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	if(!(ST_btrow=malloc(ntypes*sizeof(atg_element *))))
+	if(!(ST_btrow=malloc(rawntypes*sizeof(atg_element *))))
 	{
 		perror("malloc");
 		return(1);
 	}
-	if(!(ST_btint=malloc(ntypes*sizeof(atg_element *))))
+	if(!(ST_btint=malloc(rawntypes*sizeof(atg_element *))))
 	{
 		perror("malloc");
 		return(1);
 	}
-	if(!(ST_btsel=malloc(ntypes*sizeof(atg_element *))))
+	if(!(ST_btsel=malloc(rawntypes*sizeof(atg_element *))))
 	{
 		perror("malloc");
 		return(1);
 	}
-	for(unsigned int i=0;i<ntypes;i++)
+	for(unsigned int i=0;i<rawntypes;i++)
 	{
 		atg_colour bg=(atg_colour){63, 71, 63, ATG_ALPHA_OPAQUE};
 		if(types[i].extra)
@@ -285,7 +285,7 @@ screen_id setup_types_screen(atg_canvas *canvas, game *state)
 	
 	while(1)
 	{
-		for(unsigned int i=0;i<ntypes;i++)
+		for(unsigned int i=0;i<rawntypes;i++)
 		{
 			if(!ST_btsel[i]) continue;
 			atg_image *img=ST_btsel[i]->elemdata;
@@ -321,7 +321,7 @@ screen_id setup_types_screen(atg_canvas *canvas, game *state)
 					else if(c.e)
 					{
 						unsigned int i;
-						for(i=0;i<ntypes;i++)
+						for(i=0;i<rawntypes;i++)
 						{
 							if(c.e==ST_btsel[i])
 							{
@@ -336,7 +336,7 @@ screen_id setup_types_screen(atg_canvas *canvas, game *state)
 								return(SCRN_INTELBMB);
 							}
 						}
-						if(i==ntypes)
+						if(i==rawntypes)
 							fprintf(stderr, "Clicked on unknown clickable!\n");
 					}
 				break;
@@ -368,7 +368,7 @@ screen_id setup_types_screen(atg_canvas *canvas, game *state)
 
 void setup_types_free(void)
 {
-	for(unsigned int i=0;i<ntypes;i++)
+	for(unsigned int i=0;i<rawntypes;i++)
 	{
 		if(!ST_btsel[i]) continue;
 		atg_image *img=ST_btsel[i]->elemdata;

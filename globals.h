@@ -36,7 +36,7 @@ extern unsigned int max_dwell[TPIPE__MAX];
 extern char *tpipe_descs[TPIPE__MAX];
 extern char *tpipe_bt_desc;
 
-extern unsigned int ntypes;
+extern unsigned int ntypes, rawntypes;
 extern bombertype *types;
 extern bombertype *rawtypes;
 extern unsigned int nmods;
