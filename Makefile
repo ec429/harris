@@ -17,7 +17,7 @@ SCREEN_OBJS := main_menu.o setup_game.o setup_difficulty.o setup_types.o load_ga
 BUILDER_OBJS := builder/data.o builder/calc.o builder/init.o builder/save.o builder/parse.o
 OBJS := globals.o weather.o bits.o rand.o geom.o widgets.o date.o history.o routing.o saving.o render.o events.o ui.o load_data.o dclass.o crew.o mods.o almanack.o $(SCREEN_OBJS) $(BUILDER_OBJS)
 INCLUDES := $(OBJS:.o=.h) types.h version.h
-SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav
+SAVES := save/qstart.sav save/civ.sav save/abd.sav save/ruhr.sav save/builder.sav
 
 SDL := `sdl-config --libs` -lSDL_ttf -lSDL_gfx -lSDL_image
 SDLFLAGS := `sdl-config --cflags`

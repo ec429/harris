@@ -30,12 +30,13 @@
 
 extern game state;
 
-atg_element *control_box;
+atg_element *control_box, *GB_middle, *GB_tt;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btnuml, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_diff, *GB_clamp;
+atg_element *GB_confid, *GB_morale;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], **GB_winbox, *(*GB_window)[NWINLVLS], *GB_rsrow, *GB_rsbtn[5];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
@@ -669,7 +670,7 @@ int control_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *GB_confid=atg_create_element_label_nocopy(GB_confid_label, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
+	GB_confid=atg_create_element_label_nocopy(GB_confid_label, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
 	if(!GB_confid)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -687,7 +688,7 @@ int control_create(void)
 		perror("malloc");
 		return(1);
 	}
-	atg_element *GB_morale=atg_create_element_label_nocopy(GB_morale_label, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
+	GB_morale=atg_create_element_label_nocopy(GB_morale_label, 12, (atg_colour){191, 255, 191, ATG_ALPHA_OPAQUE});
 	if(!GB_morale)
 	{
 		fprintf(stderr, "atg_create_element_label failed\n");
@@ -886,7 +887,7 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *GB_middle=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
+	GB_middle=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){31, 31, 39, ATG_ALPHA_OPAQUE});
 	if(!GB_middle)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -1367,7 +1368,7 @@ int control_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
+	GB_tt=atg_create_element_box(ATG_BOX_PACK_VERTICAL, (atg_colour){95, 95, 103, ATG_ALPHA_OPAQUE});
 	if(!GB_tt)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -1514,11 +1515,25 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		w_init(&state->weather, 256, lorw);
 		state->weather.seed=0;
 	}
-	
-	snprintf(GB_datestring, 11, "%02u-%02u-%04u", state->now.day, state->now.month, state->now.year);
-	snprintf(GB_budget_label, 32, "Budget: £%u/day", state->cshr);
-	snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state->confid+0.5));
-	snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state->morale+0.5));
+
+	unsigned int prestart=0;
+	if(date_before_start(state->now))
+		prestart=state->now.day;
+	if(prestart)
+	{
+		snprintf(GB_datestring, 11, prestart==2?"1938":"1935");
+		snprintf(GB_budget_label, 32, "Budget: £%u", state->cash);
+	}
+	else
+	{
+		snprintf(GB_datestring, 11, "%02u-%02u-%04u", state->now.day, state->now.month, state->now.year);
+		snprintf(GB_budget_label, 32, "Budget: £%u/day", state->cshr);
+		snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state->confid+0.5));
+		snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state->morale+0.5));
+	}
+	GB_build->hidden=!state->builder;
+	GB_middle->hidden=GB_tt->hidden=prestart;
+	GB_confid->hidden=GB_morale->hidden=prestart;
 	for(unsigned int i=0;i<2;i++)
 	{
 		SDL_Surface *src;

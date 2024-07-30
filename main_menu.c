@@ -17,7 +17,7 @@
 #include "control.h"
 
 atg_element *main_menu_box;
-atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_NewGame, *MM_LoadGame;
+atg_element *MM_full, *MM_Exit, *MM_QuickStart, *MM_NewGame, *MM_BuildGame, *MM_LoadGame;
 
 int main_menu_create(void)
 {
@@ -82,6 +82,17 @@ int main_menu_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	MM_BuildGame=atg_create_element_button("Game with Builder", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
+	if(!MM_BuildGame)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(main_menu_box, MM_BuildGame))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	MM_LoadGame=atg_create_element_button("Load Game", (atg_colour){255, 255, 255, ATG_ALPHA_OPAQUE}, (atg_colour){47, 47, 47, ATG_ALPHA_OPAQUE});
 	if(!MM_LoadGame)
 	{
@@ -104,13 +115,13 @@ int main_menu_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	MM_QuickStart->w=MM_NewGame->w=MM_LoadGame->w=MM_Exit->w=136;
+	MM_QuickStart->w=MM_NewGame->w=MM_BuildGame->w=MM_LoadGame->w=MM_Exit->w=136;
 	return(0);
 }
 
 screen_id main_menu_screen(atg_canvas *canvas, game *state)
 {
-	atg_resize_canvas(canvas, 136, 86);
+	atg_resize_canvas(canvas, 136, 104);
 	atg_event e;
 	while(1)
 	{
@@ -165,6 +176,22 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 					{
 						selstart=-1;
 						return(SCRN_SETPGAME);
+					}
+					else if(trigger.e==MM_BuildGame)
+					{
+						fprintf(stderr, "Loading game state from Builder Start file...\n");
+						if(!loadgame("save/builder.sav", state))
+						{
+							fprintf(stderr, "Builder Game loaded\n");
+							for(unsigned int i=0;i<ntypes;i++)
+								state->btypes[i]=false;
+							game_preinit(state);
+							return(SCRN_CONTROL);
+						}
+						else
+						{
+							fprintf(stderr, "Failed to load Quick Start save file\n");
+						}
 					}
 					else if(trigger.e==MM_LoadGame)
 					{

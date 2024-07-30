@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 #endif
 	
 	fprintf(stderr, "Instantiating GUI elements...\n");
-		atg_canvas *canvas=atg_create_canvas_with_opts(1, 1, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
+	atg_canvas *canvas=atg_create_canvas_with_opts(1, 1, (atg_colour){0, 0, 0, ATG_ALPHA_OPAQUE}, SDL_RESIZABLE);
 	if(!canvas)
 	{
 		fprintf(stderr, "atg_create_canvas failed\n");

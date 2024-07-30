@@ -1,0 +1,73 @@
+HARR:0.6.0
+DATE:01-09-1939
+Difficulty:0,1
+Confid:40
+Morale:75
+Budget:2250000+15000
+Types:46
+%14%NoType %d:
+%14,46%Prio %d:2,0,0,0
+%46%Twear %d:30,30,30,30
+Navaids:4
+NPrio 0:0,40
+NPrio 1:0,118
+NPrio 2:0,154
+NPrio 3:0,96
+Designs:0
+Bombers:0
+Bases:59
+%59%Base %d:0
+Paving:-1,0
+Squadrons:0
+Crews:2090
+*500*CG Crewman P:30,120,0,0,-1,0,-1,NOID
+*440*CG Crewman N:40,120,0,0,-1,0,-1,NOID
+*150*CG Crewman B:15,120,0,0,-1,0,-1,NOID
+*400*CG Crewman W:25,120,0,0,-1,0,-1,NOID
+*600*CG Crewman G:35,120,0,0,-1,0,-1,NOID
+GProd:8
+IClass 0:6000
+IClass 1:80000
+IClass 2:11500
+IClass 3:25000
+IClass 4:90000
+IClass 5:40000
+IClass 6:12000
+IClass 7:0
+FTypes:8
+FBases:12
+Fighters:90
+*19*Type 0:1,0,NOID
+*19*Type 0:2,0,NOID
+*19*Type 0:3,0,NOID
+*11*Type 3:2,0,NOID
+*11*Type 3:4,0,NOID
+*11*Type 3:5,0,NOID
+Targets init:100,100,0,40
+Weather rand:14410
+Messages:1
+03-09-1939:ORDERS
+You have been appointed Commander-in-Chief of RAF Bomber Command.  The Air Ministry have instructed you to employ
+ your forces on attacks upon enemy shipping and upon purely military targets; your crews are under standing orders
+ not to bomb if there is any danger to civilians, and in particular not to drop their bombs without visual
+ identification of the target.
+
+The Air Ministry further reminds you that due to the shortage of industrial capacity, and the lack of trained
+ aircrews, losses must be conserved as much as possible.  Nonetheless you are expected to strike against the enemy
+ with as much force as these restrictions allow.
+
+You are also notified that the Political Warfare department wishes you to drop their propaganda leaflets
+ (Operation "Nickel") over Germany whenever you can spare the forces to do so, in order to sow dissent and
+ discontent amongst the German people.
+
+The Navy have asked you to drop mines in strategic sea lanes; such operations are code-named "Gardening".
+
+The Third Reich is known to be operating the following fighter types:
+Messerschmitt Bf109:
+ A high-performance day-fighter pressed into interceptor service.
+Dornier Do17Z:
+ A converted bomber with infrared equipment for night-time target finding.
+
+.
+History:1
+01-09-1939 20:00 I INIT builder.sav

@@ -28,3 +28,7 @@ unsigned int rrtime(harris_time t); // converts clock time to run_raid time
 date nextday(date when); // computes the date 1 day after the given one
 #define TM(H,M)		(harris_time){.hour=(H), .minute=(M)}
 #define RRT(H,M)	rrtime(TM((H),(M)))
+static inline bool date_before_start(date when)
+{
+	return datebefore(when, (date){1939, 9, 3});
+}
