@@ -230,12 +230,13 @@ out:
 
 int load_guns(struct list_head *head)
 {
-	int fd = open("builder/dat/guns", O_RDONLY), rc;
+	FILE *f = fopen("builder/dat/guns", "r");
+	int rc;
 
-	if (fd < 0)
+	if (!f)
 		return -errno;
-	rc = for_each_line(fd, load_gun, head);
-	close(fd);
+	rc = for_each_line(f, load_gun, head);
+	fclose(f);
 	return rc;
 }
 
@@ -342,12 +343,13 @@ out:
 
 int load_engines(struct list_head *head)
 {
-	int fd = open("builder/dat/eng", O_RDONLY), rc;
+	FILE *f = fopen("builder/dat/eng", "r");
+	int rc;
 
-	if (fd < 0)
+	if (!f)
 		return -errno;
-	rc = for_each_line(fd, load_engine, head);
-	close(fd);
+	rc = for_each_line(f, load_engine, head);
+	fclose(f);
 	return rc;
 }
 
@@ -469,21 +471,22 @@ out:
 
 int load_manfs(struct list_head *head)
 {
-	int fd = open("builder/dat/manu", O_RDONLY), rc;
+	FILE *f = fopen("builder/dat/manu", "r");
 	struct manf_loader loader;
+	int rc;
 
-	if (fd < 0)
+	if (!f)
 		return -errno;
 	loader.head = head;
 	loader.starman = NULL;
-	rc = for_each_line(fd, load_manf, &loader);
+	rc = for_each_line(f, load_manf, &loader);
 	if (loader.starman) {
 		free(loader.starman->eman);
 		free(loader.starman->name);
 		free(loader.starman->desc);
 	}
 	free(loader.starman);
-	close(fd);
+	fclose(f);
 	if (rc > 0)
 		rc--; /* starman doesn't count */
 	return rc;
@@ -701,17 +704,18 @@ out:
 int load_techs(struct list_head *head, struct list_head *engines,
 	       struct list_head *guns)
 {
-	int fd = open("builder/dat/tech", O_RDONLY), rc;
+	FILE *f = fopen("builder/dat/tech", "r");
 	struct tech_loader loader;
+	int rc;
 
 	loader.head = head;
 	loader.engines = engines;
 	loader.guns = guns;
 
-	if (fd < 0)
+	if (!f)
 		return -errno;
-	rc = for_each_line(fd, load_tech, &loader);
-	close(fd);
+	rc = for_each_line(f, load_tech, &loader);
+	fclose(f);
 	return rc;
 }
 

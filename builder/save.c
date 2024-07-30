@@ -88,7 +88,7 @@ int save_design(FILE *f, const struct bomber *b)
 		b->tanks.sst ? 1 : 0);
 	fprintf(f, "MTW=%u:USR=%u\n", b->mtow, b->user_mtow ? 1 : 0);
 	fprintf(f, "RFL=%u\n", b->refit);
-	fprintf(f, "PAR=%d:PTW:%u:PDW:%u\n", b->par_idx, b->proto_work, b->prod_work);
+	fprintf(f, "PAR=%d:PTW=%u:PDW=%u\n", b->par_idx, b->proto_work, b->prod_work);
 	fprintf(f, "RND=%u:DRG=%d:SRV=%d:VUL=%d:MNU=%d:ACC=%d\n",
 		b->dice.rolled ? 1 : 0, b->dice.drag, b->dice.serv,
 		b->dice.vuln, b->dice.manu, b->dice.accu);
@@ -100,7 +100,8 @@ int save_design(FILE *f, const struct bomber *b)
 struct loaddata {
 	struct bomber *b;
 	const struct entities *ent;
-	unsigned int ei, ti, tn;
+	int ei, ti;
+	unsigned int tn;
 };
 
 static void load_error(struct loaddata *l, const char *format, ...)
@@ -225,9 +226,9 @@ static int load_tmo(const char *value, struct loaddata *l)
 
 static int load_typ(const char *value, struct loaddata *l)
 {
-	if (l->ei)
+	if (l->ei>=0)
 		return load_ety(value, l);
-	if (l->ti)
+	if (l->ti>=0)
 		return load_tty(value, l);
 	load_error(l, "TYP (%s) not in ENG or TUR line!", value);
 	return -EINVAL;
@@ -235,9 +236,9 @@ static int load_typ(const char *value, struct loaddata *l)
 
 static int load_mou(const char *value, struct loaddata *l)
 {
-	if (l->ei)
+	if (l->ei>=0)
 		return load_emo(value, l);
-	if (l->ti)
+	if (l->ti>=0)
 		return load_tmo(value, l);
 	load_error(l, "MOU (%s) not in ENG or TUR line!", value);
 	return -EINVAL;
@@ -412,24 +413,21 @@ static int load_design_line(const char *line, void *data)
 {
 	struct loaddata *l = data;
 
-	l->ei = l->ti = l->tn = 0;
+	l->ei = l->ti = -1;
+	l->tn = 0;
 	return for_each_word(line, load_design_word, l);
 }
 
 int load_design(FILE *f, struct bomber *b, const struct entities *ent)
 {
 	struct loaddata l = {b, ent};
-	int fd = fileno(f), rc;
+	int rc;
 
 	memset(b, 0, sizeof(*b));
 	b->manf = ent->manf[0];
 	b->engines.typ = b->engines.mou = ent->eng[0];
 	b->parent = b;
 
-	if (fd < 0) {
-		load_error(&l, "Invalid stream!");
-		return -EBADF;
-	}
-	rc = for_each_line(fd, load_design_line, &l);
+	rc = for_each_line(f, load_design_line, &l);
 	return rc > 0 ? 0 : rc;
 }

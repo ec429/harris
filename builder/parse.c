@@ -4,7 +4,7 @@
 #include <errno.h>
 #include "parse.h"
 
-int for_each_line(int fd, int (*cb)(const char *line, void *data), void *data)
+int for_each_line(FILE *f, int (*cb)(const char *line, void *data), void *data)
 {
 	size_t len, from = 0, to;
 	int count = 0, rc;
@@ -12,7 +12,7 @@ int for_each_line(int fd, int (*cb)(const char *line, void *data), void *data)
 	ssize_t bytes;
 
 	do {
-		bytes = read(fd, line + from, sizeof(line) - from - 1);
+		bytes = fread(line + from, 1, sizeof(line) - from - 1, f);
 		if (bytes < 0) {
 			rc = -errno;
 			goto out;
@@ -37,7 +37,7 @@ int for_each_line(int fd, int (*cb)(const char *line, void *data), void *data)
 			rc = cb(line + to, data);
 			if (rc) {
 				/* Reposition to un-consume subsequent lines */
-				lseek(fd, len + 1 - from - bytes, SEEK_CUR);
+				fseek(f, len + 1 - from - bytes, SEEK_CUR);
 				goto out;
 			}
 			count++;
