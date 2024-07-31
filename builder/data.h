@@ -38,6 +38,7 @@ struct turret {
 	unsigned int gun;
 	unsigned int gc[GC_COUNT];
 	unsigned int ocp, ocn, ocb; /* operable by crew besides W* and G */
+	unsigned int uab; /* does not prevent bomber counting as unarmed */
 	unsigned int slb;
 	unsigned int esl;
 	char *name;

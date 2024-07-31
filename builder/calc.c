@@ -141,7 +141,6 @@ static int calc_turrets(struct bomber *b)
 {
 	const struct tech_numbers *tn = &b->tn;
 	struct turrets *t = &b->turrets;
-	unsigned int fixed_gunners = 0;
 	unsigned int i, j;
 
 	t->need_gunners = 0;
@@ -155,6 +154,7 @@ static int calc_turrets(struct bomber *b)
 		design_error(b, "Turret in nose position conflicts with engine!");
 	for (j = 0; j < GC_COUNT; j++)
 		t->gc[j] = 0;
+	t->uab = true;
 	for (i = LXN_NOSE; i < LXN_COUNT; i++) {
 		struct turret *g = t->typ[i];
 		struct turret *m = t->mou[i];
@@ -180,8 +180,8 @@ static int calc_turrets(struct bomber *b)
 			design_error(b, "%s requires slab-sided fuselage!",
 				     g->name);
 		t->need_gunners++;
-		if (i == LXN_FIXED)
-			fixed_gunners++;
+		if (!g->uab)
+			t->uab=false;
 		t->drag += g->drg * tn->gdf;
 		tare = g->twt + m->twt * tn->gtf / 100.0f;
 		t->tare += tare;
@@ -192,7 +192,7 @@ static int calc_turrets(struct bomber *b)
 		for (j = 0; j < GC_COUNT; j++)
 			t->gc[j] += g->gc[j] / 10.0f;
 	}
-	if (t->need_gunners <= fixed_gunners && b->engines.number > tn->ubl)
+	if (t->uab && b->engines.number > tn->ubl)
 		design_error(b, "The Air Ministry will not allow an unarmed bomber of this size!");
 	t->serv = 1.0f - t->serv;
 	t->rate[0] = t->rate[1] = 0;
@@ -768,6 +768,7 @@ static int calc_dev(struct bomber *b)
 	float base_tproto = powf(b->overgross, 0.3f) * powf(b->cost, 0.2f);
 	float base_tprod = powf(b->overgross, 0.4f) * powf(b->cost, 0.2f);
 	float add_tproto = 0.0f, add_tprod = 0.0f;
+	float tproto, cproto, tprod, cprod;
 	unsigned int pcount[CREW_CLASSES];
 	unsigned int count[CREW_CLASSES];
 	float bof = max(b->manf->bof, 1);
@@ -780,16 +781,16 @@ static int calc_dev(struct bomber *b)
 	count_crew(&b->crew, count);
 	switch (b->refit) {
 	case REFIT_FRESH:
-		b->tproto = base_tproto * 90.0f / bof;
-		b->tprod = base_tprod * 40.0f / bof;
-		b->cproto = b->cost * 15.0f;
-		b->cprod = b->cost * 30.0f;
+		tproto = base_tproto * 90.0f / bof;
+		tprod = base_tprod * 40.0f / bof;
+		cproto = b->cost * 15.0f;
+		cprod = b->cost * 30.0f;
 		break;
 	case REFIT_MARK:
-		b->tproto = base_tproto * 10.0f / bof;
-		b->tprod = base_tprod * 6.0f / bof;
-		b->cproto = b->cost * 1.5f;
-		b->cprod = b->cost * 3.0f;
+		tproto = base_tproto * 10.0f / bof;
+		tprod = base_tprod * 6.0f / bof;
+		cproto = b->cost * 1.5f;
+		cprod = b->cost * 3.0f;
 		if (b->engines.typ != b->parent->engines.typ) {
 			add_tproto += powf(b->engines.tare, 0.6f) *
 				      powf(b->engines.cost, 0.4f) * 0.6f;
@@ -841,10 +842,10 @@ static int calc_dev(struct bomber *b)
 			add_tproto += b->tanks.cost * 0.3f;
 			add_tprod += b->tanks.cost * 0.5f;
 		}
-		b->tproto += sqrt(add_tproto) * 100.0f / bof;
-		b->tprod += sqrt(add_tprod) * 100.0f / bof;
-		b->cproto += add_tproto;
-		b->cprod += add_tprod;
+		tproto += sqrt(add_tproto) * 100.0f / bof;
+		tprod += sqrt(add_tprod) * 100.0f / bof;
+		cproto += add_tproto;
+		cprod += add_tprod;
 		break;
 	case REFIT_MOD:
 		if (b->engines.typ != b->parent->engines.typ) {
@@ -880,22 +881,26 @@ static int calc_dev(struct bomber *b)
 			add_tproto += b->tanks.cost * 0.5f;
 			add_tprod += b->tanks.cost * 0.8f;
 		}
-		b->tproto = base_tproto * 7.0f / bof +
-			    sqrt(add_tproto) * 100.0f / bof;
-		b->tprod = base_tprod * 7.0f / bof +
-			   sqrt(add_tprod) * 100.0f / bof;
-		b->cproto = b->cost * 0.9f;
-		b->cprod = b->cost * 1.2f;
+		tproto = base_tproto * 7.0f / bof +
+			 sqrt(add_tproto) * 100.0f / bof;
+		tprod = base_tprod * 7.0f / bof +
+			sqrt(add_tprod) * 100.0f / bof;
+		cproto = b->cost * 0.9f;
+		cprod = b->cost * 1.2f;
 		break;
 	case REFIT_DOCTRINE:
 		/* It costs nothing to change your doctrine */
-		b->tproto = b->tprod = 0.0f;
-		b->cproto = b->cprod = 0.0f;
+		tproto = tprod = 0.0f;
+		cproto = cprod = 0.0f;
 		break;
 	default:
 		design_error(b, "Unknown refit level %d", b->refit);
 		return -EINVAL;
 	}
+	b->tproto=ceil(tproto);
+	b->tprod=ceil(tprod);
+	b->cproto=ceil(cproto);
+	b->cprod=ceil(cprod);
 	return 0;
 }
 

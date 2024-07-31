@@ -10,6 +10,7 @@
 #include "ui.h"
 #include "globals.h"
 #include "bits.h"
+#include "date.h"
 #include "builder/data.h"
 #include "builder/calc.h"
 #include "builder.h"
@@ -20,6 +21,7 @@ atg_element *HM_cont, *HM_full;
 atg_element **HM_mbox;
 char *HM_out_buf[OUT_ROWS];
 SDL_Surface *HM_bp;
+atg_element *HM_proto, *HM_tool;
 
 int handle_manfs_create(void)
 {
@@ -141,12 +143,45 @@ int handle_manfs_create(void)
 		}
 	}
 	atg_element *rightbox;
-	int rc=builder_rightbox_create(&rightbox, HM_out_buf, &HM_bp);
+	int rc=builder_rightbox_create(&rightbox, HM_out_buf, &HM_bp, GAME_BG_COLOUR);
 	if(rc==1)
 		atg_free_element(rightbox);
 	if(rc)
 		return(1);
 	if(atg_ebox_pack(handle_manfs_box, rightbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *actions=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!actions)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(rightbox, actions))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HM_proto=atg_create_element_button("Prototype", (atg_colour){239, 79, 79, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	if(!HM_proto)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(actions, HM_proto))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HM_tool=atg_create_element_button("Tool", (atg_colour){223, 223, 79, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	if(!HM_tool)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(actions, HM_tool))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -162,13 +197,56 @@ void wipe_m2v(char **outbuf, SDL_Surface *bp)
 	SDL_FillRect(bp, &(SDL_Rect){0, 0, bp->w, bp->h}, SDL_MapRGB(bp->format, bp_bg.r, bp_bg.g, bp_bg.b));
 }
 
+enum design_status {
+	DSTA_DRAW,
+	DSTA_PROTO,
+	DSTA_TOOL
+} design_status(const struct bomber *b)
+{
+	if(b->proto_work<b->tproto)
+		return DSTA_DRAW;
+	if(b->prod_work<b->tprod)
+		return DSTA_PROTO;
+	return DSTA_TOOL;
+}
+
+atg_colour dsta_colour(enum design_status dsta)
+{
+	switch(dsta)
+	{
+	case DSTA_DRAW:
+		return (atg_colour){239, 79, 79, ATG_ALPHA_OPAQUE};
+	case DSTA_PROTO:
+		return (atg_colour){223, 223, 79, ATG_ALPHA_OPAQUE};
+	case DSTA_TOOL:
+		return (atg_colour){79, 223, 79, ATG_ALPHA_OPAQUE};
+	default:
+		return GAME_BG_COLOUR;
+	}
+}
+
 screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 {
 	screen_id rc=SCRN_CONTROL;
 	atg_event e;
 
-	//int seldes=-1;
+	unsigned int prestart=0;
+	if(date_before_start(state->now))
+		prestart=state->now.day;
+	int seldes=-1;
 	atg_element **HM_dbtn=calloc(state->ndesigns, sizeof(atg_element *));
+	if(!HM_dbtn)
+	{
+		perror("calloc");
+		return rc;
+	}
+	atg_element **HM_dsta=calloc(state->ndesigns, sizeof(atg_element *));
+	if(!HM_dsta)
+	{
+		perror("calloc");
+		free(HM_dbtn);
+		return rc;
+	}
 	for(unsigned int i=0;i<builder->entities.nmanf;i++)
 	{
 		struct manf *m=builder->entities.manf[i];
@@ -178,6 +256,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 		{
 			struct bomber *b=state->designs+j;
 			if(b->manf!=m) continue;
+			calc_bomber(b, &b->tn);
 			atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
 			if(!row)
 			{
@@ -213,15 +292,47 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 			if(atg_ebox_pack(row, HM_dbtn[j]))
 			{
 				perror("atg_ebox_pack");
-				atg_free_element(row);
+				break;
+			}
+			shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+			if(!shim)
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				return(1);
+			}
+			shim->w=2;
+			shim->h=2;
+			if(atg_ebox_pack(row, shim))
+			{
+				perror("atg_ebox_pack");
+				return(1);
+			}
+			HM_dsta[j]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, dsta_colour(design_status(b)));
+			if(!HM_dsta[j])
+			{
+				fprintf(stderr, "atg_create_element_box failed\n");
+				break;
+			}
+			HM_dsta[j]->w=17;
+			HM_dsta[j]->h=17;
+			if(atg_ebox_pack(row, HM_dsta[j]))
+			{
+				perror("atg_ebox_pack");
 				break;
 			}
 		}
 	}
 	wipe_m2v(HM_out_buf, HM_bp);
+	HM_proto->hidden=HM_tool->hidden=true;
 
 	while(1)
 	{
+		struct bomber *seldesb=NULL;
+		if(seldes>=0)
+			seldesb=state->designs+seldes;
+		struct manf *seldesm=NULL;
+		if(seldesb)
+			seldesm=seldesb->manf;
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
@@ -250,14 +361,253 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e==HM_cont)
 						goto out;
+					if(trigger.e==HM_proto)
+					{
+						if(seldes<0||!seldesb)
+						{
+							fprintf(stderr, "Tried to proto no design!\n");
+							break;
+						}
+						if(design_status(seldesb)>=DSTA_PROTO)
+						{
+							fprintf(stderr, "Design is already protoed!\n");
+							break;
+						}
+						if(state->next_custom_slot>=ntypes)
+						{
+							fprintf(stderr, "No slots left for more bomber types!\n");
+							break;
+						}
+						if(!prestart)
+						{
+							if(!seldesm)
+							{
+								fprintf(stderr, "Can't find manufacturer for design!\n");
+								break;
+							}
+							seldesm->proto_idx=seldes;
+							break;
+						}
+						if(seldesb->cproto>state->cash)
+						{
+							fprintf(stderr, "Not enough cash to proto this design.\n");
+							break;
+						}
+						state->cash-=seldesb->cproto;
+						seldesb->proto_work=seldesb->tproto;
+						// complete the design
+						do_randomise(seldesb);
+						calc_bomber(seldesb, &seldesb->tn);
+						builder_update_m2v(seldesb, HM_out_buf);
+						HM_proto->hidden=true;
+						if(HM_dsta[seldes])
+						{
+							atg_box *b=HM_dsta[seldes]->elemdata;
+							b->bgcolour=dsta_colour(design_status(seldesb));
+						}
+						break;
+					}
+					if(trigger.e==HM_tool)
+					{
+						if(seldes<0||!seldesb)
+						{
+							fprintf(stderr, "Tried to tool no design!\n");
+							break;
+						}
+						if(design_status(seldesb)>=DSTA_TOOL)
+						{
+							fprintf(stderr, "Design is already tooled!\n");
+							break;
+						}
+						if(state->next_custom_slot>=ntypes)
+						{
+							fprintf(stderr, "No slots left for more bomber types!\n");
+							break;
+						}
+						if(!prestart)
+						{
+							if(!seldesm)
+							{
+								fprintf(stderr, "Can't find manufacturer for design!\n");
+								break;
+							}
+							seldesm->prod_idx=seldes;
+							break;
+						}
+						if(design_status(seldesb)<DSTA_PROTO)
+						{
+							// proto it first.  TODO refactor this
+							if(seldesb->cproto>state->cash)
+							{
+								fprintf(stderr, "Not enough cash to proto this design.\n");
+								break;
+							}
+							state->cash-=seldesb->cproto;
+							seldesb->proto_work=seldesb->tproto;
+							// complete the design
+							do_randomise(seldesb);
+							calc_bomber(seldesb, &seldesb->tn);
+							builder_update_m2v(seldesb, HM_out_buf);
+							HM_proto->hidden=true;
+						}
+						// TODO handle prestart==2 differently
+						if(seldesb->cprod>state->cash)
+						{
+							fprintf(stderr, "Not enough cash to tool this design.\n");
+							break;
+						}
+						state->cash-=seldesb->cprod;
+						seldesb->prod_work=seldesb->tprod;
+						unsigned int type=state->next_custom_slot++;
+						bombertype *bt=types+type;
+						struct tech_numbers *tn=&builder->tn;
+						bt->manu=seldesm->name;
+						bt->name=seldesb->name;
+						unsigned int mrcap[2];
+						unsigned int mrange[2];
+						for(unsigned int concrete=0;concrete<2;concrete++)
+						{
+							struct bomber bmr=*seldesb; /* bomber at Max Range */
+							unsigned int mptow, mts, mtg;
+							int delta;
+							bmr.tanks.pct=100;
+							bmr.parent=seldesb;
+							bmr.refit=REFIT_DOCTRINE;
+							calc_bomber(&bmr, &seldesb->tn);
+							mts = concrete && tn->rcs ? tn->rcs : tn->rgs;
+							mtg = concrete && tn->rcg ? tn->rcg : tn->rgg;
+							mptow = floor(wing_lift(&bmr.wing, mts / 1.6f));
+							mptow = min(mptow, mtg * 1000);
+							mptow = min(mptow, bmr.mtow);
+							delta = bmr.gross - mptow;
+							if((int)bmr.bay.load < delta)
+							{
+								delta-=bmr.bay.load;
+								bmr.bay.load = mrcap[concrete] = 0;
+								bmr.tanks.pct=ceil(100.0f*(1.0f - delta/(bmr.tanks.hlb*100.0f)));
+							}
+							else
+							{
+								bmr.bay.load = mrcap[concrete] = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
+							}
+							calc_bomber(&bmr, &seldesb->tn);
+							mrange[concrete]=ceil(bmr.range/1.5f);
+						}
+						unsigned int mpcap[2];
+						unsigned int mprange[2];
+						for(unsigned int concrete=0;concrete<2;concrete++)
+						{
+							struct bomber bmp=*seldesb; /* bomber at Max Payload */
+							unsigned int mptow, mts, mtg;
+							int delta;
+							bmp.parent=seldesb;
+							bmp.refit=REFIT_DOCTRINE;
+							calc_bomber(&bmp, &seldesb->tn);
+							mts = concrete ? tn->rcs : tn->rgs;
+							mtg = concrete ? tn->rcg : tn->rgg;
+							mptow = floor(wing_lift(&bmp.wing, mts / 1.6f));
+							mptow = min(mptow, mtg * 1000);
+							mptow = min(mptow, bmp.mtow);
+							delta = bmp.gross - mptow;
+							bmp.tanks.pct=max(ceil(100.0*(1.0f - delta/(bmp.tanks.hlb*100.0f))), 0);
+							calc_bomber(&bmp, &seldesb->tn);
+							delta = bmp.gross - mptow;
+							if((int)bmp.bay.load < delta)
+							{
+								bmp.bay.load = mpcap[concrete] = 0;
+							}
+							else
+							{
+								bmp.bay.load = mpcap[concrete] = min(((int)bmp.bay.load) - delta, (int)bmp.bay.cap);
+							}
+							calc_bomber(&bmp, &seldesb->tn);
+							mprange[concrete]=ceil(bmp.range/1.5f);
+						}
+						for(unsigned int m=0;m<MAX_MARKS;m++)
+						{
+							struct bomberstats *bs=bt->mark+m;
+							bs->cost=floor(seldesb->cost);
+							bs->speed=ceil(seldesb->cruise_spd);
+							bs->alt=ceil(seldesb->ceiling*10.0f);
+							bs->capwt=seldesb->bay.load;
+							bs->capbulk=seldesb->bay.cap;
+							bs->svp=ceil(seldesb->serv*100.0f);
+							bs->defn=floor(seldesb->defn[0]);
+							bs->desch=floor(seldesb->defn[1]);
+							bs->deflk=floor(seldesb->flak_factor);
+							bs->fail=floor(seldesb->fail*100.0f);
+							bs->accu=ceil(seldesb->accu*100.0f);
+							bs->range=mprange[0];
+							bs->mrcap=mrcap[0];
+							bs->mrange=mrange[0];
+							bs->crange=mprange[1];
+							bs->cmcap=mrcap[1];
+							bs->cmrange=mrange[1];
+							// XXX mpcap is not currently used, harris assumes that at 'range' (or 'crange' on concrete) we can carry 'capwt', which might not be true with large empty tanks in the design
+							for(unsigned int c=0;c<MAX_CREW;c++)
+							{
+								if(c>=seldesb->crew.n)
+								{
+									bs->crew[c]=CCLASS_NONE;
+									continue;
+								}
+								bs->crew[c]=seldesb->crew.men[c].pos;
+								if(seldesb->crew.men[c].gun)
+									switch(seldesb->crew.men[c].pos)
+									{
+									case CCLASS_B:
+										bs->crewbg=true;
+										break;
+									case CCLASS_W:
+										bs->crewwg=true;
+										break;
+									default:
+										// XXX no support yet for N (crewng)
+										break;
+									}
+							}
+							for(unsigned int n=0;n<NNAVAIDS;n++)
+								bs->nav[n]=seldesb->elec.navaid[n];
+							bt->markname[m]="";
+						}
+						bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=bt->load[BL_ILLUM]=true;
+						// XXX plumduff has special SMBAY handling that's probably not correct for anything other than a Halifax
+						bt->load[BL_PONLY]=bt->load[BL_PLUMDUFF]=bt->load[BL_PPLUS]=bt->load[BL_HALFHALF]=seldesb->bay.cookie;
+						bt->noarm=seldesb->turrets.uab;
+						bt->heavy=seldesb->engines.number>=4;
+						bt->inc=false;
+						bt->extra=true;
+						bt->slowgrow=false;
+						bt->otub=false;
+						// TODO we need rules for this
+						bt->lfs=false;
+						bt->smbay=seldesb->bay.girth<BB_COOKIE;
+						bt->entry=state->now;
+						// XXX this will need changing in the !prestart case
+						bt->novelty=state->now;
+						bt->train=bt->exit=(date){9999, 99, 99};
+						bt->convertfrom=-1;
+						// XXX in !prestart we will need something much better than this
+						bt->pc=30000;
+						state->btypes[type]=true;
+						HM_tool->hidden=true;
+						if(HM_dsta[seldes])
+						{
+							atg_box *b=HM_dsta[seldes]->elemdata;
+							b->bgcolour=dsta_colour(design_status(seldesb));
+						}
+						break;
+					}
 					for(i=0;i<state->ndesigns;i++)
 					{
 						if(trigger.e==HM_dbtn[i])
 						{
-							//seldes=i;
+							seldes=i;
 							struct bomber *b=state->designs+i;
 							calc_bomber(b, &b->tn);
 							builder_update_m2v(b, HM_out_buf);
+							HM_proto->hidden=design_status(b)!=DSTA_DRAW;
+							HM_tool->hidden=design_status(b)==DSTA_TOOL;
 							break;
 						}
 					}
@@ -277,6 +627,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 	}
 out:
 	free(HM_dbtn);
+	free(HM_dsta);
 	return(rc);
 }
 

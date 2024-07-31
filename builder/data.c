@@ -183,6 +183,7 @@ static int load_gun_word(const char *key, const char *value, void *data)
 	INT_KEY(gun, "OCP", ocp);
 	INT_KEY(gun, "OCN", ocn);
 	INT_KEY(gun, "OCB", ocb);
+	INT_KEY(gun, "UAB", uab);
 	INT_KEY(gun, "SLB", slb);
 	INT_KEY(gun, "ESL", esl);
 	if (!strcmp(key, "n")) {

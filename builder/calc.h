@@ -30,6 +30,7 @@ struct turrets {
 	/* Output cache */
 	unsigned int need_gunners;
 	bool gas[LXN_COUNT];
+	bool uab;
 	float drag;
 	float tare;
 	float mtare;
@@ -179,10 +180,10 @@ struct bomber {
 	float vuln;
 	float defn[2], flak_factor;
 	float accu;
-	float tproto;
-	float tprod;
-	float cproto;
-	float cprod;
+	unsigned int tproto;
+	unsigned int tprod;
+	unsigned int cproto;
+	unsigned int cprod;
 	char name[WORK_NAME_LEN];
 	unsigned int proto_work, prod_work;
 };

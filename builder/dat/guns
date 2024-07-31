@@ -1,4 +1,4 @@
-Ngun:SRV=2:TWT=25:DRG=4:LXN=0:GUN=1:GCF=10:OCN=1:OCB=1:n=Nose gun (single):d=Single .303 in flexible mount; may be operated by N* or B*.
+Ngun:SRV=2:TWT=25:DRG=4:LXN=0:GUN=1:GCF=10:OCN=1:OCB=1:UAB=1:n=Nose gun (single):d=Single .303 in flexible mount; may be operated by N* or B*.
 Nose:SRV=5:TWT=100:DRG=6:LXN=0:GUN=2:GCF=20:GCD=20:OCB=1:n=Nose turret (twin):d=Front turret with two .303s.  May be operated by B*.
 Chin:SRV=7:TWT=50:DRG=5:LXN=5:GUN=2:GCL=12:OCN=1:n=Rearward chin mount:d=Twin .303s firing aft below the a/c; may be operated by N*.
 Daf1:SRV=4:TWT=20:DRG=5:LXN=1:GUN=1:GCH=10:n=Dorsal after (single):d=Top rearward-facing mount for a single .303 gun.
@@ -21,6 +21,6 @@ Tai5:SRV=6:TWT=180:DRG=8:LXN=2:GUN=5:GCH=50:GCL=50:n=Rear turret (.50):d=Tail tu
 Tai4:SRV=5:TWT=190:DRG=7:LXN=2:GUN=4:GCH=40:GCL=40:n=Rear turret (quad):d=Four-gun tail turret.
 Ta4e:SRV=8:TWT=220:DRG=10:LXN=2:GUN=4:GCH=30:GCL=36:SLB=1:n=Rear turret (quad, early):d=Draggy; poor fields of fire.  Requires slab-sided fuselage.
 Aglt:SRV=12:TWT=300:DRG=9:LXN=2:GUN=4:GCH=75:GCL=75:ESL=2:n=Rear turret (radar):d=Tail turret with radar aiming for the quad .303 guns.
-For1:SRV=1:TWT=15:DRG=0:LXN=6:GUN=1:GCF=6:OCP=2:n=Fixed gun:d=Single wing-mounted .303, firing forwards.  Operated by P.
-Fore:SRV=1:TWT=30:DRG=0:LXN=6:GUN=2:GCF=12:OCP=2:n=Fixed guns (twin):d=A pair of .303 guns mounted in the wings.  Operated by P.
-For4:SRV=1:TWT=50:DRG=0:LXN=6:GUN=4:GCF=24:OCP=2:n=Fixed guns (quad):d=Four .303 guns, two in each wing.  Operated by P.
+For1:SRV=1:TWT=15:DRG=0:LXN=6:GUN=1:GCF=6:OCP=2:UAB=1:n=Fixed gun:d=Single wing-mounted .303, firing forwards.  Operated by P.
+Fore:SRV=1:TWT=30:DRG=0:LXN=6:GUN=2:GCF=12:OCP=2:UAB=1:n=Fixed guns (twin):d=A pair of .303 guns mounted in the wings.  Operated by P.
+For4:SRV=1:TWT=50:DRG=0:LXN=6:GUN=4:GCF=24:OCP=2:UAB=1:n=Fixed guns (quad):d=Four .303 guns, two in each wing.  Operated by P.

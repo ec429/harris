@@ -267,9 +267,9 @@ static int builder_divider(atg_element *box)
 	return(0);
 }
 
-int builder_rightbox_create(atg_element **ret, char **outbuf, SDL_Surface **bp)
+int builder_rightbox_create(atg_element **ret, char **outbuf, SDL_Surface **bp, atg_colour bgcolour)
 {
-	atg_element *right_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
+	atg_element *right_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, bgcolour);
 	if(!right_box)
 	{
 		fprintf(stderr, "atg_create_element_box failed\n");
@@ -1631,7 +1631,7 @@ int builder_create(void)
 		return(1);
 	}
 	atg_element *right_box;
-	int rc=builder_rightbox_create(&right_box, BB_out_buf, &BB_bp);
+	int rc=builder_rightbox_create(&right_box, BB_out_buf, &BB_bp, BB_BG_COLOUR);
 	if(rc==1)
 		atg_free_element(right_box);
 	if(rc)
@@ -1839,9 +1839,9 @@ void builder_update_m2v(const struct bomber *b, char **outbuf)
 		 "Cost: %.0f funds",
 		 b->cost);
 	snprintf(outbuf[OUT_PROTO], 80,
-		 "Prototype           in % 4.0f days for £%.0f", b->tproto, b->cproto);
+		 "Prototype           in %4u days for £%u", b->tproto, b->cproto);
 	snprintf(outbuf[OUT_TOOL], 80,
-		 "Tool for production in % 4.0f days for £%.0f", b->tprod, b->cprod);
+		 "Tool for production in %4u days for £%u", b->tprod, b->cprod);
 	if(b->new)
 		*outbuf[OUT_NOERR]=0;
 	else
