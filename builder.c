@@ -13,24 +13,10 @@
 #include "globals.h"
 #include "bits.h"
 #include "date.h"
+#include "rand.h"
 #include "widgets.h"
 #include "builder/data.h"
 #include "builder/calc.h"
-
-enum out_row {
-	OUT_DIM,
-	OUT_WGT,
-	OUT_SPD,
-	OUT_CRC, /* Ceiling, Range, Climb */
-	OUT_RAN, /* Max Range condition */
-	OUT_DEF,
-	OUT_FSA, /* FAil, SVp, ACcuracy */
-	OUT_CST,
-	OUT_NOERR,
-	OUT_ERR,
-
-	OUT_ROWS=OUT_ERR+8
-};
 
 atg_element *builder_box;
 atg_element *BB_full, *BB_cont;
@@ -44,6 +30,7 @@ char *BB_manf_buf, *BB_manf_dbuf, *BB_eng_buf, *BB_eng_dbuf, *BB_eng_obuf;
 char *BB_fuse_dbuf, *BB_girth_dbuf, *BB_esl_dbuf, *BB_gun_dbuf[LXN_COUNT];
 char *BB_out_buf[OUT_ROWS];
 SDL_Surface *BB_bp;
+atg_element *BB_issue;
 
 const atg_colour BB_BG_COLOUR		= {81, 102, 189, ATG_ALPHA_OPAQUE},
 		 BB_BP_COLOUR		= {81, 102, 189, ATG_ALPHA_OPAQUE},
@@ -276,6 +263,137 @@ static int builder_divider(atg_element *box)
 	{
 		perror("atg_ebox_pack");
 		return(1);
+	}
+	return(0);
+}
+
+int builder_rightbox_create(atg_element **ret, char **outbuf, SDL_Surface **bp)
+{
+	atg_element *right_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
+	if(!right_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(2);
+	}
+	*ret=right_box;
+	right_box->w=418;
+	atg_element *bp_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BP_BORDER);
+	if(!bp_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	bp_box->w=418;
+	bp_box->h=154;
+	if(atg_ebox_pack(right_box, bp_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BP_BORDER);
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=418;
+	shim->h=2;
+	if(atg_ebox_pack(bp_box, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BP_BORDER);
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=2;
+	shim->h=152;
+	if(atg_ebox_pack(bp_box, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	*bp=SDL_CreateRGBSurface(SDL_HWSURFACE, 414, 150, 24, 0xff0000, 0xff00, 0xff, 0);
+	if(!*bp)
+	{
+		fprintf(stderr, "BB_bp: SDL_CreateRGBSurface: %s\n", SDL_GetError());
+		return(1);
+	}
+	atg_colour bp_bg=BB_BP_COLOUR;
+	SDL_FillRect(*bp, &(SDL_Rect){0, 0, (*bp)->w, (*bp)->h}, SDL_MapRGB((*bp)->format, bp_bg.r, bp_bg.g, bp_bg.b));
+	atg_element *blueprint=atg_create_element_image(*bp);
+	if(!blueprint)
+	{
+		fprintf(stderr, "atg_create_element_image failed\n");
+		return(1);
+	}
+	blueprint->w=414;
+	blueprint->h=150;
+	if(atg_ebox_pack(bp_box, blueprint))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *out_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
+	if(!out_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	out_box->w=right_box->w;
+	if(atg_ebox_pack(right_box, out_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->w=2;
+	shim->h=8;
+	if(atg_ebox_pack(out_box, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *out_tg=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
+	if(!out_tg)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(out_box, out_tg))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(enum out_row i=0;i<OUT_ROWS;i++)
+	{
+		if(!(outbuf[i]=malloc(80)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		atg_colour fgcolour=BB_INK_COLOUR;
+		if(i>=OUT_ERR)
+			fgcolour=BB_ERR_COLOUR;
+		atg_element *outtext=atg_create_element_label_nocopy(outbuf[i], 9, fgcolour);
+		if(!outtext)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(out_tg, outtext))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
 	}
 	return(0);
 }
@@ -1512,137 +1630,28 @@ int builder_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *right_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BG_COLOUR);
-	if(!right_box)
-	{
-		fprintf(stderr, "atg_create_element_box failed\n");
+	atg_element *right_box;
+	int rc=builder_rightbox_create(&right_box, BB_out_buf, &BB_bp);
+	if(rc==1)
+		atg_free_element(right_box);
+	if(rc)
 		return(1);
-	}
-	right_box->w=418;
 	if(atg_ebox_pack(main_box, right_box))
 	{
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	atg_element *bp_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_BP_BORDER);
-	if(!bp_box)
+	BB_issue=atg_create_element_button("Issue drawings", BB_INFG_COLOUR, BB_OFF_COLOUR);
+	if(!BB_issue)
 	{
-		fprintf(stderr, "atg_create_element_box failed\n");
+		fprintf(stderr, "atg_create_element_button failed\n");
 		return(1);
 	}
-	bp_box->w=418;
-	bp_box->h=154;
-	if(atg_ebox_pack(right_box, bp_box))
+	if(atg_ebox_pack(right_box, BB_issue))
 	{
 		perror("atg_ebox_pack");
 		return(1);
 	}
-	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BP_BORDER);
-	if(!shim)
-	{
-		fprintf(stderr, "atg_create_element_box failed\n");
-		return(1);
-	}
-	shim->w=418;
-	shim->h=2;
-	if(atg_ebox_pack(bp_box, shim))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_BP_BORDER);
-	if(!shim)
-	{
-		fprintf(stderr, "atg_create_element_box failed\n");
-		return(1);
-	}
-	shim->w=2;
-	shim->h=152;
-	if(atg_ebox_pack(bp_box, shim))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	BB_bp=SDL_CreateRGBSurface(SDL_HWSURFACE, 414, 150, 24, 0xff0000, 0xff00, 0xff, 0);
-	if(!BB_bp)
-	{
-		fprintf(stderr, "BB_bp: SDL_CreateRGBSurface: %s\n", SDL_GetError());
-		return(1);
-	}
-	atg_colour bp_bg=BB_BP_COLOUR;
-	SDL_FillRect(BB_bp, &(SDL_Rect){0, 0, BB_bp->w, BB_bp->h}, SDL_MapRGB(BB_bp->format, bp_bg.r, bp_bg.g, bp_bg.b));
-	atg_element *blueprint=atg_create_element_image(BB_bp);
-	if(!blueprint)
-	{
-		fprintf(stderr, "atg_create_element_image failed\n");
-		return(1);
-	}
-	blueprint->w=414;
-	blueprint->h=150;
-	if(atg_ebox_pack(bp_box, blueprint))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	atg_element *out_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
-	if(!out_box)
-	{
-		fprintf(stderr, "atg_create_element_box failed\n");
-		return(1);
-	}
-	out_box->w=right_box->w;
-	if(atg_ebox_pack(right_box, out_box))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
-	if(!shim)
-	{
-		fprintf(stderr, "atg_create_element_box failed\n");
-		return(1);
-	}
-	shim->w=2;
-	shim->h=8;
-	if(atg_ebox_pack(out_box, shim))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	atg_element *out_tg=atg_create_element_box(ATG_BOX_PACK_VERTICAL, BB_PAPER_COLOUR);
-	if(!out_tg)
-	{
-		fprintf(stderr, "atg_create_element_box failed\n");
-		return(1);
-	}
-	if(atg_ebox_pack(out_box, out_tg))
-	{
-		perror("atg_ebox_pack");
-		return(1);
-	}
-	for(enum out_row i=0;i<OUT_ROWS;i++)
-	{
-		if(!(BB_out_buf[i]=malloc(80)))
-		{
-			perror("malloc");
-			return(1);
-		}
-		atg_colour fgcolour=BB_INK_COLOUR;
-		if(i>=OUT_ERR)
-			fgcolour=BB_ERR_COLOUR;
-		atg_element *outtext=atg_create_element_label_nocopy(BB_out_buf[i], 9, fgcolour);
-		if(!outtext)
-		{
-			fprintf(stderr, "atg_create_element_label failed\n");
-			return(1);
-		}
-		if(atg_ebox_pack(out_tg, outtext))
-		{
-			perror("atg_ebox_pack");
-			return(1);
-		}
-	}
-	/* TODO: outputs, actions */
 	return(0);
 }
 
@@ -1783,7 +1792,7 @@ void builder_update_m2c(const struct bomber *b)
 
 
 /* Update the View from the Model state */
-void builder_update_m2v(const struct bomber *b)
+void builder_update_m2v(const struct bomber *b, char **outbuf)
 {
 	const struct tech_numbers *tn=&builder->tn;
 	struct bomber bmr=*b; /* bomber at Max Range */
@@ -1791,7 +1800,8 @@ void builder_update_m2v(const struct bomber *b)
 	bool concrete = tn->rcs;
 	int delta;
 	bmr.tanks.pct=100;
-	bmr.user_mtow=true; /* force it to use *b's mtow */
+	bmr.parent=b;
+	bmr.refit=REFIT_DOCTRINE;
 	calc_bomber(&bmr, tn);
 	mts = concrete ? tn->rcs : tn->rgs;
 	mtg = concrete ? tn->rcg : tn->rgg;
@@ -1803,40 +1813,44 @@ void builder_update_m2v(const struct bomber *b)
 		bmr.bay.load = 0;
 	else
 		bmr.bay.load = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
-	snprintf(BB_out_buf[OUT_DIM], 80,
+	snprintf(outbuf[OUT_DIM], 80,
 		 "Dimensions: span %.1fft, chord %.1fft",
 		 b->wing.span, b->wing.chord);
-	snprintf(BB_out_buf[OUT_WGT], 80,
+	snprintf(outbuf[OUT_WGT], 80,
 		 "Weights: tare %.0flb, gross %.0flb; wing loading %.1flb/sq ft, L/D %.1f",
 		 b->tare, b->gross, b->wing.wl, b->wing.ld);
-	snprintf(BB_out_buf[OUT_SPD], 80,
+	snprintf(outbuf[OUT_SPD], 80,
 		 "Speeds: take-off %.1fmph, max %.1fmph, cruise %.1fmph at %.0fft",
 		 b->takeoff_spd, b->deck_spd, b->cruise_spd, b->cruise_alt * 1000.0f);
-	snprintf(BB_out_buf[OUT_CRC], 80,
+	snprintf(outbuf[OUT_CRC], 80,
 		 "Service ceiling: %.0fft; range: %.0fmi (%.1fhr); initial climb %.0ffpm",
 		 b->ceiling * 1000.0f, b->range, b->tanks.hours, b->init_climb);
-	snprintf(BB_out_buf[OUT_RAN], 80,
+	snprintf(outbuf[OUT_RAN], 80,
 		 "Max range: %.0fmi with %ulb bombs",
 		 bmr.range, bmr.bay.load);
-	snprintf(BB_out_buf[OUT_DEF], 80,
+	snprintf(outbuf[OUT_DEF], 80,
 		 "Defence: %.1f (sch %.1f) (flak %.1f): manu %.1f, evade %.1f, vuln %.2f (fr %.2f)",
 		 b->defn[0], b->defn[1], b->flak_factor, b->manu_pen,
 		 b->evade_factor, b->vuln, b->tanks.ratio);
-	snprintf(BB_out_buf[OUT_FSA], 80,
+	snprintf(outbuf[OUT_FSA], 80,
 		 "Failure: %.1f; Serviceability: %.1f; Accuracy: %.1f",
 		 b->fail * 100.0f, b->serv * 100.0f, b->accu * 100.0f);
-	snprintf(BB_out_buf[OUT_CST], 80,
+	snprintf(outbuf[OUT_CST], 80,
 		 "Cost: %.0f funds",
 		 b->cost);
+	snprintf(outbuf[OUT_PROTO], 80,
+		 "Prototype           in % 4.0f days for £%.0f", b->tproto, b->cproto);
+	snprintf(outbuf[OUT_TOOL], 80,
+		 "Tool for production in % 4.0f days for £%.0f", b->tprod, b->cprod);
 	if(b->new)
-		*BB_out_buf[OUT_NOERR]=0;
+		*outbuf[OUT_NOERR]=0;
 	else
-		snprintf(BB_out_buf[OUT_NOERR], 80, "No errors or warnings.");
+		snprintf(outbuf[OUT_NOERR], 80, "No errors or warnings.");
 	for(unsigned int i=0;i+OUT_ERR<OUT_ROWS;i++)
 		if(i<b->new)
-			snprintf(BB_out_buf[i+OUT_ERR], 80, b->ew[i]);
+			snprintf(outbuf[i+OUT_ERR], 80, b->ew[i]);
 		else
-			*BB_out_buf[i+OUT_ERR]=0;
+			*outbuf[i+OUT_ERR]=0;
 }
 
 /* Update the Model's crew from the Controller state */
@@ -1864,6 +1878,17 @@ void update_crew_c2m(struct bomber *b)
 				};
 		}
 	}
+}
+
+void name_design(game *state, struct bomber *b)
+{
+	// TODO handle refits differently
+	unsigned int year=state->now.year%100;
+
+	if(date_before_start(state->now))
+		year=state->now.day>1?38:35;
+	state->next_design_number+=irandu(4)+1;
+	snprintf(b->name, WORK_NAME_LEN, "B.%u/%02u", state->next_design_number, year);
 }
 
 screen_id builder_screen(atg_canvas *canvas, game *state)
@@ -1906,7 +1931,7 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 	init_bomber(&b, builder->entities.manf[0], builder->entities.eng[0]);
 	calc_bomber(&b, &builder->tn);
 	builder_update_m2c(&b);
-	builder_update_m2v(&b);
+	builder_update_m2v(&b, BB_out_buf);
 	(void)state;
 	atg_event e;
 	while(1)
@@ -1986,6 +2011,19 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 					if(trigger.e==BB_cont)
 					{
 						return(SCRN_CONTROL);
+					}
+					else if(trigger.e==BB_issue)
+					{
+						name_design(state, &b);
+						unsigned int d=state->ndesigns++;
+						struct bomber *new=realloc(state->designs, state->ndesigns*sizeof(*new));
+						if(!new)
+						{
+							perror("realloc");
+							break;
+						}
+						(state->designs=new)[d]=b;
+						return(SCRN_MANFS);
 					}
 					else if(!trigger.e)
 					{
@@ -2182,7 +2220,7 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 				atg_spinner *spin=BB_gross->elemdata;
 				spin->value=ceil(b.mtow/100.0);
 			}
-			builder_update_m2v(&b);
+			builder_update_m2v(&b, BB_out_buf);
 		}
 		SDL_Delay(50);
 	}

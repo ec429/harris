@@ -135,6 +135,7 @@ struct randomisation {
 
 #define MAX_EW	16
 #define EW_LEN	80
+#define WORK_NAME_LEN	80
 struct bomber {
 	/* Inputs */
 	const struct bomber *parent;
@@ -182,6 +183,7 @@ struct bomber {
 	float tprod;
 	float cproto;
 	float cprod;
+	char name[WORK_NAME_LEN];
 	unsigned int proto_work, prod_work;
 };
 

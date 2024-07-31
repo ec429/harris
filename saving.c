@@ -380,6 +380,8 @@ int loadgame(const char *fn, game *state)
 					if(f<0)
 					{
 						fprintf(stderr, "32 Design loader error: %s\n", strerror(-f));
+						if(state->designs[i].new)
+							fprintf(stderr, "\t%s\n", state->designs[i].ew[0]);
 						e|=32;
 					}
 					else if(state->designs[i].par_idx>=0)

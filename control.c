@@ -35,7 +35,7 @@ atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btnuml, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
-atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_diff, *GB_clamp;
+atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_diff, *GB_clamp;
 atg_element *GB_confid, *GB_morale;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], **GB_winbox, *(*GB_window)[NWINLVLS], *GB_rsrow, *GB_rsbtn[5];
@@ -594,6 +594,18 @@ int control_create(void)
 	}
 	GB_build->w=159;
 	if(atg_ebox_pack(GB_bt, GB_build))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	GB_manfs=atg_create_element_button("Meet Manufacturers", (atg_colour){127, 223, 159, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 63, ATG_ALPHA_OPAQUE});
+	if(!GB_manfs)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	GB_manfs->w=159;
+	if(atg_ebox_pack(GB_bt, GB_manfs))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1531,7 +1543,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state->confid+0.5));
 		snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state->morale+0.5));
 	}
-	GB_build->hidden=!state->builder;
+	GB_build->hidden=GB_manfs->hidden=!state->builder;
 	GB_middle->hidden=GB_tt->hidden=prestart;
 	GB_confid->hidden=GB_morale->hidden=prestart;
 	for(unsigned int i=0;i<2;i++)
@@ -2266,6 +2278,10 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						else if(trigger.e==GB_build)
 						{
 							return(SCRN_BUILDER);
+						}
+						else if(trigger.e==GB_manfs)
+						{
+							return(SCRN_MANFS);
 						}
 						else if(trigger.e==GB_diff)
 						{

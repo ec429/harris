@@ -92,6 +92,7 @@ int save_design(FILE *f, const struct bomber *b)
 	fprintf(f, "RND=%u:DRG=%d:SRV=%d:VUL=%d:MNU=%d:ACC=%d\n",
 		b->dice.rolled ? 1 : 0, b->dice.drag, b->dice.serv,
 		b->dice.vuln, b->dice.manu, b->dice.accu);
+	fprintf(f, "WKN=%s\n", b->name);
 	save_tn(f, &b->tn);
 	fprintf(f, "EOD\n");
 	return 0;
@@ -345,6 +346,12 @@ static int load_tn(const char *value, struct loaddata *l)
 	return 0;
 }
 
+static int load_wkn(const char *value, struct loaddata *l)
+{
+	snprintf(l->b->name, WORK_NAME_LEN, "%s", value);
+	return 0;
+}
+
 static int load_eod(const char *value, __attribute__((unused)) struct loaddata *l)
 {
 	if (value)
@@ -388,6 +395,7 @@ struct loadkey {
 	{"PAR", load_par},
 	{"PTW", load_ptw},
 	{"PDW", load_pdw},
+	{"WKN", load_wkn},
 	{"EOD", load_eod},
 };
 
