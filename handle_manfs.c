@@ -14,6 +14,7 @@
 #include "builder/data.h"
 #include "builder/calc.h"
 #include "builder.h"
+#include "control.h"
 
 atg_element *handle_manfs_box;
 
@@ -461,8 +462,9 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						unsigned int type=state->next_custom_slot++;
 						bombertype *bt=types+type;
 						struct tech_numbers *tn=&builder->tn;
-						bt->manu=seldesm->name;
-						bt->name=seldesb->name;
+						snprintf(bt->manu, 40, "%s", seldesm->name);
+						// TODO prompt player for a name (and a markname?)
+						snprintf(bt->name, 40, "%s", seldesb->name);
 						unsigned int mrcap[2];
 						unsigned int mrange[2];
 						for(unsigned int concrete=0;concrete<2;concrete++)
@@ -568,7 +570,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							}
 							for(unsigned int n=0;n<NNAVAIDS;n++)
 								bs->nav[n]=seldesb->elec.navaid[n];
-							bt->markname[m]="";
+							bt->markname[m]=NULL;
 						}
 						bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=bt->load[BL_ILLUM]=true;
 						// XXX plumduff has special SMBAY handling that's probably not correct for anything other than a Halifax
@@ -590,6 +592,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						// XXX in !prestart we will need something much better than this
 						bt->pc=30000;
 						state->btypes[type]=true;
+						snprintf(GB_btname[type], 80, "%s %s", bt->manu, bt->name);
 						HM_tool->hidden=true;
 						if(HM_dsta[seldes])
 						{

@@ -114,7 +114,7 @@ builder/init.o: builder/list.h builder/calc.h builder/data.h globals.h bits.h
 
 builder/save.o: builder/list.h builder/calc.h builder/data.h builder/parse.h bits.h
 
-handle_manfs.o: ui.h globals.h date.h bits.h builder/data.h builder/list.h builder/calc.h builder.h
+handle_manfs.o: ui.h globals.h date.h bits.h builder/data.h builder/list.h builder/calc.h builder.h control.h
 
 mods.o: ui.h globals.h bits.h render.h
 

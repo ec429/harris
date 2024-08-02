@@ -31,5 +31,6 @@ static inline bool is_pff(const game *state, unsigned int i)
 	return(base_grp(bases[state->squads[s].base])==8);
 }
 
+extern char **GB_btname;
 extern int filter_nav[NNAVAIDS];
 extern bool filter_marks[MAX_MARKS], filter_groups[7];

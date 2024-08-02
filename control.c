@@ -41,6 +41,7 @@ atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], **GB_winbox, *(*GB_window)[NWINLVLS], *GB_rsrow, *GB_rsbtn[5];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
 char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
+char **GB_btname;
 char *GB_suntimes[2];
 SDL_Surface *GB_moonimg, *GB_tfav[2], *GB_ifav[2];
 int filter_nav[NNAVAIDS];
@@ -209,6 +210,11 @@ int control_create(void)
 		perror("calloc");
 		return(1);
 	}
+	if(!(GB_btname=calloc(ntypes, sizeof(atg_element *))))
+	{
+		perror("calloc");
+		return(1);
+	}
 	if(!(GB_navrow=calloc(ntypes, sizeof(atg_element *))))
 	{
 		perror("calloc");
@@ -293,37 +299,32 @@ int control_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+		GB_btname[i]=malloc(80);
+		if(!GB_btname[i])
+		{
+			perror("malloc");
+			return(1);
+		}
 		if(types[i].manu&&types[i].name)
 		{
-			size_t len=strlen(types[i].manu)+strlen(types[i].name)+2;
-			char *fullname=malloc(len);
-			if(fullname)
-			{
-				snprintf(fullname, len, "%s %s", types[i].manu, types[i].name);
-				atg_element *btname=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
-				if(!btname)
-				{
-					fprintf(stderr, "atg_create_element_label failed\n");
-					return(1);
-				}
-				btname->w=191;
-				btname->cache=true;
-				if(atg_ebox_pack(nibox, btname))
-				{
-					perror("atg_ebox_pack");
-					return(1);
-				}
-			}
-			else
-			{
-				perror("malloc");
-				return(1);
-			}
-			free(fullname);
+			snprintf(GB_btname[i], 80, "%s %s", types[i].manu, types[i].name);
 		}
 		else
 		{
 			fprintf(stderr, "Missing manu or name in type %u\n", i);
+			return(1);
+		}
+		atg_element *btname=atg_create_element_label_refer(GB_btname[i], 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+		if(!btname)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		btname->w=191;
+		btname->cache=true;
+		if(atg_ebox_pack(nibox, btname))
+		{
+			perror("atg_ebox_pack");
 			return(1);
 		}
 		if(!(GB_btnum[i]=malloc(20)))
@@ -1202,28 +1203,19 @@ int control_create(void)
 			atg_free_element(vbox);
 			return(1);
 		}
-		if(types[i].manu&&types[i].name)
+		atg_element *name=atg_create_element_label_nocopy(GB_btname[i], 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+		if(!name)
 		{
-			char fullname[96];
-			snprintf(fullname, 96, "%s %s", types[i].manu, types[i].name);
-			atg_element *name=atg_create_element_label(fullname, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
-			if(!name)
-			{
-				fprintf(stderr, "atg_create_element_label failed\n");
-				return(1);
-			}
-			name->cache=true;
-			name->w=184;
-			if(atg_ebox_pack(vbox, name))
-			{
-				perror("atg_ebox_pack");
-				atg_free_element(name);
-				return(1);
-			}
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
 		}
-		else
+		name->cache=true;
+		name->w=184;
+		if(atg_ebox_pack(vbox, name))
 		{
-			fprintf(stderr, "Missing manu or name in type %u\n", i);
+			perror("atg_ebox_pack");
+			atg_free_element(name);
+			return(1);
 		}
 		if(!(GB_raidnum[i]=malloc(32)))
 		{

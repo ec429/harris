@@ -333,8 +333,6 @@ int load_bombers(void)
 	for(unsigned int i=0;i<MAX_CUSTOM_TYPES;i++)
 	{
 		bombertype this={
-			.manu="<custom>",
-			.name="<custom>",
 			.extra=true,
 			.picture=SDL_CreateRGBSurface(SDL_HWSURFACE, 36, 40, 32, 0xff000000, 0xff0000, 0xff00, 0xff),
 			.prio=2,
@@ -342,6 +340,18 @@ int load_bombers(void)
 			.pcbuf=0,
 			.category="",
 		};
+		if (!(this.manu=malloc(40)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		strcpy(this.manu, "<custom>");
+		if (!(this.name=malloc(40)))
+		{
+			perror("malloc");
+			return(1);
+		}
+		strcpy(this.name, "<custom>");
 		SDL_FillRect(this.picture, &(SDL_Rect){0, 0, this.picture->w, this.picture->h}, SDL_MapRGB(this.picture->format, 0, 0, 0));
 		this.load[BL_USUAL]=true;
 		types=(bombertype *)realloc(types, (ntypes+1)*sizeof(bombertype));

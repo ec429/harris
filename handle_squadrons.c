@@ -360,7 +360,7 @@ int handle_squadrons_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		atg_element *btmanu=atg_create_element_label(types[i].manu, 7, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
+		atg_element *btmanu=atg_create_element_label_refer(types[i].manu, 7, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
 		if(!btmanu)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
@@ -371,7 +371,7 @@ int handle_squadrons_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
-		atg_element *btname=atg_create_element_label(types[i].name, 9, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
+		atg_element *btname=atg_create_element_label_refer(types[i].name, 9, (atg_colour){127, 127, 143, ATG_ALPHA_OPAQUE});
 		if(!btname)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");

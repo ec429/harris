@@ -303,7 +303,7 @@ int intel_bombers_create(void)
 		}
 		if(types[i].manu&&types[i].name)
 		{
-			atg_element *manu=atg_create_element_label(types[i].manu, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+			atg_element *manu=atg_create_element_label_refer(types[i].manu, 10, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
 			if(!manu)
 			{
 				fprintf(stderr, "atg_create_element_label failed\n");
@@ -314,7 +314,7 @@ int intel_bombers_create(void)
 				perror("atg_ebox_pack");
 				return(1);
 			}
-			atg_element *name=atg_create_element_label(types[i].name, 14, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
+			atg_element *name=atg_create_element_label_refer(types[i].name, 14, (atg_colour){175, 199, 255, ATG_ALPHA_OPAQUE});
 			if(!name)
 			{
 				fprintf(stderr, "atg_create_element_label failed\n");
@@ -780,6 +780,8 @@ void update_intel_bombers(const game *state)
 	atg_ebox_empty(IB_stat_box);
 	for(unsigned int i=0;i<NUM_STATS;i++)
 	{
+		if(i==STAT_CAT&&state->builder)
+			continue;
 		atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
 		if(!row)
 		{

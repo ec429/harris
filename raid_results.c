@@ -163,7 +163,7 @@ static void create_typerow(unsigned int *dj)
 			atg_free_element(picture);
 			return;
 		}
-		atg_element *manu=atg_create_element_label(types[i].manu, 10, (atg_colour){239, 239, 0, ATG_ALPHA_OPAQUE});
+		atg_element *manu=atg_create_element_label_refer(types[i].manu, 10, (atg_colour){239, 239, 0, ATG_ALPHA_OPAQUE});
 		if(!manu)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
@@ -175,7 +175,7 @@ static void create_typerow(unsigned int *dj)
 			atg_free_element(manu);
 			return;
 		}
-		atg_element *name=atg_create_element_label(types[i].name, 12, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
+		atg_element *name=atg_create_element_label_refer(types[i].name, 12, (atg_colour){255, 255, 0, ATG_ALPHA_OPAQUE});
 		if(!name)
 		{
 			fprintf(stderr, "atg_create_element_label failed\n");
