@@ -12,3 +12,5 @@
 #include "types.h"
 
 extern atg_element *handle_manfs_box;
+
+void realise_design(game *state, struct bomber *b);

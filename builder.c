@@ -1851,6 +1851,8 @@ void builder_update_m2v(const struct bomber *b, char **outbuf)
 			snprintf(outbuf[i+OUT_ERR], 80, b->ew[i]);
 		else
 			*outbuf[i+OUT_ERR]=0;
+	if(BB_issue)
+		BB_issue->hidden=b->error;
 }
 
 /* Update the Model's crew from the Controller state */
@@ -2014,6 +2016,8 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 					}
 					else if(trigger.e==BB_issue)
 					{
+						if(b.error)
+							break;
 						name_design(state, &b);
 						unsigned int d=state->ndesigns++;
 						struct bomber *new=realloc(state->designs, state->ndesigns*sizeof(*new));

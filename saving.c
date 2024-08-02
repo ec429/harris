@@ -20,6 +20,7 @@
 #include "mods.h"
 #include "rand.h"
 #include "builder/save.h"
+#include "handle_manfs.h"
 #include "version.h"
 
 bool version_newer(const unsigned int v1[3], const unsigned int v2[3]) // true iff v1 newer than v2
@@ -449,6 +450,15 @@ int loadgame(const char *fn, game *state)
 		else if(strcmp(tag, "NDNum")==0)
 		{
 			f=sscanf(dat, "%u\n", &state->next_design_number);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+		}
+		else if(strcmp(tag, "NCSlot")==0)
+		{
+			f=sscanf(dat, "%u\n", &state->next_custom_slot);
 			if(f!=1)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
@@ -1271,6 +1281,9 @@ fail:
 	for(unsigned int m=0;m<nmods;m++)
 		if(!datebefore(state->now, mods[m].d))
 			apply_mod(m);
+	for(unsigned int i=0;i<state->ndesigns;i++)
+		if(state->designs[i].slot_idx) // tooled
+			realise_design(state, state->designs+i);
 	for(unsigned int s=0;s<state->nsquads;s++)
 		for(unsigned int f=0;f<3;f++)
 		{
@@ -1421,6 +1434,7 @@ int savegame(const char *fn, game state)
 				builder->entities.manf[i]->proto_idx,
 				builder->entities.manf[i]->prod_idx);
 		fprintf(fs, "NDNum:%u\n", state.next_design_number);
+		fprintf(fs, "NCSlot:%u\n", state.next_custom_slot);
 	}
 	fprintf(fs, "Bombers:%u\n", state.nbombers);
 	for(unsigned int i=0;i<state.nbombers;i++)

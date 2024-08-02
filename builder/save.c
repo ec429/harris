@@ -93,6 +93,8 @@ int save_design(FILE *f, const struct bomber *b)
 		b->dice.rolled ? 1 : 0, b->dice.drag, b->dice.serv,
 		b->dice.vuln, b->dice.manu, b->dice.accu);
 	fprintf(f, "WKN=%s\n", b->name);
+	if(b->slot_idx)
+		fprintf(f, "IDX=%u\n", b->slot_idx);
 	save_tn(f, &b->tn);
 	fprintf(f, "EOD\n");
 	return 0;
@@ -338,6 +340,7 @@ LOADER_INT(acc, dice.accu);
 LOADER_INT(par, par_idx);
 LOADER_UINT(ptw, proto_work);
 LOADER_UINT(pdw, prod_work);
+LOADER_UINT(idx, slot_idx);
 
 static int load_tn(const char *value, struct loaddata *l)
 {
@@ -396,6 +399,7 @@ struct loadkey {
 	{"PTW", load_ptw},
 	{"PDW", load_pdw},
 	{"WKN", load_wkn},
+	{"IDX", load_idx},
 	{"EOD", load_eod},
 };
 

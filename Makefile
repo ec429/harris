@@ -66,7 +66,7 @@ routing.o: rand.h globals.h date.h geom.h
 
 history.o: bits.h date.h saving.h
 
-saving.o: bits.h control.h date.h globals.h handle_crews.h history.h mods.h rand.h version.h
+saving.o: bits.h control.h date.h globals.h handle_crews.h history.h mods.h rand.h builder/save.h builder/calc.h builder/data.h builder/list.h handle_manfs.h version.h
 
 render.o: bits.h almanack.h globals.h date.h weather.h widgets.h
 

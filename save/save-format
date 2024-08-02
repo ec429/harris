@@ -33,6 +33,7 @@ if(state.builder)
 	for(i=0;i<nmanf;i++)
 		"Manf %u:%d,%d", manf[i].proto_idx, manf[i].prod_idx
 	"NDNum:%u", next_design_number
+	"NCSlot:%u", next_custom_slot
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u,%u,%s,%la,%u,%d,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].wear, pacid(bomber[i].id), bomber[i].mark, bomber[i].train, bomber[i].squadron, bomber[i].flight

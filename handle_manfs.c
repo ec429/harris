@@ -226,6 +226,143 @@ atg_colour dsta_colour(enum design_status dsta)
 	}
 }
 
+void realise_design(game *state, struct bomber *b)
+{
+	unsigned int type=b->slot_idx;
+	bombertype *bt=types+type;
+	struct tech_numbers *tn=&builder->tn;
+	calc_bomber(b, &b->tn);
+	snprintf(bt->manu, 40, "%s", b->manf->name);
+	// TODO prompt player for a name (and a markname?)
+	snprintf(bt->name, 40, "%s", b->name);
+	snprintf(GB_btname[type], 80, "%s %s", bt->manu, bt->name);
+	unsigned int mrcap[2];
+	unsigned int mrange[2];
+	for(unsigned int concrete=0;concrete<2;concrete++)
+	{
+		struct bomber bmr=*b; /* bomber at Max Range */
+		unsigned int mptow, mts, mtg;
+		int delta;
+		bmr.tanks.pct=100;
+		bmr.parent=b;
+		bmr.refit=REFIT_DOCTRINE;
+		calc_bomber(&bmr, &b->tn);
+		mts = concrete && tn->rcs ? tn->rcs : tn->rgs;
+		mtg = concrete && tn->rcg ? tn->rcg : tn->rgg;
+		mptow = floor(wing_lift(&bmr.wing, mts / 1.6f));
+		mptow = min(mptow, mtg * 1000);
+		mptow = min(mptow, bmr.mtow);
+		delta = bmr.gross - mptow;
+		if((int)bmr.bay.load < delta)
+		{
+			delta-=bmr.bay.load;
+			bmr.bay.load = mrcap[concrete] = 0;
+			bmr.tanks.pct=ceil(100.0f*(1.0f - delta/(bmr.tanks.hlb*100.0f)));
+		}
+		else
+		{
+			bmr.bay.load = mrcap[concrete] = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
+		}
+		calc_bomber(&bmr, &b->tn);
+		mrange[concrete]=ceil(bmr.range/1.5f);
+	}
+	unsigned int mpcap[2];
+	unsigned int mprange[2];
+	for(unsigned int concrete=0;concrete<2;concrete++)
+	{
+		struct bomber bmp=*b; /* bomber at Max Payload */
+		unsigned int mptow, mts, mtg;
+		int delta;
+		bmp.parent=b;
+		bmp.refit=REFIT_DOCTRINE;
+		calc_bomber(&bmp, &b->tn);
+		mts = concrete ? tn->rcs : tn->rgs;
+		mtg = concrete ? tn->rcg : tn->rgg;
+		mptow = floor(wing_lift(&bmp.wing, mts / 1.6f));
+		mptow = min(mptow, mtg * 1000);
+		mptow = min(mptow, bmp.mtow);
+		delta = bmp.gross - mptow;
+		bmp.tanks.pct=max(ceil(100.0*(1.0f - delta/(bmp.tanks.hlb*100.0f))), 0);
+		calc_bomber(&bmp, &b->tn);
+		delta = bmp.gross - mptow;
+		if((int)bmp.bay.load < delta)
+		{
+			bmp.bay.load = mpcap[concrete] = 0;
+		}
+		else
+		{
+			bmp.bay.load = mpcap[concrete] = min(((int)bmp.bay.load) - delta, (int)bmp.bay.cap);
+		}
+		calc_bomber(&bmp, &b->tn);
+		mprange[concrete]=ceil(bmp.range/1.5f);
+	}
+	for(unsigned int m=0;m<MAX_MARKS;m++)
+	{
+		struct bomberstats *bs=bt->mark+m;
+		bs->cost=floor(b->cost);
+		bs->speed=ceil(b->cruise_spd);
+		bs->alt=ceil(b->ceiling*10.0f);
+		bs->capwt=b->bay.load;
+		bs->capbulk=b->bay.cap;
+		bs->svp=ceil(b->serv*100.0f);
+		bs->defn=floor(b->defn[0]);
+		bs->desch=floor(b->defn[1]);
+		bs->deflk=floor(b->flak_factor);
+		bs->fail=floor(b->fail*100.0f);
+		bs->accu=ceil(b->accu*100.0f);
+		bs->range=mprange[0];
+		bs->mrcap=mrcap[0];
+		bs->mrange=mrange[0];
+		bs->crange=mprange[1];
+		bs->cmcap=mrcap[1];
+		bs->cmrange=mrange[1];
+		// XXX mpcap is not currently used, harris assumes that at 'range' (or 'crange' on concrete) we can carry 'capwt', which might not be true with large empty tanks in the design
+		for(unsigned int c=0;c<MAX_CREW;c++)
+		{
+			if(c>=b->crew.n)
+			{
+				bs->crew[c]=CCLASS_NONE;
+				continue;
+			}
+			bs->crew[c]=b->crew.men[c].pos;
+			if(b->crew.men[c].gun)
+				switch(b->crew.men[c].pos)
+				{
+				case CCLASS_B:
+					bs->crewbg=true;
+					break;
+				case CCLASS_W:
+					bs->crewwg=true;
+					break;
+				default:
+					// XXX no support yet for N (crewng)
+					break;
+				}
+		}
+		for(unsigned int n=0;n<NNAVAIDS;n++)
+			bs->nav[n]=b->elec.navaid[n];
+		bt->markname[m]=NULL;
+	}
+	bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=bt->load[BL_ILLUM]=true;
+	// XXX plumduff has special SMBAY handling that's probably not correct for anything other than a Halifax
+	bt->load[BL_PONLY]=bt->load[BL_PLUMDUFF]=bt->load[BL_PPLUS]=bt->load[BL_HALFHALF]=b->bay.cookie;
+	bt->noarm=b->turrets.uab;
+	bt->heavy=b->engines.number>=4;
+	bt->inc=false;
+	bt->extra=true;
+	bt->slowgrow=false;
+	bt->otub=false;
+	// TODO we need rules for this
+	bt->lfs=false;
+	bt->smbay=b->bay.girth<BB_COOKIE;
+	bt->entry=state->now;
+	// XXX this will need changing in the !prestart case (and we'll have to save novelty in struct bomber so we know it on game load)
+	bt->novelty=state->now;
+	bt->train=bt->exit=(date){9999, 99, 99};
+	bt->convertfrom=-1;
+	return;
+}
+
 screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 {
 	screen_id rc=SCRN_CONTROL;
@@ -369,6 +506,11 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							fprintf(stderr, "Tried to proto no design!\n");
 							break;
 						}
+						if(seldesb->error)
+						{
+							fprintf(stderr, "Tried to proto invalid design!\n");
+							break;
+						}
 						if(design_status(seldesb)>=DSTA_PROTO)
 						{
 							fprintf(stderr, "Design is already protoed!\n");
@@ -415,6 +557,11 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							fprintf(stderr, "Tried to tool no design!\n");
 							break;
 						}
+						if(seldesb->error)
+						{
+							fprintf(stderr, "Tried to tool invalid design!\n");
+							break;
+						}
 						if(design_status(seldesb)>=DSTA_TOOL)
 						{
 							fprintf(stderr, "Design is already tooled!\n");
@@ -435,6 +582,8 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							seldesm->prod_idx=seldes;
 							break;
 						}
+						// ensure dev costs updated
+						calc_bomber(seldesb, &seldesb->tn);
 						if(design_status(seldesb)<DSTA_PROTO)
 						{
 							// proto it first.  TODO refactor this
@@ -460,139 +609,14 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						state->cash-=seldesb->cprod;
 						seldesb->prod_work=seldesb->tprod;
 						unsigned int type=state->next_custom_slot++;
-						bombertype *bt=types+type;
-						struct tech_numbers *tn=&builder->tn;
-						snprintf(bt->manu, 40, "%s", seldesm->name);
-						// TODO prompt player for a name (and a markname?)
-						snprintf(bt->name, 40, "%s", seldesb->name);
-						unsigned int mrcap[2];
-						unsigned int mrange[2];
-						for(unsigned int concrete=0;concrete<2;concrete++)
-						{
-							struct bomber bmr=*seldesb; /* bomber at Max Range */
-							unsigned int mptow, mts, mtg;
-							int delta;
-							bmr.tanks.pct=100;
-							bmr.parent=seldesb;
-							bmr.refit=REFIT_DOCTRINE;
-							calc_bomber(&bmr, &seldesb->tn);
-							mts = concrete && tn->rcs ? tn->rcs : tn->rgs;
-							mtg = concrete && tn->rcg ? tn->rcg : tn->rgg;
-							mptow = floor(wing_lift(&bmr.wing, mts / 1.6f));
-							mptow = min(mptow, mtg * 1000);
-							mptow = min(mptow, bmr.mtow);
-							delta = bmr.gross - mptow;
-							if((int)bmr.bay.load < delta)
-							{
-								delta-=bmr.bay.load;
-								bmr.bay.load = mrcap[concrete] = 0;
-								bmr.tanks.pct=ceil(100.0f*(1.0f - delta/(bmr.tanks.hlb*100.0f)));
-							}
-							else
-							{
-								bmr.bay.load = mrcap[concrete] = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
-							}
-							calc_bomber(&bmr, &seldesb->tn);
-							mrange[concrete]=ceil(bmr.range/1.5f);
-						}
-						unsigned int mpcap[2];
-						unsigned int mprange[2];
-						for(unsigned int concrete=0;concrete<2;concrete++)
-						{
-							struct bomber bmp=*seldesb; /* bomber at Max Payload */
-							unsigned int mptow, mts, mtg;
-							int delta;
-							bmp.parent=seldesb;
-							bmp.refit=REFIT_DOCTRINE;
-							calc_bomber(&bmp, &seldesb->tn);
-							mts = concrete ? tn->rcs : tn->rgs;
-							mtg = concrete ? tn->rcg : tn->rgg;
-							mptow = floor(wing_lift(&bmp.wing, mts / 1.6f));
-							mptow = min(mptow, mtg * 1000);
-							mptow = min(mptow, bmp.mtow);
-							delta = bmp.gross - mptow;
-							bmp.tanks.pct=max(ceil(100.0*(1.0f - delta/(bmp.tanks.hlb*100.0f))), 0);
-							calc_bomber(&bmp, &seldesb->tn);
-							delta = bmp.gross - mptow;
-							if((int)bmp.bay.load < delta)
-							{
-								bmp.bay.load = mpcap[concrete] = 0;
-							}
-							else
-							{
-								bmp.bay.load = mpcap[concrete] = min(((int)bmp.bay.load) - delta, (int)bmp.bay.cap);
-							}
-							calc_bomber(&bmp, &seldesb->tn);
-							mprange[concrete]=ceil(bmp.range/1.5f);
-						}
-						for(unsigned int m=0;m<MAX_MARKS;m++)
-						{
-							struct bomberstats *bs=bt->mark+m;
-							bs->cost=floor(seldesb->cost);
-							bs->speed=ceil(seldesb->cruise_spd);
-							bs->alt=ceil(seldesb->ceiling*10.0f);
-							bs->capwt=seldesb->bay.load;
-							bs->capbulk=seldesb->bay.cap;
-							bs->svp=ceil(seldesb->serv*100.0f);
-							bs->defn=floor(seldesb->defn[0]);
-							bs->desch=floor(seldesb->defn[1]);
-							bs->deflk=floor(seldesb->flak_factor);
-							bs->fail=floor(seldesb->fail*100.0f);
-							bs->accu=ceil(seldesb->accu*100.0f);
-							bs->range=mprange[0];
-							bs->mrcap=mrcap[0];
-							bs->mrange=mrange[0];
-							bs->crange=mprange[1];
-							bs->cmcap=mrcap[1];
-							bs->cmrange=mrange[1];
-							// XXX mpcap is not currently used, harris assumes that at 'range' (or 'crange' on concrete) we can carry 'capwt', which might not be true with large empty tanks in the design
-							for(unsigned int c=0;c<MAX_CREW;c++)
-							{
-								if(c>=seldesb->crew.n)
-								{
-									bs->crew[c]=CCLASS_NONE;
-									continue;
-								}
-								bs->crew[c]=seldesb->crew.men[c].pos;
-								if(seldesb->crew.men[c].gun)
-									switch(seldesb->crew.men[c].pos)
-									{
-									case CCLASS_B:
-										bs->crewbg=true;
-										break;
-									case CCLASS_W:
-										bs->crewwg=true;
-										break;
-									default:
-										// XXX no support yet for N (crewng)
-										break;
-									}
-							}
-							for(unsigned int n=0;n<NNAVAIDS;n++)
-								bs->nav[n]=seldesb->elec.navaid[n];
-							bt->markname[m]=NULL;
-						}
-						bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=bt->load[BL_ILLUM]=true;
-						// XXX plumduff has special SMBAY handling that's probably not correct for anything other than a Halifax
-						bt->load[BL_PONLY]=bt->load[BL_PLUMDUFF]=bt->load[BL_PPLUS]=bt->load[BL_HALFHALF]=seldesb->bay.cookie;
-						bt->noarm=seldesb->turrets.uab;
-						bt->heavy=seldesb->engines.number>=4;
-						bt->inc=false;
-						bt->extra=true;
-						bt->slowgrow=false;
-						bt->otub=false;
-						// TODO we need rules for this
-						bt->lfs=false;
-						bt->smbay=seldesb->bay.girth<BB_COOKIE;
-						bt->entry=state->now;
-						// XXX this will need changing in the !prestart case
-						bt->novelty=state->now;
-						bt->train=bt->exit=(date){9999, 99, 99};
-						bt->convertfrom=-1;
+						if(!type) // can't happen
+							fprintf(stderr, "slot_idx zero used, bad stuff will happen!\n");
+						seldesb->slot_idx=type;
+						realise_design(state, seldesb);
 						// XXX in !prestart we will need something much better than this
+						bombertype *bt=types+type;
 						bt->pc=30000;
 						state->btypes[type]=true;
-						snprintf(GB_btname[type], 80, "%s %s", bt->manu, bt->name);
 						HM_tool->hidden=true;
 						if(HM_dsta[seldes])
 						{

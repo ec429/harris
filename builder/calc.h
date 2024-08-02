@@ -186,6 +186,7 @@ struct bomber {
 	unsigned int cprod;
 	char name[WORK_NAME_LEN];
 	unsigned int proto_work, prod_work;
+	unsigned int slot_idx; // index in types[], if tooled
 };
 
 const struct bomber *mod_ancestor(const struct bomber *b);
