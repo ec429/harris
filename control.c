@@ -35,6 +35,7 @@ atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btnuml, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
+atg_element **GB_btbuy, **GB_btbuy10;
 atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_diff, *GB_clamp;
 atg_element *GB_confid, *GB_morale;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
@@ -166,6 +167,16 @@ int control_create(void)
 		return(1);
 	}
 	if(!(GB_btrow=calloc(ntypes, sizeof(atg_element *))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	if(!(GB_btbuy10=calloc(ntypes, sizeof(atg_element *))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	if(!(GB_btbuy=calloc(ntypes, sizeof(atg_element *))))
 	{
 		perror("calloc");
 		return(1);
@@ -356,6 +367,28 @@ int control_create(void)
 			return(1);
 		}
 		if(atg_ebox_pack(hbox, types[i].prio_selector))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(GB_btbuy[i]=atg_create_element_button("+1", (atg_colour){95, 95, 15, ATG_ALPHA_OPAQUE}, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		GB_btbuy[i]->hidden=true;
+		if(atg_ebox_pack(hbox, GB_btbuy[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(GB_btbuy10[i]=atg_create_element_button("+10", (atg_colour){31, 159, 31, ATG_ALPHA_OPAQUE}, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		GB_btbuy10[i]->hidden=true;
+		if(atg_ebox_pack(hbox, GB_btbuy10[i]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -1646,6 +1679,9 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			GB_btp[i]->hidden=(types[i].pribuf<8)||(state->cash<newstats(types[i]).cost)||(types[i].pcbuf>=newstats(types[i]).cost);
 		if(GB_btw[i])
 			GB_btw[i]->hidden=!clamptype[i];
+		types[i].prio_selector->hidden=prestart;
+		GB_btbuy[i]->hidden=!prestart;
+		GB_btbuy10[i]->hidden=!prestart;
 		update_btcount(state, i, shownav);
 	}
 	if(GB_go&&GB_go->elemdata&&((atg_button *)GB_go->elemdata)->content)
@@ -2318,6 +2354,72 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							{
 								message_box(canvas, "To the Commander-in-Chief, Bomber Command:", state->msg[i], "Air Chief Marshal C. F. A. Portal, CAS");
 							}
+						if(!prestart)
+							break;
+						for(unsigned int i=0;i<ntypes;i++)
+						{
+							if(trigger.e==GB_btbuy[i])
+							{
+								if(!state->btypes[i])
+									break;
+								unsigned int cost=newstats(types[i]).cost;
+								if(state->cash<cost)
+								{
+									fprintf(stderr, "Not enough cash!  Need £%u\n", cost);
+									break;
+								}
+								unsigned int n=state->nbombers++;
+								ac_bomber *nb=realloc(state->bombers, state->nbombers*sizeof(ac_bomber));
+								if(!nb)
+								{
+									perror("realloc"); // TODO more visible warning
+									state->nbombers=n;
+									break;
+								}
+								(state->bombers=nb)[n]=(ac_bomber){.type=i, .failed=false, .landed=true, .id=rand_acid(), .mark=types[i].newmark, .squadron=-1, .flight=-1, .wear=0};
+								for(unsigned int j=0;j<NNAVAIDS;j++)
+									nb[n].nav[j]=false;
+								for(unsigned int j=0;j<MAX_CREW;j++)
+									nb[n].crew[j]=-1;
+								state->cash-=cost;
+								ct_append(&state->hist, state->now, (harris_time){21, 00}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
+								fill_flights(state);
+								update_btcount(state, i, shownav);
+								break;
+							}
+							if(trigger.e==GB_btbuy10[i])
+							{
+								if(!state->btypes[i])
+									break;
+								unsigned int cost=newstats(types[i]).cost;
+								if(state->cash<cost*10)
+								{
+									fprintf(stderr, "Not enough cash!  Need £%u\n", cost*10);
+									break;
+								}
+								for(unsigned int k=0;k<10;k++)
+								{
+									unsigned int n=state->nbombers++;
+									ac_bomber *nb=realloc(state->bombers, state->nbombers*sizeof(ac_bomber));
+									if(!nb)
+									{
+										perror("realloc"); // TODO more visible warning
+										state->nbombers=n;
+										break;
+									}
+									(state->bombers=nb)[n]=(ac_bomber){.type=i, .failed=false, .landed=true, .id=rand_acid(), .mark=types[i].newmark, .squadron=-1, .flight=-1, .wear=0};
+									for(unsigned int j=0;j<NNAVAIDS;j++)
+										nb[n].nav[j]=false;
+									for(unsigned int j=0;j<MAX_CREW;j++)
+										nb[n].crew[j]=-1;
+									state->cash-=cost;
+									ct_append(&state->hist, state->now, (harris_time){21, 00}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
+								}
+								fill_flights(state);
+								update_btcount(state, i, shownav);
+								break;
+							}
+						}
 					}
 				break;
 				case ATG_EV_TOGGLE:;
