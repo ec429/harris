@@ -332,7 +332,6 @@ int control_create(void)
 			return(1);
 		}
 		btname->w=191;
-		btname->cache=true;
 		if(atg_ebox_pack(nibox, btname))
 		{
 			perror("atg_ebox_pack");
@@ -2385,6 +2384,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								ct_append(&state->hist, state->now, (harris_time){21, 00}, state->bombers[n].id, false, state->bombers[n].type, state->bombers[n].mark);
 								fill_flights(state);
 								update_btcount(state, i, shownav);
+								snprintf(GB_budget_label, 32, "Budget: £%u", state->cash);
 								break;
 							}
 							if(trigger.e==GB_btbuy10[i])
@@ -2417,6 +2417,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								}
 								fill_flights(state);
 								update_btcount(state, i, shownav);
+								snprintf(GB_budget_label, 32, "Budget: £%u", state->cash);
 								break;
 							}
 						}
