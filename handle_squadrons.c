@@ -2068,7 +2068,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 							};
 							for(unsigned int t=0;t<TPIPE__MAX;t++)
 								for(unsigned int u=0;u<2;u++)
-									state->squads[newsqn].allow[t][u]=false;
+									state->squads[newsqn].allow[t][u]=!t;
 							/* Try to fill the new squadron */
 							fill_flights(state);
 							update_group_info(state);
