@@ -748,6 +748,8 @@ scrap:
 			if(msgadd(canvas, state, tomorrow, ftypes[i].name, ftypes[i].newtext))
 				fprintf(stderr, "failed to msgadd newftype: %s\n", ftypes[i].name);
 		}
+	if(tomorrow.year!=state->now.year)
+		state->next_design_number=0;
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{
 		if(!diffdate(tomorrow, event[ev]))

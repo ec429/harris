@@ -213,7 +213,7 @@ struct tech {
 	struct turret *gun[16];
 	char *name;
 	char *desc;
-	bool unlocked, have_reqs;
+	bool unlocked, supported, have_reqs;
 };
 
 int try_load_tn_word(const char *key, const char *value,

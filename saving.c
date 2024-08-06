@@ -447,6 +447,61 @@ int loadgame(const char *fn, game *state)
 				}
 			}
 		}
+		else if(strcmp(tag, "Techs")==0)
+		{
+			unsigned int ntechs;
+			f=sscanf(dat, "%u\n", &ntechs);
+			if(f!=1)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else if(ntechs!=builder->entities.ntech)
+			{
+				fprintf(stderr, "2 Value mismatch: different ntechs value (%u!=%u)\n", ntechs, builder->entities.ntech);
+				e|=2;
+			}
+			else
+			{
+				for(unsigned int i=0;i<ntechs;i++)
+				{
+					free(line);
+					line=fgetl(fs);
+					if(!line)
+					{
+						fprintf(stderr, "64 Unexpected EOF in tag \"%s\"\n", tag);
+						e|=64;
+						break;
+					}
+					unsigned int j;
+					char ident[4]={0};
+					int unlocked, supported;
+					f=sscanf(line, "Tech %u:%3s,%u,%u\n", &j, ident, &unlocked, &supported);
+					if(f!=4)
+					{
+						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
+						e|=1;
+						break;
+					}
+					if(j!=i)
+					{
+						fprintf(stderr, "4 Index mismatch in part %u (%u?) of tag \"%s\"\n", i, j, tag);
+						e|=4;
+						break;
+					}
+					struct tech *t=builder->entities.tech[i];
+					// TODO in principle we should be able to handle ordering changes, but don't bother for now
+					if(strcmp(ident, t->ident))
+					{
+						fprintf(stderr, "4 Ident mismatch in part %u (%s? %s?) of tag \"%s\"\n", i, ident, t->ident, tag);
+						e|=4;
+						break;
+					}
+					t->unlocked=!!unlocked;
+					t->supported=!!supported;
+				}
+			}
+		}
 		else if(strcmp(tag, "NDNum")==0)
 		{
 			f=sscanf(dat, "%u\n", &state->next_design_number);
@@ -1276,6 +1331,7 @@ fail:
 	for(unsigned int g=0;g<7;g++)
 		filter_groups[g]=false;
 	selstage=TPIPE__MAX;
+	apply_techs(&builder->entities, &builder->tn);
 	for(unsigned int i=0;i<ntypes;i++)
 		types[i]=rawtypes[i];
 	for(unsigned int m=0;m<nmods;m++)
@@ -1433,6 +1489,12 @@ int savegame(const char *fn, game state)
 			fprintf(fs, "Manf %u:%d,%d\n", i,
 				builder->entities.manf[i]->proto_idx,
 				builder->entities.manf[i]->prod_idx);
+		fprintf(fs, "Techs:%u\n", builder->entities.ntech);
+		for(unsigned int i=0;i<builder->entities.ntech;i++)
+			fprintf(fs, "Tech %u:%s,%u,%u\n", i,
+				builder->entities.tech[i]->ident,
+				builder->entities.tech[i]->unlocked?1:0,
+				builder->entities.tech[i]->supported?1:0);
 		fprintf(fs, "NDNum:%u\n", state.next_design_number);
 		fprintf(fs, "NCSlot:%u\n", state.next_custom_slot);
 	}

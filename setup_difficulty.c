@@ -313,11 +313,16 @@ screen_id setup_difficulty_screen(atg_canvas *canvas, game *state)
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e==SD_cont)
 					{
+						if(state->builder&&!difficulty_show_only)
+						{
+							msgadd(canvas, state, event[EVENT_REARMAMENT], event_names[EVENT_REARMAMENT], evtext[EVENT_REARMAMENT]);
+							return(SCRN_CONTROL);
+						}
 						return(difficulty_show_only?SCRN_CONTROL:SCRN_SETPTYPS);
 					}
 					else if(trigger.e==SD_back&&!difficulty_show_only)
 					{
-						return(SCRN_SETPGAME);
+						return(state->builder?SCRN_MAINMENU:SCRN_SETPGAME);
 					}
 					else if(!trigger.e)
 					{

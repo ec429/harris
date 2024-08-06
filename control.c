@@ -27,6 +27,7 @@
 #include "rand.h"
 #include "run_raid.h"
 #include "setup_difficulty.h"
+#include "builder/data.h"
 
 extern game state;
 
@@ -36,7 +37,7 @@ atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btnuml, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element **GB_btbuy, **GB_btbuy10;
-atg_element *GB_go, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_diff, *GB_clamp;
+atg_element *GB_go, *GB_prego, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_diff, *GB_clamp;
 atg_element *GB_confid, *GB_morale;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], **GB_winbox, *(*GB_window)[NWINLVLS], *GB_rsrow, *GB_rsbtn[5];
@@ -663,6 +664,19 @@ int control_create(void)
 	}
 	GB_go->w=159;
 	if(atg_ebox_pack(GB_bt, GB_go))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	GB_prego=atg_create_element_button("Advance Calendar", (atg_colour){255, 127, 127, ATG_ALPHA_OPAQUE}, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE});
+	if(!GB_prego)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	GB_prego->w=159;
+	GB_prego->hidden=true;
+	if(atg_ebox_pack(GB_bt, GB_prego))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1570,6 +1584,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	GB_build->hidden=GB_manfs->hidden=!state->builder;
 	GB_middle->hidden=GB_tt->hidden=prestart;
 	GB_confid->hidden=GB_morale->hidden=prestart;
+	GB_go->hidden=prestart;
+	GB_prego->hidden=!prestart;
 	for(unsigned int i=0;i<2;i++)
 	{
 		SDL_Surface *src;
@@ -2272,12 +2288,40 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e)
 					{
-						if(trigger.e==GB_go)
+						if(trigger.e==GB_go&&!prestart)
 						{
 							if(GB_go&&GB_go->elemdata&&((atg_button *)GB_go->elemdata)->content)
 								((atg_button *)GB_go->elemdata)->content->bgcolour=(atg_colour){55, 55, 55, ATG_ALPHA_OPAQUE};
 							atg_flip(canvas);
 							return(SCRN_RUNRAID);
+						}
+						else if(trigger.e==GB_prego&&prestart)
+						{
+							if(prestart==1)
+							{
+								state->now=nextday(state->now);
+								state->next_design_number=0;
+								state->cash=min(state->cash, 25000)+3000000;
+								msgadd(canvas, state, event[EVENT_LEGACY], event_names[EVENT_LEGACY], evtext[EVENT_LEGACY]);
+								for(unsigned int i=0;i<builder->entities.ntech;i++)
+								{
+									struct tech *t=builder->entities.tech[i];
+									if(t->year==2)
+										t->unlocked=true;
+								}
+								apply_techs(&builder->entities, &builder->tn);
+								return(SCRN_CONTROL);
+							}
+							if(!state->nsquads)
+							{
+								fprintf(stderr, "Form at least one squadron before advancing to 1939!\n");
+								break;
+							}
+							state->now=nextday(state->now);
+							state->next_design_number=0;
+							state->cash=min(state->cash, 40000);
+							msgadd(canvas, state, event[EVENT_ORDERS], event_names[EVENT_ORDERS], evtext[EVENT_ORDERS]);
+							return(SCRN_CONTROL);
 						}
 						else if(trigger.e==GB_intel[0])
 						{

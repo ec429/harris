@@ -160,6 +160,10 @@ BADOGLIO:08-09-1943
 # Nazi puppet state Repubblica Sociale Italiana is set up
 RSI:23-09-1943
 
+#Prestart events (builder games only)
+REARMAMENT:01-01-1935
+LEGACY:01-01-1938
+ORDERS:03-09-1939
 #Propaganda events.  These are triggered by player actions, rather than the calendar.
 BERLIN:99-99-9999
 THOUSAND:99-99-9999

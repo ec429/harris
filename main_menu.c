@@ -186,7 +186,7 @@ screen_id main_menu_screen(atg_canvas *canvas, game *state)
 							for(unsigned int i=0;i<ntypes;i++)
 								state->btypes[i]=false;
 							game_preinit(state);
-							return(SCRN_CONTROL);
+							return(SCRN_SETPDIFF);
 						}
 						else
 						{

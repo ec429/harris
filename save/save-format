@@ -31,7 +31,10 @@ if(state.builder)
 		/* Design block, in builder format */
 	"Manfs:%u\n", nmanf
 	for(i=0;i<nmanf;i++)
-		"Manf %u:%d,%d", manf[i].proto_idx, manf[i].prod_idx
+		"Manf %u:%d,%d", i, manf[i].proto_idx, manf[i].prod_idx
+	"Techs:%u\n", ntech
+	for(i=0;i<ntech;i++)
+		"Tech %u:%s,%u,%u\n", i, tech[i].ident, tech[i].unlocked, tech[i].supported
 	"NDNum:%u", next_design_number
 	"NCSlot:%u", next_custom_slot
 "Bombers:%u\n", nbombers
