@@ -1824,10 +1824,10 @@ void builder_update_m2v(const struct bomber *b, char **outbuf)
 		 b->takeoff_spd, b->deck_spd, b->cruise_spd, b->cruise_alt * 1000.0f);
 	snprintf(outbuf[OUT_CRC], 80,
 		 "Service ceiling: %.0fft; range: %.0fmi (%.1fhr); initial climb %.0ffpm",
-		 b->ceiling * 1000.0f, b->range, b->tanks.hours, b->init_climb);
+		 b->ceiling * 1000.0f, b->range/0.75f, b->tanks.hours, b->init_climb);
 	snprintf(outbuf[OUT_RAN], 80,
 		 "Max range: %.0fmi with %ulb bombs",
-		 bmr.range, bmr.bay.load);
+		 bmr.range/0.75f, bmr.bay.load);
 	snprintf(outbuf[OUT_DEF], 80,
 		 "Defence: %.1f (sch %.1f) (flak %.1f): manu %.1f, evade %.1f, vuln %.2f (fr %.2f)",
 		 b->defn[0], b->defn[1], b->flak_factor, b->manu_pen,
