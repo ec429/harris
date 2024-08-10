@@ -629,6 +629,12 @@ enum refit_level rfl_tn(unsigned int offset)
 	return REFIT_DOCTRINE;
 }
 
+struct tech supporting = {
+	.ident="sup",
+	.name="Supporting Research",
+	.desc="Allows one other slot to hold a cutting-edge tech.",
+};
+
 int try_load_tn_word(const char *key, const char *value,
 		     struct tech_numbers *tn)
 {

@@ -82,6 +82,8 @@ int loadgame(const char *fn, game *state)
 	state->tfd[0]=state->tfd[1]=0;
 	state->ifav[0]=state->ifav[1]=I_CLASSES;
 	state->ifd[0]=state->ifd[1]=0;
+	for(unsigned int i=0;i<3;i++)
+		state->researching[i]=NULL;
 	// supply default tpipe settings for old games.  Assume they're early, so want OTU-only settings.
 	state->tpipe[TPIPE_OTU] = (struct tpipe_settings){.dwell = 80, .cont = 0};
 	state->tpipe[TPIPE_HCU] = (struct tpipe_settings){.dwell = -1, .cont = 0};
@@ -518,6 +520,41 @@ int loadgame(const char *fn, game *state)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 				e|=1;
+			}
+		}
+		else if(strcmp(tag, "Research")==0)
+		{
+			char ident[3][4]={0};
+			f=sscanf(dat, "%3s,%3s,%3s\n", ident[0], ident[1], ident[2]);
+			if(f!=3)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			for(unsigned int i=0;i<3;i++)
+			{
+				if(!strcmp(ident[i], "nil"))
+				{
+					state->researching[i]=NULL;
+					break;
+				}
+				if(!strcmp(ident[i], supporting.ident))
+				{
+					state->researching[i]=&supporting;
+					break;
+				}
+				unsigned int j;
+				for(j=0;j<builder->entities.ntech;j++)
+					if(!strcmp(ident[i], builder->entities.tech[j]->ident))
+					{
+						state->researching[i]=builder->entities.tech[j];
+						break;
+					}
+				if(j>=builder->entities.ntech)
+				{
+					fprintf(stderr, "32 Invalid value %s in tag \"%s\"\n", ident[i], tag);
+					e|=32;
+				}
 			}
 		}
 		else if(strcmp(tag, "Bombers")==0)
@@ -1497,6 +1534,10 @@ int savegame(const char *fn, game state)
 				builder->entities.tech[i]->supported?1:0);
 		fprintf(fs, "NDNum:%u\n", state.next_design_number);
 		fprintf(fs, "NCSlot:%u\n", state.next_custom_slot);
+		fprintf(fs, "Research:%s,%s,%s\n",
+			state.researching[0]?state.researching[0]->ident:"nil",
+			state.researching[1]?state.researching[1]->ident:"nil",
+			state.researching[2]?state.researching[2]->ident:"nil");
 	}
 	fprintf(fs, "Bombers:%u\n", state.nbombers);
 	for(unsigned int i=0;i<state.nbombers;i++)

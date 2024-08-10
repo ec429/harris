@@ -220,6 +220,8 @@ struct tech {
 	bool unlocked, supported, have_reqs;
 };
 
+extern struct tech supporting;
+
 int try_load_tn_word(const char *key, const char *value,
 		     struct tech_numbers *tn);
 int load_techs(struct list_head *head, struct list_head *engines,

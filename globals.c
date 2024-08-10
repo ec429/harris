@@ -125,6 +125,8 @@ int set_init_state(game *state)
 	state->designs=NULL;
 	state->next_design_number=0;
 	state->next_custom_slot=rawntypes;
+	for(unsigned int i=0;i<3;i++)
+		state->researching[i]=NULL;
 	state->bombers=NULL;
 	state->fighters=NULL;
 	state->paving=-1;

@@ -37,6 +37,7 @@ if(state.builder)
 		"Tech %u:%s,%u,%u\n", i, tech[i].ident, tech[i].unlocked, tech[i].supported
 	"NDNum:%u", next_design_number
 	"NCSlot:%u", next_custom_slot
+	"Research:%s,%s,%s\n", researching[0].ident, researching[1].ident, researching[2].ident
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)
 	"Type %u:%u,%u,%u,%s,%la,%u,%d,%u\n", bomber[i].type, bomber[i].failed, bomber[i].nav[], bomber[i].wear, pacid(bomber[i].id), bomber[i].mark, bomber[i].train, bomber[i].squadron, bomber[i].flight

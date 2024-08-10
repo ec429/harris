@@ -497,6 +497,7 @@ typedef struct
 	unsigned int ndesigns;
 	struct bomber *designs; // builder/calc.h
 	unsigned int next_design_number, next_custom_slot;
+	struct tech *researching[3];
 	unsigned int nbombers;
 	ac_bomber *bombers;
 	unsigned int ncrews;

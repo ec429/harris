@@ -19,11 +19,57 @@ atg_element *research_box;
 
 atg_element *HR_cont, *HR_full;
 atg_element **HR_tb;
-char HR_name_buf[40], HR_desc_buf[80];
+char HR_name_buf[60], HR_desc_buf[80];
 #define HR_TN_ROWS	12
 atg_element *HR_tn_row[HR_TN_ROWS];
 char HR_tn_ibuf[HR_TN_ROWS][5], HR_tn_dbuf[HR_TN_ROWS][80];
 char HR_tn_nbuf[HR_TN_ROWS][6], HR_tn_obuf[HR_TN_ROWS][6];
+atg_element *HR_r3[3];
+char HR_r3_nbuf[3][40];
+atg_element *HR_add, *HR_rm;
+
+static int divider(atg_colour fgcolour, atg_element *box)
+{
+	atg_element *div_box=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!div_box)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	div_box->w=box->w;
+	div_box->h=5;
+	if(atg_ebox_pack(box, div_box))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *shim=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!shim)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	shim->h=2;
+	if(atg_ebox_pack(div_box, shim))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *divider=atg_create_element_box(ATG_BOX_PACK_VERTICAL, fgcolour);
+	if(!divider)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	divider->w=div_box->w;
+	divider->h=1;
+	if(atg_ebox_pack(div_box, divider))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	return(0);
+}
 
 int research_create(void)
 {
@@ -127,7 +173,70 @@ int research_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
+	midbox->w=400;
 	if(atg_ebox_pack(research_box, midbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *current_lbl=atg_create_element_label("Currently Researching (max 3)", 12, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!current_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(midbox, current_lbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *crbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!crbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	crbox->w=400;
+	crbox->h=54;
+	if(atg_ebox_pack(midbox, crbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	for(unsigned int i=0;i<3;i++)
+	{
+		if(!(HR_r3[i]=atg_create_element_button_empty((atg_colour){239, 239, 179, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR)))
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(crbox, HR_r3[i]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		*HR_r3_nbuf[i]=0;
+		atg_element *name=atg_create_element_label_refer(HR_r3_nbuf[i], 12, (atg_colour){239, 239, 179, ATG_ALPHA_OPAQUE});
+		if(!name)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(HR_r3[i], name))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	if(divider((atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, midbox))
+		return(1);
+	atg_element *data_lbl=atg_create_element_label("Technology Info", 12, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!data_lbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(midbox, data_lbl))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -260,6 +369,28 @@ int research_create(void)
 			return(1);
 		}
 	}
+	if(!(HR_add=atg_create_element_button("Add to research", (atg_colour){47, 223, 31, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR)))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	HR_add->hidden=true;
+	if(atg_ebox_pack(midbox, HR_add))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HR_rm=atg_create_element_button("Cancel research", (atg_colour){179, 31, 31, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR)))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	HR_rm->hidden=true;
+	if(atg_ebox_pack(midbox, HR_rm))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	return(0);
 }
 
@@ -268,24 +399,59 @@ int tech_time(date now, const struct tech *tech)
 	return tech->year*12+tech->month - (now.year*12+now.month);
 }
 
+bool tech_future(date now, const struct tech *tech)
+{
+	return !tech->supported && tech_time(now, tech) > 0;
+}
+
 bool tech_far_off(date now, const struct tech *tech)
 {
 	return tech_time(now, tech)>6;
 }
 
-void update_midbox(int seltech)
+bool can_change(const game *state)
 {
-	if(seltech<0)
+	return state->now.day==1 || !diffdate(state->now, (date){1939, 9, 3});
+}
+
+unsigned int tech_slots(const game *state)
+{
+	unsigned int rv=0, i;
+	for(i=0;i<3;i++)
+		if(!state->researching[i])
+			rv++;
+	return rv;
+}
+
+void update_midbox(const game *state, struct tech *t)
+{
+	struct tech *supported=NULL;
+	for(unsigned int i=0;i<3;i++)
+	{
+		snprintf(HR_r3_nbuf[i], sizeof(HR_r3_nbuf[i]), "%s",
+			 state->researching[i]?state->researching[i]->name:"nil");
+		HR_r3[i]->hidden=!state->researching[i];
+		if(state->researching[i]&&tech_future(state->now, state->researching[i]))
+		{
+			if(supported)
+				fprintf(stderr, "Warning, multiple support\n");
+			supported=state->researching[i];
+		}
+	}
+	if(!t)
 	{
 		snprintf(HR_name_buf, sizeof(HR_name_buf), "No tech selected");
 		*HR_desc_buf=0;
 		for(unsigned int i=0;i<HR_TN_ROWS;i++)
 			HR_tn_row[i]->hidden=true;
+		HR_add->hidden=HR_rm->hidden=true;
 	}
 	else
 	{
-		struct tech *t=builder->entities.tech[seltech];
-		snprintf(HR_name_buf, sizeof(HR_name_buf), "%s", t->name);
+		if(t==&supporting)
+			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (%s)", t->name, supported?supported->name:"unused");
+		else
+			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (%02u-%04u)", t->name, t->month, t->year);
 		snprintf(HR_desc_buf, sizeof(HR_desc_buf), "%s", t->desc);
 		unsigned int i=0;
 		for(unsigned int j=0;j<sizeof(t->num);j+=sizeof(unsigned int))
@@ -336,12 +502,29 @@ void update_midbox(int seltech)
 		for(;i<HR_TN_ROWS;i++)
 			HR_tn_row[i]->hidden=true;
 full:
+		if(can_change(state))
+		{
+			unsigned int need_slots=(tech_future(state->now, t))?2:1;
+			HR_add->hidden=tech_slots(state)<need_slots;
+			HR_rm->hidden=true;
+			for(i=0;i<3;i++)
+				if(state->researching[i]==t)
+				{
+					HR_add->hidden=true;
+					HR_rm->hidden=(t==&supporting);
+					break;
+				}
+		}
+		else
+		{
+			HR_add->hidden=HR_rm->hidden=true;
+		}
 	}
 }
 
 screen_id research_screen(atg_canvas *canvas, game *state)
 {
-	int seltech=-1;
+	struct tech *seltech=NULL;
 	atg_event e;
 
 	for(unsigned int i=0;i<builder->entities.ntech;i++)
@@ -352,10 +535,10 @@ screen_id research_screen(atg_canvas *canvas, game *state)
 		// don't show techs we already have, or can't research yet
 		HR_tb[i]->hidden=!t->have_reqs||tech_far_off(state->now, t)||t->unlocked;
 		if(HR_tb[i]->hidden) continue;
-		btn->fgcolour=tech_time(state->now, t)>0?(atg_colour){127, 127, 127, ATG_ALPHA_OPAQUE}:(atg_colour){239, 239, 179, ATG_ALPHA_OPAQUE};
+		btn->fgcolour=tech_future(state->now, t)?(atg_colour){127, 127, 127, ATG_ALPHA_OPAQUE}:(atg_colour){239, 239, 179, ATG_ALPHA_OPAQUE};
 	}
 
-	update_midbox(seltech);
+	update_midbox(state, seltech);
 
 	while(1)
 	{
@@ -406,11 +589,112 @@ screen_id research_screen(atg_canvas *canvas, game *state)
 							fprintf(stderr, "Tech is already unlocked!\n");
 							break;
 						}
-						seltech=i;
-						update_midbox(seltech);
+						seltech=t;
+						update_midbox(state, seltech);
 						break;
 					}
 					if(i<builder->entities.ntech) break;
+					for(i=0;i<3;i++)
+					{
+						if(trigger.e!=HR_r3[i]) continue;
+						if(!state->researching[i])
+						{
+							fprintf(stderr, "No such r3!\n");
+							break;
+						}
+						seltech=state->researching[i];
+						update_midbox(state, seltech);
+						break;
+					}
+					if(i<3) break;
+					if(trigger.e==HR_add)
+					{
+						if(!seltech)
+						{
+							fprintf(stderr, "No tech to add!\n");
+							break;
+						}
+						if(seltech->unlocked)
+						{
+							fprintf(stderr, "Tech is already unlocked!\n");
+							break;
+						}
+						if(tech_far_off(state->now, seltech))
+						{
+							fprintf(stderr, "Tech not available yet!\n");
+							break;
+						}
+						if(!seltech->have_reqs)
+						{
+							fprintf(stderr, "Don't have reqs for tech!\n");
+							break;
+						}
+						bool future=tech_future(state->now, seltech);
+						if(tech_slots(state)<(future?2:1))
+						{
+							fprintf(stderr, "Not enough open slots!\n");
+							break;
+						}
+						if(future)
+						{
+							for(i=0;i<3;i++)
+							{
+								if(!state->researching[i])
+								{
+									state->researching[i]=&supporting;
+									update_midbox(state, seltech);
+									break;
+								}
+							}
+						}
+						for(i=0;i<3;i++)
+						{
+							if(!state->researching[i])
+							{
+								state->researching[i]=seltech;
+								update_midbox(state, seltech);
+								break;
+							}
+						}
+						if(i<3) break;
+						fprintf(stderr, "No open slots!\n");
+						break;
+					}
+					if(trigger.e==HR_rm)
+					{
+						if(!seltech)
+						{
+							fprintf(stderr, "No tech to remove!\n");
+							break;
+						}
+						if(tech_future(state->now, seltech))
+						{
+							// remove Supporting Research
+							for(i=0;i<3;i++)
+								if(state->researching[i]==&supporting)
+								{
+									state->researching[i]=NULL;
+									break;
+								}
+							if(i>=3)
+								fprintf(stderr, "Warning, did not find support to remove!\n");
+						}
+						for(i=0;i<3;i++)
+							if(state->researching[i]==seltech)
+							{
+								if(seltech==&supporting)
+								{
+									fprintf(stderr, "Can't remove support!\n");
+									break;
+								}
+								state->researching[i]=NULL;
+								update_midbox(state, seltech);
+								break;
+							}
+						if(i<3) break;
+						fprintf(stderr, "Tech not found to remove!\n");
+						break;
+					}
 					fprintf(stderr, "Clicked on unknown button!\n");
 				break;
 				case ATG_EV_TOGGLE:;
