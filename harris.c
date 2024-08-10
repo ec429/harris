@@ -46,6 +46,7 @@
 #include "handle_squadrons.h"
 #include "builder.h"
 #include "handle_manfs.h"
+#include "research.h"
 
 #include "version.h"
 
@@ -215,6 +216,7 @@ int main(int argc, char *argv[])
 	screens[SCRN_SQUADRONS]=MAKE_SCRN(handle_squadrons);
 	screens[SCRN_BUILDER]=MAKE_SCRN(builder);
 	screens[SCRN_MANFS]=MAKE_SCRN(handle_manfs);
+	screens[SCRN_RESEARCH]=MAKE_SCRN(research);
 	#undef MAKE_SCRN
 
 	for(unsigned int i=0;i<NUM_SCREENS;i++)

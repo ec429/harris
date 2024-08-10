@@ -32,41 +32,41 @@ LFT:FUT=100:FUC=81:n=Lightweight Fuel Tanks:y=1940:m=11:d=Reduces the empty weig
 IFT:FUT=90:FUV=90:FUC=96:r=LFT:n=Improved Fuel Tanks:y=1942:m=3:d=Lighter, less vulnerable fuel tankage.
 HPE:ESL=1:n=High Power Electrics:y=1940:m=4:d=High-power electrics allow various aids to navigation.
 SVS:ESL=2:r=HPE:n=Stable Voltage Supply:y=1941:m=7:d=Allows installation of sophisticated radionavigation equipment.
-LPE:e=Pega:e=MerX:e=Dagg:n=1939 Engines:y=2:d=Unlocks the Pegasus XVIII, Merlin X and Dagger VIII.
-X24:e=Vult:e=Sab2:n=24-Cylinder Engines:y=1939:m=9:d=Unlocks the Vulture I and Sabre II.
-VUR:e=Vul5:r=X24:n=Vulture Reliability:y=1941:m=8:d=Unlocks the Vulture V.
-SAB:e=Sab5:r=X24:n=Evolved Sabre:y=1944:m=2:d=Unlocks the Sabre V.
-V12:e=MeXX:n=V-12 Development:y=1940:m=12:d=Unlocks the Merlin XX.
-TSS:e=Mer6:r=V12:n=Two-Stage Supercharging:y=1942:m=1:d=Unlocks the Merlin 60.
-SLV:e=Her3:e=Cent:n=Sleeve Valve:y=1940:m=3:d=Unlocks the Hercules III and Centaurus I.
-RSV:e=HeXI:r=SLV:n=Reliable Sleeve Valve:y=1940:m=12:d=Unlocks the Hercules XI.
-SVG:e=He18:e=Cen7:r=RSV:n=Sleeve Valve Growth:y=1942:m=10:d=Unlocks the Hercules XVIII and Centaurus VII.
-TRR:e=Deer:n=Triple-Row Radials:y=1940:m=9:d=Unlocks the Deerhound II.
+LPE:e=Pega:e=MerX:e=Dagg:n=1939 Engines:y=2:d=The last pre-war generation of engines.
+X24:e=Vult:e=Sab2:n=24-Cylinder Engines:y=1939:m=9:d=Large X-24 and H-24 configuration engines.
+VUR:e=Vul5:r=X24:n=Vulture Reliability:y=1941:m=8:d=A less temperamental Vulture engine.
+SAB:e=Sab5:r=X24:n=Evolved Sabre:y=1944:m=2:d=The most powerful in-line engine.
+V12:e=MeXX:n=V-12 Development:y=1940:m=12:d=Upgrades to the Merlin family of engines.
+TSS:e=Mer6:r=V12:n=Two-Stage Supercharging:y=1942:m=1:d=New blowers for very high altitude performance.
+SLV:e=Her3:e=Cent:n=Sleeve Valve:y=1940:m=3:d=Early sleeve-valve radial engines.
+RSV:e=HeXI:r=SLV:n=Reliable Sleeve Valve:y=1940:m=12:d=An improved Hercules engine.
+SVG:e=He18:e=Cen7:r=RSV:n=Sleeve Valve Growth:y=1942:m=10:d=New marks of Hercules and Centaurus engines.
+TRR:e=Deer:n=Triple-Row Radials:y=1940:m=9:d=Unlocks the Deerhound engine.
 CLE:EDF=90:EMC=110:n=Clean Entry:y=1941:m=11:d=Reduces the drag of engine mountings.
 EGG:EES=90:EET=105:EEC=95:n=Power Egg:y=1941:m=4:d=Power Egg mounts improve serviceability, and speed up engine refits.
 IEM:ETF=125:EMC=120:r=CLE:n=Improved Engine Mountings:y=1943:m=1:d=Reduces the weight of engine installations.
 PAP:n=Paddleblade Prop:y=1943:m=3:d=Unimplemented feature.
 DUT:t=Vent:n=Dustbin Turret:y=2:d=Unlocks the Ventral dustbin (twin) turret.
-ARM:t=Dors:t=Daft:t=Vaft:t=Wast:n=Armament Improvements:y=1939:m=9:d=Unlocks twin dorsal turret, twin dorsal or ventral after mounts, and waist guns.
+ARM:t=Dors:t=Daft:t=Vaft:t=Wast:n=Armament Improvements:y=1939:m=9:d=Unlocks twin dorsal turret, twin dorsal/ventral after mounts, and waist guns.
 QUT:t=Dor4:t=Tai4:r=ARM:n=Quad Turrets:y=1940:m=10:d=Unlocks four-gun dorsal and rear turrets.
-IVT:t=Ven2:r=DUT:n=Improved Ventral Turrets:y=1942:m=2:d=Unlocks the Ventral turret (twin).
+IVT:t=Ven2:r=DUT:n=Improved Ventral Turrets:y=1942:m=2:d=A more fightable ventral turret.
 BAT:t=Ball:t=Bal4:r=IVT:n=Ball Turret:y=1942:m=11:d=Unlocks twin and quad ventral ball turrets.
-FCT:t=Dor5:t=Tai5:r=QUT:n=.50 Caliber Turret:y=1943:m=5:d=Unlocks dorsal and rear twin 50-cal turrets.
-GLT:t=Aglt:r=QUT:r=SVS:n=Gun-Laying Radar:y=1944:m=5:d=Unlocks the Rear turret (radar).
+FCT:t=Dor5:t=Tai5:r=QUT:n=.50 Caliber Turret:y=1943:m=5:d=Turrets with twin 50-cal guns hit harder.
+GLT:t=Aglt:r=QUT:r=SVS:n=Gun-Laying Radar:y=1944:m=5:d=Unlocks the 'Village Inn' Advanced Gun-Laying Turret.
 IHY:GTF=60:GCF=105:n=Improved Hydraulics:y=1940:m=9:d=Reduces the weight of gun turrets.
 TUF:GDF=18:n=Turret Fairings:y=1941:m=8:d=Reduces the drag of gun turrets.
 LAT:GAM=135:GAC=24:n=Lightweight Ammo Tracks:y=1941:m=2:d=Reduces the per-gun weight associated with ammunition.
 GRL:r=QUT:n=Gransden Lodge Turret:y=1942:m=10:d=Unimplemented feature.
 HCB:BTM=90:BMC=1:n=High Capacity Bombs:y=1940:m=1:d=Medium-girth bomb bays are lighter, and can carry cookies externally.
 BCE:BTS=55:n=Bomb Cells:y=1939:m=12:d=Reduced structure weight for small-girth bomb bays.
-LBB:BTC=110:BBF=3:r=HCB:n=Large Bomb Bay:y=1940:m=2:d=Unlocks large-girth bomb bays, and reduces the weight penalty for very large payloads.
+LBB:BTC=110:BBF=3:r=HCB:n=Large Bomb Bay:y=1940:m=2:d=Unlocks large-girth bomb bays; reduces weight penalty for very large payloads.
 BBS:BTM=80:BTC=100:BBB=10:r=LBB:n=Bomb Bay Structures:y=1941:m=3:d=Reduces the weight of bomb bays, particularly high capacities.
-CSB:CSB=1:n=Mark XIV Course-Setting Bombsight:y=1941:m=10:d=Allows installing the CSBS to improve bombing accuracy.
+CSB:CSB=1:n=Course-Setting Bombsight:y=1941:m=10:d=Allows installing the Mark XIV bombsight to improve bombing accuracy.
 GEE:NAG=1:r=HPE:n=Hyperbolic Navigation:y=1942:m=1:d=Allows installing GEE sets for coarse navigational assistance.
 H2S:NAH=1:r=SVS:n=Terrain Radar:y=1942:m=10:d=Allows installing H2S sets for blind bombing through cloud.
 OBO:NAO=1:r=SVS:n=Ranging Transponder:y=1942:m=4:d=Allows installing OBOE sets for precise radionavigation.
 GMP:NAG=2:r=GEE:n=Mass-Produced GEE:y=1942:m=8:d=Increases the supply of GEE sets
-IGR:RGS=98:RGG=50:n=Improved Grass Runways:y=1939:m=9:d=Raises the max. take-off speed and weight for grass runways to 98mph/50klb.
-CCR:RGS=100:RGG=60:RCS=106:RCG=70:r=IGR:n=Concrete Runways:y=1940:m=4:d=Allows the construction of concrete runways (106mph/70klb); slightly improves grass too.
+IGR:RGS=98:RGG=50:n=Improved Grass Runways:y=1939:m=9:d=Raises the max. take-off speed for grass runways.
+CCR:RGS=100:RGG=60:RCS=106:RCG=70:r=IGR:n=Concrete Runways:y=1940:m=4:d=Allows the construction of concrete runways; slightly improves grass too.
 ICR:RCS=110:RCG=75:r=CCR:n=Improved Concrete Runways:y=1941:m=5:d=Raises the max. take-off speed and weight for concrete runways to 110mph/75klb.
 UAB:UBL=2:n=Unarmed Bomber:y=1940:m=7:d=Allows the construction of twin-engined bombers without defensive armament.

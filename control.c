@@ -37,7 +37,7 @@ atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btnuml, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element **GB_btbuy, **GB_btbuy10;
-atg_element *GB_go, *GB_prego, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_diff, *GB_clamp;
+atg_element *GB_go, *GB_prego, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_research, *GB_diff, *GB_clamp;
 atg_element *GB_confid, *GB_morale;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], **GB_winbox, *(*GB_window)[NWINLVLS], *GB_rsrow, *GB_rsbtn[5];
@@ -640,6 +640,18 @@ int control_create(void)
 	}
 	GB_manfs->w=159;
 	if(atg_ebox_pack(GB_bt, GB_manfs))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	GB_research=atg_create_element_button("Meet Researchers", (atg_colour){127, 223, 159, ATG_ALPHA_OPAQUE}, (atg_colour){31, 31, 63, ATG_ALPHA_OPAQUE});
+	if(!GB_research)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	GB_research->w=159;
+	if(atg_ebox_pack(GB_bt, GB_research))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1582,6 +1594,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 		snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state->morale+0.5));
 	}
 	GB_build->hidden=GB_manfs->hidden=!state->builder;
+	GB_research->hidden=!state->builder||prestart;
 	GB_middle->hidden=GB_tt->hidden=prestart;
 	GB_confid->hidden=GB_morale->hidden=prestart;
 	GB_go->hidden=prestart;
@@ -2350,9 +2363,13 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						{
 							return(SCRN_BUILDER);
 						}
-						else if(trigger.e==GB_manfs)
+						else if(trigger.e==GB_manfs&&state->builder)
 						{
 							return(SCRN_MANFS);
+						}
+						else if(trigger.e==GB_research&&!prestart&&state->builder)
+						{
+							return(SCRN_RESEARCH);
 						}
 						else if(trigger.e==GB_diff)
 						{

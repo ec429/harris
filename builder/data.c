@@ -515,84 +515,130 @@ struct tech_loader {
 	struct list_head *guns;
 };
 
+struct tn_entry {
+	char ident[4];
+	unsigned int offset;
+	const char *desc;
+} tn_meta[] = {
+#define	TNE(_id, _memb, _desc)						       \
+	(struct tn_entry) {.ident = _id,				       \
+			   .offset = offsetof(struct tech_numbers, _memb),     \
+			   .desc = _desc }
+	TNE("G4T", g4t, "Tare weight penalty for 4+ engines"),
+	TNE("G4C", g4c, "Cost penalty for 4+ engines"),
+	TNE("CMI", cmi, "Tare weight of per-crewman incidentals"),
+	TNE("CES", ces, "Crewman effective skill scaling %"),
+	TNE("CCC", ccc, "Crewman core cost scaling %"),
+	TNE("CLT", clt, "Climb time"),
+	TNE("FTN", ft[FT_NORMAL], "Tare weight of normal fuselage"),
+	TNE("FTT", ft[FT_SLENDER], "Tare weight of slender fuselage"),
+	TNE("FTS", ft[FT_SLABBY], "Tare weight of slab-sided fuselage"),
+	TNE("FTG", ft[FT_GEODETIC], "Tare weight of geodetic fuselage"),
+	TNE("FDN", fd[FT_NORMAL], "Drag of normal fuselage"),
+	TNE("FDT", fd[FT_SLENDER], "Drag of slender fuselage"),
+	TNE("FDS", fd[FT_SLABBY], "Drag of slab-sided fuselage"),
+	TNE("FDG", fd[FT_GEODETIC], "Drag of geodetic fuselage"),
+	TNE("FSN", fs[FT_NORMAL], "Serviceability of normal fuselage"),
+	TNE("FST", fs[FT_SLENDER], "Serviceability of slender fuselage"),
+	TNE("FSS", fs[FT_SLABBY], "Serviceability of slab-sided fuselage"),
+	TNE("FSG", fs[FT_GEODETIC], "Serviceability of geodetic fuselage"),
+	TNE("FFN", ff[FT_NORMAL], "Failure rate due to normal fuselage"),
+	TNE("FFT", ff[FT_SLENDER], "Failure rate due to slender fuselage"),
+	TNE("FFS", ff[FT_SLABBY], "Failure rate due to slab-sided fuselage"),
+	TNE("FFG", ff[FT_GEODETIC], "Failure rate due to geodetic fuselage"),
+	TNE("FVN", fv[FT_NORMAL], "Vulnerability of normal fuselage"),
+	TNE("FVT", fv[FT_SLENDER], "Vulnerability of slender fuselage"),
+	TNE("FVS", fv[FT_SLABBY], "Vulnerability of slab-sided fuselage"),
+	TNE("FVG", fv[FT_GEODETIC], "Vulnerability of geodetic fuselage"),
+	TNE("FWT", fwt, "Fuselage wing tare weight scaling %"),
+	TNE("CCN", cc[FT_NORMAL], "Core cost of normal fuselage"),
+	TNE("CCT", cc[FT_SLENDER], "Core cost of slender fuselage"),
+	TNE("CCS", cc[FT_SLABBY], "Core cost of slab-sided fuselage"),
+	TNE("CCG", cc[FT_GEODETIC], "Core cost of geodetic fuselage"),
+	TNE("FCN", fc[FT_NORMAL], "Structure cost of normal fuselage"),
+	TNE("FCT", fc[FT_SLENDER], "Structure cost of slender fuselage"),
+	TNE("FCS", fc[FT_SLABBY], "Structure cost of slab-sided fuselage"),
+	TNE("FCG", fc[FT_GEODETIC], "Structure cost of geodetic fuselage"),
+	TNE("WTS", wts, "Wing tare weight span exponent %"),
+	TNE("WTC", wtc, "Wing tare weight chord exponent %"),
+	TNE("WTF", wtf, "Wing tare weight scaling factor %"),
+	TNE("WLD", wld, "Wing lift/drag scaling factor %"),
+	TNE("WCF", wcf, "Wing cost scaling factor %"),
+	TNE("FUT", fut, "Fuel tanks tare weight scaling factor %"),
+	TNE("FUV", fuv, "Fuel tanks vulnerability scaling factor %"),
+	TNE("FGV", fgv, "Fuel tanks for geodetics vulnerability %"),
+	TNE("SFT", sft, "Self-sealing tank tare weight scaling %"),
+	TNE("SFV", sfv, "Self-sealing tank vulnerability scaling %"),
+	TNE("SFC", sfc, "Self-sealing fuel tank cost scaling %"),
+	TNE("FUC", fuc, "Fuel tank cost scaling factor %"),
+	TNE("ETF", etf, "Engine mount tare weight scaling factor %"),
+	TNE("EDF", edf, "Engine mount drag scaling factor %"),
+	TNE("EES", ees, "Power Egg mount serviceability factor %"),
+	TNE("EET", eet, "Power Egg mount tare weight factor %"),
+	TNE("EEC", eec, "Power Egg mount cost scaling factor %"),
+	TNE("EMC", emc, "Engine mount cost scaling factor %"),
+	TNE("GTF", gtf, "Gun/turret tare weight scaling factor"),
+	TNE("GDF", gdf, "Gun/turret drag scaling factor"),
+	TNE("GCF", gcf, "Gun/turret cost scaling factor %"),
+	TNE("GAC", gac, "Ammunition track cost scaling"),
+	TNE("GAM", gam, "Ammunition tare weight per gun"),
+	TNE("BTS", bt[BB_SMALL], "Tare weight of small-cell bomb bays"),
+	TNE("BTM", bt[BB_MEDIUM], "Tare weight of medium-cell bomb bays"),
+	TNE("BTC", bt[BB_COOKIE], "Tare weight of unobstructed bomb bays"),
+	TNE("BMC", bmc, "Can medium-cell bomb bays carry cookies"),
+	TNE("BBB", bbb, "Starting size for big bomb bay penalty"),
+	TNE("BBF", bbf, "Inverse scaling of big bomb bay penalty"),
+	TNE("ESL", esl, "Electrical supply level"),
+	TNE("CSB", csb, "Course-Setting Bomb Sight available"),
+	TNE("NAG", na[NAV_GEE], "Navaid 'GEE' available"),
+	TNE("NAH", na[NAV_H2S], "Navaid 'H2S' available"),
+	TNE("NAO", na[NAV_OBOE], "Navaid 'OBOE' available"),
+	TNE("NAJ", na[NAV_GH], "Navaid 'Gee-H' available"),
+	TNE("RGS", rgs, "Max take-off speed, grass runways, mph"),
+	TNE("RGG", rgg, "Max gross take-off weight, grass, 000lb"),
+	TNE("RCS", rcs, "Max take-off speed, concrete runways, mph"),
+	TNE("RCG", rcg, "Max gross take-off weight, concrete, 000lb"),
+	TNE("UBL", ubl, "Maximum engine count for unarmed bomber"),
+#undef TNE
+};
+
+const char *ident_tn(unsigned int offset)
+{
+	for (unsigned int i = 0; i < ARRAY_SIZE(tn_meta); i++)
+		if (tn_meta[i].offset == offset)
+			return tn_meta[i].ident;
+	return "???";
+}
+
+const char *describe_tn(unsigned int offset)
+{
+	for (unsigned int i = 0; i < ARRAY_SIZE(tn_meta); i++)
+		if (tn_meta[i].offset == offset)
+			return tn_meta[i].desc;
+	return "error!  unknown tech_numbers entry";
+}
+
+enum refit_level rfl_tn(unsigned int offset)
+{
+	if (offset < offsetof(struct tech_numbers, mark_block))
+		return REFIT_FRESH;
+	if (offset < offsetof(struct tech_numbers, mod_block))
+		return REFIT_MARK;
+	if (offset < offsetof(struct tech_numbers, doctrine_block))
+		return REFIT_MOD;
+	return REFIT_DOCTRINE;
+}
+
 int try_load_tn_word(const char *key, const char *value,
 		     struct tech_numbers *tn)
 {
-	INT_KEY(tn, "G4T", g4t);
-	INT_KEY(tn, "G4C", g4c);
-	INT_KEY(tn, "CMI", cmi);
-	INT_KEY(tn, "CES", ces);
-	INT_KEY(tn, "CCC", ccc);
-	INT_KEY(tn, "CLT", clt);
-	INT_KEY(tn, "FTN", ft[FT_NORMAL]);
-	INT_KEY(tn, "FTT", ft[FT_SLENDER]);
-	INT_KEY(tn, "FTS", ft[FT_SLABBY]);
-	INT_KEY(tn, "FTG", ft[FT_GEODETIC]);
-	INT_KEY(tn, "FDN", fd[FT_NORMAL]);
-	INT_KEY(tn, "FDT", fd[FT_SLENDER]);
-	INT_KEY(tn, "FDS", fd[FT_SLABBY]);
-	INT_KEY(tn, "FDG", fd[FT_GEODETIC]);
-	INT_KEY(tn, "FSN", fs[FT_NORMAL]);
-	INT_KEY(tn, "FST", fs[FT_SLENDER]);
-	INT_KEY(tn, "FSS", fs[FT_SLABBY]);
-	INT_KEY(tn, "FSG", fs[FT_GEODETIC]);
-	INT_KEY(tn, "FFN", ff[FT_NORMAL]);
-	INT_KEY(tn, "FFT", ff[FT_SLENDER]);
-	INT_KEY(tn, "FFS", ff[FT_SLABBY]);
-	INT_KEY(tn, "FFG", ff[FT_GEODETIC]);
-	INT_KEY(tn, "FVN", fv[FT_NORMAL]);
-	INT_KEY(tn, "FVT", fv[FT_SLENDER]);
-	INT_KEY(tn, "FVS", fv[FT_SLABBY]);
-	INT_KEY(tn, "FVG", fv[FT_GEODETIC]);
-	INT_KEY(tn, "FWT", fwt);
-	INT_KEY(tn, "CCN", cc[FT_NORMAL]);
-	INT_KEY(tn, "CCT", cc[FT_SLENDER]);
-	INT_KEY(tn, "CCS", cc[FT_SLABBY]);
-	INT_KEY(tn, "CCG", cc[FT_GEODETIC]);
-	INT_KEY(tn, "FCN", fc[FT_NORMAL]);
-	INT_KEY(tn, "FCT", fc[FT_SLENDER]);
-	INT_KEY(tn, "FCS", fc[FT_SLABBY]);
-	INT_KEY(tn, "FCG", fc[FT_GEODETIC]);
-	INT_KEY(tn, "WTS", wts);
-	INT_KEY(tn, "WTC", wtc);
-	INT_KEY(tn, "WTF", wtf);
-	INT_KEY(tn, "WLD", wld);
-	INT_KEY(tn, "WCF", wcf);
-	INT_KEY(tn, "FUT", fut);
-	INT_KEY(tn, "FUV", fuv);
-	INT_KEY(tn, "FGV", fgv);
-	INT_KEY(tn, "SFT", sft);
-	INT_KEY(tn, "SFV", sfv);
-	INT_KEY(tn, "SFC", sfc);
-	INT_KEY(tn, "FUC", fuc);
-	INT_KEY(tn, "ETF", etf);
-	INT_KEY(tn, "EDF", edf);
-	INT_KEY(tn, "EES", ees);
-	INT_KEY(tn, "EET", eet);
-	INT_KEY(tn, "EEC", eec);
-	INT_KEY(tn, "EMC", emc);
-	INT_KEY(tn, "GTF", gtf);
-	INT_KEY(tn, "GDF", gdf);
-	INT_KEY(tn, "GCF", gcf);
-	INT_KEY(tn, "GAC", gac);
-	INT_KEY(tn, "GAM", gam);
-	INT_KEY(tn, "BTS", bt[BB_SMALL]);
-	INT_KEY(tn, "BTM", bt[BB_MEDIUM]);
-	INT_KEY(tn, "BTC", bt[BB_COOKIE]);
-	INT_KEY(tn, "BMC", bmc);
-	INT_KEY(tn, "BBB", bbb);
-	INT_KEY(tn, "BBF", bbf);
-	INT_KEY(tn, "ESL", esl);
-	INT_KEY(tn, "CSB", csb);
-	INT_KEY(tn, "NAG", na[NAV_GEE]);
-	INT_KEY(tn, "NAH", na[NAV_H2S]);
-	INT_KEY(tn, "NAO", na[NAV_OBOE]);
-	INT_KEY(tn, "NAJ", na[NAV_GH]);
-	INT_KEY(tn, "RGS", rgs);
-	INT_KEY(tn, "RGG", rgg);
-	INT_KEY(tn, "RCS", rcs);
-	INT_KEY(tn, "RCG", rcg);
-	INT_KEY(tn, "UBL", ubl);
+	for (unsigned int i = 0; i < ARRAY_SIZE(tn_meta); i++)
+		if (!strcmp(key, tn_meta[i].ident)) {
+			char *p = (char *)tn + tn_meta[i].offset;
+			if (sscanf(value, "%u", (unsigned int *)p) != 1)
+				return -EINVAL;
+			return 0;
+		}
 	return -EINVAL;
 }
 
@@ -668,6 +714,9 @@ static int load_tech_word(const char *key, const char *value, void *data)
 		loader->tech->desc = strdup(value);
 		if (!loader->tech->desc)
 			return -ENOMEM;
+		if (strlen(loader->tech->desc) >= 80)
+			fprintf(stderr, "Warning: long desc for tech '%s'\n",
+				loader->tech->ident);
 		return 0;
 	}
 

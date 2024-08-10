@@ -203,6 +203,10 @@ struct tech_numbers {
 	unsigned int rcg; // Max gross take-off weight, concrete
 };
 
+const char *ident_tn(unsigned int offset);
+const char *describe_tn(unsigned int offset);
+enum refit_level rfl_tn(unsigned int offset);
+
 struct tech {
 	struct list_head list;
 	char ident[4];

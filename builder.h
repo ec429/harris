@@ -26,7 +26,7 @@ enum out_row {
 	OUT_ROWS=OUT_ERR+8
 };
 
-extern const atg_colour BB_BP_COLOUR;
+extern const atg_colour BB_BP_COLOUR, BB_PAPER_COLOUR, BB_INK_COLOUR;
 
 extern atg_element *builder_box;
 
