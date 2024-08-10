@@ -23,6 +23,7 @@ atg_element **HM_mbox;
 char *HM_out_buf[OUT_ROWS];
 SDL_Surface *HM_bp;
 atg_element *HM_proto, *HM_tool;
+atg_element *HM_fresh, *HM_mark, *HM_mod;
 
 int handle_manfs_create(void)
 {
@@ -187,6 +188,60 @@ int handle_manfs_create(void)
 		perror("atg_ebox_pack");
 		return(1);
 	}
+	atg_element *refits=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!refits)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(rightbox, refits))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *reflbl=atg_create_element_label("Use as basis for: ", 12, (atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE});
+	if(!reflbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(refits, reflbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HM_fresh=atg_create_element_button("New design", (atg_colour){239, 239, 255, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR)))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(refits, HM_fresh))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HM_mark=atg_create_element_button("Mark refit", (atg_colour){239, 239, 255, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR)))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	HM_mark->hidden=true;
+	if(atg_ebox_pack(refits, HM_mark))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	if(!(HM_mod=atg_create_element_button("Mod refit", (atg_colour){239, 239, 255, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR)))
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	HM_mod->hidden=true;
+	if(atg_ebox_pack(refits, HM_mod))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
 	return(0);
 }
 
@@ -226,16 +281,22 @@ atg_colour dsta_colour(enum design_status dsta)
 	}
 }
 
+const char *default_mark_names[MAX_MARKS]={"Mk I", "Mk II", "Mk III", "Mk IV"};
+
 void realise_design(game *state, struct bomber *b)
 {
 	unsigned int type=b->slot_idx;
+	unsigned int mark=b->mark_idx;
 	bombertype *bt=types+type;
 	struct tech_numbers *tn=&builder->tn;
 	calc_bomber(b, &b->tn);
-	snprintf(bt->manu, 40, "%s", b->manf->name);
-	// TODO prompt player for a name (and a markname?)
-	snprintf(bt->name, 40, "%s", b->name);
-	snprintf(GB_btname[type], 80, "%s %s", bt->manu, bt->name);
+	if(!mark)
+	{
+		snprintf(bt->manu, 40, "%s", b->manf->name);
+		// TODO prompt player for a name (and a markname?)
+		snprintf(bt->name, 40, "%s", b->name);
+		snprintf(GB_btname[type], 80, "%s %s", bt->manu, bt->name);
+	}
 	unsigned int mrcap[2];
 	unsigned int mrange[2];
 	for(unsigned int concrete=0;concrete<2;concrete++)
@@ -296,7 +357,7 @@ void realise_design(game *state, struct bomber *b)
 		calc_bomber(&bmp, &b->tn);
 		mprange[concrete]=ceil(bmp.range/1.5f);
 	}
-	for(unsigned int m=0;m<MAX_MARKS;m++)
+	for(unsigned int m=mark;m<MAX_MARKS;m++)
 	{
 		struct bomberstats *bs=bt->mark+m;
 		bs->cost=floor(b->cost);
@@ -342,6 +403,9 @@ void realise_design(game *state, struct bomber *b)
 		for(unsigned int n=0;n<NNAVAIDS;n++)
 			bs->nav[n]=b->elec.navaid[n];
 		bt->markname[m]=NULL;
+		// MOD refit is applicable only to a single mark
+		if(b->refit>=REFIT_MOD)
+			break;
 	}
 	bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=bt->load[BL_ILLUM]=true;
 	// XXX plumduff has special SMBAY handling that's probably not correct for anything other than a Halifax
@@ -360,7 +424,20 @@ void realise_design(game *state, struct bomber *b)
 	bt->novelty=state->now;
 	bt->train=bt->exit=(date){9999, 99, 99};
 	bt->convertfrom=-1;
+	bt->newmark=max(bt->newmark, mark);
+	bt->markname[bt->newmark]=strdup(default_mark_names[bt->newmark]);
 	return;
+}
+
+void update_refit_buttons(struct bomber *b)
+{
+	if(!b)
+	{
+		HM_fresh->hidden=HM_mark->hidden=HM_mod->hidden=true;
+		return;
+	}
+	HM_fresh->hidden=false;
+	HM_mark->hidden=HM_mod->hidden=design_status(b)<DSTA_TOOL;
 }
 
 screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
@@ -462,6 +539,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 	}
 	wipe_m2v(HM_out_buf, HM_bp);
 	HM_proto->hidden=HM_tool->hidden=true;
+	update_refit_buttons(NULL);
 
 	while(1)
 	{
@@ -543,6 +621,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						calc_bomber(seldesb, &seldesb->tn);
 						builder_update_m2v(seldesb, HM_out_buf);
 						HM_proto->hidden=true;
+						update_refit_buttons(seldesb);
 						if(HM_dsta[seldes])
 						{
 							atg_box *b=HM_dsta[seldes]->elemdata;
@@ -608,16 +687,40 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						}
 						state->cash-=seldesb->cprod;
 						seldesb->prod_work=seldesb->tprod;
-						unsigned int type=state->next_custom_slot++;
-						if(!type) // can't happen
-							fprintf(stderr, "slot_idx zero used, bad stuff will happen!\n");
+						unsigned int type, mark;
+						switch(seldesb->refit)
+						{
+						case REFIT_FRESH:
+							type=state->next_custom_slot++;
+							if(!type) // can't happen
+								fprintf(stderr, "slot_idx zero used, bad stuff will happen!\n");
+							mark=0;
+							break;
+						case REFIT_MARK:
+							type=seldesb->parent->slot_idx;
+							mark=++types[type].newmark;
+							break;
+						case REFIT_MOD:
+							type=seldesb->parent->slot_idx;
+							mark=seldesb->parent->mark_idx;
+							break;
+						default:
+							fprintf(stderr, "Bad refit_level, everything will catch fire!\n");
+							type=mark=0;
+							break;
+						}
 						seldesb->slot_idx=type;
+						seldesb->mark_idx=mark;
 						realise_design(state, seldesb);
 						// XXX in !prestart we will need something much better than this
 						bombertype *bt=types+type;
-						bt->pc=30000;
-						state->btypes[type]=true;
+						if(seldesb->refit==REFIT_FRESH)
+						{
+							bt->pc=30000;
+							state->btypes[type]=true;
+						}
 						HM_tool->hidden=true;
+						update_refit_buttons(seldesb);
 						if(HM_dsta[seldes])
 						{
 							atg_box *b=HM_dsta[seldes]->elemdata;
@@ -635,11 +738,33 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							builder_update_m2v(b, HM_out_buf);
 							HM_proto->hidden=design_status(b)!=DSTA_DRAW;
 							HM_tool->hidden=design_status(b)==DSTA_TOOL;
+							update_refit_buttons(b);
 							break;
 						}
 					}
 					if(i<state->ndesigns)
 						break;
+					if(seldes>=0)
+					{
+						if(trigger.e==HM_fresh)
+						{
+							src_design=seldes;
+							src_rfl=REFIT_FRESH;
+							return(SCRN_BUILDER);
+						}
+						if(trigger.e==HM_mark)
+						{
+							src_design=seldes;
+							src_rfl=REFIT_MARK;
+							return(SCRN_BUILDER);
+						}
+						if(trigger.e==HM_mod)
+						{
+							src_design=seldes;
+							src_rfl=REFIT_MOD;
+							return(SCRN_BUILDER);
+						}
+					}
 					fprintf(stderr, "Clicked on unknown button!\n");
 				break;
 				case ATG_EV_TOGGLE:;

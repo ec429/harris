@@ -32,6 +32,9 @@ char *BB_out_buf[OUT_ROWS];
 SDL_Surface *BB_bp;
 atg_element *BB_issue;
 
+int src_design;
+enum refit_level src_rfl;
+
 const atg_colour BB_BG_COLOUR		= {81, 102, 189, ATG_ALPHA_OPAQUE},
 		 BB_BP_COLOUR		= {81, 102, 189, ATG_ALPHA_OPAQUE},
 		 BB_BP_BORDER		= {63, 79, 171, ATG_ALPHA_OPAQUE},
@@ -1931,6 +1934,19 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 	BB_sst->hidden=!builder->tn.sft;
 	struct bomber b;
 	init_bomber(&b, builder->entities.manf[0], builder->entities.eng[0]);
+	if(src_design>=0&&(unsigned int)src_design<state->ndesigns)
+	{
+		struct bomber *src=state->designs+src_design;
+		b=*src;
+		b.par_idx=src_design;
+		b.parent=src;
+		b.refit=src_rfl;
+		b.proto_work=b.prod_work=0;
+		if(src_rfl==REFIT_FRESH)
+			b.slot_idx=-1;
+		if(src_rfl<REFIT_MOD)
+			b.mark_idx=-1;
+	}
 	calc_bomber(&b, &builder->tn);
 	builder_update_m2c(&b);
 	builder_update_m2v(&b, BB_out_buf);
@@ -2027,6 +2043,9 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 							break;
 						}
 						(state->designs=new)[d]=b;
+						// Fixup all parent links
+						for(unsigned int i=0;i<state->ndesigns;i++)
+							state->designs[i].parent=state->designs+(state->designs[i].par_idx>=0?(unsigned int)state->designs[i].par_idx:i);
 						return(SCRN_MANFS);
 					}
 					else if(!trigger.e)

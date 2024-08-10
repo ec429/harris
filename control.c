@@ -28,6 +28,7 @@
 #include "run_raid.h"
 #include "setup_difficulty.h"
 #include "builder/data.h"
+#include "builder.h"
 
 extern game state;
 
@@ -2361,6 +2362,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 						}
 						else if(trigger.e==GB_build)
 						{
+							src_design=-1;
+							src_rfl=REFIT_FRESH;
 							return(SCRN_BUILDER);
 						}
 						else if(trigger.e==GB_manfs&&state->builder)

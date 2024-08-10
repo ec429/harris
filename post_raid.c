@@ -815,6 +815,7 @@ mothball:
 		}
 		state->researching[slot]=NULL;
 		apply_techs(&builder->entities, &builder->tn);
+		// TODO re-realise all bombers in case any doctrine has changed
 	}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{

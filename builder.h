@@ -30,6 +30,9 @@ extern const atg_colour BB_BP_COLOUR, BB_PAPER_COLOUR, BB_INK_COLOUR;
 
 extern atg_element *builder_box;
 
+extern int src_design;
+extern enum refit_level src_rfl;
+
 int builder_rightbox_create(atg_element **ret, char **outbuf, SDL_Surface **bp, atg_colour bgcolour);
 struct bomber;
 void builder_update_m2v(const struct bomber *b, char **outbuf);

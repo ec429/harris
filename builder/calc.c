@@ -80,6 +80,9 @@ static int calc_engines(struct bomber *b)
 	    e->typ != b->parent->engines.mou)
 		design_error(b, "Engines changed in %s refit!",
 			     describe_refit(b->refit));
+	if (b->refit >= REFIT_MOD && e->mou != b->parent->engines.mou)
+		design_error(b, "Engine mounts changed in %s refit!",
+			     describe_refit(b->refit));
 	if (b->refit && e->number != b->parent->engines.number)
 		design_error(b, "Engine count changed in %s refit!",
 			     describe_refit(b->refit));
