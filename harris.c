@@ -50,8 +50,6 @@
 
 #include "version.h"
 
-//#define NOWEATHER	1	// skips weather phase of 'next-day' (w/o raid), allowing quicker time passage.  For testing/debugging
-
 /* TODO
 	Seasonal effects on weather
 	More overlays for map display (incl. add new overlays for GEE, OBOE, GH range; perhaps also ability to show weather map as isobars/isotherms instead of cloudmap)

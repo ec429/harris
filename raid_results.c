@@ -18,6 +18,8 @@
 #include "run_raid.h"
 #include "weather.h"
 
+//#define NOWEATHER	1	// skips weather phase of 'next-day' (w/o raid), allowing quicker time passage.  For testing/debugging
+
 atg_element *raid_results_box;
 atg_element *RS_resize, *RS_full, *RS_cont;
 
