@@ -8,5 +8,8 @@
 */
 
 #include <atg.h>
+#include "date.h"
 
 extern atg_element *research_box;
+
+bool tech_future(date now, const struct tech *tech);

@@ -20,6 +20,8 @@
 #include "control.h"
 #include "post_raid.h"
 #include "handle_squadrons.h"
+#include "research.h"
+#include "builder/data.h"
 
 void force_tprio(game *state, enum t_class cls, unsigned int days);
 void force_iprio(game *state, enum i_class cls, unsigned int days);
@@ -750,6 +752,70 @@ scrap:
 		}
 	if(tomorrow.year!=state->now.year)
 		state->next_design_number=0;
+	if(tomorrow.day==1&&state->builder)
+	{
+		unsigned int slot=irandu(3), i;
+		if(state->researching[slot]==&supporting) // Supporting Research
+		{
+			for(i=0;i<3;i++)
+				if(tech_future(state->now, state->researching[i]))
+				{
+					state->researching[i]->supported=true;
+					break;
+				}
+			if(i>=3)
+			{
+				fprintf(stderr, "no research found to support!\n");
+				goto mothball;
+			}
+			char refbuf[64];
+			snprintf(refbuf, sizeof(refbuf), "SUPP_%s", state->researching[i]->ident);
+			char msgbuf[256];
+			snprintf(msgbuf, sizeof(msgbuf),
+				 "Our scientists have solved some of the problems of %s.\n"
+				 "Supporting Research is no longer required for this technology.\n\n"
+				 "Please select research priorities for the next month.\n",
+				 state->researching[i]->name);
+			msgadd(canvas, state, tomorrow, refbuf, msgbuf);
+		}
+		else if(!state->researching[slot])
+		{
+mothball:
+			unsigned int ecash=4800+400*(state->now.year-1939);
+			state->cshr+=ecash;
+			char msgbuf[256];
+			snprintf(msgbuf, sizeof(msgbuf),
+			       "By mothballing some of our research facilities, we have been able to free up additional funds for bomber\n"
+			       " production.  Your daily budget has been increased by £%u.\n\n"
+			       "Please select research priorities for the next month.\n",
+			       ecash);
+			msgadd(canvas, state, tomorrow, "MOTHBALL", msgbuf);
+		}
+		else
+		{
+			char msgbuf[256];
+			snprintf(msgbuf, sizeof(msgbuf),
+				 "Our scientists have completed their research into %s.\n"
+				 "The results are now available to the aircraft manufacturers.\n\n"
+				 "Please select research priorities for the next month.\n",
+				 state->researching[slot]->name);
+			msgadd(canvas, state, tomorrow, state->researching[slot]->ident, msgbuf);
+			state->researching[slot]->unlocked=true;
+			if(tech_future(state->now, state->researching[slot]))
+			{
+				for(i=0;i<3;i++)
+					if(state->researching[i]==&supporting)
+					{
+						state->researching[i]=NULL;
+						break;
+					}
+				if(i>=3)
+					fprintf(stderr, "no support found to remove!\n");
+			}
+		}
+		state->researching[slot]=NULL;
+		apply_techs(&builder->entities, &builder->tn);
+	}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{
 		if(!diffdate(tomorrow, event[ev]))
@@ -770,6 +836,8 @@ scrap:
 	}
 	state->now=tomorrow;
 	validate_nb("fini post_raid", state);
+	if(state->now.day==1&&state->builder)
+		return(SCRN_RESEARCH);
 	return(SCRN_CONTROL);
 }
 

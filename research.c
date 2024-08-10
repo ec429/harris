@@ -548,7 +548,7 @@ full:
 				if(state->researching[i]==t)
 				{
 					HR_add->hidden=true;
-					HR_rm->hidden=(t==&supporting);
+					HR_rm->hidden=(t==&supporting&&supported);
 					break;
 				}
 		}
