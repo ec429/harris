@@ -24,6 +24,7 @@ char HR_name_buf[60], HR_desc_buf[80];
 atg_element *HR_tn_row[HR_TN_ROWS];
 char HR_tn_ibuf[HR_TN_ROWS][5], HR_tn_dbuf[HR_TN_ROWS][80];
 char HR_tn_nbuf[HR_TN_ROWS][6], HR_tn_obuf[HR_TN_ROWS][6];
+char HR_tn_rbuf[HR_TN_ROWS][12];
 atg_element *HR_r3[3];
 char HR_r3_nbuf[3][40];
 atg_element *HR_add, *HR_rm;
@@ -173,7 +174,7 @@ int research_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	midbox->w=400;
+	midbox->w=500;
 	if(atg_ebox_pack(research_box, midbox))
 	{
 		perror("atg_ebox_pack");
@@ -196,7 +197,7 @@ int research_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	crbox->w=400;
+	crbox->w=midbox->w;
 	crbox->h=54;
 	if(atg_ebox_pack(midbox, crbox))
 	{
@@ -259,7 +260,7 @@ int research_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	text_guard->w=400;
+	text_guard->w=midbox->w;
 	if(atg_ebox_pack(midbox, text_guard))
 	{
 		perror("atg_ebox_pack");
@@ -285,7 +286,7 @@ int research_create(void)
 		fprintf(stderr, "atg_create_element_label failed\n");
 		return(1);
 	}
-	tdesc->w=396;
+	tdesc->w=text_guard->w-4;
 	if(atg_ebox_pack(text_guard, tdesc))
 	{
 		perror("atg_ebox_pack");
@@ -363,7 +364,21 @@ int research_create(void)
 			fprintf(stderr, "atg_create_element_label failed\n");
 			return(1);
 		}
+		tnd->w=340;
 		if(atg_ebox_pack(HR_tn_row[i], tnd))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		*HR_tn_rbuf[i]=0;
+		atg_element *tnr=atg_create_element_label_refer(HR_tn_rbuf[i], 10, (atg_colour){179, 179, 179, ATG_ALPHA_OPAQUE});
+		if(!tnr)
+		{
+			fprintf(stderr, "atg_create_element_label failed\n");
+			return(1);
+		}
+		tnr->w=68;
+		if(atg_ebox_pack(HR_tn_row[i], tnr))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -466,6 +481,26 @@ void update_midbox(const game *state, struct tech *t)
 			snprintf(HR_tn_nbuf[i], sizeof(HR_tn_nbuf[i]), "%u", *v);
 			unsigned int *o=(unsigned int *)(((char *)&builder->tn)+j);
 			snprintf(HR_tn_obuf[i], sizeof(HR_tn_obuf[i]), "(%u)", *o);
+			const char *rfl;
+			switch (rfl_tn(j))
+			{
+			case REFIT_FRESH:
+				rfl="New designs";
+				break;
+			case REFIT_MARK:
+				rfl="Mark refits";
+				break;
+			case REFIT_MOD:
+				rfl="Mod refits";
+				break;
+			case REFIT_DOCTRINE:
+				rfl="Immediate";
+				break;
+			default:
+				rfl="???";
+				break;
+			}
+			snprintf(HR_tn_rbuf[i], sizeof(HR_tn_rbuf[i]), "%s", rfl);
 			if(++i>=HR_TN_ROWS)
 				goto full;
 		}
@@ -478,6 +513,7 @@ void update_midbox(const game *state, struct tech *t)
 			snprintf(HR_tn_dbuf[i], sizeof(HR_tn_dbuf[i]), "%s %s", t->eng[j]->manu, t->eng[j]->name);
 			snprintf(HR_tn_nbuf[i], sizeof(HR_tn_nbuf[i]), "%u", t->eng[j]->bhp);
 			snprintf(HR_tn_obuf[i], sizeof(HR_tn_obuf[i]), "hp");
+			snprintf(HR_tn_rbuf[i], sizeof(HR_tn_rbuf[i]), "Unlocks");
 			if(++i>=HR_TN_ROWS)
 				goto full;
 		}
@@ -496,6 +532,7 @@ void update_midbox(const game *state, struct tech *t)
 			}
 			snprintf(HR_tn_nbuf[i], sizeof(HR_tn_nbuf[i]), "%ux", n);
 			snprintf(HR_tn_obuf[i], sizeof(HR_tn_obuf[i]), ".%u", c);
+			snprintf(HR_tn_rbuf[i], sizeof(HR_tn_rbuf[i]), "Unlocks");
 			if(++i>=HR_TN_ROWS)
 				goto full;
 		}
