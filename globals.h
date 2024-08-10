@@ -62,6 +62,7 @@ extern SDL_Surface *grey_overlay, *yellow_overlay;
 extern SDL_Surface *weather_overlay, *sun_overlay, *city_overlay, *target_overlay, *flak_overlay, *route_overlay, *xhair_overlay, *seltarg_overlay;
 
 extern SDL_Surface *tick, *cross;
+extern SDL_Surface *protopic, *toolpic;
 
 extern SDL_Surface *intelscreenbtn[3];
 

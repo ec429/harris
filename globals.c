@@ -96,6 +96,7 @@ SDL_Surface *resizebtn=NULL;
 SDL_Surface *fullbtn=NULL;
 SDL_Surface *exitbtn=NULL;
 SDL_Surface *tick=NULL, *cross=NULL;
+SDL_Surface *protopic=NULL, *toolpic=NULL;
 
 SDL_Surface *intelscreenbtn[3];
 

@@ -92,7 +92,7 @@ run_raid.o: ui.h globals.h date.h almanack.h history.h render.h rand.h routing.h
 
 raid_results.o: ui.h globals.h bits.h date.h history.h weather.h run_raid.h
 
-post_raid.o: ui.h globals.h bits.h date.h history.h mods.h rand.h control.h handle_squadrons.h research.h builder/data.h builder/list.h
+post_raid.o: ui.h globals.h bits.h date.h history.h mods.h rand.h control.h handle_squadrons.h research.h builder/data.h builder/list.h builder/calc.h handle_manfs.h
 
 intel_bombers.o: ui.h globals.h bits.h date.h
 

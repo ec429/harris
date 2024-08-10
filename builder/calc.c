@@ -165,15 +165,22 @@ static int calc_turrets(struct bomber *b)
 
 		if (m)
 			t->mtare += m->twt * (1.0f + tn->gtf / 100.0f);
+		if (m != mod_ancestor(b)->turrets.mou[i])
+		{
+			if(m)
+				design_error(b, "%s mount added in %s refit!", m->name,
+					     describe_refit(b->refit));
+			else
+				design_error(b, "%s mount removed in %s refit!",
+					     mod_ancestor(b)->turrets.mou[i]->name,
+					     describe_refit(b->refit));
+		}
 		if (!g)
 			continue;
 		if (!m) {
 			design_error(b, "%s without a mount!", g->name);
 			return -EINVAL;
 		}
-		if (m != mod_ancestor(b)->turrets.mou[i])
-			design_error(b, "%s mount added in %s refit!", m->name,
-				     describe_refit(b->refit));
 		if (g->twt > m->twt)
 			design_error(b, "%s too heavy for mounts!",
 				     g->name);
@@ -777,9 +784,9 @@ static int calc_dev(struct bomber *b)
 	float bof = max(b->manf->bof, 1);
 	unsigned int i;
 
-	if (b->manf->proto_idx >= 0)
+	if (b->manf->proto_idx >= 0 && b->manf->proto_idx != b->this_idx)
 		design_warning(b, "Manufacturer is already building another prototype");
-	else if (b->manf->prod_idx >= 0)
+	else if (b->manf->prod_idx >= 0 && b->manf->prod_idx != b->this_idx)
 		design_warning(b, "Manufacturer is already tooling another design");
 	count_crew(&b->crew, count);
 	switch (b->refit) {

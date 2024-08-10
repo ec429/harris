@@ -22,7 +22,7 @@ atg_element *HM_cont, *HM_full;
 atg_element **HM_mbox;
 char *HM_out_buf[OUT_ROWS];
 SDL_Surface *HM_bp;
-atg_element *HM_proto, *HM_tool;
+atg_element *HM_proto, *HM_tool, *HM_halt;
 atg_element *HM_fresh, *HM_mark, *HM_mod;
 
 int handle_manfs_create(void)
@@ -184,6 +184,17 @@ int handle_manfs_create(void)
 		return(1);
 	}
 	if(atg_ebox_pack(actions, HM_tool))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HM_halt=atg_create_element_button("Halt work", (atg_colour){159, 79, 79, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	if(!HM_halt)
+	{
+		fprintf(stderr, "atg_create_element_button failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(actions, HM_halt))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -462,6 +473,20 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 		free(HM_dbtn);
 		return rc;
 	}
+	atg_element **HM_dpro=calloc(state->ndesigns, sizeof(atg_element *));
+	if(!HM_dpro)
+	{
+		perror("calloc");
+		free(HM_dbtn);
+		return rc;
+	}
+	atg_element **HM_dtoo=calloc(state->ndesigns, sizeof(atg_element *));
+	if(!HM_dtoo)
+	{
+		perror("calloc");
+		free(HM_dbtn);
+		return rc;
+	}
 	for(unsigned int i=0;i<builder->entities.nmanf;i++)
 	{
 		struct manf *m=builder->entities.manf[i];
@@ -535,10 +560,32 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 				perror("atg_ebox_pack");
 				break;
 			}
+			if(!(HM_dpro[j]=atg_create_element_image(protopic)))
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+				break;
+			}
+			HM_dpro[j]->hidden=m->proto_idx!=(int)j;
+			if(atg_ebox_pack(row, HM_dpro[j]))
+			{
+				perror("atg_ebox_pack");
+				break;
+			}
+			if(!(HM_dtoo[j]=atg_create_element_image(toolpic)))
+			{
+				fprintf(stderr, "atg_create_element_image failed\n");
+				break;
+			}
+			HM_dtoo[j]->hidden=m->prod_idx!=(int)j;
+			if(atg_ebox_pack(row, HM_dtoo[j]))
+			{
+				perror("atg_ebox_pack");
+				break;
+			}
 		}
 	}
 	wipe_m2v(HM_out_buf, HM_bp);
-	HM_proto->hidden=HM_tool->hidden=true;
+	HM_proto->hidden=HM_tool->hidden=HM_halt->hidden=true;
 	update_refit_buttons(NULL);
 
 	while(1)
@@ -606,7 +653,12 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 								fprintf(stderr, "Can't find manufacturer for design!\n");
 								break;
 							}
+							if(seldesm->proto_idx>=0)
+								HM_dpro[seldesm->proto_idx]->hidden=true;
 							seldesm->proto_idx=seldes;
+							HM_dpro[seldes]->hidden=false;
+							HM_proto->hidden=true;
+							HM_halt->hidden=false;
 							break;
 						}
 						if(seldesb->cproto>state->cash)
@@ -658,7 +710,12 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 								fprintf(stderr, "Can't find manufacturer for design!\n");
 								break;
 							}
+							if(seldesm->prod_idx>=0)
+								HM_dtoo[seldesm->prod_idx]->hidden=true;
 							seldesm->prod_idx=seldes;
+							HM_dtoo[seldes]->hidden=false;
+							HM_tool->hidden=true;
+							HM_halt->hidden=false;
 							break;
 						}
 						// ensure dev costs updated
@@ -728,6 +785,24 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						}
 						break;
 					}
+					if(trigger.e==HM_halt)
+					{
+						if(seldes<0||!seldesm)
+						{
+							fprintf(stderr, "Tried to tool no design!\n");
+							break;
+						}
+						if(seldesm->proto_idx==seldes)
+							seldesm->proto_idx=-1;
+						HM_dpro[seldes]->hidden=true;
+						HM_proto->hidden=false;
+						if(seldesm->prod_idx==seldes)
+							seldesm->prod_idx=-1;
+						HM_dtoo[seldes]->hidden=true;
+						HM_tool->hidden=false;
+						HM_halt->hidden=true;
+						break;
+					}
 					for(i=0;i<state->ndesigns;i++)
 					{
 						if(trigger.e==HM_dbtn[i])
@@ -736,8 +811,9 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							struct bomber *b=state->designs+i;
 							calc_bomber(b, &b->tn);
 							builder_update_m2v(b, HM_out_buf);
-							HM_proto->hidden=design_status(b)!=DSTA_DRAW;
-							HM_tool->hidden=design_status(b)==DSTA_TOOL;
+							HM_proto->hidden=design_status(b)!=DSTA_DRAW||b->manf->proto_idx==(int)i;
+							HM_tool->hidden=design_status(b)==DSTA_TOOL||b->manf->prod_idx==(int)i;
+							HM_halt->hidden=b->manf->proto_idx!=(int)i&&b->manf->prod_idx!=(int)i;
 							update_refit_buttons(b);
 							break;
 						}
@@ -780,6 +856,8 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 out:
 	free(HM_dbtn);
 	free(HM_dsta);
+	free(HM_dpro);
+	free(HM_dtoo);
 	return(rc);
 }
 

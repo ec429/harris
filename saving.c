@@ -400,6 +400,7 @@ int loadgame(const char *fn, game *state)
 							state->designs[i].parent=state->designs+par_idx;
 						}
 					}
+					state->designs[i].this_idx=i;
 				}
 			}
 		}

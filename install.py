@@ -144,8 +144,10 @@ manifest = {
 				'intel.png',
 				'location.png',
 				'no-intel.png',
+				'protoing.png'.
 				'resize.png',
 				'tick.png',
+				'tooling.png',
 				'yellowhair.png',
 				]
 		},

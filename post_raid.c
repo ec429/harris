@@ -22,6 +22,8 @@
 #include "handle_squadrons.h"
 #include "research.h"
 #include "builder/data.h"
+#include "builder/calc.h"
+#include "handle_manfs.h"
 
 void force_tprio(game *state, enum t_class cls, unsigned int days);
 void force_iprio(game *state, enum i_class cls, unsigned int days);
@@ -815,7 +817,9 @@ mothball:
 		}
 		state->researching[slot]=NULL;
 		apply_techs(&builder->entities, &builder->tn);
-		// TODO re-realise all bombers in case any doctrine has changed
+		// re-realise all bombers in case any doctrine has changed
+		for(unsigned int i=0;i<state->ndesigns;i++)
+			realise_design(state, state->designs+i);
 	}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{

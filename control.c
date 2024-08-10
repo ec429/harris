@@ -2335,7 +2335,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 							state->next_design_number=0;
 							state->cash=min(state->cash, 40000);
 							msgadd(canvas, state, event[EVENT_ORDERS], event_names[EVENT_ORDERS], evtext[EVENT_ORDERS]);
-							return(SCRN_CONTROL);
+							return(SCRN_RESEARCH);
 						}
 						else if(trigger.e==GB_intel[0])
 						{

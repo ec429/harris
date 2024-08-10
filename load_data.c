@@ -1582,6 +1582,16 @@ int load_images(void)
 		fprintf(stderr, "Cross icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
+	if(!(protopic=IMG_Load("art/protoing.png")))
+	{
+		fprintf(stderr, "Prototyping icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
+	if(!(toolpic=IMG_Load("art/tooling.png")))
+	{
+		fprintf(stderr, "Tooling icon: IMG_Load: %s\n", IMG_GetError());
+		return(1);
+	}
 	if(!(intelscreenbtn[0]=IMG_Load("art/intels/bombers.png")))
 	{
 		fprintf(stderr, "Intel Bombers icon: IMG_Load: %s\n", IMG_GetError());

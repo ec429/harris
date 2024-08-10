@@ -1841,10 +1841,22 @@ void builder_update_m2v(const struct bomber *b, char **outbuf)
 	snprintf(outbuf[OUT_CST], 80,
 		 "Cost: %.0f funds",
 		 b->cost);
+	unsigned int tproto=b->tproto, tprod=b->tprod;
+	unsigned int cproto=b->cproto, cprod=b->cprod;
+	if(b->proto_work&&b->proto_work<tproto)
+	{
+		tproto-=b->proto_work;
+		cproto=(cproto*tproto)/b->tproto;
+	}
+	if(b->prod_work&&b->prod_work<tprod)
+	{
+		tprod-=b->prod_work;
+		cprod=(cprod*tprod)/b->tprod;
+	}
 	snprintf(outbuf[OUT_PROTO], 80,
-		 "Prototype           in %4u days for £%u", b->tproto, b->cproto);
+		 "Prototype           in %4u days for £%u", tproto, cproto);
 	snprintf(outbuf[OUT_TOOL], 80,
-		 "Tool for production in %4u days for £%u", b->tprod, b->cprod);
+		 "Tool for production in %4u days for £%u", tprod, cprod);
 	if(b->new)
 		*outbuf[OUT_NOERR]=0;
 	else
@@ -1943,10 +1955,9 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 		b.refit=src_rfl;
 		b.proto_work=b.prod_work=0;
 		if(src_rfl==REFIT_FRESH)
-			b.slot_idx=-1;
-		if(src_rfl<REFIT_MOD)
-			b.mark_idx=-1;
+			b.slot_idx=0;
 	}
+	b.this_idx=-1;
 	calc_bomber(&b, &builder->tn);
 	builder_update_m2c(&b);
 	builder_update_m2v(&b, BB_out_buf);
@@ -2034,6 +2045,7 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 					{
 						if(b.error)
 							break;
+						b.this_idx=state->ndesigns;
 						name_design(state, &b);
 						unsigned int d=state->ndesigns++;
 						struct bomber *new=realloc(state->designs, state->ndesigns*sizeof(*new));
