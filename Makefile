@@ -86,7 +86,7 @@ load_game.o: ui.h globals.h saving.h
 
 save_game.o: ui.h globals.h saving.h
 
-control.o: ui.h globals.h widgets.h date.h almanack.h bits.h history.h render.h routing.h weather.h intel_bombers.h intel_targets.h rand.h run_raid.h setup_difficulty.h builder/data.h builder/list.h builder.h
+control.o: ui.h globals.h widgets.h date.h almanack.h bits.h history.h render.h routing.h weather.h intel_bombers.h intel_targets.h rand.h run_raid.h setup_difficulty.h builder/data.h builder/list.h builder/calc.h builder.h
 
 run_raid.o: ui.h globals.h date.h almanack.h history.h render.h rand.h routing.h weather.h geom.h control.h
 

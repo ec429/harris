@@ -28,6 +28,7 @@
 #include "run_raid.h"
 #include "setup_difficulty.h"
 #include "builder/data.h"
+#include "builder/calc.h"
 #include "builder.h"
 
 extern game state;
@@ -38,12 +39,12 @@ atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
 atg_element **GB_btrow, **GB_btnuml, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element **GB_btbuy, **GB_btbuy10;
-atg_element *GB_go, *GB_prego, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_research, *GB_diff, *GB_clamp;
+atg_element *GB_go, *GB_prego, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_research, *GB_diff, *GB_clamp, *GB_spend;
 atg_element *GB_confid, *GB_morale;
 atg_element *GB_ttl, *GB_train, **GB_ttrow, **GB_ttdmg, **GB_ttflk, **GB_ttint;
 atg_element *GB_zhbox, *GB_zh, **GB_rbpic, **GB_rbrow, *(*GB_raidloadbox)[2], *(*GB_raidload)[2], **GB_winbox, *(*GB_window)[NWINLVLS], *GB_rsrow, *GB_rsbtn[5];
 char **GB_btnum, **GB_raidnum, **GB_estcap;
-char *GB_datestring, *GB_budget_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
+char *GB_datestring, *GB_budget_label, *GB_spend_label, *GB_confid_label, *GB_morale_label, *GB_raid_label;
 char **GB_btname;
 char *GB_suntimes[2];
 SDL_Surface *GB_moonimg, *GB_tfav[2], *GB_ifav[2];
@@ -732,6 +733,24 @@ int control_create(void)
 	}
 	GB_budget->w=159;
 	if(atg_ebox_pack(GB_bt, GB_budget))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	GB_spend_label=malloc(32);
+	if(!GB_spend_label)
+	{
+		perror("malloc");
+		return(1);
+	}
+	GB_spend=atg_create_element_label_nocopy(GB_spend_label, 12, (atg_colour){239, 191, 191, ATG_ALPHA_OPAQUE});
+	if(!GB_spend)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	GB_spend->w=159;
+	if(atg_ebox_pack(GB_bt, GB_spend))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -1586,11 +1605,45 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	{
 		snprintf(GB_datestring, 11, prestart==2?"1938":"1935");
 		snprintf(GB_budget_label, 32, "Budget: £%u", state->cash);
+		GB_spend->hidden=true;
+		*GB_spend_label=0;
 	}
 	else
 	{
 		snprintf(GB_datestring, 11, "%02u-%02u-%04u", state->now.day, state->now.month, state->now.year);
 		snprintf(GB_budget_label, 32, "Budget: £%u/day", state->cshr);
+		GB_spend->hidden=!state->builder;
+		if(state->builder)
+		{
+			unsigned int spend=0;
+			for(unsigned int i=0;i<builder->entities.nmanf;i++)
+			{
+				struct manf *m=builder->entities.manf[i];
+				if(m->proto_idx>=0&&(unsigned int)m->proto_idx<state->ndesigns)
+				{
+					struct bomber *b=state->designs+m->proto_idx;
+					unsigned int old_cost=(b->proto_work*b->cproto)/b->tproto;
+					unsigned int new_cost=((b->proto_work+1)*b->cproto)/b->tproto;
+					unsigned int delta=min(new_cost, b->cproto)-old_cost;
+					spend+=delta;
+				}
+				if(m->prod_idx>=0&&(unsigned int)m->prod_idx<state->ndesigns)
+				{
+					struct bomber *b=state->designs+m->prod_idx;
+					unsigned int old_cost=(b->prod_work*b->cprod)/b->tprod;
+					unsigned int new_cost=((b->prod_work+1)*b->cprod)/b->tprod;
+					unsigned int delta=min(new_cost, b->cprod)-old_cost;
+					// if not protoed and would finish, silently pause tooling
+					if(new_cost<b->cprod||b->proto_work>=b->tproto)
+						spend+=delta;
+				}
+			}
+			snprintf(GB_spend_label, 32, "Mfg Spend: £%u/day", spend);
+		}
+		else
+		{
+			*GB_spend_label=0;
+		}
 		snprintf(GB_confid_label, 32, "Confidence: %u%%", (unsigned int)floor(state->confid+0.5));
 		snprintf(GB_morale_label, 32, "Morale: %u%%", (unsigned int)floor(state->morale+0.5));
 	}
