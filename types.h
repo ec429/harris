@@ -496,7 +496,7 @@ typedef struct
 	double confid, morale;
 	unsigned int ndesigns;
 	struct bomber *designs; // builder/calc.h
-	unsigned int next_design_number, next_custom_slot;
+	unsigned int next_design_number, next_custom_slot, next_mod_number;
 	struct tech *researching[3];
 	unsigned int nbombers;
 	ac_bomber *bombers;

@@ -13,4 +13,5 @@
 
 extern atg_element *handle_manfs_box;
 
-void realise_design(game *state, struct bomber *b);
+int assign_slots(game *state, struct bomber *b);
+void realise_design(const game *state, struct bomber *b);

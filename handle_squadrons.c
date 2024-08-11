@@ -18,6 +18,7 @@
 #include "rand.h"
 #include "render.h"
 #include "run_raid.h" // for crewman_skill
+#include "builder/data.h" // can_pave needs this
 
 #define CREW_BG_COLOUR	(atg_colour){23, 23, 31, ATG_ALPHA_OPAQUE}
 
@@ -1640,6 +1641,13 @@ void update_sqn_list(game *state)
 	}
 }
 
+bool can_pave(game *state)
+{
+	if(state->builder)
+		return builder->tn.rcs;
+	return !datebefore(state->now, event[EVENT_PAVING]);
+}
+
 void update_stn_info(game *state)
 {
 	selsqn=-1;
@@ -1654,7 +1662,7 @@ void update_stn_info(game *state)
 	HS_stpaved->hidden=!bases[selstn].paved;
 	if(!(HS_stpaving->hidden=selstn!=state->paving))
 		snprintf(HS_stpavetime, 24, "Paving (%d days left)", PAVE_TIME-state->pprog);
-	HS_stpavebtn->hidden=datebefore(state->now, event[EVENT_PAVING])||bases[selstn].paved||state->paving>=0||bases[selstn].nsqns;
+	HS_stpavebtn->hidden=!can_pave(state)||bases[selstn].paved||state->paving>=0||bases[selstn].nsqns;
 	HS_stshim->hidden=(HS_stclmp->hidden&&HS_stoper->hidden)||(HS_stpaved->hidden&&HS_stpaving->hidden&&HS_stpavebtn->hidden);
 	snprintf(HS_wp, 16, "QNH: %6.1fmb", bases[selstn].wp);
 	snprintf(HS_wt, 16, "Temp:  %4.1fC", bases[selstn].wt);
@@ -1838,7 +1846,7 @@ screen_id handle_squadrons_screen(atg_canvas *canvas, game *state)
 					atg_ev_trigger trigger=e.event.trigger;
 					if(trigger.e==HS_stpavebtn)
 					{
-						if(datebefore(state->now, event[EVENT_PAVING]))
+						if(!can_pave(state))
 							break;
 						if(state->paving>=0)
 							break;

@@ -63,6 +63,12 @@ int loadgame(const char *fn, game *state)
 		struct manf *m=builder->entities.manf[i];
 		m->proto_idx=m->prod_idx=-1;
 	}
+	for(unsigned int i=0;i<builder->entities.ntech;i++)
+	{
+		struct tech *t=builder->entities.tech[i];
+		t->unlocked=!t->year;
+		t->supported=t->have_reqs=false;
+	}
 	for(unsigned int j=0;j<ntypes;j++)
 	{
 		types[j].newmark=0;
@@ -507,8 +513,12 @@ int loadgame(const char *fn, game *state)
 		}
 		else if(strcmp(tag, "NDNum")==0)
 		{
-			f=sscanf(dat, "%u\n", &state->next_design_number);
-			if(f!=1)
+			f=sscanf(dat, "%u,%u\n", &state->next_design_number, &state->next_mod_number);
+			if(f==1) // compat for now
+			{
+				state->next_mod_number=100;
+			}
+			else if(f!=2)
 			{
 				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
 				e|=1;
@@ -1533,7 +1543,8 @@ int savegame(const char *fn, game state)
 				builder->entities.tech[i]->ident,
 				builder->entities.tech[i]->unlocked?1:0,
 				builder->entities.tech[i]->supported?1:0);
-		fprintf(fs, "NDNum:%u\n", state.next_design_number);
+		fprintf(fs, "NDNum:%u,%u\n",
+			state.next_design_number, state.next_mod_number);
 		fprintf(fs, "NCSlot:%u\n", state.next_custom_slot);
 		fprintf(fs, "Research:%s,%s,%s\n",
 			state.researching[0]?state.researching[0]->ident:"nil",

@@ -35,8 +35,8 @@ if(state.builder)
 	"Techs:%u\n", ntech
 	for(i=0;i<ntech;i++)
 		"Tech %u:%s,%u,%u\n", i, tech[i].ident, tech[i].unlocked, tech[i].supported
-	"NDNum:%u", next_design_number
-	"NCSlot:%u", next_custom_slot
+	"NDNum:%u,%u\n", next_design_number, next_mod_number
+	"NCSlot:%u\n", next_custom_slot
 	"Research:%s,%s,%s\n", researching[0].ident, researching[1].ident, researching[2].ident
 "Bombers:%u\n", nbombers
 for(i=0;i<nbombers;i++)

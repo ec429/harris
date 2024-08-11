@@ -294,14 +294,18 @@ atg_colour dsta_colour(enum design_status dsta)
 
 const char *default_mark_names[MAX_MARKS]={"Mk I", "Mk II", "Mk III", "Mk IV"};
 
-void realise_design(game *state, struct bomber *b)
+void realise_design(const game *state, struct bomber *bb)
 {
-	unsigned int type=b->slot_idx;
-	unsigned int mark=b->mark_idx;
+	unsigned int type=bb->slot_idx;
+	unsigned int mark=bb->mark_idx;
 	bombertype *bt=types+type;
+	calc_bomber(bb, &bb->tn);
+	struct bomber bd=*bb, *b=&bd;
+	b->parent=bb;
+	b->refit=REFIT_DOCTRINE;
 	struct tech_numbers *tn=&builder->tn;
-	calc_bomber(b, &b->tn);
-	if(!mark)
+	calc_bomber(b, tn);
+	if(bb->refit==REFIT_FRESH)
 	{
 		snprintf(bt->manu, 40, "%s", b->manf->name);
 		// TODO prompt player for a name (and a markname?)
@@ -318,7 +322,7 @@ void realise_design(game *state, struct bomber *b)
 		bmr.tanks.pct=100;
 		bmr.parent=b;
 		bmr.refit=REFIT_DOCTRINE;
-		calc_bomber(&bmr, &b->tn);
+		calc_bomber(&bmr, tn);
 		mts = concrete && tn->rcs ? tn->rcs : tn->rgs;
 		mtg = concrete && tn->rcg ? tn->rcg : tn->rgg;
 		mptow = floor(wing_lift(&bmr.wing, mts / 1.6f));
@@ -335,7 +339,7 @@ void realise_design(game *state, struct bomber *b)
 		{
 			bmr.bay.load = mrcap[concrete] = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
 		}
-		calc_bomber(&bmr, &b->tn);
+		calc_bomber(&bmr, tn);
 		mrange[concrete]=ceil(bmr.range/1.5f);
 	}
 	unsigned int mpcap[2];
@@ -347,7 +351,7 @@ void realise_design(game *state, struct bomber *b)
 		int delta;
 		bmp.parent=b;
 		bmp.refit=REFIT_DOCTRINE;
-		calc_bomber(&bmp, &b->tn);
+		calc_bomber(&bmp, tn);
 		mts = concrete ? tn->rcs : tn->rgs;
 		mtg = concrete ? tn->rcg : tn->rgg;
 		mptow = floor(wing_lift(&bmp.wing, mts / 1.6f));
@@ -355,7 +359,7 @@ void realise_design(game *state, struct bomber *b)
 		mptow = min(mptow, bmp.mtow);
 		delta = bmp.gross - mptow;
 		bmp.tanks.pct=max(ceil(100.0*(1.0f - delta/(bmp.tanks.hlb*100.0f))), 0);
-		calc_bomber(&bmp, &b->tn);
+		calc_bomber(&bmp, tn);
 		delta = bmp.gross - mptow;
 		if((int)bmp.bay.load < delta)
 		{
@@ -365,7 +369,7 @@ void realise_design(game *state, struct bomber *b)
 		{
 			bmp.bay.load = mpcap[concrete] = min(((int)bmp.bay.load) - delta, (int)bmp.bay.cap);
 		}
-		calc_bomber(&bmp, &b->tn);
+		calc_bomber(&bmp, tn);
 		mprange[concrete]=ceil(bmp.range/1.5f);
 	}
 	for(unsigned int m=mark;m<MAX_MARKS;m++)
@@ -415,7 +419,7 @@ void realise_design(game *state, struct bomber *b)
 			bs->nav[n]=b->elec.navaid[n];
 		bt->markname[m]=NULL;
 		// MOD refit is applicable only to a single mark
-		if(b->refit>=REFIT_MOD)
+		if(bb->refit>=REFIT_MOD)
 			break;
 	}
 	bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=bt->load[BL_ILLUM]=true;
@@ -436,19 +440,59 @@ void realise_design(game *state, struct bomber *b)
 	bt->train=bt->exit=(date){9999, 99, 99};
 	bt->convertfrom=-1;
 	bt->newmark=max(bt->newmark, mark);
-	bt->markname[bt->newmark]=strdup(default_mark_names[bt->newmark]);
+	bt->markname[mark]=strdup(default_mark_names[mark]);
 	return;
 }
 
-void update_refit_buttons(struct bomber *b)
+int assign_slots(game *state, struct bomber *b)
+{
+	unsigned int type, mark;
+	switch(b->refit)
+	{
+	case REFIT_FRESH:
+		if(state->next_custom_slot>=ntypes)
+		{
+			fprintf(stderr, "No slots left!\n");
+			return(1);
+		}
+		type=state->next_custom_slot++;
+		if(!type) // can't happen
+			fprintf(stderr, "slot_idx zero used, bad stuff will happen!\n");
+		mark=0;
+		break;
+	case REFIT_MARK:
+		type=b->parent->slot_idx;
+		if(types[type].newmark+1>=MAX_MARKS)
+		{
+			fprintf(stderr, "No mark slots left!\n");
+			return(1);
+		}
+		mark=++types[type].newmark;
+		break;
+	case REFIT_MOD:
+		type=b->parent->slot_idx;
+		mark=b->parent->mark_idx;
+		break;
+	default:
+		fprintf(stderr, "Bad refit_level, everything will catch fire!\n");
+		type=mark=0;
+		break;
+	}
+	b->slot_idx=type;
+	b->mark_idx=mark;
+	return(0);
+}
+
+void update_refit_buttons(const game *state, struct bomber *b)
 {
 	if(!b)
 	{
 		HM_fresh->hidden=HM_mark->hidden=HM_mod->hidden=true;
 		return;
 	}
-	HM_fresh->hidden=false;
-	HM_mark->hidden=HM_mod->hidden=design_status(b)<DSTA_TOOL;
+	HM_fresh->hidden=state->next_custom_slot<ntypes;
+	HM_mark->hidden=design_status(b)<DSTA_TOOL||types[b->slot_idx].newmark+1>=MAX_MARKS;
+	HM_mod->hidden=design_status(b)<DSTA_TOOL;
 }
 
 screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
@@ -586,7 +630,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 	}
 	wipe_m2v(HM_out_buf, HM_bp);
 	HM_proto->hidden=HM_tool->hidden=HM_halt->hidden=true;
-	update_refit_buttons(NULL);
+	update_refit_buttons(state, NULL);
 
 	while(1)
 	{
@@ -673,7 +717,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						calc_bomber(seldesb, &seldesb->tn);
 						builder_update_m2v(seldesb, HM_out_buf);
 						HM_proto->hidden=true;
-						update_refit_buttons(seldesb);
+						update_refit_buttons(state, seldesb);
 						if(HM_dsta[seldes])
 						{
 							atg_box *b=HM_dsta[seldes]->elemdata;
@@ -742,42 +786,19 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							fprintf(stderr, "Not enough cash to tool this design.\n");
 							break;
 						}
-						state->cash-=seldesb->cprod;
+						if(assign_slots(state, seldesb))
+							break;
 						seldesb->prod_work=seldesb->tprod;
-						unsigned int type, mark;
-						switch(seldesb->refit)
-						{
-						case REFIT_FRESH:
-							type=state->next_custom_slot++;
-							if(!type) // can't happen
-								fprintf(stderr, "slot_idx zero used, bad stuff will happen!\n");
-							mark=0;
-							break;
-						case REFIT_MARK:
-							type=seldesb->parent->slot_idx;
-							mark=++types[type].newmark;
-							break;
-						case REFIT_MOD:
-							type=seldesb->parent->slot_idx;
-							mark=seldesb->parent->mark_idx;
-							break;
-						default:
-							fprintf(stderr, "Bad refit_level, everything will catch fire!\n");
-							type=mark=0;
-							break;
-						}
-						seldesb->slot_idx=type;
-						seldesb->mark_idx=mark;
+						state->cash-=seldesb->cprod;
 						realise_design(state, seldesb);
-						// XXX in !prestart we will need something much better than this
-						bombertype *bt=types+type;
+						bombertype *bt=types+seldesb->slot_idx;
 						if(seldesb->refit==REFIT_FRESH)
 						{
 							bt->pc=30000;
-							state->btypes[type]=true;
+							state->btypes[seldesb->slot_idx]=true;
 						}
 						HM_tool->hidden=true;
-						update_refit_buttons(seldesb);
+						update_refit_buttons(state, seldesb);
 						if(HM_dsta[seldes])
 						{
 							atg_box *b=HM_dsta[seldes]->elemdata;
@@ -814,7 +835,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							HM_proto->hidden=design_status(b)!=DSTA_DRAW||b->manf->proto_idx==(int)i;
 							HM_tool->hidden=design_status(b)==DSTA_TOOL||b->manf->prod_idx==(int)i;
 							HM_halt->hidden=b->manf->proto_idx!=(int)i&&b->manf->prod_idx!=(int)i;
-							update_refit_buttons(b);
+							update_refit_buttons(state, b);
 							break;
 						}
 					}

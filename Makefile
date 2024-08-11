@@ -102,7 +102,7 @@ intel_targets.o: ui.h globals.h bits.h date.h render.h
 
 handle_crews.o: ui.h globals.h date.h post_raid.h bits.h render.h widgets.h
 
-handle_squadrons.o: ui.h globals.h date.h bits.h control.h rand.h render.h run_raid.h
+handle_squadrons.o: ui.h globals.h date.h bits.h control.h rand.h render.h run_raid.h builder/data.h builder/list.h
 
 builder.o: ui.h globals.h bits.h date.h rand.h widgets.h builder/data.h builder/list.h builder/calc.h
 

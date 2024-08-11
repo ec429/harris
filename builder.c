@@ -1899,9 +1899,14 @@ void update_crew_c2m(struct bomber *b)
 
 void name_design(game *state, struct bomber *b)
 {
-	// TODO handle refits differently
 	unsigned int year=state->now.year%100;
 
+	if(b->refit>=REFIT_MOD)
+	{
+		state->next_mod_number+=irandu(17)+1;
+		snprintf(b->name, WORK_NAME_LEN, "Mod.%u", state->next_mod_number);
+		return;
+	}
 	if(date_before_start(state->now))
 		year=state->now.day>1?38:35;
 	state->next_design_number+=irandu(4)+1;
@@ -1954,8 +1959,8 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 		b.parent=src;
 		b.refit=src_rfl;
 		b.proto_work=b.prod_work=0;
-		if(src_rfl==REFIT_FRESH)
-			b.slot_idx=0;
+		b.slot_idx=0;
+		b.mark_idx=0;
 	}
 	b.this_idx=-1;
 	calc_bomber(&b, &builder->tn);

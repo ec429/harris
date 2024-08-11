@@ -188,6 +188,103 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 			ip_append(&state->hist, state->now, (harris_time){11, 22}, state->ifav[i], i);
 		}
 	}
+	if(state->builder)
+	{
+		for(unsigned int i=0;i<builder->entities.nmanf;i++)
+		{
+			struct manf *m=builder->entities.manf[i];
+			if(m->proto_idx>=0&&(unsigned int)m->proto_idx<state->ndesigns)
+			{
+				struct bomber *b=state->designs+m->proto_idx;
+				unsigned int old_cost=(b->proto_work*b->cproto)/b->tproto;
+				unsigned int new_cost=((b->proto_work+1)*b->cproto)/b->tproto;
+				unsigned int delta=min(new_cost, b->cproto)-old_cost;
+				if(delta<state->cash)
+				{
+					state->cash-=delta;
+					b->proto_work++;
+					if(b->proto_work>=b->tproto)
+					{
+						// complete the design
+						do_randomise(b);
+						calc_bomber(b, &b->tn);
+						char refbuf[32], msgbuf[120];
+						snprintf(refbuf, sizeof(refbuf),
+							 "PROTO_%s", m->ident);
+						snprintf(msgbuf, sizeof(msgbuf),
+							 "%s have completed test flying of their %s prototype.\n",
+							 m->name, b->name);
+						msgadd(canvas, state, tomorrow, refbuf, msgbuf);
+						m->proto_idx=-1;
+					}
+				}
+			}
+			if(m->prod_idx>=0&&(unsigned int)m->prod_idx<state->ndesigns)
+			{
+				struct bomber *b=state->designs+m->prod_idx;
+				unsigned int old_cost=(b->prod_work*b->cprod)/b->tprod;
+				unsigned int new_cost=((b->prod_work+1)*b->cprod)/b->tprod;
+				unsigned int delta=min(new_cost, b->cprod)-old_cost;
+				// if not protoed and would finish, silently pause tooling
+				if(delta<state->cash&&(new_cost<b->cprod||b->proto_work>=b->tproto))
+				{
+					state->cash-=delta;
+					b->prod_work++;
+					if(b->prod_work>=b->tprod)
+					{
+						if(assign_slots(state, b))
+						{
+							// All of that work goes to waste, because our bureaucrats can't count past 4
+							m->prod_idx=-1;
+							continue;
+						}
+						realise_design(state, b);
+						bombertype *bt=types+b->slot_idx;
+						char refbuf[32], msgbuf[240];
+						switch(b->refit)
+						{
+						case REFIT_FRESH:
+							// TODO come up with something better than this
+							bt->pc=30000;
+							state->btypes[b->slot_idx]=true;
+							snprintf(refbuf, sizeof(refbuf),
+								 "%s", bt->name);
+							snprintf(msgbuf, sizeof(msgbuf),
+								 "%s have completed production tooling of their new bomber type.\n"
+								 "You can now construct %s aircraft.\n",
+								 m->name, bt->name);
+							break;
+						case REFIT_MARK:
+							snprintf(refbuf, sizeof(refbuf),
+								 "%s %s", bt->name, bt->markname[bt->newmark]);
+							snprintf(msgbuf, sizeof(msgbuf),
+								 "%s have converted %s production tooling to the newly developed mark.\n"
+								 "Newly constructed aircraft will be of %s standard.\n",
+								 m->name, bt->name, bt->markname[bt->newmark]);
+							break;
+						case REFIT_MOD:
+							snprintf(refbuf, sizeof(refbuf),
+								 "MOD_%s", bt->name);
+							snprintf(msgbuf, sizeof(msgbuf),
+								 "%s have produced conversion kits for their new modification.\n"
+								 "All %s %s aircraft have had %s applied.\n",
+								 m->name, bt->name, bt->markname[bt->newmark], b->name);
+							break;
+						default: // can't happen
+							snprintf(refbuf, sizeof(refbuf),
+								 "RFL_???");
+							snprintf(msgbuf, sizeof(msgbuf),
+								 "%s have tooled... something? for the %s.\n",
+								 m->name, bt->name);
+							break;
+						}
+						msgadd(canvas, state, tomorrow, refbuf, msgbuf);
+						m->prod_idx=-1;
+					}
+				}
+			}
+		}
+	}
 	// Apply any mods
 	for(unsigned int m=0;m<nmods;m++)
 		if(!diffdate(tomorrow, mods[m].d))
@@ -819,7 +916,11 @@ mothball:
 		apply_techs(&builder->entities, &builder->tn);
 		// re-realise all bombers in case any doctrine has changed
 		for(unsigned int i=0;i<state->ndesigns;i++)
-			realise_design(state, state->designs+i);
+		{
+			struct bomber *b=state->designs+i;
+			if(b->proto_work>=b->tproto&&b->prod_work>=b->tprod)
+				realise_design(state, b);
+		}
 	}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{

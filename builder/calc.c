@@ -926,7 +926,6 @@ static int calc_refit(struct bomber *b, const struct tech_numbers *tn)
 		design_error(b, "Refit must have a parent design!");
 		return -EINVAL;
 	}
-	b->tn = b->parent->tn;
 	switch (b->refit) {
 	case REFIT_MARK:
 		start = offsetof(struct tech_numbers, mark_block);
@@ -941,8 +940,14 @@ static int calc_refit(struct bomber *b, const struct tech_numbers *tn)
 		design_error(b, "Unknown refit level %d", b->refit);
 		return -EINVAL;
 	}
+	memcpy(&b->tn, &b->parent->tn, start);
 	memcpy(((char *)&b->tn) + start, ((char *)tn) + start,
 	       sizeof(*tn) - start);
+	/* Always incorporate current Doctrine */
+	/*
+	memcpy((char *)&b->tn.doctrine_block,
+	       (char *)&builder->entities.tn.doctrine_block,
+	       sizeof(*tn) - offsetof(struct tech_numbers, doctrine_block));*/
 	return 0;
 }
 
