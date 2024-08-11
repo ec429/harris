@@ -34,6 +34,8 @@ int for_each_line(FILE *f, int (*cb)(const char *line, void *data), void *data)
 				goto out;
 			}
 			line[len] = 0;
+			if (line[to] == '#') /* comment */
+				goto next_line;
 			rc = cb(line + to, data);
 			if (rc) {
 				/* Reposition to un-consume subsequent lines */
@@ -41,6 +43,7 @@ int for_each_line(FILE *f, int (*cb)(const char *line, void *data), void *data)
 				goto out;
 			}
 			count++;
+next_line:
 			to = len + 1;
 		} while (1);
 		memmove(line, line + to, from + bytes + 1 - to);

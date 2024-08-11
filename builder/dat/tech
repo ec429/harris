@@ -45,7 +45,7 @@ TRR:e=Deer:n=Triple-Row Radials:y=1940:m=9:d=Unlocks the Deerhound engine.
 CLE:EDF=90:EMC=110:n=Clean Entry:y=1941:m=11:d=Reduces the drag of engine mountings.
 EGG:EES=90:EET=105:EEC=95:n=Power Egg:y=1941:m=4:d=Power Egg mounts improve serviceability, and speed up engine refits.
 IEM:ETF=125:EMC=120:r=CLE:n=Improved Engine Mountings:y=1943:m=1:d=Reduces the weight of engine installations.
-PAP:n=Paddleblade Prop:y=1943:m=3:d=Unimplemented feature.
+#PAP:n=Paddleblade Prop:y=1943:m=3:d=Unimplemented feature.
 DUT:t=Vent:n=Dustbin Turret:y=2:d=Unlocks the Ventral dustbin (twin) turret.
 ARM:t=Dors:t=Daft:t=Vaft:t=Wast:n=Armament Improvements:y=1939:m=9:d=Unlocks twin dorsal turret, twin dorsal/ventral after mounts, and waist guns.
 QUT:t=Dor4:t=Tai4:r=ARM:n=Quad Turrets:y=1940:m=10:d=Unlocks four-gun dorsal and rear turrets.
