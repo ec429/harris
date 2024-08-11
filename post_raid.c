@@ -238,6 +238,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 							m->prod_idx=-1;
 							continue;
 						}
+						b->entry=tomorrow;
 						realise_design(state, b);
 						bombertype *bt=types+b->slot_idx;
 						char refbuf[32], msgbuf[240];
@@ -914,6 +915,11 @@ mothball:
 		}
 		state->researching[slot]=NULL;
 		apply_techs(&builder->entities, &builder->tn);
+		for(unsigned int i=0;i<NNAVAIDS;i++)
+			if(builder->tn.na[i])
+				event[navevent[i]]=(date){1, 1, 1};
+		if(builder->tn.na[NAV_GEE]>1)
+			event[EVENT_ALLGEE]=(date){1, 1, 1};
 		// re-realise all bombers in case any doctrine has changed
 		for(unsigned int i=0;i<state->ndesigns;i++)
 		{

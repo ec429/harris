@@ -18,6 +18,7 @@ if sys.argv[1] == 'h':
 
 #ifndef HAVE_EVENTS_H
 #define HAVE_EVENTS_H
+#include <stdbool.h>
 """
 
 	for i,e in enumerate(Events):
@@ -26,6 +27,7 @@ if sys.argv[1] == 'h':
 	print "#define NEVENTS %d" % len(Events)
 	print
 	print "extern const char *event_names[%d];" % len(Events)
+	print "extern bool event_nobuilder[%d];" % len(Events)
 
 	print
 	print "int find_event(const char *name);"
@@ -49,6 +51,10 @@ else:
 	print "const char *event_names[%d]={" % len(Events)
 	for e in Events:
 		print '\t"%s",' % e['id']
+	print "};"
+	print "bool event_nobuilder[%d]={" % len(Events)
+	for e in Events:
+		print '\t%s,' % str(bool(e['nobuilder'])).lower()
 	print "};"
 	print """
 int find_event(const char *name)

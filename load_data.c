@@ -1238,7 +1238,8 @@ int load_events(void)
 					fprintf(stderr, "  expected ID=%s\n", event_names[nevs]);
 					return(1);
 				}
-				event[nevs++]=readdate(colon, (date){0, 0, 0});
+				rawevent[nevs]=event[nevs]=readdate(colon, (date){0, 0, 0});
+				nevs++;
 			}
 			next=strtok(NULL, "\n");
 		}

@@ -1378,8 +1378,15 @@ fail:
 		filter_marks[m]=false;
 	for(unsigned int g=0;g<7;g++)
 		filter_groups[g]=false;
+	for(unsigned int i=0;i<NEVENTS;i++)
+		event[i]=(event_nobuilder[i]&&state->builder)?(date){9999, 99, 99}:rawevent[i];
 	selstage=TPIPE__MAX;
 	apply_techs(&builder->entities, &builder->tn);
+	for(unsigned int i=0;i<NNAVAIDS;i++)
+		if(builder->tn.na[i])
+			event[navevent[i]]=(date){1, 1, 1};
+	if(builder->tn.na[NAV_GEE]>1)
+		event[EVENT_ALLGEE]=(date){1, 1, 1};
 	for(unsigned int i=0;i<ntypes;i++)
 		types[i]=rawtypes[i];
 	for(unsigned int m=0;m<nmods;m++)

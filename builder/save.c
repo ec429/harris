@@ -97,6 +97,8 @@ int save_design(FILE *f, const struct bomber *b)
 		fprintf(f, "IDX=%u\n", b->slot_idx);
 	if(b->mark_idx)
 		fprintf(f, "MDX=%u\n", b->mark_idx);
+	fprintf(f, "ENY=%u:ENM=%u:END=%u\n",
+		b->entry.year, b->entry.month, b->entry.day);
 	save_tn(f, &b->tn);
 	fprintf(f, "EOD\n");
 	return 0;
@@ -344,6 +346,9 @@ LOADER_UINT(ptw, proto_work);
 LOADER_UINT(pdw, prod_work);
 LOADER_UINT(idx, slot_idx);
 LOADER_UINT(mdx, mark_idx);
+LOADER_UINT(eny, entry.year);
+LOADER_UINT(enm, entry.month);
+LOADER_UINT(end, entry.day);
 
 static int load_tn(const char *value, struct loaddata *l)
 {
@@ -404,6 +409,9 @@ struct loadkey {
 	{"WKN", load_wkn},
 	{"IDX", load_idx},
 	{"MDX", load_mdx},
+	{"ENY", load_eny},
+	{"ENM", load_enm},
+	{"END", load_end},
 	{"EOD", load_eod},
 };
 

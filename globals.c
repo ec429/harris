@@ -21,6 +21,7 @@ const char * const winpicfn[NWINLVLS]={"art/window/none.png", "art/window/normal
 double todays_delta, todays_eqn; // values for the almanack
 
 date event[NEVENTS];
+date rawevent[NEVENTS];
 char *evtext[NEVENTS];
 
 struct oboe oboe={.lat=95, .lon=63, .k=-1};

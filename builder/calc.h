@@ -189,6 +189,7 @@ struct bomber {
 	unsigned int slot_idx; // index in types[], if tooled
 	unsigned int mark_idx; // index in type.mark[], if tooled
 	int this_idx; // our index in state->designs[]
+	date entry;
 };
 
 const struct bomber *mod_ancestor(const struct bomber *b);

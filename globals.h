@@ -22,6 +22,7 @@ extern const char * const winpicfn[NWINLVLS];
 extern double todays_delta, todays_eqn;
 
 extern date event[NEVENTS];
+extern date rawevent[NEVENTS];
 extern char *evtext[NEVENTS];
 
 extern struct oboe oboe;

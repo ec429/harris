@@ -106,8 +106,8 @@ Bombers = Table([('manf', parse_string),
 				 ])
 Bombers.read(open('dat/bombers'))
 
-# Events: ID:DATE
-Events = Table([('id', parse_string), ('date', parse_date)])
+# Events: ID:DATE:NOBUILDER
+Events = Table([('id', parse_string), ('date', parse_date), ('nobuilder', parse_int)])
 Events.read(open('dat/events'))
 
 # Fighters: MANUFACTURER:NAME:COST:SPEED:ARMAMENT:MNV:RADPRI:DD-MM-YYYY:DD-MM-YYYY:FLAGS

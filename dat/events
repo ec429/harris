@@ -1,4 +1,4 @@
-# Format is ID:DATE
+# Format is ID:DATE:NOBUILDER
 # ID must ~ [[:alnum:]_]+
 # Remarks.
 # For many of these events, only the month or even "early/late 19xx" are known or meaningful.
@@ -7,165 +7,165 @@
 # The dates of things like navaids, RCM devices and German radars are currently a confusion; some of them refer to the first Service use of the device, others to when production became sufficiently great that it was available in meaningful quantity.
 
 # Norway Fleet
-NORWAY:09-04-1940
+NORWAY:09-04-1940:0
 # Permit attacks on civilian areas
-CIV:15-05-1940
+CIV:15-05-1940:0
 # Battle of the Barges
-BARGE:04-07-1940
-ENDBARGE:31-10-1940
+BARGE:04-07-1940:0
+ENDBARGE:31-10-1940:0
 # Luftwaffe bombs London
-LONDON:24-08-1940
+LONDON:24-08-1940:0
 # Coventry is blitzed
-COVENTRY:15-11-1940
+COVENTRY:15-11-1940:0
 # Operation Abigail Rachel
-MANNHEIM:15-12-1940
+MANNHEIM:15-12-1940:0
 # Operation Drumbeat (Paukenschlag)
-UBOAT:17-01-1942
+UBOAT:17-01-1942:0
 # Area Bombing Directive
-ABD:14-02-1942
+ABD:14-02-1942:0
 # Go and bomb Italy!
-ITALY:15-10-1942
+ITALY:15-10-1942:0
 # Invasion support
-INV:01-04-1944
+INV:01-04-1944:0
 # D-Day
-DDAY:06-06-1944
+DDAY:06-06-1944:0
 # Operation Crossbow
-V1:19-04-1944
-V1END:03-09-1944
+V1:19-04-1944:0
+V1END:03-09-1944:0
 # Return to area bombing (hist: 23/24 July (source: Merrick))
-R2AB:01-10-1944
+R2AB:01-10-1944:0
 # Winston's "Terror" memo
-TERROR:28-03-1945
+TERROR:28-03-1945:0
 # End of bombing; Operation Manna begins
-MANNA:22-04-1945
+MANNA:22-04-1945:0
 # End of war in Europe
-VE:08-05-1945
+VE:08-05-1945:0
 
 #Pathfinder Force formed
-PFF:15-08-1942
+PFF:15-08-1942:0
 
 #Class A airfield upgrades
-PAVING:17-09-1940
+PAVING:17-09-1940:1
 
 #Training system
-FLT_ENG:19-07-1940
-HCU:20-08-1941
-EATS:12-07-1942
-LFS:30-06-1943
+FLT_ENG:19-07-1940:0
+HCU:20-08-1941:0
+EATS:12-07-1942:0
+LFS:30-06-1943:0
 # To match exit-date of Whitley
-OTUB:01-04-1942
+OTUB:01-04-1942:1
 
 #Navaids
-OBOE:20-11-1941
+OBOE:20-11-1941:1
 # GEE also triggers bomberstream tactics
-GEE:05-03-1942
-ALLGEE:22-12-1942
-H2S:26-01-1943
-GH:13-11-1943
+GEE:05-03-1942:1
+ALLGEE:22-12-1942:1
+H2S:26-01-1943:1
+GH:13-11-1943:1
 
 #Modifications
-MOD_TWINGUN:11-01-1940
-MOD_SSTANK:06-02-1940
-MOD_SSTEND:04-05-1940
-MOD_RELEASE:10-08-1940
-MOD_COOKIE:27-03-1941
-MOD_CREWSTIR:18-04-1941
-MOD_CREWMANC:22-04-1941
-BROUGHTON:30-07-1941
-MOD_BEAMGUNS:09-09-1941
-MOD_DERATE:14-09-1941
-MOD_EXACTOR:21-10-1941
-MOD_SHROUD:02-12-1941
-MOD_RUDDER:15-01-1942
-MOD_NOSHROUD:12-03-1942
-MOD_HAL4000:11-04-1942
-MOD_XIV:19-04-1942
-MOD_OVLTANK:09-05-1942
-MOD_NOSETRT:21-08-1942
-MOD_XIVEND:07-11-1942
-MOD_OBOE:04-12-1942
-MOD_TSIGHT:13-03-1943
-MOD_BBBAY:03-04-1943
-MOD_PROP:01-11-1943
-Lancaster X:13-02-1944
-STIRLING_III:08-01-1943
-WELLINGTON_IC:02-04-1940
-WELLINGTON_III:17-06-1941
-WELLINGTON_X:10-11-1942
-HALIFAX_II:25-10-1941
-HALIFAX_IIA:01-06-1943
-MOSQUITO_IX:22-07-1943
+MOD_TWINGUN:11-01-1940:1
+MOD_SSTANK:06-02-1940:1
+MOD_SSTEND:04-05-1940:1
+MOD_RELEASE:10-08-1940:1
+MOD_COOKIE:27-03-1941:1
+MOD_CREWSTIR:18-04-1941:1
+MOD_CREWMANC:22-04-1941:1
+BROUGHTON:30-07-1941:1
+MOD_BEAMGUNS:09-09-1941:1
+MOD_DERATE:14-09-1941:1
+MOD_EXACTOR:21-10-1941:1
+MOD_SHROUD:02-12-1941:1
+MOD_RUDDER:15-01-1942:1
+MOD_NOSHROUD:12-03-1942:1
+MOD_HAL4000:11-04-1942:1
+MOD_XIV:19-04-1942:1
+MOD_OVLTANK:09-05-1942:1
+MOD_NOSETRT:21-08-1942:1
+MOD_XIVEND:07-11-1942:1
+MOD_OBOE:04-12-1942:1
+MOD_TSIGHT:13-03-1943:1
+MOD_BBBAY:03-04-1943:1
+MOD_PROP:01-11-1943:1
+Lancaster X:13-02-1944:1
+STIRLING_III:08-01-1943:1
+WELLINGTON_IC:02-04-1940:1
+WELLINGTON_III:17-06-194:1
+WELLINGTON_X:10-11-1942:1
+HALIFAX_II:25-10-1941:1
+HALIFAX_IIA:01-06-1943:1
+MOSQUITO_IX:22-07-1943:1
 
 #RCM
 # Boozer is a receiver for enemy radar emissions.  However, in a bomber stream a Boozer warning doesn't mean much
-BOOZER:17-08-1943
+BOOZER:17-08-1943:0
 # Window, nowadays known as 'chaff', consists of strips of metal foil which jam enemy radar
-WINDOW:24-07-1943
+WINDOW:24-07-1943:0
 # Moonshine sends back delayed echoes to enemy 'Freya' ground radar, jamming them
-MOONSHINE:01-10-1942
+MOONSHINE:01-10-1942:0
 # Airborne Cigar transmitters, carried in bombers, jam the German nightfighter R/T frequencies
-ABC:09-10-1943
+ABC:09-10-1943:0
 # Fishpond is a mod to H2S that detects aircraft in the H2S's viewcone
-FISHPOND:02-04-1944
+FISHPOND:02-04-1944:0
 # Serrate is a device to track Lichtenstein BC radar
-SERRATE:16-12-1942
+SERRATE:16-12-1942:0
 
 #German defenses
 # Start placing Wurzburgs and Giant Wurzburgs
-WURZBURG:09-04-1940
+WURZBURG:09-04-1940:0
 # Kammhuber line
-KAMMHUBER:28-07-1940
+KAMMHUBER:28-07-1940:0
 # Zahme Sau tactics.  I'm not at all sure about this date
-TAMEBOAR:11-10-1943
+TAMEBOAR:11-10-1943:0
 # Lichtenstein B/C (airborne radar).  "The first production sets (Lichtenstein B/C) became available in February 1942, but were not accepted into combat until September." - http://en.wikipedia.org/wiki/Radar_in_World_War_II#Airborne_2
-LICHTENSTEIN:21-02-1942
-L_BC:02-09-1942
+LICHTENSTEIN:21-02-1942:0
+L_BC:02-09-1942:0
 # Naxos homes on H2S transmissions
-NAXOS:28-11-1943
+NAXOS:28-11-1943:0
 # Lichtenstein SN (better)
-L_SN:01-12-1943
+L_SN:01-12-1943:0
 # Schräge Musik
-MUSIK:17-08-1943
+MUSIK:17-08-1943:0
 # Jamming GEE.  "no jamming was experienced for nearly five months [after large-scale Gee operations began]" - Jones.  But Wikipedia says "The first serious jamming was encountered on the night of 4/5 August 1942." so maybe I should take that date instead
-GEEJAM:21-09-1942
+GEEJAM:21-09-1942:0
 
 #Intelligence reports
 # Informational
-FREYA:12-02-1940
+FREYA:12-02-1940:0
 # Warnings
-V_WEAPONS:18-06-1943
+V_WEAPONS:18-06-1943:0
 # Spurious
-SECRET:19-09-1939
-FLAKGAS:22-08-1940
+SECRET:19-09-1939:0
+FLAKGAS:22-08-1940:0
 
 #General war news
 # Fall of France
-FRANCE:22-06-1940
+FRANCE:22-06-1940:0
 # Fall of Crete
-CRETE:01-06-1941
+CRETE:01-06-1941:0
 # Germans invade Russia
-BARBAROSSA:22-06-1941
+BARBAROSSA:22-06-1941:0
 # Pearl Harbour
-AMERICA:07-12-1941
+AMERICA:07-12-1941:0
 # Invasion of French North Africa
-TORCH:08-11-1942
+TORCH:08-11-1942:0
 # Second Battle of El Alamein
-EL_ALAMEIN:10-11-1942
+EL_ALAMEIN:10-11-1942:0
 # Russians encircle Stalingrad
-STALINGRAD:23-11-1942
+STALINGRAD:23-11-1942:0
 # Germans lose battle of Kursk
-KURSK:23-08-1943
+KURSK:23-08-1943:0
 # Italy signs an armistice (it won't last)
-BADOGLIO:08-09-1943
+BADOGLIO:08-09-1943:0
 # Nazi puppet state Repubblica Sociale Italiana is set up
-RSI:23-09-1943
+RSI:23-09-1943:0
 
 #Prestart events (builder games only)
-REARMAMENT:01-01-1935
-LEGACY:01-01-1938
-ORDERS:03-09-1939
+REARMAMENT:01-01-1935:0
+LEGACY:01-01-1938:0
+ORDERS:03-09-1939:0
 #Propaganda events.  These are triggered by player actions, rather than the calendar.
-BERLIN:99-99-9999
-THOUSAND:99-99-9999
-DESTROYED:99-99-9999
-CITYDEST:99-99-9999
+BERLIN:99-99-9999:0
+THOUSAND:99-99-9999:0
+DESTROYED:99-99-9999:0
+CITYDEST:99-99-9999:0

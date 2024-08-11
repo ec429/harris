@@ -3212,4 +3212,6 @@ void game_preinit(game *state)
 	// map all currently-existing flaksites
 	for(unsigned int i=0;i<nflaks;i++)
 		flaks[i].mapped=datewithin(state->now, flaks[i].entry, flaks[i].exit);
+	for(unsigned int i=0;i<NEVENTS;i++)
+		event[i]=(event_nobuilder[i]&&state->builder)?(date){9999, 99, 99}:rawevent[i];
 }

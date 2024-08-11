@@ -311,6 +311,17 @@ void realise_design(const game *state, struct bomber *bb)
 		// TODO prompt player for a name (and a markname?)
 		snprintf(bt->name, 40, "%s", b->name);
 		snprintf(GB_btname[type], 80, "%s %s", bt->manu, bt->name);
+		bt->entry=b->entry;
+		if(!date_before_start(state->now))
+		{
+			bt->novelty=bt->entry;
+			bt->novelty.month+=4;
+			if(bt->novelty.month>12)
+			{
+				bt->novelty.month-=12;
+				bt->novelty.year++;
+			}
+		}
 	}
 	unsigned int mrcap[2];
 	unsigned int mrange[2];
@@ -790,6 +801,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							break;
 						seldesb->prod_work=seldesb->tprod;
 						state->cash-=seldesb->cprod;
+						seldesb->entry=state->now;
 						realise_design(state, seldesb);
 						bombertype *bt=types+seldesb->slot_idx;
 						if(seldesb->refit==REFIT_FRESH)
