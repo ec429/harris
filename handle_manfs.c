@@ -312,7 +312,7 @@ void realise_design(const game *state, struct bomber *bb)
 		snprintf(bt->name, 40, "%s", b->name);
 		snprintf(GB_btname[type], 80, "%s %s", bt->manu, bt->name);
 		bt->entry=b->entry;
-		if(!date_before_start(state->now))
+		if(!date_before_start(bt->entry))
 		{
 			bt->novelty=bt->entry;
 			bt->novelty.month+=4;
@@ -360,11 +360,12 @@ void realise_design(const game *state, struct bomber *bb)
 		struct bomber bmp=*b; /* bomber at Max Payload */
 		unsigned int mptow, mts, mtg;
 		int delta;
+		bmp.tanks.pct=100;
 		bmp.parent=b;
 		bmp.refit=REFIT_DOCTRINE;
 		calc_bomber(&bmp, tn);
-		mts = concrete ? tn->rcs : tn->rgs;
-		mtg = concrete ? tn->rcg : tn->rgg;
+		mts = concrete && tn->rcs ? tn->rcs : tn->rgs;
+		mtg = concrete && tn->rcg ? tn->rcg : tn->rgg;
 		mptow = floor(wing_lift(&bmp.wing, mts / 1.6f));
 		mptow = min(mptow, mtg * 1000);
 		mptow = min(mptow, bmp.mtow);
@@ -501,7 +502,7 @@ void update_refit_buttons(const game *state, struct bomber *b)
 		HM_fresh->hidden=HM_mark->hidden=HM_mod->hidden=true;
 		return;
 	}
-	HM_fresh->hidden=state->next_custom_slot<ntypes;
+	HM_fresh->hidden=state->next_custom_slot>=ntypes;
 	HM_mark->hidden=design_status(b)<DSTA_TOOL||types[b->slot_idx].newmark+1>=MAX_MARKS;
 	HM_mod->hidden=design_status(b)<DSTA_TOOL;
 }

@@ -269,7 +269,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 							snprintf(msgbuf, sizeof(msgbuf),
 								 "%s have produced conversion kits for their new modification.\n"
 								 "All %s %s aircraft have had %s applied.\n",
-								 m->name, bt->name, bt->markname[bt->newmark], b->name);
+								 m->name, bt->name, bt->markname[b->mark_idx], b->name);
 							break;
 						default: // can't happen
 							snprintf(refbuf, sizeof(refbuf),

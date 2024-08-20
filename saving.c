@@ -547,12 +547,12 @@ int loadgame(const char *fn, game *state)
 				if(!strcmp(ident[i], "nil"))
 				{
 					state->researching[i]=NULL;
-					break;
+					continue;
 				}
 				if(!strcmp(ident[i], supporting.ident))
 				{
 					state->researching[i]=&supporting;
-					break;
+					continue;
 				}
 				unsigned int j;
 				for(j=0;j<builder->entities.ntech;j++)
@@ -1395,6 +1395,8 @@ fail:
 	for(unsigned int i=0;i<state->ndesigns;i++)
 		if(state->designs[i].slot_idx) // tooled
 			realise_design(state, state->designs+i);
+		else
+			calc_bomber(state->designs+i, &state->designs[i].tn);
 	for(unsigned int s=0;s<state->nsquads;s++)
 		for(unsigned int f=0;f<3;f++)
 		{

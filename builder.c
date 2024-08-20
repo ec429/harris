@@ -1959,6 +1959,9 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 		b.parent=src;
 		b.refit=src_rfl;
 		b.proto_work=b.prod_work=0;
+		b.dice.rolled=false;
+		if(b.refit==REFIT_FRESH)
+			memset(&b.dice, 0, sizeof(b.dice));
 		b.slot_idx=0;
 		b.mark_idx=0;
 	}
