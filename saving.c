@@ -1394,7 +1394,7 @@ fail:
 			apply_mod(m);
 	for(unsigned int i=0;i<state->ndesigns;i++)
 		if(state->designs[i].slot_idx) // tooled
-			realise_design(state, state->designs+i);
+			realise_design(state->designs+i);
 		else
 			calc_bomber(state->designs+i, &state->designs[i].tn);
 	for(unsigned int s=0;s<state->nsquads;s++)

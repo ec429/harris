@@ -239,7 +239,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 							continue;
 						}
 						b->entry=tomorrow;
-						realise_design(state, b);
+						realise_design(b);
 						bombertype *bt=types+b->slot_idx;
 						char refbuf[32], msgbuf[240];
 						switch(b->refit)
@@ -925,7 +925,7 @@ mothball:
 		{
 			struct bomber *b=state->designs+i;
 			if(b->proto_work>=b->tproto&&b->prod_work>=b->tprod)
-				realise_design(state, b);
+				realise_design(b);
 		}
 	}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)

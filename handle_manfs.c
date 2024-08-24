@@ -294,7 +294,7 @@ atg_colour dsta_colour(enum design_status dsta)
 
 const char *default_mark_names[MAX_MARKS]={"Mk I", "Mk II", "Mk III", "Mk IV"};
 
-void realise_design(const game *state, struct bomber *bb)
+void realise_design(struct bomber *bb)
 {
 	unsigned int type=bb->slot_idx;
 	unsigned int mark=bb->mark_idx;
@@ -446,9 +446,6 @@ void realise_design(const game *state, struct bomber *bb)
 	// TODO we need rules for this
 	bt->lfs=false;
 	bt->smbay=b->bay.girth<BB_COOKIE;
-	bt->entry=state->now;
-	// XXX this will need changing in the !prestart case (and we'll have to save novelty in struct bomber so we know it on game load)
-	bt->novelty=state->now;
 	bt->train=bt->exit=(date){9999, 99, 99};
 	bt->convertfrom=-1;
 	bt->newmark=max(bt->newmark, mark);
@@ -803,7 +800,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						seldesb->prod_work=seldesb->tprod;
 						state->cash-=seldesb->cprod;
 						seldesb->entry=state->now;
-						realise_design(state, seldesb);
+						realise_design(seldesb);
 						bombertype *bt=types+seldesb->slot_idx;
 						if(seldesb->refit==REFIT_FRESH)
 						{
