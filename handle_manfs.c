@@ -436,7 +436,7 @@ void realise_design(struct bomber *bb)
 	}
 	bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=bt->load[BL_ILLUM]=true;
 	// XXX plumduff has special SMBAY handling that's probably not correct for anything other than a Halifax
-	bt->load[BL_PONLY]=bt->load[BL_PLUMDUFF]=bt->load[BL_PPLUS]=bt->load[BL_HALFHALF]=b->bay.cookie;
+	bt->load[BL_PONLY]=bt->load[BL_PLUMDUFF]=bt->load[BL_PPLUS]=b->bay.cookie;
 	bt->noarm=b->turrets.uab;
 	bt->heavy=b->engines.number>=4;
 	bt->inc=false;
@@ -446,6 +446,7 @@ void realise_design(struct bomber *bb)
 	// TODO we need rules for this
 	bt->lfs=false;
 	bt->smbay=b->bay.girth<BB_COOKIE;
+	bt->load[BL_HALFHALF]=bt->load[BL_PLUMDUFF]&&!bt->smbay;
 	bt->train=bt->exit=(date){9999, 99, 99};
 	bt->convertfrom=-1;
 	bt->newmark=max(bt->newmark, mark);

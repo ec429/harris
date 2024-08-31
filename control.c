@@ -3190,7 +3190,7 @@ int update_raidnums(const game *state, int seltarg)
 				}
 				bombload load=is_pff(state, k)?state->raids[seltarg].pffloads[type]:state->raids[seltarg].loads[type];
 				/* Cookies sticking out of the bomb bay slow us down */
-				if(targs[seltarg].class==TCLASS_CITY&&(load==BL_PLUMDUFF||load==BL_PONLY)&&types[i].smbay)
+				if(targs[seltarg].class==TCLASS_CITY&&bombloads[load].cookie&&types[type].smbay)
 					srf=0.94;
 				unsigned int cap=bst.capwt;
 				unsigned int mrcap=unpaved?bst.mrcap:bst.cmcap;

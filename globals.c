@@ -29,14 +29,14 @@ struct gee gee={.lat=107, .lon=64, .jrange=65};
 
 struct bombloadinfo bombloads[NBOMBLOADS]=
 {
-	[BL_ABNORMAL]={.name="Ab", .fn="art/bombloads/abnormal.png"},
-	[BL_PPLUS	]={.name="Pp", .fn="art/bombloads/plumduff-plus.png"},
-	[BL_PLUMDUFF]={.name="Pd", .fn="art/bombloads/plumduff.png"},
-	[BL_PONLY	]={.name="Po", .fn="art/bombloads/plumduff-only.png"},
-	[BL_USUAL	]={.name="Us", .fn="art/bombloads/usual.png"},
-	[BL_ARSON	]={.name="Ar", .fn="art/bombloads/arson.png"},
-	[BL_ILLUM	]={.name="Il", .fn="art/bombloads/illuminator.png"},
-	[BL_HALFHALF]={.name="Hh", .fn="art/bombloads/halfandhalf.png"},
+	[BL_ABNORMAL]	= {.name="Ab", .fn="art/bombloads/abnormal.png"},
+	[BL_PPLUS]	= {.name="Pp", .fn="art/bombloads/plumduff-plus.png", .cookie=true},
+	[BL_PLUMDUFF]	= {.name="Pd", .fn="art/bombloads/plumduff.png", .cookie=true},
+	[BL_PONLY]	= {.name="Po", .fn="art/bombloads/plumduff-only.png", .cookie=true},
+	[BL_USUAL]	= {.name="Us", .fn="art/bombloads/usual.png"},
+	[BL_ARSON]	= {.name="Ar", .fn="art/bombloads/arson.png"},
+	[BL_ILLUM]	= {.name="Il", .fn="art/bombloads/illuminator.png"},
+	[BL_HALFHALF]	= {.name="Hh", .fn="art/bombloads/halfandhalf.png", .cookie=true},
 };
 
 struct overlay overlays[NUM_OVERLAYS] = {

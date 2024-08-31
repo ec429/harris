@@ -591,7 +591,7 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 				state->bombers[k].speed=(bst.speed+askill/20.0-2.0-state->bombers[k].wear/20.0)/450.0;
 				bombload load=is_pff(state, k)?state->raids[i].pffloads[type]:state->raids[i].loads[type];
 				/* Cookies sticking out of the bomb bay slow us down */
-				if(targs[i].class==TCLASS_CITY&&(load==BL_PLUMDUFF||load==BL_PONLY)&&types[i].smbay)
+				if(targs[i].class==TCLASS_CITY&&bombloads[load].cookie&&types[type].smbay)
 					state->bombers[k].speed*=0.94;
 				if(stream)
 				{

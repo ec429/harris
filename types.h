@@ -117,6 +117,7 @@ struct bombloadinfo
 	const char *name;
 	const char *fn;
 	SDL_Surface *pic;
+	bool cookie;
 };
 
 #define MAX_CREW	7
