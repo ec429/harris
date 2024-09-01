@@ -207,6 +207,8 @@ const char *ident_tn(unsigned int offset);
 const char *describe_tn(unsigned int offset);
 enum refit_level rfl_tn(unsigned int offset);
 
+void doc_tech(struct tech_numbers *tn, const struct tech_numbers *dtn);
+
 struct tech {
 	struct list_head list;
 	char ident[4];

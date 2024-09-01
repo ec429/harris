@@ -24,6 +24,7 @@ char *HM_out_buf[OUT_ROWS];
 SDL_Surface *HM_bp;
 atg_element *HM_proto, *HM_tool, *HM_halt;
 atg_element *HM_fresh, *HM_mark, *HM_mod;
+atg_element *HM_doc, *HM_dice;
 
 int handle_manfs_create(void)
 {
@@ -249,6 +250,50 @@ int handle_manfs_create(void)
 	}
 	HM_mod->hidden=true;
 	if(atg_ebox_pack(refits, HM_mod))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *showbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+	if(!showbox)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(rightbox, showbox))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *showlbl=atg_create_element_label("Show: ", 12, (atg_colour){179, 179, 195, ATG_ALPHA_OPAQUE});
+	if(!showlbl)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(showbox, showlbl))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HM_doc=atg_create_element_toggle("Current doctrine", true, (atg_colour){159, 159, 179, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	if(!HM_doc)
+	{
+		fprintf(stderr, "atg_create_element_toggle failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(showbox, HM_doc))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HM_dice=atg_create_element_toggle("Test results", true, (atg_colour){159, 159, 179, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	if(!HM_dice)
+	{
+		fprintf(stderr, "atg_create_element_toggle failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(showbox, HM_dice))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -503,6 +548,31 @@ void update_refit_buttons(const game *state, struct bomber *b)
 	HM_fresh->hidden=state->next_custom_slot>=ntypes;
 	HM_mark->hidden=design_status(b)<DSTA_TOOL||types[b->slot_idx].newmark+1>=MAX_MARKS;
 	HM_mod->hidden=design_status(b)<DSTA_TOOL;
+	HM_dice->hidden=design_status(b)<DSTA_PROTO;
+}
+
+void update_m2v(struct bomber *b, char **outbuf)
+{
+	struct bomber db, pb;
+	struct randomisation pd={};
+	if(b->parent!=b)
+		pd=b->parent->dice;
+	calc_bomber(b, &b->tn);
+	atg_event ve;
+	if(atg_value_event(HM_doc, &ve)==0 && ve.type==ATG_EV_TOGGLE && ve.event.toggle.state)
+	{
+		db=*b;
+		doc_tech(&db.tn, &builder->tn);
+		b=&db;
+	}
+	if(atg_value_event(HM_dice, &ve)==0 && ve.type==ATG_EV_TOGGLE && !ve.event.toggle.state)
+	{
+		pb=*b;
+		pb.dice=pd;
+		b=&pb;
+	}
+	calc_bomber(b, &b->tn);
+	builder_update_m2v(b, outbuf);
 }
 
 screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
@@ -725,7 +795,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						// complete the design
 						do_randomise(seldesb);
 						calc_bomber(seldesb, &seldesb->tn);
-						builder_update_m2v(seldesb, HM_out_buf);
+						update_m2v(seldesb, HM_out_buf);
 						HM_proto->hidden=true;
 						update_refit_buttons(state, seldesb);
 						if(HM_dsta[seldes])
@@ -787,7 +857,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							// complete the design
 							do_randomise(seldesb);
 							calc_bomber(seldesb, &seldesb->tn);
-							builder_update_m2v(seldesb, HM_out_buf);
+							update_m2v(seldesb, HM_out_buf);
 							HM_proto->hidden=true;
 						}
 						// TODO handle prestart==2 differently
@@ -841,8 +911,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						{
 							seldes=i;
 							struct bomber *b=state->designs+i;
-							calc_bomber(b, &b->tn);
-							builder_update_m2v(b, HM_out_buf);
+							update_m2v(b, HM_out_buf);
 							HM_proto->hidden=design_status(b)!=DSTA_DRAW||b->manf->proto_idx==(int)i;
 							HM_tool->hidden=design_status(b)==DSTA_TOOL||b->manf->prod_idx==(int)i;
 							HM_halt->hidden=b->manf->proto_idx!=(int)i&&b->manf->prod_idx!=(int)i;
@@ -876,7 +945,13 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 					fprintf(stderr, "Clicked on unknown button!\n");
 				break;
 				case ATG_EV_TOGGLE:;
-					//atg_ev_toggle toggle=e.event.toggle;
+					atg_ev_toggle toggle=e.event.toggle;
+					if(toggle.e==HM_doc||toggle.e==HM_dice)
+					{
+						if(seldesb)
+							update_m2v(seldesb, HM_out_buf);
+						break;
+					}
 					fprintf(stderr, "Clicked on unknown toggle!\n");
 				break;
 				default:

@@ -629,6 +629,13 @@ enum refit_level rfl_tn(unsigned int offset)
 	return REFIT_DOCTRINE;
 }
 
+void doc_tech(struct tech_numbers *tn, const struct tech_numbers *dtn)
+{
+	memcpy((char *)tn->doctrine_block,
+	       (char *)dtn->doctrine_block,
+	       sizeof(*tn) - offsetof(struct tech_numbers, doctrine_block));
+}
+
 struct tech supporting = {
 	.ident="sup",
 	.name="Supporting Research",
