@@ -486,7 +486,7 @@ static int calc_electrics(struct bomber *b)
 			e->ncost += nacost[i];
 		}
 	if (b->turrets.typ[LXN_VENTRAL] && e->navaid[NAV_H2S])
-		design_error(b, "H₂S conflicts with turret in ventral position!");
+		design_error(b, "H2S conflicts with turret in ventral position!");
 	/* This is all hard-coded; datafiles / techlevels don't get to
 	 * change these coefficients.
 	 */
