@@ -789,6 +789,7 @@ static int calc_dev(struct bomber *b)
 {
 	float base_tproto = powf(b->overgross, 0.3f) * powf(b->cost, 0.2f);
 	float base_tprod = powf(b->overgross, 0.4f) * powf(b->cost, 0.2f);
+	unsigned int add_cproto = 0, add_cprod = 0;
 	float add_tproto = 0.0f, add_tprod = 0.0f;
 	float tproto, cproto, tprod, cprod;
 	unsigned int pcount[CREW_CLASSES];
@@ -853,8 +854,10 @@ static int calc_dev(struct bomber *b)
 			add_tprod += 4;
 		}
 		if (b->elec.esl > b->parent->elec.esl) {
-			add_tproto += b->elec.cost * 5.0f;
-			add_tprod += b->elec.cost * 7.0f;
+			add_tproto += b->elec.cost;
+			add_tprod += b->elec.cost;
+			add_cproto += b->elec.cost * 4.0f;
+			add_cprod += b->elec.cost * 6.0f;
 		}
 		if (b->tanks.cap > b->parent->tanks.cap) {
 			add_tproto += b->tanks.cost * 0.5f;
@@ -866,8 +869,8 @@ static int calc_dev(struct bomber *b)
 		}
 		tproto += sqrt(add_tproto) * 100.0f / bof;
 		tprod += sqrt(add_tprod) * 100.0f / bof;
-		cproto += add_tproto;
-		cprod += add_tprod;
+		cproto += add_tproto + add_cproto;
+		cprod += add_tprod + add_cprod;
 		break;
 	case REFIT_MOD:
 		if (b->engines.typ != b->parent->engines.typ) {
