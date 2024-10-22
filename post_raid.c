@@ -929,7 +929,7 @@ mothball:
 		}
 		// if a tech that wasn't picked just stopped being future, remove support
 		for(i=0;i<3;i++)
-			if(tech_future(state->now, state->researching[i])&&!tech_future(tomorrow, state->researching[i]))
+			if(state->researching[i]&&tech_future(state->now, state->researching[i])&&!tech_future(tomorrow, state->researching[i]))
 			{
 				unsigned int j;
 				for(j=0;j<3;j++)
