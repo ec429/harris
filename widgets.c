@@ -374,7 +374,7 @@ SDL_Surface *load_selector_render_callback(const struct atg_element *e)
 	if(!e) return(NULL);
 	if(!e->userdata) return(NULL);
 	struct load_selector_userdata *u=e->userdata;
-	if(*u->load>=NBOMBLOADS) return(NULL);
+	if(*u->load>=NCITYLOADS) return(NULL);
 	SDL_Surface *rv=bombloads[*u->load].pic;
 	if(rv) rv->refcount++;
 	return(rv);
@@ -394,8 +394,8 @@ void load_selector_match_click_callback(struct atg_event_list *list, atg_element
 		case ATG_MB_SCROLLUP:
 			do
 			{
-				if(limit++>NBOMBLOADS) return;
-				*u->load=(*u->load+1)%NBOMBLOADS;
+				if(limit++>NCITYLOADS) return;
+				*u->load=(*u->load+1)%NCITYLOADS;
 			}
 			while(!t->load[*u->load]);
 		break;
@@ -403,8 +403,8 @@ void load_selector_match_click_callback(struct atg_event_list *list, atg_element
 		case ATG_MB_SCROLLDN:
 			do
 			{
-				if(limit++>NBOMBLOADS) return;
-				*u->load=(*u->load+NBOMBLOADS-1)%NBOMBLOADS;
+				if(limit++>NCITYLOADS) return;
+				*u->load=(*u->load+NCITYLOADS-1)%NCITYLOADS;
 			}
 			while(!t->load[*u->load]);
 		break;

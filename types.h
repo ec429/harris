@@ -108,6 +108,9 @@ typedef enum
 	BL_ARSON,
 	BL_ILLUM,
 	BL_HALFHALF,
+	NCITYLOADS,
+	// Loads after this point are for special target types, and cannot be selected vs cities
+	BL_MINES = NCITYLOADS,
 	NBOMBLOADS
 }
 bombload;
@@ -117,7 +120,7 @@ struct bombloadinfo
 	const char *name;
 	const char *fn;
 	SDL_Surface *pic;
-	bool cookie;
+	bool cookie, mine;
 };
 
 #define MAX_CREW	7

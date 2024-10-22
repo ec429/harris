@@ -1935,6 +1935,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 				}
 			for(unsigned int i=0;i<ntypes;i++)
 			{
+				if(targs[seltarg].class==TCLASS_MINING&&!types[i].load[BL_MINES])
+					reach[i]=false;
 				if(!GB_btrow[i]->hidden&&GB_btpic[i])
 				{
 					atg_image *img=GB_btpic[i]->elemdata;
@@ -2161,6 +2163,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								if(c.e==GB_btpic[i])
 								{
 									unsigned int amount;
+									if(targs[seltarg].class==TCLASS_MINING&&!types[i].load[BL_MINES])
+										break;
 									switch(b)
 									{
 										case ATG_MB_RIGHT:

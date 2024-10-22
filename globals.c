@@ -37,6 +37,8 @@ struct bombloadinfo bombloads[NBOMBLOADS]=
 	[BL_ARSON]	= {.name="Ar", .fn="art/bombloads/arson.png"},
 	[BL_ILLUM]	= {.name="Il", .fn="art/bombloads/illuminator.png"},
 	[BL_HALFHALF]	= {.name="Hh", .fn="art/bombloads/halfandhalf.png", .cookie=true},
+	/* Art is not needed for non-city loads */
+	[BL_MINES]	= {.name="Mi"},
 };
 
 struct overlay overlays[NUM_OVERLAYS] = {
@@ -203,8 +205,8 @@ int set_init_state(game *state)
 				state->raids[i].pffloads[j]=BL_ABNORMAL;
 			while(!types[j].load[state->raids[i].loads[j]])
 			{
-				state->raids[i].loads[j]=(state->raids[i].loads[j]+1)%NBOMBLOADS;
-				if(++limit>=NBOMBLOADS)
+				state->raids[i].loads[j]=(state->raids[i].loads[j]+1)%NCITYLOADS;
+				if(++limit>=NCITYLOADS)
 				{
 					fprintf(stderr, "No valid bombloads for type %s\n", types[j].name);
 					return(1);
@@ -212,8 +214,8 @@ int set_init_state(game *state)
 			}
 			while(!types[j].load[state->raids[i].pffloads[j]])
 			{
-				state->raids[i].pffloads[j]=(state->raids[i].pffloads[j]+1)%NBOMBLOADS;
-				if(++limit>=NBOMBLOADS)
+				state->raids[i].pffloads[j]=(state->raids[i].pffloads[j]+1)%NCITYLOADS;
+				if(++limit>=NCITYLOADS)
 				{
 					fprintf(stderr, "No valid PFF bombloads for type %s\n", types[j].name);
 					return(1);

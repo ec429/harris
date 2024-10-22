@@ -1666,7 +1666,7 @@ int load_images(void)
 		fprintf(stderr, "No-Group icon: IMG_Load: %s\n", IMG_GetError());
 		return(1);
 	}
-	for(unsigned int l=0;l<NBOMBLOADS;l++)
+	for(unsigned int l=0;l<NCITYLOADS;l++)
 	{
 		if(!(bombloads[l].pic=IMG_Load(bombloads[l].fn)))
 		{

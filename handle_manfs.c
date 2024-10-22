@@ -507,6 +507,7 @@ void realise_design(struct bomber *bb)
 	// XXX plumduff has special SMBAY handling that's probably not correct for anything other than a Halifax
 	bt->load[BL_PLUMDUFF]=b->bay.cookie&&b->bay.cap>=5000;
 	bt->load[BL_PPLUS]=b->bay.cookie&&!bt->smbay&&b->bay.cap>8000;
+	bt->load[BL_MINES]=b->bay.mine;
 	bt->inc=false;
 	bt->extra=true;
 	bt->slowgrow=false;

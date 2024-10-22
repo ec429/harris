@@ -88,6 +88,7 @@ struct bombbay {
 	float tare;
 	float cost; /* csbs cost, rest is paid through core_tare */
 	bool cookie;
+	bool mine;
 };
 
 struct fuselage {

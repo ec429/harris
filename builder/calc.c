@@ -422,6 +422,7 @@ static int calc_bombbay(struct bomber *b)
 	a->cookie = a->girth == BB_COOKIE ||
 		    (a->girth == BB_MEDIUM && tn->bmc &&
 		     b->fuse.typ != FT_SLENDER);
+	a->mine = a->girth >= BB_MEDIUM && a->cap >= 1500;
 	return 0;
 }
 
