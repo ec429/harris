@@ -81,6 +81,31 @@ static void validate_nb(const char *prefix, const game *state)
 static inline void validate_nb(const char *prefix __attribute__((unused)), const game *state __attribute__((unused))) {}
 #endif
 
+void remove_mismatched_crew(game *state, unsigned int type)
+{
+	for(unsigned int i=0;i<state->nbombers;i++)
+	{
+		if(!state->bombers[i].train)
+			continue;
+		if(state->bombers[i].type!=type)
+			continue;
+		for(unsigned int j=0;j<MAX_CREW;j++)
+		{
+			int k=state->bombers[i].crew[j];
+			int s=state->crews[k].squadron;
+			if(k<0)
+				continue;
+			if(state->crews[k].class!=bstats(state->bombers[i]).crew[j])
+			{
+				state->bombers[i].crew[j]=-1;
+				state->crews[k].assignment=-1;
+				if(s>=0)
+					state->squads[s].nc[state->crews[k].class]++;
+			}
+		}
+	}
+}
+
 screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *state)
 {
 	validate_nb("init post_raid", state);
@@ -240,6 +265,8 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 						}
 						b->entry=tomorrow;
 						realise_design(b);
+						// in case it's a MOD changing CREW
+						remove_mismatched_crew(state, b->slot_idx);
 						bombertype *bt=types+b->slot_idx;
 						char refbuf[32], msgbuf[240];
 						switch(b->refit)
@@ -298,30 +325,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 				else
 					fprintf(stderr, "Applied mod `%s' to %s %s\n", mods[m].desc, types[bt].manu, types[bt].name);
 				if(mods[m].s==BSTAT_CREW)
-				{
-					// remove mismatched students
-					for(unsigned int i=0;i<state->nbombers;i++)
-					{
-						if(!state->bombers[i].train)
-							continue;
-						if(state->bombers[i].type!=bt)
-							continue;
-						for(unsigned int j=0;j<MAX_CREW;j++)
-						{
-							int k=state->bombers[i].crew[j];
-							int s=state->crews[k].squadron;
-							if(k<0)
-								continue;
-							if(state->crews[k].class!=bstats(state->bombers[i]).crew[j])
-							{
-								state->bombers[i].crew[j]=-1;
-								state->crews[k].assignment=-1;
-								if(s>=0)
-									state->squads[s].nc[state->crews[k].class]++;
-							}
-						}
-					}
-				}
+					remove_mismatched_crew(state, bt);
 			}
 	}
 	// Update bomber prodn caps
