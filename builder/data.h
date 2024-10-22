@@ -213,6 +213,7 @@ struct tech {
 	struct list_head list;
 	char ident[4];
 	unsigned int year, month;
+	unsigned int uy, um;
 	struct tech_numbers num;
 	struct tech *req[8];
 	struct engine *eng[16];

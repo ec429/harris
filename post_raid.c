@@ -908,6 +908,8 @@ mothball:
 				 state->researching[slot]->name);
 			msgadd(canvas, state, tomorrow, state->researching[slot]->ident, msgbuf);
 			state->researching[slot]->unlocked=true;
+			state->researching[slot]->uy=tomorrow.year;
+			state->researching[slot]->um=tomorrow.month;
 			if(tech_future(state->now, state->researching[slot]))
 			{
 				for(i=0;i<3;i++)

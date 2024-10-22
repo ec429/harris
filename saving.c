@@ -68,6 +68,7 @@ int loadgame(const char *fn, game *state)
 		struct tech *t=builder->entities.tech[i];
 		t->unlocked=!t->year;
 		t->supported=t->have_reqs=false;
+		t->uy=t->um=0;
 	}
 	for(unsigned int j=0;j<ntypes;j++)
 	{
@@ -484,9 +485,14 @@ int loadgame(const char *fn, game *state)
 					}
 					unsigned int j;
 					char ident[4]={0};
-					int unlocked, supported;
-					f=sscanf(line, "Tech %u:%3s,%u,%u\n", &j, ident, &unlocked, &supported);
-					if(f!=4)
+					unsigned int unlocked, supported, uy, um;
+					f=sscanf(line, "Tech %u:%3s,%u,%u,%u,%u\n", &j, ident, &unlocked, &supported, &uy, &um);
+					if(f==4)
+					{
+						// uy/um not critical, ignore them
+						uy=um=0;
+					}
+					else if(f!=6)
 					{
 						fprintf(stderr, "1 Too few arguments to part %u of tag \"%s\"\n", i, tag);
 						e|=1;
@@ -508,6 +514,8 @@ int loadgame(const char *fn, game *state)
 					}
 					t->unlocked=!!unlocked;
 					t->supported=!!supported;
+					t->uy=uy;
+					t->um=um;
 				}
 			}
 		}
@@ -1548,10 +1556,12 @@ int savegame(const char *fn, game state)
 				builder->entities.manf[i]->prod_idx);
 		fprintf(fs, "Techs:%u\n", builder->entities.ntech);
 		for(unsigned int i=0;i<builder->entities.ntech;i++)
-			fprintf(fs, "Tech %u:%s,%u,%u\n", i,
+			fprintf(fs, "Tech %u:%s,%u,%u,%u,%u\n", i,
 				builder->entities.tech[i]->ident,
 				builder->entities.tech[i]->unlocked?1:0,
-				builder->entities.tech[i]->supported?1:0);
+				builder->entities.tech[i]->supported?1:0,
+				builder->entities.tech[i]->uy,
+				builder->entities.tech[i]->um);
 		fprintf(fs, "NDNum:%u,%u\n",
 			state.next_design_number, state.next_mod_number);
 		fprintf(fs, "NCSlot:%u\n", state.next_custom_slot);

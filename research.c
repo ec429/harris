@@ -532,10 +532,12 @@ void update_midbox(const game *state, struct tech *t)
 	{
 		if(t==&supporting)
 			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (%s)", t->name, supported?supported->name:"unused");
-		else if (t->year>2)
-			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (%02u-%04u)", t->name, t->month, t->year);
-		else
+		else if (t->year<=2)
 			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (pre-war)", t->name);
+		else if (t->unlocked)
+			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (%02u-%04u)", t->name, t->um, t->uy);
+		else
+			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (%02u-%04u)", t->name, t->month, t->year);
 		snprintf(HR_desc_buf, sizeof(HR_desc_buf), "%s", t->desc);
 		unsigned int i=0;
 		for(unsigned int j=0;j<sizeof(t->num);j+=sizeof(unsigned int))
