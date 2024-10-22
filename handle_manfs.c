@@ -19,7 +19,7 @@
 atg_element *handle_manfs_box;
 
 atg_element *HM_cont, *HM_full;
-atg_element **HM_mbox;
+atg_element *HM_mbscroll, **HM_mbox;
 char *HM_out_buf[OUT_ROWS];
 SDL_Surface *HM_bp;
 atg_element *HM_proto, *HM_tool, *HM_halt;
@@ -95,6 +95,12 @@ int handle_manfs_create(void)
 		perror("calloc");
 		return(1);
 	}
+	atg_element *mboxes=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!mboxes)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
 	for(unsigned int i=0;i<builder->entities.nmanf;i++)
 	{
 		struct manf *m=builder->entities.manf[i];
@@ -104,7 +110,7 @@ int handle_manfs_create(void)
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		if(atg_ebox_pack(leftbox, mbox))
+		if(atg_ebox_pack(mboxes, mbox))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -144,6 +150,18 @@ int handle_manfs_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+	}
+	if(!(HM_mbscroll=atg_create_element_scroll(mboxes, SCROLL_FG_COLOUR, GAME_BG_COLOUR)))
+	{
+		fprintf(stderr, "atg_create_element_scroll failed\n");
+		return(1);
+	}
+	HM_mbscroll->h=600;
+	HM_mbscroll->w=leftbox->w;
+	if(atg_ebox_pack(leftbox, HM_mbscroll))
+	{
+		perror("atg_ebox_pack");
+		return(1);
 	}
 	atg_element *rightbox;
 	int rc=builder_rightbox_create(&rightbox, HM_out_buf, &HM_bp, GAME_BG_COLOUR);
@@ -720,6 +738,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 		struct manf *seldesm=NULL;
 		if(seldesb)
 			seldesm=seldesb->manf;
+		HM_mbscroll->h=canvas->surface->h-HM_mbscroll->display.y;
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
