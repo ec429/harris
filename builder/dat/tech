@@ -1,16 +1,16 @@
-_MB:G4T=0:G4C=0:UBL=1:n=Medium Bombers:y=0
-_CA:CMI=165:CES=100:CCC=100:n=Crew Accommodation:y=0
-_PD:CLT=20:n=Pre-War Doctrine:y=0
-_BF:FTN=150:FTT=100:FTS=90:FTG=170:FDN=50:FDT=40:FDS=72:FDG=54:FWT=135:FSN=30:FST=64:FSS=27:FSG=20:FFN=30:FFT=40:FFS=27:FFG=20:FVN=20:FVT=30:FVS=20:FVG=8:n=Basic Fuselages:y=0
-_BM:CCN=100:CCT=160:CCS=80:CCG=100:FCN=100:FCT=160:FCS=70:FCG=110:n=Basic Manufacturing:y=0
-_CW:WTS=150:WTC=120:WTF=100:WLD=108:WCF=100:n=Cantilever Wings:y=0
-_FT:FUT=120:FUV=100:FGV=80:SFT=0:SFV=0:SFC=0:FUC=60:n=Fuel Tanks:y=0
-_PE:e=Merc:e=Mer4:e=Tigr:ETF=150:EDF=100:EES=0:EET=0:EEC=0:EMC=100:n=Pre-War Engines:y=0
-_BT:t=Ngun:t=Nose:t=Chin:t=Dor1:t=Daf1:t=Vaf1:t=Ven1:t=Beam:t=Tail:t=Ta4e:t=For1:t=Fore:t=For4:GTF=75:GDF=24:GCF=100:GAC=30:GAM=180:n=Basic Turrets:y=0
-_IB:BTS=70:BTM=100:BTC=0:BMC=0:BBB=8:BBF=2:CSB=0:n=Internal Bay:y=0
-_ED:ESL=0:n=Engine Dynamo:y=0
-_BN:NAG=0:NAH=0:NAO=0:n=Basic Navigation:y=0
-_GR:RGS=90:RGG=50:RCS=0:RCG=0:n=Grass Runways:y=0
+_MB:G4T=0:G4C=0:UBL=1:n=Medium Bombers:y=0:d=Established principles for bombers with up to three engines.
+_CA:CMI=165:CES=100:CCC=100:n=Crew Accommodation:y=0:d=Standard design guidelines for crew positions and equipment.
+_PD:CLT=20:n=Pre-War Doctrine:y=0:d=Operational philosophy for medium-level bombing.
+_BF:FTN=150:FTT=100:FTS=90:FTG=170:FDN=50:FDT=40:FDS=72:FDG=54:FWT=135:FSN=30:FST=64:FSS=27:FSG=20:FFN=30:FFT=40:FFS=27:FFG=20:FVN=20:FVT=30:FVS=20:FVG=8:n=Basic Fuselages:y=0:d=Four main varieties of fuselage structure.
+_BM:CCN=100:CCT=160:CCS=80:CCG=100:FCN=100:FCT=160:FCS=70:FCG=110:n=Basic Manufacturing:y=0:d=Production cost for various fuselage types.
+_CW:WTS=150:WTC=120:WTF=100:WLD=108:WCF=100:n=Cantilever Wings:y=0:d=Unbraced monoplane wings with standard aerofoil sections.
+_FT:FUT=120:FUV=100:FGV=80:SFT=0:SFV=0:SFC=0:FUC=60:n=Fuel Tanks:y=0:d=Wing-mounted petrol tanks for aircraft.
+_PE:e=Merc:e=Mer4:e=Tigr:ETF=150:EDF=100:EES=0:EET=0:EEC=0:EMC=100:n=Pre-War Engines:y=0:d=In-line and radial aero-engines available for bomber designs.
+_BT:t=Ngun:t=Nose:t=Chin:t=Dor1:t=Daf1:t=Vaf1:t=Ven1:t=Beam:t=Tail:t=Ta4e:t=For1:t=Fore:t=For4:GTF=75:GDF=24:GCF=100:GAC=30:GAM=180:n=Basic Turrets:y=0:d=Offensive and defensive armament options.
+_IB:BTS=70:BTM=100:BTC=0:BMC=0:BBB=8:BBF=2:CSB=0:n=Internal Bay:y=0:d=Enclosed bomb bays greatly reduce drag compared to external stowage.
+_ED:ESL=0:n=Engine Dynamo:y=0:d=A simple dynamoelectric generator driven from the engine crankshaft.
+_BN:NAG=0:NAH=0:NAO=0:n=Basic Navigation:y=0:d=Map-reading and 'astro' are the fundamentals of RAF navigational practice.
+_GR:RGS=90:RGG=50:RCS=0:RCG=0:n=Grass Runways:y=0:d=Grass airstrips limit take-off speed and maximum gross weight of the aircraft that use them.
 FEB:G4T=180:G4C=100:n=Four Engined Bombers:y=1939:m=11:d=Allows the construction of aircraft with 4 or more engines.
 MFE:G4T=80:G4C=95:r=FEB:n=Mature Four-Engine Layout:y=1941:m=4:d=Reduces the weight and cost penalty for using 4+ engines.
 CRS:CMI=170:CES=110:CCC=105:n=Crew Stations:y=1940:m=5:d=Improves crew performance, at a slight weight and cost penalty.

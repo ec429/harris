@@ -19,8 +19,9 @@ atg_element *research_box;
 
 atg_element *HR_cont, *HR_full;
 atg_element **HR_tb;
-char HR_name_buf[60], HR_desc_buf[80];
-#define HR_TN_ROWS	12
+atg_element *HR_arcscroll, **HR_rb;
+char HR_name_buf[60], HR_desc_buf[98];
+#define HR_TN_ROWS	24
 atg_element *HR_tn_row[HR_TN_ROWS];
 char HR_tn_ibuf[HR_TN_ROWS][5], HR_tn_dbuf[HR_TN_ROWS][80];
 char HR_tn_nbuf[HR_TN_ROWS][6], HR_tn_obuf[HR_TN_ROWS][6];
@@ -167,6 +168,72 @@ int research_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+	}
+	if(!(HR_rb=calloc(builder->entities.ntech, sizeof(atg_element *))))
+	{
+		perror("calloc");
+		return(1);
+	}
+	if(divider((atg_colour){239, 239, 239, ATG_ALPHA_OPAQUE}, leftbox))
+		return(1);
+	atg_element *archive=atg_create_element_label("Research Archive", 12, (atg_colour){79, 179, 79});
+	if(!archive)
+	{
+		fprintf(stderr, "atg_create_element_label failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(leftbox, archive))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	atg_element *rboxes=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!rboxes)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	rboxes->w=200;
+	for(unsigned int i=0;i<builder->entities.ntech;i++)
+	{
+		unsigned int j=builder->entities.ntech-i-1;
+		struct tech *t=builder->entities.tech[j];
+
+		atg_element *trow=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
+		if(!trow)
+		{
+			fprintf(stderr, "atg_create_element_box failed\n");
+			return(1);
+		}
+		if(atg_ebox_pack(leftbox, trow))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+		if(!(HR_rb[j]=atg_create_element_button(t->name, (atg_colour){47, 79, 63, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR)))
+		{
+			fprintf(stderr, "atg_create_element_button failed\n");
+			return(1);
+		}
+		HR_rb[j]->w=200;
+		if(atg_ebox_pack(rboxes, HR_rb[j]))
+		{
+			perror("atg_ebox_pack");
+			return(1);
+		}
+	}
+	HR_arcscroll=atg_create_element_scroll(rboxes, SCROLL_FG_COLOUR, GAME_BG_COLOUR);
+	if(!HR_arcscroll)
+	{
+		fprintf(stderr, "atg_create_element_scroll failed\n");
+		return(1);
+	}
+	HR_arcscroll->w=200;
+	HR_arcscroll->h=500;
+	if(atg_ebox_pack(leftbox, HR_arcscroll))
+	{
+		perror("atg_ebox_pack");
+		return(1);
 	}
 	atg_element *midbox=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
 	if(!midbox)
@@ -465,20 +532,24 @@ void update_midbox(const game *state, struct tech *t)
 	{
 		if(t==&supporting)
 			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (%s)", t->name, supported?supported->name:"unused");
-		else
+		else if (t->year>2)
 			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (%02u-%04u)", t->name, t->month, t->year);
+		else
+			snprintf(HR_name_buf, sizeof(HR_name_buf), "%s (pre-war)", t->name);
 		snprintf(HR_desc_buf, sizeof(HR_desc_buf), "%s", t->desc);
 		unsigned int i=0;
 		for(unsigned int j=0;j<sizeof(t->num);j+=sizeof(unsigned int))
 		{
 			char *p=((char *)&t->num)+j;
-			unsigned int *v=(unsigned int *)p;
-			if(!*v)
+			unsigned int *v=(unsigned int *)p, d=*v;
+			if(!d)
 				continue;
+			if(d==(unsigned int)-1)
+				d=0;
 			HR_tn_row[i]->hidden=false;
 			snprintf(HR_tn_ibuf[i], sizeof(HR_tn_ibuf[i]), "%s", ident_tn(j));
 			snprintf(HR_tn_dbuf[i], sizeof(HR_tn_dbuf[i]), "%s", describe_tn(j));
-			snprintf(HR_tn_nbuf[i], sizeof(HR_tn_nbuf[i]), "%u", *v);
+			snprintf(HR_tn_nbuf[i], sizeof(HR_tn_nbuf[i]), "%u", d);
 			unsigned int *o=(unsigned int *)(((char *)&builder->tn)+j);
 			snprintf(HR_tn_obuf[i], sizeof(HR_tn_obuf[i]), "(%u)", *o);
 			const char *rfl;
@@ -539,7 +610,7 @@ void update_midbox(const game *state, struct tech *t)
 		for(;i<HR_TN_ROWS;i++)
 			HR_tn_row[i]->hidden=true;
 full:
-		if(can_change(state))
+		if(can_change(state)&&t&&!t->unlocked)
 		{
 			unsigned int need_slots=(tech_future(state->now, t))?2:1;
 			HR_add->hidden=tech_slots(state)<need_slots;
@@ -569,7 +640,9 @@ screen_id research_screen(atg_canvas *canvas, game *state)
 		struct tech *t=builder->entities.tech[i];
 		atg_button *btn=HR_tb[i]->elemdata;
 
-		// don't show techs we already have, or can't research yet
+		// techs we already have
+		HR_rb[i]->hidden=!t->unlocked;
+		// techs we can research
 		HR_tb[i]->hidden=!t->have_reqs||tech_far_off(state->now, t)||t->unlocked;
 		if(HR_tb[i]->hidden) continue;
 		btn->fgcolour=tech_future(state->now, t)?(atg_colour){127, 127, 127, ATG_ALPHA_OPAQUE}:(atg_colour){239, 239, 179, ATG_ALPHA_OPAQUE};
@@ -579,6 +652,7 @@ screen_id research_screen(atg_canvas *canvas, game *state)
 
 	while(1)
 	{
+		HR_arcscroll->h=canvas->surface->h-HR_arcscroll->display.y;
 		atg_flip(canvas);
 		while(atg_poll_event(&e, canvas))
 		{
@@ -624,6 +698,20 @@ screen_id research_screen(atg_canvas *canvas, game *state)
 						if(t->unlocked)
 						{
 							fprintf(stderr, "Tech is already unlocked!\n");
+							break;
+						}
+						seltech=t;
+						update_midbox(state, seltech);
+						break;
+					}
+					if(i<builder->entities.ntech) break;
+					for(i=0;i<builder->entities.ntech;i++)
+					{
+						if(trigger.e!=HR_rb[i]) continue;
+						struct tech *t=builder->entities.tech[i];
+						if(!t->unlocked)
+						{
+							fprintf(stderr, "Tech is not unlocked!\n");
 							break;
 						}
 						seltech=t;

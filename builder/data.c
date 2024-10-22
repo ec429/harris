@@ -650,6 +650,8 @@ int try_load_tn_word(const char *key, const char *value,
 			char *p = (char *)tn + tn_meta[i].offset;
 			if (sscanf(value, "%u", (unsigned int *)p) != 1)
 				return -EINVAL;
+			if (!*(unsigned int *)p)
+				*(unsigned int *)p = -1;
 			return 0;
 		}
 	return -EINVAL;
@@ -727,7 +729,7 @@ static int load_tech_word(const char *key, const char *value, void *data)
 		loader->tech->desc = strdup(value);
 		if (!loader->tech->desc)
 			return -ENOMEM;
-		if (strlen(loader->tech->desc) >= 80)
+		if (strlen(loader->tech->desc) >= 98)
 			fprintf(stderr, "Warning: long desc for tech '%s'\n",
 				loader->tech->ident);
 		return 0;
@@ -876,7 +878,7 @@ int apply_techs(const struct entities *ent, struct tech_numbers *tn)
 		p = (unsigned int *)&tech->num;
 		q = (unsigned int *)tn;
 		for (i = 0; i * sizeof(*p) < sizeof(*tn); i++)
-			if (p[i])
+			if (p[i] && p[i] != (unsigned int)-1)
 				q[i] = p[i];
 		for (i = 0; i < ARRAY_SIZE(tech->eng); i++)
 			if (tech->eng[i])

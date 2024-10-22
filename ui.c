@@ -19,6 +19,8 @@ screen_id intel_caller=SCRN_MAINMENU;
 SDL_Surface *ttype_icons[TCLASS_INDUSTRY+ICLASS_MIXED+1];
 SDL_Surface *ttype_nothing;
 
+const atg_colour SCROLL_FG_COLOUR={127, 127, 127, 127};
+
 void update_navbtn(game state, atg_element *(*GB_navbtn)[NNAVAIDS], unsigned int i, unsigned int n, SDL_Surface *grey_overlay, SDL_Surface *yellow_overlay)
 {
 	if(GB_navbtn[i][n]&&GB_navbtn[i][n]->elemdata)

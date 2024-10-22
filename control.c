@@ -66,8 +66,6 @@ void load_route(unsigned int seltarg, unsigned int j);
 
 bool shortof[CREW_CLASSES];
 
-const atg_colour SCROLL_FG_COLOUR={127, 127, 127, 127};
-
 int control_create(void)
 {
 	control_box=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
