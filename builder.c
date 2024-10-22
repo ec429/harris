@@ -1893,6 +1893,8 @@ void update_crew_c2m(struct bomber *b)
 					.pos=i,
 					.gun=j<cd,
 				};
+			else if(cspin)
+				cspin->value--;
 		}
 	}
 }

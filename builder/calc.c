@@ -285,8 +285,8 @@ static int calc_crew(struct bomber *b)
 	const struct tech_numbers *tn = &b->tn;
 	unsigned int pcount[CREW_CLASSES];
 	unsigned int count[CREW_CLASSES];
-	const struct crew *pc = NULL;
 	struct crew *c = &b->crew;
+	const struct crew *pc;
 	unsigned int i, j;
 
 	count_crew(c, count);
