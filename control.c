@@ -37,6 +37,7 @@ atg_element *control_box, *GB_middle, *GB_tt;
 atg_element *GB_resize, *GB_full, *GB_exit;
 atg_element *GB_map;
 atg_element *GB_overlay[NUM_OVERLAYS];
+atg_element *GB_btscroll;
 atg_element **GB_btrow, **GB_btnuml, **GB_btpc, **GB_btnew, **GB_btp, **GB_btw, **GB_btpic, **GB_btint, **GB_navrow, *(*GB_navbtn)[NNAVAIDS], *(*GB_navgraph)[NNAVAIDS];
 atg_element **GB_btbuy, **GB_btbuy10;
 atg_element *GB_go, *GB_prego, *GB_msgbox, *GB_msgrow[MAXMSGS], *GB_save, *GB_intel[3], *GB_hsquad, *GB_hcrews, *GB_cshort[CREW_CLASSES], *GB_build, *GB_manfs, *GB_research, *GB_diff, *GB_clamp, *GB_spend;
@@ -64,6 +65,8 @@ void save_route(unsigned int seltarg, unsigned int j);
 void load_route(unsigned int seltarg, unsigned int j);
 
 bool shortof[CREW_CLASSES];
+
+const atg_colour SCROLL_FG_COLOUR={127, 127, 127, 127};
 
 int control_create(void)
 {
@@ -244,6 +247,12 @@ int control_create(void)
 		perror("calloc");
 		return(1);
 	}
+	atg_element *GB_btrows=atg_create_element_box(ATG_BOX_PACK_VERTICAL, GAME_BG_COLOUR);
+	if(!GB_btrows)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
 	for(unsigned int i=0;i<ntypes;i++)
 	{
 		if(!(GB_btrow[i]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){47, 31, 31, ATG_ALPHA_OPAQUE})))
@@ -251,7 +260,7 @@ int control_create(void)
 			fprintf(stderr, "atg_create_element_box failed\n");
 			return(1);
 		}
-		if(atg_ebox_pack(GB_bt, GB_btrow[i]))
+		if(atg_ebox_pack(GB_btrows, GB_btrow[i]))
 		{
 			perror("atg_ebox_pack");
 			return(1);
@@ -508,6 +517,19 @@ int control_create(void)
 				return(1);
 			}
 		}
+	}
+	GB_btscroll=atg_create_element_scroll(GB_btrows, SCROLL_FG_COLOUR, GAME_BG_COLOUR);
+	if(!GB_btscroll)
+	{
+		fprintf(stderr, "atg_create_element_box failed\n");
+		return(1);
+	}
+	GB_btscroll->w=239;
+	GB_btscroll->h=min(mainsizey, 800)-500;
+	if(atg_ebox_pack(GB_bt, GB_btscroll))
+	{
+		perror("atg_ebox_pack");
+		return(1);
 	}
 	atg_element *intelbox=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, GAME_BG_COLOUR);
 	if(!intelbox)
@@ -1950,6 +1972,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 			SDL_FreeSurface(seltarg_overlay);
 			seltarg_overlay=render_seltarg(seltarg);
 			SDL_BlitSurface(seltarg_overlay, NULL, map_img->data, NULL);
+			GB_btscroll->h=max(canvas->surface->h, 800)-500;
 			atg_flip(canvas);
 			rfsh=false;
 		}
