@@ -140,8 +140,6 @@ struct tech_numbers {
 	unsigned int wtc; // Wing Tare Chord exponent * 100
 	unsigned int wtf; // Wing Tare Factor * 100
 	unsigned int wcf; // Wing Cost Factor * 100
-	// Engine Mounts
-	unsigned int etf; // Engine Tare Factor * 100
 	// Bomb bay
 	unsigned int bt[BB_COUNT]; // Bay Tare factor * 1000
 	unsigned int bbb; // Bay Bigfactor Base / 1000lb
@@ -167,6 +165,7 @@ struct tech_numbers {
 	unsigned int fuc; // Fuel Cost * 100
 	unsigned int fgv; // Fuel Geodetic Vuln factor * 100
 	// Engine Mounts
+	unsigned int etf; // Engine Tare Factor * 100
 	unsigned int edf; // Engine Drag Factor * 100
 	unsigned int emc; // Engine Mounting Cost factor * 100
 	unsigned int ees; // Power Egg Serv factor * 100
