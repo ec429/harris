@@ -915,18 +915,32 @@ mothball:
 		}
 		state->researching[slot]=NULL;
 		apply_techs(&builder->entities, &builder->tn);
-		for(unsigned int i=0;i<NNAVAIDS;i++)
+		for(i=0;i<NNAVAIDS;i++)
 			if(builder->tn.na[i])
 				event[navevent[i]]=(date){1, 1, 1};
 		if(builder->tn.na[NAV_GEE]>1)
 			event[EVENT_ALLGEE]=(date){1, 1, 1};
 		// re-realise all bombers in case any doctrine has changed
-		for(unsigned int i=0;i<state->ndesigns;i++)
+		for(i=0;i<state->ndesigns;i++)
 		{
 			struct bomber *b=state->designs+i;
 			if(b->proto_work>=b->tproto&&b->prod_work>=b->tprod)
 				realise_design(b);
 		}
+		// if a tech that wasn't picked just stopped being future, remove support
+		for(i=0;i<3;i++)
+			if(tech_future(state->now, state->researching[i])&&!tech_future(tomorrow, state->researching[i]))
+			{
+				unsigned int j;
+				for(j=0;j<3;j++)
+					if(state->researching[j]==&supporting)
+					{
+						state->researching[j]=NULL;
+						break;
+					}
+				if(j>=3)
+					fprintf(stderr, "no support found to remove!\n");
+			}
 	}
 	for(unsigned int ev=0;ev<NEVENTS;ev++)
 	{
