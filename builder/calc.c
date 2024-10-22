@@ -321,9 +321,7 @@ static int calc_crew(struct bomber *b)
 		} else if (m->pos == CCLASS_G) {
 			c->gunners++;
 		} else if (m->gun) {
-			if (m->pos == CCLASS_W) {
-				c->gunners++;
-			} else if (m->pos == CCLASS_E) {
+			if (m->pos == CCLASS_E) {
 				design_error(b, "Engineer cannot dual-role as gunner");
 			} else {
 				for (j = LXN_NOSE; j < LXN_COUNT; j++) {
@@ -344,6 +342,15 @@ static int calc_crew(struct bomber *b)
 						break;
 					case CCLASS_B:
 						if (!t->ocb)
+							continue;
+						break;
+					case CCLASS_W:
+						/* Too far away? */
+						if (j == LXN_NOSE)
+							continue;
+						if (j == LXN_CHIN)
+							continue;
+						if (j == LXN_TAIL)
 							continue;
 						break;
 					default: /* can't happen */
