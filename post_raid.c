@@ -924,9 +924,21 @@ mothball:
 		apply_techs(&builder->entities, &builder->tn);
 		for(i=0;i<NNAVAIDS;i++)
 			if(builder->tn.na[i])
-				event[navevent[i]]=(date){1, 1, 1};
+				event[navevent[i]]=tomorrow;
+		if(builder->tn.na[NAV_GEE]==1)
+		{
+			date gj=tomorrow;
+			gj.month+=6;
+			gj.day+=20;
+			if(gj.month>12)
+			{
+				gj.month-=12;
+				gj.year++;
+			}
+			event[EVENT_GEEJAM]=gj;
+		}
 		if(builder->tn.na[NAV_GEE]>1)
-			event[EVENT_ALLGEE]=(date){1, 1, 1};
+			event[EVENT_ALLGEE]=tomorrow;
 		// re-realise all bombers in case any doctrine has changed
 		for(i=0;i<state->ndesigns;i++)
 		{

@@ -127,7 +127,7 @@ L_SN:01-12-1943:0
 # Schräge Musik
 MUSIK:17-08-1943:0
 # Jamming GEE.  "no jamming was experienced for nearly five months [after large-scale Gee operations began]" - Jones.  But Wikipedia says "The first serious jamming was encountered on the night of 4/5 August 1942." so maybe I should take that date instead
-GEEJAM:21-09-1942:0
+GEEJAM:21-09-1942:1
 
 #Intelligence reports
 # Informational
