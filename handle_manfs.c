@@ -916,11 +916,11 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						if(seldesm->proto_idx==seldes)
 							seldesm->proto_idx=-1;
 						HM_dpro[seldes]->hidden=true;
-						HM_proto->hidden=false;
+						HM_proto->hidden=design_status(seldesb)!=DSTA_DRAW;
 						if(seldesm->prod_idx==seldes)
 							seldesm->prod_idx=-1;
 						HM_dtoo[seldes]->hidden=true;
-						HM_tool->hidden=false;
+						HM_tool->hidden=design_status(seldesb)==DSTA_TOOL;
 						HM_halt->hidden=true;
 						break;
 					}
