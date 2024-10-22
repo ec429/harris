@@ -2175,7 +2175,7 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 										signed int blon=base_lon(bases[b]), blat=base_lat(bases[b]);
 										bool unpaved=types[i].heavy&&!bases[b].paved;
 										double dist=hypot((blat-(signed)targs[seltarg].lat)*3, (blon-(signed)targs[seltarg].lon)*3);
-										if((unpaved?newstats(types[i]).mrange:newstats(types[i]).cmrange)<dist)
+										if((unpaved?bstats(state->bombers[j]).mrange:bstats(state->bombers[j]).cmrange)<dist)
 											continue;
 										if(state->bombers[j].failed) continue;
 										if(!state->bombers[j].landed) continue;
