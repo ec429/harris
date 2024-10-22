@@ -65,7 +65,7 @@ CSB:CSB=1:n=Course-Setting Bombsight:y=1941:m=10:d=Allows installing the Mark XI
 GEE:NAG=1:r=HPE:n=Hyperbolic Navigation:y=1942:m=1:d=Allows installing GEE sets for coarse navigational assistance.
 H2S:NAH=1:r=SVS:n=Terrain Radar:y=1942:m=10:d=Allows installing H2S sets for blind bombing through cloud.
 OBO:NAO=1:r=SVS:n=Ranging Transponder:y=1942:m=4:d=Allows installing OBOE sets for precise radionavigation.
-GMP:NAG=2:r=GEE:n=Mass-Produced GEE:y=1942:m=8:d=Increases the supply of GEE sets
+GMP:NAG=2:r=GEE:n=Mass-Produced GEE:y=1942:m=8:d=Increases the supply of GEE sets.
 IGR:RGS=98:RGG=50:n=Improved Grass Runways:y=1939:m=9:d=Raises the max. take-off speed for grass runways.
 CCR:RGS=100:RGG=60:RCS=106:RCG=70:r=IGR:n=Concrete Runways:y=1940:m=4:d=Allows the construction of concrete runways; slightly improves grass too.
 ICR:RCS=110:RCG=75:r=CCR:n=Improved Concrete Runways:y=1941:m=5:d=Raises the max. take-off speed and weight for concrete runways to 110mph/75klb.
