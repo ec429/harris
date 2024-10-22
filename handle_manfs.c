@@ -416,37 +416,39 @@ void realise_design(struct bomber *bb)
 		calc_bomber(&bmr, tn);
 		mrange[concrete]=ceil(bmr.range/1.5f);
 	}
-	unsigned int mpcap[2];
 	unsigned int mprange[2];
+	struct bomber bmp[2]; /* bomber at Max Payload */
 	for(unsigned int concrete=0;concrete<2;concrete++)
 	{
-		struct bomber bmp=*b; /* bomber at Max Payload */
+		bmp[concrete] = *b;
 		unsigned int mptow, mts, mtg;
 		int delta;
-		bmp.tanks.pct=100;
-		bmp.parent=b;
-		bmp.refit=REFIT_DOCTRINE;
-		calc_bomber(&bmp, tn);
+		bmp[concrete].tanks.pct=100;
+		bmp[concrete].parent=b;
+		bmp[concrete].refit=REFIT_DOCTRINE;
+		calc_bomber(&bmp[concrete], tn);
 		mts = concrete && tn->rcs ? tn->rcs : tn->rgs;
 		mtg = concrete && tn->rcg ? tn->rcg : tn->rgg;
-		mptow = floor(wing_lift(&bmp.wing, mts / 1.6f));
+		mptow = floor(wing_lift(&bmp[concrete].wing, mts / 1.6f));
 		mptow = min(mptow, mtg * 1000);
-		mptow = min(mptow, bmp.mtow);
-		delta = bmp.gross - mptow;
-		bmp.tanks.pct=max(ceil(100.0*(1.0f - delta/(bmp.tanks.hlb*100.0f))), 0);
-		calc_bomber(&bmp, tn);
-		delta = bmp.gross - mptow;
-		if((int)bmp.bay.load < delta)
+		mptow = min(mptow, bmp[concrete].mtow);
+		delta = bmp[concrete].gross - mptow;
+		bmp[concrete].tanks.pct=max(ceil(100.0*(1.0f - delta/(bmp[concrete].tanks.hlb*100.0f))), 0);
+		calc_bomber(&bmp[concrete], tn);
+		delta = bmp[concrete].gross - mptow;
+		if((int)bmp[concrete].bay.load < delta)
 		{
-			bmp.bay.load = mpcap[concrete] = 0;
+			bmp[concrete].bay.load = 0;
 		}
 		else
 		{
-			bmp.bay.load = mpcap[concrete] = min(((int)bmp.bay.load) - delta, (int)bmp.bay.cap);
+			bmp[concrete].bay.load = min(((int)bmp[concrete].bay.load) - delta, (int)bmp[concrete].bay.cap);
 		}
-		calc_bomber(&bmp, tn);
-		mprange[concrete]=ceil(bmp.range/1.5f);
+		calc_bomber(&bmp[concrete], tn);
+		mprange[concrete]=ceil(bmp[concrete].range/1.5f);
 	}
+	/* use Max Payload and corresponding fuel load to calculate stats */
+	b = &bmp[1];
 	for(unsigned int m=mark;m<MAX_MARKS;m++)
 	{
 		struct bomberstats *bs=bt->mark+m;
@@ -467,7 +469,6 @@ void realise_design(struct bomber *bb)
 		bs->crange=mprange[1];
 		bs->cmcap=mrcap[1];
 		bs->cmrange=mrange[1];
-		// XXX mpcap is not currently used, harris assumes that at 'range' (or 'crange' on concrete) we can carry 'capwt', which might not be true with large empty tanks in the design
 		for(unsigned int c=0;c<MAX_CREW;c++)
 		{
 			if(c>=b->crew.n)
