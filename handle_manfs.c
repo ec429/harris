@@ -555,7 +555,7 @@ void update_m2v(struct bomber *b, char **outbuf)
 {
 	struct bomber db, pb;
 	struct randomisation pd={};
-	if(b->parent!=b)
+	if(b->refit)
 		pd=b->parent->dice;
 	calc_bomber(b, &b->tn);
 	atg_event ve;
