@@ -128,6 +128,7 @@ static int calc_engines(struct bomber *b)
 		mounts *= 0.8f;
 	e->tare = e->number * e->typ->twt * eet + mounts;
 	e->drag = e->number * max(e->typ->drg, e->mou->drg) * tn->edf / 100.0f;
+	e->heavy = e->number >= e->typ->hvy;
 	return 0;
 }
 
@@ -367,8 +368,11 @@ static int calc_crew(struct bomber *b)
 						       crew_name(m->pos));
 			}
 		}
-		if (m->pos == CCLASS_E)
+		if (m->pos == CCLASS_E) {
 			c->dc += m->gun ? 0.75f : 1.0f;
+			if (!b->engines.heavy)
+				design_error(b, "Only heavies may have engineers!");
+		}
 		if (m->pos == CCLASS_W) {
 			c->dc += m->gun ? 0.45f : 0.6f;
 			/* Radionavigation by pre-GEE methods,

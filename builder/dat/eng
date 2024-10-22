@@ -9,10 +9,10 @@ Mer4:BHP=1030:VUL=10:FAI=6:SVC=10:COS=1000:SCL=1:TWT=1320:DRG=72:m=Rolls-Royce:n
 MerX:BHP=1145:VUL=10:FAI=5:SVC=10:COS=1500:SCL=2:TWT=1452:DRG=65:m=Rolls-Royce:n=Merlin X:u=Mer4:d=Reliable 1,145hp inline with two-speed SC and low drag.
 MeXX:BHP=1240:VUL=10:FAI=5:SVC=9:COS=1600:SCL=2:TWT=1496:DRG=70:m=Rolls-Royce:n=Merlin XX:u=MerX:d=Uprated to 1,240hp.
 Mer6:BHP=1565:VUL=10:FAI=5:SVC=12:COS=2000:SCL=3:TWT=1650:DRG=105:m=Rolls-Royce:n=Merlin 60:u=MeXX:d=Two-stage supercharged for 1,565hp at high altitude.
-Vult:BHP=1760:VUL=10:FAI=30:SVC=15:COS=1800:SCL=2:TWT=2450:DRG=90:m=Rolls-Royce:n=Vulture I:d=Unreliable 'X' engine with 1,760hp in a compact package.
-Vul5:BHP=1600:VUL=10:FAI=18:SVC=12:COS=2300:SCL=2:TWT=2450:DRG=96:m=Rolls-Royce:n=Vulture V:u=Vult:d=Downrated to 1,600hp, with barely acceptable reliability.
+Vult:BHP=1760:VUL=10:FAI=30:SVC=15:COS=1800:SCL=2:TWT=2450:DRG=90:HVY=2:m=Rolls-Royce:n=Vulture I:d=Unreliable 'X' engine with 1,760hp in a compact package.
+Vul5:BHP=1600:VUL=10:FAI=18:SVC=12:COS=2300:SCL=2:TWT=2450:DRG=96:HVY=2:m=Rolls-Royce:n=Vulture V:u=Vult:d=Downrated to 1,600hp, with barely acceptable reliability.
 Dagg:BHP=1000:VUL=10:FAI=8:SVC=13:COS=750:SCL=1:TWT=1358:DRG=94:m=Napier:n=Dagger VIII:d=Cheap but outdated 1,000hp inline engine.
-Sab2:BHP=2200:VUL=12:FAI=21:SVC=16:COS=3200:SCL=1:TWT=2500:DRG=120:m=Napier:n=Sabre II:d=Huge 'H-24' inline engine; 2,200hp but poor reliability.
-Sab5:BHP=2850:VUL=12:FAI=12:SVC=11:COS=4000:SCL=2:TWT=2360:DRG=112:m=Napier:n=Sabre V:u=Sab2:d=Boosted to 2,850hp; adequately reliable, but expensive.
-Cent:BHP=2000:VUL=8:FAI=15:SVC=11:COS=2400:SCL=1:TWT=2700:DRG=135:m=Bristol:n=Centaurus I:d=2,000hp radial.  A bit draggy and slightly unreliable.
-Cen7:BHP=2520:VUL=7:FAI=10:SVC=9:COS=2700:SCL=2:TWT=2695:DRG=128:m=Bristol:n=Centaurus VII:u=Cent:d=Uprated to 2,520hp with two-speed SC, decent reliability.
+Sab2:BHP=2200:VUL=12:FAI=21:SVC=16:COS=3200:SCL=1:TWT=2500:DRG=120:HVY=2:m=Napier:n=Sabre II:d=Huge 'H-24' inline engine; 2,200hp but poor reliability.
+Sab5:BHP=2850:VUL=12:FAI=12:SVC=11:COS=4000:SCL=2:TWT=2360:DRG=112:HVY=2:m=Napier:n=Sabre V:u=Sab2:d=Boosted to 2,850hp; adequately reliable, but expensive.
+Cent:BHP=2000:VUL=8:FAI=15:SVC=11:COS=2400:SCL=1:TWT=2700:DRG=135:HVY=2:m=Bristol:n=Centaurus I:d=2,000hp radial.  A bit draggy and slightly unreliable.
+Cen7:BHP=2520:VUL=7:FAI=10:SVC=9:COS=2700:SCL=2:TWT=2695:DRG=128:HVY=2:m=Bristol:n=Centaurus VII:u=Cent:d=Uprated to 2,520hp with two-speed SC, decent reliability.

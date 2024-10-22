@@ -60,6 +60,7 @@ struct engine {
 	unsigned int scl;
 	unsigned int twt;
 	unsigned int drg;
+	unsigned int hvy;
 	struct engine *u; /* can mod to this with overbuilt mounts */
 	char *manu;
 	char *name;

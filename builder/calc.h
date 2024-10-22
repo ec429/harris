@@ -12,6 +12,7 @@ struct engines {
 	bool egg;
 	/* Output cache */
 	bool odd, manumatch;
+	bool heavy;
 	float power_factor;
 	float vuln;
 	float rely1, rely2;

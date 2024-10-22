@@ -273,6 +273,7 @@ static int load_engine_word(const char *key, const char *value, void *data)
 	INT_KEY(eng, "SCL", scl);
 	INT_KEY(eng, "TWT", twt);
 	INT_KEY(eng, "DRG", drg);
+	INT_KEY(eng, "HVY", hvy);
 	if (!strcmp(key, "m")) {
 		eng->manu = strdup(value);
 		if (!eng->manu)
@@ -326,6 +327,7 @@ static int load_engine(const char *line, void *data)
 	}
 	memcpy(eng->ident, line, 4);
 	eng->ident[4] = 0;
+	eng->hvy = 4;
 	loader.eng = eng;
 	loader.engines = head;
 	rc = for_each_word(line + 5, load_engine_word, &loader);

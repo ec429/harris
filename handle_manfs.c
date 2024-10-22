@@ -499,7 +499,7 @@ void realise_design(struct bomber *bb)
 			break;
 	}
 	bt->noarm=b->turrets.uab;
-	bt->heavy=b->engines.number>=4;
+	bt->heavy=b->engines.heavy;
 	bt->smbay=b->bay.girth<BB_COOKIE;
 	bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=true;
 	bt->load[BL_ILLUM]=!bt->heavy;
