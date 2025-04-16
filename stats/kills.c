@@ -206,54 +206,58 @@ int main(int argc, char **argv)
 			}
 			else if (rec.ac.type == AE_DMG)
 			{
-				dmg_cleared = false;
-				if (rec.ac.fighter)
+				// only overwrite dmgsrc if this is over 50% of existing damage
+				if (rec.ac.dmg.delta * 3 > rec.ac.dmg.current)
 				{
-					struct hlist *fl = hashtable_lookup(&fighters, rec.ac.id);
-					struct fighter *f;
-
-					if (!fl)
+					dmg_cleared = false;
+					if (rec.ac.fighter)
 					{
-						fprintf(stderr, "Warning: encountered unknown fighter %08x\n", rec.ac.id);
-						f = malloc(sizeof(*f));
-						if (!f)
+						struct hlist *fl = hashtable_lookup(&fighters, rec.ac.id);
+						struct fighter *f;
+
+						if (!fl)
 						{
-							perror("malloc");
-							return 5;
+							fprintf(stderr, "Warning: encountered unknown fighter %08x\n", rec.ac.id);
+							f = malloc(sizeof(*f));
+							if (!f)
+							{
+								perror("malloc");
+								return 5;
+							}
+							f->list.hash = rec.ac.id;
+							f->ftype = rec.ac.ac_type;
+							f->dead = false;
 						}
-						f->list.hash = rec.ac.id;
-						f->ftype = rec.ac.ac_type;
-						f->dead = false;
+						else
+						{
+							f = container_of(fl, struct fighter, list);
+						}
+						f->src = rec.ac.dmg.src;
 					}
 					else
 					{
-						f = container_of(fl, struct fighter, list);
-					}
-					f->src = rec.ac.dmg.src;
-				}
-				else
-				{
-					struct hlist *bl = hashtable_lookup(&bombers, rec.ac.id);
-					struct bomber *b;
+						struct hlist *bl = hashtable_lookup(&bombers, rec.ac.id);
+						struct bomber *b;
 
-					if (!bl)
-					{
-						fprintf(stderr, "Warning: encountered unknown bomber %08x\n", rec.ac.id);
-						b = malloc(sizeof(*b));
-						if (!b)
+						if (!bl)
 						{
-							perror("malloc");
-							return 5;
+							fprintf(stderr, "Warning: encountered unknown bomber %08x\n", rec.ac.id);
+							b = malloc(sizeof(*b));
+							if (!b)
+							{
+								perror("malloc");
+								return 5;
+							}
+							b->list.hash = rec.ac.id;
+							b->type = rec.ac.ac_type;
+							b->dead = false;
 						}
-						b->list.hash = rec.ac.id;
-						b->type = rec.ac.ac_type;
-						b->dead = false;
+						else
+						{
+							b = container_of(bl, struct bomber, list);
+						}
+						b->src = rec.ac.dmg.src;
 					}
-					else
-					{
-						b = container_of(bl, struct bomber, list);
-					}
-					b->src = rec.ac.dmg.src;
 				}
 			}
 			else if (rec.ac.type == AE_FAIL)

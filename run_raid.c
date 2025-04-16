@@ -9,6 +9,8 @@
 
 #include "run_raid.h"
 
+//#define DEBUG_FIGHTERS	1 // logs lots of fighter combat details to stderr
+
 #include <math.h>
 #include "ui.h"
 #include "globals.h"
@@ -381,6 +383,8 @@ double wintai(const ac_bomber *b)
 		w=min(w+1, WL_FULL);
 	return basew[w];
 }
+
+#define SDC_SCALE	80.0
 
 int run_raid_create(void)
 {
@@ -1118,14 +1122,22 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									for(unsigned int l=1;l<MAX_CREW;l++)
 										if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
 											practise(*get_crew(state, k, l), 0.5);
-									while(ddmg&&brandp(sdc/(sdc+100.0)))
+									while(ddmg&&brandp(sdc/(sdc+SDC_SCALE)))
 										ddmg=max(ddmg-1,0);
 								}
 								state->bombers[k].damage+=ddmg;
 								if(ddmg)
 								{
 									dmtf_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, ddmg, state->bombers[k].damage, i);
-									state->bombers[k].ld=(dmgsrc){.ds=DS_TFLK, .idx=i};
+									// only overwrite dmgsrc if this was more than 50% of existing accum dmg
+									if(ddmg*3>state->bombers[k].damage)
+									{
+#ifdef DEBUG_FIGHTERS
+										if(state->bombers[k].ld.ds==DS_FIGHTER)
+											fprintf(stderr, "B%u overwriting DS_FIGHTER (%.0f) with DS_TFLK (%.0f)\n", state->bombers[k].type, state->bombers[k].damage-ddmg, ddmg);
+#endif
+										state->bombers[k].ld=(dmgsrc){.ds=DS_TFLK, .idx=i};
+									}
 								}
 							}
 						}
@@ -1170,14 +1182,22 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									for(unsigned int l=1;l<MAX_CREW;l++)
 										if(bstats(state->bombers[k]).crew[l]==CCLASS_E)
 											practise(*get_crew(state, k, l), 0.5);
-									while(ddmg&&brandp(sdc/(sdc+100.0)))
+									while(ddmg&&brandp(sdc/(sdc+SDC_SCALE)))
 										ddmg=max(ddmg-1,0);
 								}
 								state->bombers[k].damage+=ddmg;
 								if(ddmg)
 								{
 									dmfk_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, ddmg, state->bombers[k].damage, i);
-									state->bombers[k].ld=(dmgsrc){.ds=DS_FLAK, .idx=i};
+									// only overwrite dmgsrc if this was more than 50% of existing accum dmg
+									if(ddmg*3>state->bombers[k].damage)
+									{
+#ifdef DEBUG_FIGHTERS
+										if(state->bombers[k].ld.ds==DS_FIGHTER)
+											fprintf(stderr, "B%u overwriting DS_FIGHTER (%.0f) with DS_FLAK (%.0f)\n", state->bombers[k].type, state->bombers[k].damage-ddmg, ddmg);
+#endif
+										state->bombers[k].ld=(dmgsrc){.ds=DS_FLAK, .idx=i};
+									}
 								}
 							}
 						}
@@ -1494,11 +1514,24 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 							}
 						}
 						double mlskill=nl?slskill/nl:0;
-						if(d<(airad?0.4:radcon?0.34:0.25)*(.7*illum+.6))
+#ifdef DEBUG_FIGHTERS
+						fprintf(stderr, "F%u vs B%u, d=%.3f, %s%s => %.3f (seerange %.3f)\n",
+							ft, bt, d, airad?"A":".", radcon?"R":".",
+							(airad?0.4:radcon?0.35:0.26)*(.7*illum+.8)*d_fsr,
+							seerange);
+#endif
+						if(d<(airad?0.4:radcon?0.35:0.26)*(.7*illum+.8)*d_fsr)
 						{
+#ifdef DEBUG_FIGHTERS
+							fprintf(stderr, "\tto-hit = %.3f\n",
+								ftypes[ft].mnv*(2.7+loadness(state->bombers[k]))/(200.0+pskill+mlskill*3));
+#endif
 							if(brandp(ftypes[ft].mnv*(2.7+loadness(state->bombers[k]))/(200.0+pskill+mlskill*3)))
 							{
-								unsigned int dmg=irandu(ftypes[ft].arm)*(state->fighters[j].musik?bst.desch:bst.defn)/30.0;
+								unsigned int roll=irandu(ftypes[ft].arm), dmg=roll*(state->fighters[j].musik?bst.desch:bst.defn)/30.0;
+#ifdef DEBUG_FIGHTERS
+								unsigned int rawdmg=dmg;
+#endif
 								double sdc=0;
 								// Damage control; also E practise (even if dmg==0)
 								for(unsigned int l=1;l<MAX_CREW;l++)
@@ -1513,26 +1546,47 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 										sdc+=get_skill(state, k, l);
 									}
 								}
-								while(dmg&&brandp(sdc/(sdc+100.0)))
+								while(dmg&&brandp(sdc/(sdc+SDC_SCALE)))
 									dmg--;
+#ifdef DEBUG_FIGHTERS
+								fprintf(stderr, "\thit B (rolled %u) for %u DC %u (sk %.3f)\n", roll, rawdmg, dmg, sdc);
+#endif
 								state->bombers[k].damage+=dmg;
 								if(dmg)
 								{
 									dmac_append(&state->hist, state->now, now, state->bombers[k].id, false, state->bombers[k].type, dmg, state->bombers[k].damage, state->fighters[j].id);
-									state->bombers[k].ld=(dmgsrc){.ds=DS_FIGHTER, .idx=j};
+									// only overwrite dmgsrc if this was more than 50% of existing accum dmg
+									if(dmg*3>state->bombers[k].damage)
+										state->bombers[k].ld=(dmgsrc){.ds=DS_FIGHTER, .idx=j};
 								}
 							}
 							if(brandp(0.35))
+							{
 								state->fighters[j].k=-1;
+#ifdef DEBUG_FIGHTERS
+								fprintf(stderr, "\tlost contact\n");
+#endif
+							}
 						}
-						if(d<(ftypes[ft].night?0.3:0.2)*(.8*illum+.6)) // easier to spot nightfighters as they're bigger
+#ifdef DEBUG_FIGHTERS
+						fprintf(stderr, "\trev spot %.3f\n",
+							(ftypes[ft].night?0.27:0.17)*(.8*illum+.6));
+#endif
+						if(d<(ftypes[ft].night?0.27:0.17)*(.8*illum+.6)) // easier to spot nightfighters as they're bigger
 						{
 							double rgskill=0;
 							if(ng)
 								rgskill=gskill[irandu(ng)];
-							if(!types[bt].noarm&&(brandp(rgskill*0.008/(state->fighters[j].musik?bst.desch:bst.defn))))
+#ifdef DEBUG_FIGHTERS
+							fprintf(stderr, "\trev to-hit %.3f (sk %.3f)\n",
+								rgskill*0.013/(state->fighters[j].musik?bst.desch:bst.defn), rgskill);
+#endif
+							if(!types[bt].noarm&&(brandp(rgskill*0.013/(state->fighters[j].musik?bst.desch:bst.defn))))
 							{
 								unsigned int dmg=irandu(20);
+#ifdef DEBUG_FIGHTERS
+								fprintf(stderr, "\thit F for %u\n", dmg);
+#endif
 								state->fighters[j].damage+=dmg;
 								if(dmg)
 								{
@@ -1540,7 +1594,12 @@ screen_id run_raid_screen(atg_canvas *canvas, game *state)
 									state->fighters[j].ld=(dmgsrc){.ds=DS_BOMBER, .idx=k};
 								}
 								if(brandp(0.6)) // fighter breaks off to avoid return fire, but 40% chance to maintain contact
+								{
 									state->fighters[j].k=-1;
+#ifdef DEBUG_FIGHTERS
+									fprintf(stderr, "\tbroke contact\n");
+#endif
+								}
 							}
 							// G practise (even if we missed)
 							for(unsigned int l=1;l<MAX_CREW;l++)

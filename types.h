@@ -386,7 +386,7 @@ typedef struct
 	bool landed; // for forces, read as !assigned
 	double speed;
 	double damage; // increases the probability of mech.fail and of consequent crashes
-	dmgsrc ld; // last damage source
+	dmgsrc ld; // last (major) damage source
 	double wear; // how clapped-out is this aircraft?  Percentage
 	bool idtar; // identified target?  (for use if RoE require it)
 	bool fix; // have a navaid fix?  (controls whether to drop skymarker)
