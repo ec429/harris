@@ -56,7 +56,7 @@ GLT:t=Aglt:r=QUT:r=SVS:n=Gun-Laying Radar:y=1944:m=5:d=Unlocks the 'Village Inn'
 IHY:GTF=60:GCF=105:n=Improved Hydraulics:y=1940:m=9:d=Reduces the weight of gun turrets.
 TUF:GDF=18:n=Turret Fairings:y=1941:m=8:d=Reduces the drag of gun turrets.
 LAT:GAM=135:GAC=24:n=Lightweight Ammo Tracks:y=1941:m=2:d=Reduces the per-gun weight associated with ammunition.
-GRL:r=QUT:n=Gransden Lodge Turret:y=1942:m=10:d=Unimplemented feature.
+#GRL:r=QUT:n=Gransden Lodge Turret:y=1942:m=10:d=Unimplemented feature.
 HCB:BTM=90:BMC=1:n=High Capacity Bombs:y=1940:m=1:d=Medium-girth bomb bays are lighter, and can carry cookies externally.
 BCE:BTS=55:n=Bomb Cells:y=1939:m=12:d=Reduced structure weight for small-girth bomb bays.
 LBB:BTC=110:BBF=3:r=HCB:n=Large Bomb Bay:y=1940:m=2:d=Unlocks large-girth bomb bays; reduces weight penalty for very large payloads.
@@ -69,4 +69,5 @@ GMP:NAG=2:r=GEE:n=Mass-Produced GEE:y=1942:m=8:d=Increases the supply of GEE set
 IGR:RGS=98:RGG=50:n=Improved Grass Runways:y=1939:m=9:d=Raises the max. take-off speed for grass runways.
 CCR:RGS=100:RGG=60:RCS=106:RCG=70:r=IGR:n=Concrete Runways:y=1940:m=4:d=Allows the construction of concrete runways; slightly improves grass too.
 ICR:RCS=110:RCG=75:r=CCR:n=Improved Concrete Runways:y=1941:m=5:d=Raises the max. take-off speed and weight for concrete runways to 110mph/75klb.
+TYR:RCG=84:r=ICR:n=High Pressure Tyres:y=1943:m=2:d=Raises the max. take-off weight for concrete runways to 84,000lb.
 UAB:UBL=2:n=Unarmed Bomber:y=1940:m=7:d=Allows the construction of twin-engined bombers without defensive armament.

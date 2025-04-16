@@ -434,7 +434,7 @@ void realise_design(struct bomber *bb)
 		mptow = min(mptow, mtg * 1000);
 		mptow = min(mptow, bmp[concrete].mtow);
 		delta = bmp[concrete].gross - mptow;
-		bmp[concrete].tanks.pct=max(ceil(100.0*(1.0f - delta/(bmp[concrete].tanks.hlb*100.0f))), 0);
+		bmp[concrete].tanks.pct=max(floor(100.0*(1.0f - delta/(bmp[concrete].tanks.hlb*100.0f))), 0);
 		calc_bomber(&bmp[concrete], tn);
 		delta = bmp[concrete].gross - mptow;
 		if((int)bmp[concrete].bay.load < delta)
@@ -504,7 +504,7 @@ void realise_design(struct bomber *bb)
 	bt->smbay=b->bay.girth<BB_COOKIE;
 	bt->load[BL_ABNORMAL]=bt->load[BL_USUAL]=bt->load[BL_ARSON]=true;
 	bt->load[BL_ILLUM]=!bt->heavy;
-	bt->load[BL_PONLY]=b->bay.cookie&&b->bay.cap<5000;
+	bt->load[BL_PONLY]=b->bay.cookie&&b->bay.cap>=4000&&b->bay.cap<5000;
 	// XXX plumduff has special SMBAY handling that's probably not correct for anything other than a Halifax
 	bt->load[BL_PLUMDUFF]=b->bay.cookie&&b->bay.cap>=5000;
 	bt->load[BL_PPLUS]=b->bay.cookie&&!bt->smbay&&b->bay.cap>8000;
