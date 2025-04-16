@@ -58,6 +58,8 @@ manifest = {
 					'mk2.png',
 					'mk3.png',
 					'mk4.png',
+					'mk5.png',
+					'mk6.png',
 					'gp0.png',
 					'gp1.png',
 					'gp2.png',

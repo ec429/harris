@@ -311,7 +311,7 @@ int loadgame(const char *fn, game *state)
 						{
 							const char *tx=line+n;
 							unsigned int tw;
-							n+=strcspn(tx, ",\n")+1;
+							n+=strcspn(tx, ",");
 							f=sscanf(tx, "%u", &tw);
 							if(f!=1)
 							{
@@ -320,6 +320,11 @@ int loadgame(const char *fn, game *state)
 								goto fail;
 							}
 							rawtypes[j].twear[m]=tw;
+							if(line[n])
+								n++;
+							else
+								for(;m<MAX_MARKS;m++)
+									rawtypes[j].twear[m]=tw;
 						}
 					}
 				}

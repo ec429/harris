@@ -1673,6 +1673,17 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	GB_confid->hidden=GB_morale->hidden=prestart;
 	GB_go->hidden=prestart;
 	GB_prego->hidden=!prestart;
+	unsigned int unused_mark=0;
+	for(unsigned int i=0;i<ntypes;i++)
+		if(state->btypes[i])
+			unused_mark=max(types[i].newmark+1, unused_mark);
+	for(unsigned int i=0;i<MAX_MARKS;i++)
+	{
+		atg_element **btns=GB_filter_marks->userdata;
+		btns[i]->hidden=unused_mark<=i;
+		if(btns[i]->hidden)
+			filter_marks[i]=false;
+	}
 	for(unsigned int i=0;i<2;i++)
 	{
 		SDL_Surface *src;

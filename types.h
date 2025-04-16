@@ -149,7 +149,7 @@ struct bomberstats
 	bool nav[NNAVAIDS];
 };
 
-#define MAX_MARKS	4
+#define MAX_MARKS	6
 
 typedef struct
 {

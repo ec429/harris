@@ -259,7 +259,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 					{
 						if(assign_slots(state, b))
 						{
-							// All of that work goes to waste, because our bureaucrats can't count past 4
+							// All of that work goes to waste, because our bureaucrats can't count past 6
 							m->prod_idx=-1;
 							continue;
 						}
