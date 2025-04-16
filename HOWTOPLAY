@@ -142,7 +142,7 @@ You probably want to make sure the Pathfinders have the best navigational aids, 
 
 Window
 ~~~~~~
-Window (known today as 'Chaff') is a radio countermeasure: thousands of strips of aluminium foil, dropped from your bombers to confuse the German radars.  [You should be able to tell a diversionary raid to Window more heavily thus making them look like a larger force, but that's not implemented yet.]
+Window (known today as 'Chaff') is a radio countermeasure: thousands of strips of aluminium foil, dropped from your bombers to confuse the German radars.  As well as interfering with radar-predicted Flak, Window can also mislead the Germans as to the size of a raid; you can instruct a diversionary raid to Window more heavily, thus making them look like a larger force, and hopefully inducing the Luftwaffe to commit fighters in the wrong place.
 
 Filters
 ~~~~~~~
