@@ -21,7 +21,8 @@ Schillig Roads:        8: 5: 6: 67:158:          :31-05-1940:SHIPPING
 Heligoland Bight:      6: 4: 8: 58:160:          :24-12-1939:SHIPPING
 Wilhelmshaven Docks:  10: 7: 7: 70:161:          :17-04-1940:SHIPPING
 Wilhelmshaven Docks:  12: 9: 7: 70:161:17-04-1940:15-05-1940:SHIPPING
-Hörnum, Sylt:          7: 6:10: 51:163:19-03-1940:31-05-1940:AIRFIELD
+Hörnum, Sylt:          7: 6:12: 51:163:19-03-1940:31-05-1940:AIRFIELD
+Borkum Seaplane Base:  9: 8:11: 71:139:09-12-1939:19-05-1940:AIRFIELD
 Norway Fleet:          5: 5:11: 48:152:09-04-1940:13-04-1940:SHIPPING
 Norway Fleet:          5: 4:11: 34:149:13-04-1940:17-04-1940:SHIPPING
 Norway Fleet:          5: 3:11: 20:148:17-04-1940:21-04-1940:SHIPPING
@@ -154,7 +155,7 @@ Wilhelmshaven Shipyards:14:5:15:70:161:15-05-1940:14-02-1942:INDUSTRY,UBOOT,@Wil
 # Mining lanes.  TODO: end-dates from liberation of relevant ports (and Denmark) in 44/45
 #NAME:               Prd:Fk:Sz:LAT:LON:DD-MM-YYYY:DD-MM-YYYY:CLASS
 Heligoland Minelaying:11: 2:99: 56:157:          :          :MINING
-Biscay Minelaying:    12: 1:99:235: 24:25-06-1940:05-06-1944:MINING
+Biscay Minelaying:    12: 1:99:235: 24:25-06-1940:05-06-1944:MINING,UBOOT
 Fehmarn Minelaying:   22: 3:99: 48:203:          :          :MINING
 Øresund Minelaying:   24: 2:99: 19:224:09-04-1940:          :MINING
 Kattegat Minelaying:  20: 1:99: 11:201:09-04-1940:          :MINING
