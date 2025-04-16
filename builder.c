@@ -1816,6 +1816,7 @@ void builder_update_m2v(const struct bomber *b, char **outbuf)
 		bmr.bay.load = 0;
 	else
 		bmr.bay.load = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
+	calc_bomber(&bmr, tn);
 	snprintf(outbuf[OUT_DIM], 80,
 		 "Dimensions: span %.1fft, chord %.1fft",
 		 b->wing.span, b->wing.chord);

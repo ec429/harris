@@ -35,6 +35,7 @@ if(state.builder)
 	"Techs:%u\n", ntech
 	for(i=0;i<ntech;i++)
 		"Tech %u:%s,%u,%u,%u,%u\n", i, tech[i].ident, tech[i].unlocked, tech[i].supported, tech[i].uy, tech[i].um
+	"Specials:%u,%u\n", spec_four.unlocked, spec_geo.unlocked
 	"NDNum:%u,%u\n", next_design_number, next_mod_number
 	"NCSlot:%u\n", next_custom_slot
 	"Research:%s,%s,%s\n", researching[0].ident, researching[1].ident, researching[2].ident

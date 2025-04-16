@@ -13,3 +13,4 @@
 
 extern atg_element *post_raid_box;
 void refill_students(game *state, bool refill);
+void proto_specials(struct bomber *b);

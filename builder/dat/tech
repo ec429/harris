@@ -12,13 +12,13 @@ _ED:ESL=0:n=Engine Dynamo:y=0:d=A simple dynamoelectric generator driven from th
 _BN:NAG=0:NAH=0:NAO=0:n=Basic Navigation:y=0:d=Map-reading and 'astro' are the fundamentals of RAF navigational practice.
 _GR:RGS=90:RGG=50:RCS=0:RCG=0:n=Grass Runways:y=0:d=Grass airstrips limit take-off speed and maximum gross weight of the aircraft that use them.
 FEB:G4T=180:G4C=100:n=Four Engined Bombers:y=1939:m=11:d=Allows the construction of aircraft with 4 or more engines.
-MFE:G4T=80:G4C=95:r=FEB:n=Mature Four-Engine Layout:y=1941:m=4:d=Reduces the weight and cost penalty for using 4+ engines.
+MFE:G4T=80:G4C=95:r=FEB:r=sp4:n=Mature Four-Engine Layout:y=1941:m=4:d=Reduces the weight and cost penalty for using 4+ engines.
 CRS:CMI=170:CES=110:CCC=105:n=Crew Stations:y=1940:m=5:d=Improves crew performance, at a slight weight and cost penalty.
 ICS:CMI=135:CCC=108:r=CRS:n=Improved Crew Stations:y=1942:m=10:d=Reduces the weight of each crewman's equipment.
 DHA:CLT=27:n=High Altitude Doctrine:y=1941:m=3:d=Allows the aircraft to spend longer climbing, for a higher ceiling.
-IGF:FTG=140:FCG=120:n=Improved Geodetics:y=1940:m=6:d=Lighter and cheaper geodetic fuselage structures.
+IGF:FTG=140:FCG=120:r=spG:n=Improved Geodetics:y=1940:m=6:d=Lighter and cheaper geodetic fuselage structures.
 RFF:FTN=110:FTT=80:FDN=45:FDT=36:FCN=150:FCT=220:FDS=68:n=Refined Fuselages:y=1941:m=2:d=Reduces weight and drag of normal and slender fuselage.
-GSF:FDG=48:FCG=130:r=IGF:n=Geodetic Streamlining:y=1941:m=1:d=Reduces drag of geodetic fuselage, at a slight cost penalty.
+GSF:FDG=48:FCG=130:r=IGF:r=spG:n=Geodetic Streamlining:y=1941:m=1:d=Reduces drag of geodetic fuselage, at a slight cost penalty.
 SCF:FTN=80:FTT=60:FTS=50:FCN=220:FCT=300:FCS=140:FWT=125:r=RFF:n=Fuselage Stressing Calcs:y=1942:m=12:d=Reduces weight of fuselages (not geodetic).  Cost up slightly.
 LWW:WTF=90:WCF=120:n=Lightweight Wings:y=1940:m=9:d=Reduces weight of wings.
 ISW:WTS=145:WTC=120:WTF=110:WCF=115:r=LWW:n=Improved Wing Structures:y=1941:m=4:d=Reduces weight of large wings.

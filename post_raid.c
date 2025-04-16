@@ -233,6 +233,7 @@ screen_id post_raid_screen(__attribute__((unused)) atg_canvas *canvas, game *sta
 						// complete the design
 						do_randomise(b);
 						calc_bomber(b, &b->tn);
+						proto_specials(b);
 						char refbuf[32], msgbuf[120];
 						snprintf(refbuf, sizeof(refbuf),
 							 "PROTO_%s", m->ident);
@@ -924,23 +925,6 @@ mothball:
 		}
 		state->researching[slot]=NULL;
 		apply_techs(&builder->entities, &builder->tn);
-		for(i=0;i<NNAVAIDS;i++)
-			if(builder->tn.na[i])
-				event[navevent[i]]=tomorrow;
-		if(builder->tn.na[NAV_GEE]==1)
-		{
-			date gj=tomorrow;
-			gj.month+=6;
-			gj.day+=20;
-			if(gj.month>12)
-			{
-				gj.month-=12;
-				gj.year++;
-			}
-			event[EVENT_GEEJAM]=gj;
-		}
-		if(builder->tn.na[NAV_GEE]>1)
-			event[EVENT_ALLGEE]=tomorrow;
 		// re-realise all bombers in case any doctrine has changed
 		for(i=0;i<state->ndesigns;i++)
 		{
@@ -1272,4 +1256,13 @@ void train_students(game *state)
 			break;
 		}
 	}
+}
+
+void proto_specials(struct bomber *b)
+{
+	if(b->engines.number>=4)
+		spec_four.unlocked=true;
+	if(b->fuse.typ==FT_GEODETIC)
+		spec_geo.unlocked=true;
+	apply_techs(&builder->entities, &builder->tn);
 }

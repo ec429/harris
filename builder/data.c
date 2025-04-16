@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include "data.h"
 #include "parse.h"
+/* need to poke at 'event[]' */
+#include "../globals.h"
 
 const char *describe_bbg(enum bb_girth girth)
 {
@@ -643,6 +645,16 @@ struct tech supporting = {
 	.name="Supporting Research",
 	.desc="Allows one other slot to hold a cutting-edge tech.",
 };
+struct tech spec_four = {
+	.ident="sp4",
+	.name="Special req: 4+ Engines",
+	.desc="Must have flown a prototype with 4 or more engines.",
+};
+struct tech spec_geo = {
+	.ident="spG",
+	.name="Special req: Geodetics",
+	.desc="Must have flown a prototype with geodetic fuselage.",
+};
 
 int try_load_tn_word(const char *key, const char *value,
 		     struct tech_numbers *tn)
@@ -712,6 +724,14 @@ static int load_tech_word(const char *key, const char *value, void *data)
 				break;
 		if (i == ARRAY_SIZE(loader->tech->req))
 			return -ENOBUFS;
+		if (!strcmp(value, "sp4")) {
+			loader->tech->req[i] = &spec_four;
+			return 0;
+		}
+		if (!strcmp(value, "spG")) {
+			loader->tech->req[i] = &spec_geo;
+			return 0;
+		}
 		list_for_each_entry(req, loader->head) {
 			if (!strcmp(value, req->ident)) {
 				loader->tech->req[i] = req;
@@ -852,6 +872,11 @@ int populate_entities(struct entities *ent, struct list_head *guns,
 	return 0;
 }
 
+date tech_date(const struct tech *t)
+{
+	return (date){t->uy, t->um, 1};
+}
+
 int apply_techs(const struct entities *ent, struct tech_numbers *tn)
 {
 	struct tech *tech;
@@ -888,6 +913,24 @@ int apply_techs(const struct entities *ent, struct tech_numbers *tn)
 		for (i = 0; i < ARRAY_SIZE(tech->gun); i++)
 			if (tech->gun[i])
 				tech->gun[i]->unlocked = true;
+		/* Events triggered by techs */
+		for(i=0;i<NNAVAIDS;i++)
+			if((int)tech->num.na[i]>0)
+				event[navevent[i]]=tech_date(tech);
+		if(tech->num.na[NAV_GEE]==1)
+		{
+			date gj=tech_date(tech);
+			gj.month+=6;
+			gj.day+=20;
+			if(gj.month>12)
+			{
+				gj.month-=12;
+				gj.year++;
+			}
+			event[EVENT_GEEJAM]=gj;
+		}
+		if((int)tech->num.na[NAV_GEE]>1)
+			event[EVENT_ALLGEE]=tech_date(tech);
 	}
 	return 0;
 }

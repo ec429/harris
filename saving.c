@@ -70,6 +70,7 @@ int loadgame(const char *fn, game *state)
 		t->supported=t->have_reqs=false;
 		t->uy=t->um=0;
 	}
+	spec_four.unlocked=spec_geo.unlocked=0;
 	for(unsigned int j=0;j<ntypes;j++)
 	{
 		types[j].newmark=0;
@@ -522,6 +523,21 @@ int loadgame(const char *fn, game *state)
 					t->uy=uy;
 					t->um=um;
 				}
+			}
+		}
+		else if(strcmp(tag, "Specials")==0)
+		{
+			unsigned int sp4, spG;
+			f=sscanf(dat, "%u,%u\n", &sp4, &spG);
+			if(f!=2)
+			{
+				fprintf(stderr, "1 Too few arguments to tag \"%s\"\n", tag);
+				e|=1;
+			}
+			else
+			{
+				spec_four.unlocked=!!sp4;
+				spec_geo.unlocked=!!spG;
 			}
 		}
 		else if(strcmp(tag, "NDNum")==0)
@@ -1395,11 +1411,6 @@ fail:
 		event[i]=(event_nobuilder[i]&&state->builder)?(date){9999, 99, 99}:rawevent[i];
 	selstage=TPIPE__MAX;
 	apply_techs(&builder->entities, &builder->tn);
-	for(unsigned int i=0;i<NNAVAIDS;i++)
-		if(builder->tn.na[i])
-			event[navevent[i]]=(date){1, 1, 1};
-	if(builder->tn.na[NAV_GEE]>1)
-		event[EVENT_ALLGEE]=(date){1, 1, 1};
 	for(unsigned int i=0;i<ntypes;i++)
 		types[i]=rawtypes[i];
 	for(unsigned int m=0;m<nmods;m++)
@@ -1567,6 +1578,9 @@ int savegame(const char *fn, game state)
 				builder->entities.tech[i]->supported?1:0,
 				builder->entities.tech[i]->uy,
 				builder->entities.tech[i]->um);
+		fprintf(fs, "Specials:%u,%u\n",
+			spec_four.unlocked?1:0,
+			spec_geo.unlocked?1:0);
 		fprintf(fs, "NDNum:%u,%u\n",
 			state.next_design_number, state.next_mod_number);
 		fprintf(fs, "NCSlot:%u\n", state.next_custom_slot);

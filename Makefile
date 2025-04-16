@@ -108,13 +108,13 @@ builder.o: ui.h globals.h bits.h date.h rand.h widgets.h builder/data.h builder/
 
 builder/calc.o: builder/list.h builder/data.h bits.h
 
-builder/data.o: builder/list.h builder/parse.h bits.h
+builder/data.o: builder/list.h builder/parse.h bits.h globals.h
 
 builder/init.o: builder/list.h builder/calc.h builder/data.h globals.h bits.h
 
 builder/save.o: builder/list.h builder/calc.h builder/data.h builder/parse.h bits.h
 
-handle_manfs.o: ui.h globals.h date.h bits.h builder/data.h builder/list.h builder/calc.h builder.h control.h
+handle_manfs.o: ui.h globals.h date.h bits.h builder/data.h builder/list.h builder/calc.h builder.h control.h post_raid.h
 
 research.o: ui.h globals.h date.h bits.h builder.h builder/data.h builder/list.h
 

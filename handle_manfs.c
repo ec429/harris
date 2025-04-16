@@ -15,6 +15,7 @@
 #include "builder/calc.h"
 #include "builder.h"
 #include "control.h"
+#include "post_raid.h"
 
 atg_element *handle_manfs_box;
 
@@ -819,6 +820,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						// complete the design
 						do_randomise(seldesb);
 						calc_bomber(seldesb, &seldesb->tn);
+						proto_specials(seldesb);
 						update_m2v(seldesb, HM_out_buf);
 						HM_proto->hidden=true;
 						update_refit_buttons(state, seldesb);
