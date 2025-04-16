@@ -2405,6 +2405,8 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 								state->now=nextday(state->now);
 								state->next_design_number=0;
 								state->cash=min(state->cash, 25000)+3000000;
+								for(unsigned int i=0;i<state->nbombers;i++)
+									state->bombers[i].wear=10;
 								msgadd(canvas, state, event[EVENT_LEGACY], event_names[EVENT_LEGACY], evtext[EVENT_LEGACY]);
 								for(unsigned int i=0;i<builder->entities.ntech;i++)
 								{
