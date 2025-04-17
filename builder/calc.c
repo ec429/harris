@@ -833,12 +833,19 @@ static int calc_dev(struct bomber *b)
 		for (i = LXN_NOSE; i < LXN_COUNT; i++)
 			if (b->turrets.typ[i] != b->parent->turrets.typ[i]) {
 				const struct turret *t = b->turrets.typ[i];
+				const struct turret *m = b->turrets.mou[i];
 				const struct turret *p = b->parent->turrets.typ[i];
+				const struct turret *pm = b->parent->turrets.mou[i];
 
 				if (t) {
 					/* turret added or replaced */
-					add_tproto += powf(t->twt, 0.6f);
-					add_tprod += powf(t->twt, 0.8f) * 0.6f;
+					float scale = 1.0f;
+
+					if (m == pm)
+						/* added into existing mount */
+						scale = 0.4f;
+					add_tproto += powf(t->twt, 0.6f) * scale;
+					add_tprod += powf(t->twt, 0.8f) * 0.6f * scale;
 				} else {
 					/* turret removed */
 					add_tproto += powf(p->twt, 0.6f) * 0.2f;
@@ -893,8 +900,9 @@ static int calc_dev(struct bomber *b)
 
 				if (t) {
 					/* turret added or replaced */
-					add_tproto += powf(t->twt, 0.6f);
-					add_tprod += powf(t->twt, 0.8f) * 0.6f;
+					/* mount is known to be unchanged */
+					add_tproto += powf(t->twt, 0.6f) * 0.4f;
+					add_tprod += powf(t->twt, 0.8f) * 0.24f;
 				} else {
 					/* turret removed */
 					add_tproto += powf(p->twt, 0.6f) * 0.2f;
