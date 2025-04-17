@@ -435,6 +435,9 @@ static int calc_bombbay(struct bomber *b)
 	a->tare = a->cap * (a->factor + a->bigfactor) +
 		  (a->csbs ? 90.0f : 20.0f);
 	a->cost = a->csbs ? 1200.0f : 0.0f;
+	a->cookiesize = a->cap>=4000 && (a->girth == BB_COOKIE ||
+					 (a->girth == BB_MEDIUM &&
+					  b->fuse.typ != FT_SLENDER));
 	a->cookie = a->girth == BB_COOKIE ||
 		    (a->girth == BB_MEDIUM && tn->bmc &&
 		     b->fuse.typ != FT_SLENDER);

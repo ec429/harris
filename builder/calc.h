@@ -87,6 +87,7 @@ struct bombbay {
 	float bigfactor;
 	float tare;
 	float cost; /* csbs cost, rest is paid through core_tare */
+	bool cookiesize; /* big enough to carry it if researched? */
 	bool cookie;
 	bool mine;
 };

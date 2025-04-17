@@ -14,6 +14,7 @@ enum out_row {
 	OUT_WGT,
 	OUT_SPD,
 	OUT_CRC, /* Ceiling, Range, Climb */
+	OUT_PLD, /* Payload info, Max Load condition */
 	OUT_RAN, /* Max Range condition */
 	OUT_DEF,
 	OUT_FSA, /* FAil, SVp, ACcuracy */

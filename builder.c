@@ -1829,6 +1829,10 @@ void builder_update_m2v(const struct bomber *b, char **outbuf)
 	snprintf(outbuf[OUT_CRC], 80,
 		 "Service ceiling: %.0fft; range: %.0fmi (%.1fhr); initial climb %.0ffpm",
 		 b->ceiling * 1000.0f, b->range/0.75f, b->tanks.hours, b->init_climb);
+	snprintf(outbuf[OUT_PLD], 80,
+		 "Max payload: %ulb bombs, mines %s, cookies %s",
+		 b->bay.load, b->bay.mine ? "YES" : "NO",
+		 b->bay.cookie ? "YES" : b->bay.cookiesize ? "TECH" : "NO");
 	snprintf(outbuf[OUT_RAN], 80,
 		 "Max range: %.0fmi with %ulb bombs",
 		 bmr.range/0.75f, bmr.bay.load);
