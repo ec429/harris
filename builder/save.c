@@ -89,9 +89,9 @@ int save_design(FILE *f, const struct bomber *b)
 	fprintf(f, "MTW=%u:USR=%u\n", b->mtow, b->user_mtow ? 1 : 0);
 	fprintf(f, "RFL=%u\n", b->refit);
 	fprintf(f, "PAR=%d:PTW=%u:PDW=%u\n", b->par_idx, b->proto_work, b->prod_work);
-	fprintf(f, "RND=%u:DRG=%d:SRV=%d:VUL=%d:MNU=%d:ACC=%d\n",
+	fprintf(f, "RND=%u:DRG=%d:SRV=%d:VUL=%d:MNU=%d:ACC=%d:FAI=%d\n",
 		b->dice.rolled ? 1 : 0, b->dice.drag, b->dice.serv,
-		b->dice.vuln, b->dice.manu, b->dice.accu);
+		b->dice.vuln, b->dice.manu, b->dice.accu, b->dice.fail);
 	fprintf(f, "WKN=%s\n", b->name);
 	if(b->slot_idx)
 		fprintf(f, "IDX=%u\n", b->slot_idx);
@@ -340,6 +340,7 @@ LOADER_INT(srv, dice.serv);
 LOADER_INT(vul, dice.vuln);
 LOADER_INT(mnu, dice.manu);
 LOADER_INT(acc, dice.accu);
+LOADER_INT(fai, dice.fail);
 
 LOADER_INT(par, par_idx);
 LOADER_UINT(ptw, proto_work);
@@ -402,6 +403,7 @@ struct loadkey {
 	{"VUL", load_vul},
 	{"MNU", load_mnu},
 	{"ACC", load_acc},
+	{"FAI", load_fai},
 	{"TN", load_tn},
 	{"PAR", load_par},
 	{"PTW", load_ptw},

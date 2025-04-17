@@ -133,6 +133,7 @@ struct randomisation {
 	int vuln;
 	int manu;
 	int accu;
+	int fail;
 };
 
 #define MAX_EW	16

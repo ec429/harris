@@ -725,6 +725,7 @@ static int calc_rely(struct bomber *b)
 		  b->fuse.fail;
 	if (b->crew.engineers)
 		b->fail *= 0.9f / b->crew.es;
+	b->fail *= (18 + b->dice.fail) / 18.0f;
 	return 0;
 }
 
@@ -1062,6 +1063,7 @@ int do_randomise(struct bomber *b)
 		b->dice.vuln = irandu(21) - 10;
 		b->dice.manu = irandu(11) - 5;
 		b->dice.accu = irandu(9) - 4;
+		b->dice.fail = irandu(11) - 5;
 		break;
 	case REFIT_MARK:
 		b->dice.drag += irandu(5) - 2;
@@ -1069,10 +1071,12 @@ int do_randomise(struct bomber *b)
 		b->dice.vuln += irandu(11) - 5;
 		b->dice.manu += irandu(5) - 2;
 		b->dice.accu += irandu(3) - 1;
+		b->dice.fail += irandu(5) - 2;
 		break;
 	case REFIT_MOD:
 		b->dice.serv += irandu(5) - 2;
 		b->dice.vuln += irandu(5) - 2;
+		b->dice.fail += irandu(3) - 1;
 		break;
 	default:
 		break;
@@ -1083,6 +1087,7 @@ int do_randomise(struct bomber *b)
 	CLAMP(vuln, 10);
 	CLAMP(manu, 5);
 	CLAMP(accu, 4);
+	CLAMP(fail, 5);
 	#undef CLAMP
 	b->dice.rolled = true;
 	return 0;
