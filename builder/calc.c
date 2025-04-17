@@ -386,6 +386,7 @@ static int calc_crew(struct bomber *b)
 	}
 	if (!count[CCLASS_P])
 		design_error(b, "Crew must include a pilot!");
+	c->pilots = count[CCLASS_P];
 	if (!count[CCLASS_N])
 		design_error(b, "Crew must include a navigator!");
 	c->engineers = count[CCLASS_E];
@@ -732,7 +733,7 @@ static int calc_combat(struct bomber *b)
 	unsigned int sch;
 	float sgf, lbb;
 
-	b->roll_pen = powf(b->wing.ar, 0.8f) * 0.7f;
+	b->roll_pen = powf(b->wing.ar, 0.8f) * 0.7f / sqrt(b->crew.pilots);
 	b->turn_pen = sqrt(max(b->wing.wl - b->manf->tpl, 0.0f));
 	b->manu_pen = b->roll_pen + b->turn_pen;
 	b->manu_pen *= (100 + b->dice.manu) / 100.0f;

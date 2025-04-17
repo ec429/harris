@@ -67,8 +67,7 @@ struct crew {
 	unsigned int n;
 	struct crewman men[MAX_CREW];
 	/* Output cache */
-	unsigned int gunners, engineers;
-	bool pilot, nav;
+	unsigned int pilots, gunners, engineers;
 	float tare;
 	float gross;
 	float dc;
