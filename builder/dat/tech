@@ -1,7 +1,7 @@
 _MB:G4T=0:G4C=0:UBL=1:n=Medium Bombers:y=0:d=Established principles for bombers with up to three engines.
 _CA:CMI=165:CES=100:CCC=100:n=Crew Accommodation:y=0:d=Standard design guidelines for crew positions and equipment.
 _PD:CLT=20:n=Pre-War Doctrine:y=0:d=Operational philosophy for medium-level bombing.
-_BF:FTN=150:FTT=100:FTS=90:FTG=170:FDN=50:FDT=40:FDS=72:FDG=54:FWT=135:FSN=30:FST=64:FSS=27:FSG=20:FFN=30:FFT=40:FFS=27:FFG=20:FVN=20:FVT=30:FVS=20:FVG=8:n=Basic Fuselages:y=0:d=Four main varieties of fuselage structure.
+_BF:FTN=150:FTT=100:FTS=90:FTG=170:FDN=50:FDT=35:FDS=72:FDG=54:FWT=135:FSN=30:FST=56:FSS=27:FSG=20:FFN=30:FFT=38:FFS=27:FFG=20:FVN=20:FVT=28:FVS=20:FVG=8:n=Basic Fuselages:y=0:d=Four main varieties of fuselage structure.
 _BM:CCN=100:CCT=160:CCS=80:CCG=100:FCN=100:FCT=160:FCS=70:FCG=110:n=Basic Manufacturing:y=0:d=Production cost for various fuselage types.
 _CW:WTS=150:WTC=120:WTF=100:WLD=108:WCF=100:n=Cantilever Wings:y=0:d=Unbraced monoplane wings with standard aerofoil sections.
 _FT:FUT=120:FUV=100:FGV=80:SFT=0:SFV=0:SFC=0:FUC=60:n=Fuel Tanks:y=0:d=Wing-mounted petrol tanks for aircraft.
@@ -17,7 +17,7 @@ CRS:CMI=170:CES=110:CCC=105:n=Crew Stations:y=1940:m=5:d=Improves crew performan
 ICS:CMI=135:CCC=108:r=CRS:n=Improved Crew Stations:y=1942:m=10:d=Reduces the weight of each crewman's equipment.
 DHA:CLT=27:n=High Altitude Doctrine:y=1941:m=3:d=Allows the aircraft to spend longer climbing, for a higher ceiling.
 IGF:FTG=140:FCG=120:r=spG:n=Improved Geodetics:y=1940:m=6:d=Lighter and cheaper geodetic fuselage structures.
-RFF:FTN=110:FTT=80:FDN=45:FDT=36:FCN=150:FCT=220:FDS=68:n=Refined Fuselages:y=1941:m=2:d=Reduces weight and drag of normal and slender fuselage.
+RFF:FTN=110:FTT=80:FDN=45:FDT=30:FCN=150:FCT=220:FDS=68:n=Refined Fuselages:y=1941:m=2:d=Reduces weight and drag of normal and slender fuselage.
 GSF:FDG=48:FCG=130:r=IGF:r=spG:n=Geodetic Streamlining:y=1941:m=1:d=Reduces drag of geodetic fuselage, at a slight cost penalty.
 SCF:FTN=80:FTT=60:FTS=50:FCN=220:FCT=300:FCS=140:FWT=125:r=RFF:n=Fuselage Stressing Calcs:y=1942:m=12:d=Reduces weight of fuselages (not geodetic).  Cost up slightly.
 LWW:WTF=90:WCF=120:n=Lightweight Wings:y=1940:m=9:d=Reduces weight of wings.

@@ -156,6 +156,8 @@ static int calc_turrets(struct bomber *b)
 	t->cost = 0;
 	if (t->typ[LXN_NOSE] && b->engines.odd)
 		design_error(b, "Turret in nose position conflicts with engine!");
+	if (t->typ[LXN_TAIL] && b->fuse.typ == FT_SLENDER)
+		design_error(b, "Slender fuselage cannot have tail turret!");
 	for (j = 0; j < GC_COUNT; j++)
 		t->gc[j] = 0;
 	t->uab = true;
