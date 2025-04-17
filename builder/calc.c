@@ -726,6 +726,7 @@ static int calc_rely(struct bomber *b)
 	if (b->crew.engineers)
 		b->fail *= 0.9f / b->crew.es;
 	b->fail *= (18 + b->dice.fail) / 18.0f;
+	b->fail *= b->manf->faf / 100.0f;
 	return 0;
 }
 
