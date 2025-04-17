@@ -115,6 +115,8 @@ static int calc_engines(struct bomber *b)
 		e->cost *= tn->g4c / 100.0f;
 		if (!tn->g4c || !tn->g4t)
 			design_error(b, "Four-engined bombers not developed yet!");
+		else if (b->fuse.typ == FT_GEODETIC && !tn->g4g)
+			design_error(b, "Four-engined geodetics not developed yet!");
 	}
 	e->scl = e->typ->scl;
 	e->fuelrate = e->number * e->typ->bhp * 0.4f;

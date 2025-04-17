@@ -531,6 +531,7 @@ struct tn_entry {
 			   .desc = _desc }
 	TNE("G4T", g4t, "Tare weight penalty for 4+ engines"),
 	TNE("G4C", g4c, "Cost penalty for 4+ engines"),
+	TNE("G4G", g4g, "4+ engines allowed with geodetic fuselage"),
 	TNE("CMI", cmi, "Tare weight of per-crewman incidentals"),
 	TNE("CES", ces, "Crewman effective skill scaling %"),
 	TNE("CCC", ccc, "Crewman core cost scaling %"),

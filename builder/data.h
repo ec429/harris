@@ -145,7 +145,9 @@ struct tech_numbers {
 	unsigned int bt[BB_COUNT]; // Bay Tare factor * 1000
 	unsigned int bbb; // Bay Bigfactor Base / 1000lb
 	unsigned int bbf; // Bay Bigfactor Frac / 1e5
+	// Design limits
 	unsigned int ubl; // Unarmed Bomber Limit (engine count)
+	unsigned int g4g; // 4+ engines allowed with FT_GEODETIC
 	/* MARK block.  Cannot change in MOD refits. */
 	unsigned int mark_block[0];
 	unsigned int ft[FT_COUNT]; // Fuse Tare * 100

@@ -1,4 +1,4 @@
-_MB:G4T=0:G4C=0:UBL=1:n=Medium Bombers:y=0:d=Established principles for bombers with up to three engines.
+_MB:G4T=0:G4C=0:G4G=0:UBL=1:n=Medium Bombers:y=0:d=Established principles for bombers with up to three engines.
 _CA:CMI=165:CES=100:CCC=100:n=Crew Accommodation:y=0:d=Standard design guidelines for crew positions and equipment.
 _PD:CLT=20:n=Pre-War Doctrine:y=0:d=Operational philosophy for medium-level bombing.
 _BF:FTN=150:FTT=100:FTS=90:FTG=170:FDN=50:FDT=35:FDS=72:FDG=54:FWT=135:FSN=30:FST=56:FSS=27:FSG=20:FFN=30:FFT=38:FFS=27:FFG=20:FVN=20:FVT=28:FVS=20:FVG=8:n=Basic Fuselages:y=0:d=Four main varieties of fuselage structure.
@@ -13,6 +13,7 @@ _BN:NAG=0:NAH=0:NAO=0:n=Basic Navigation:y=0:d=Map-reading and 'astro' are the f
 _GR:RGS=90:RGG=50:RCS=0:RCG=0:n=Grass Runways:y=0:d=Grass airstrips limit take-off speed and maximum gross weight of the aircraft that use them.
 FEB:G4T=180:G4C=100:n=Four Engined Bombers:y=1939:m=11:d=Allows the construction of aircraft with 4 or more engines.
 MFE:G4T=80:G4C=95:r=FEB:r=sp4:n=Mature Four-Engine Layout:y=1941:m=4:d=Reduces the weight and cost penalty for using 4+ engines.
+GFE:G4G=1:r=FEB:r=sp4:r=spG:n=Four-Engined Geodetics:y=1943:m=4:d=Allows aircraft with 4+ engines and geodetic fuselage.
 CRS:CMI=170:CES=110:CCC=105:n=Crew Stations:y=1940:m=5:d=Improves crew performance, at a slight weight and cost penalty.
 ICS:CMI=135:CCC=108:r=CRS:n=Improved Crew Stations:y=1942:m=10:d=Reduces the weight of each crewman's equipment.
 DHA:CLT=27:n=High Altitude Doctrine:y=1941:m=3:d=Allows the aircraft to spend longer climbing, for a higher ceiling.
