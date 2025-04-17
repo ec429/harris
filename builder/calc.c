@@ -678,6 +678,8 @@ static int calc_perf(struct bomber *b)
 	}
 	if (floor(b->gross) > b->mtow)
 		design_error(b, "Exceeded MTOW of %ulb", b->mtow);
+	if (b->crew.n > floor(b->mtow * .00018 + 1.2))
+		design_error(b, "Too small to hold %u crew", b->crew.n);
 	/* Gross weight with everything filled up to maximum.
 	 * Used for development time calculations.
 	 */
