@@ -33,13 +33,13 @@ LFT:FUT=100:FUC=81:n=Lightweight Fuel Tanks:y=1940:m=11:d=Reduces the empty weig
 IFT:FUT=90:FUV=90:FUC=96:r=LFT:n=Improved Fuel Tanks:y=1942:m=3:d=Lighter, less vulnerable fuel tankage.
 HPE:ESL=1:n=High Power Electrics:y=1940:m=4:d=High-power electrics allow various aids to navigation.
 SVS:ESL=2:r=HPE:n=Stable Voltage Supply:y=1941:m=7:d=Allows installation of sophisticated radionavigation equipment.
-LPE:e=Pega:e=MerX:e=Dagg:n=1939 Engines:y=2:d=The last pre-war generation of engines.
+LPE:e=Pers:e=Pega:e=MerX:e=Dagg:n=1939 Engines:y=2:d=The last pre-war generation of engines.
 X24:e=Vult:e=Sab2:n=24-Cylinder Engines:y=1939:m=9:d=Large X-24 and H-24 configuration engines.
 VUR:e=Vul5:r=X24:n=Vulture Reliability:y=1941:m=8:d=A less temperamental Vulture engine.
 SAB:e=Sab5:r=X24:n=Evolved Sabre:y=1944:m=2:d=The most powerful in-line engine.
 V12:e=MeXX:n=V-12 Development:y=1940:m=12:d=Upgrades to the Merlin family of engines.
 TSS:e=Mer6:r=V12:n=Two-Stage Supercharging:y=1942:m=1:d=New blowers for very high altitude performance.
-SLV:e=Her3:e=Cent:n=Sleeve Valve:y=1940:m=3:d=Early sleeve-valve radial engines.
+SLV:e=Taur:e=Her3:e=Cent:n=Sleeve Valve:y=1940:m=3:d=Early sleeve-valve radial engines.
 RSV:e=HeXI:r=SLV:n=Reliable Sleeve Valve:y=1940:m=12:d=An improved Hercules engine.
 SVG:e=He18:e=Cen7:r=RSV:n=Sleeve Valve Growth:y=1942:m=10:d=New marks of Hercules and Centaurus engines.
 TRR:e=Deer:n=Triple-Row Radials:y=1940:m=9:d=Unlocks the Deerhound engine.
