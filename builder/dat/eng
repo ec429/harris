@@ -1,7 +1,7 @@
 Merc:BHP=840:VUL=6:FAI=8:SVC=8:COS=800:SCL=1:TWT=968:DRG=90:m=Bristol:n=Mercury XV:d=A cheap and lightweight 840-horsepower radial.
 Pers:BHP=930:VUL=6:FAI=9:SVC=8:COS=900:SCL=1:TWT=1025:DRG=82:m=Bristol:n=Perseus XA:u=Merc:d=Small early sleeve-valve radial.
 Pega:BHP=965:VUL=6:FAI=10:SVC=8:COS=1200:SCL=2:TWT=1111:DRG=84:m=Bristol:n=Pegasus XVIII:d=965hp radial with two-speed supercharger.
-Taur:BHP=1015:VUL=6:FAI=11:SVC=9:COS=1000:SCL=1:TWT=1300:DRG=80:m=Bristol:n=Taurus II:u=Pers:d=Troublesome twin-row radial; low-blown.
+Taur:BHP=1130:VUL=5:FAI=11:SVC=9:COS=960:SCL=1:TWT=1300:DRG=76:m=Bristol:n=Taurus II:u=Pers:d=Troublesome twin-row radial; low-blown.
 Her3:BHP=1375:VUL=6:FAI=12:SVC=9:COS=1400:SCL=2:TWT=1850:DRG=104:m=Bristol:n=Hercules III:u=Pega:d=Large radial with 1,375hp.
 HeXI:BHP=1500:VUL=6:FAI=9:SVC=7:COS=1600:SCL=2:TWT=1929:DRG=102:m=Bristol:n=Hercules XI:u=Her3:d=Uprated to 1,500hp and more reliable.
 He18:BHP=1675:VUL=6:FAI=8:SVC=8:COS=2100:SCL=2:TWT=1940:DRG=101:m=Bristol:n=Hercules XVIII:u=HeXI:d=Boosted to 1,675hp.
