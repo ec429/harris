@@ -7,9 +7,10 @@ import hhist, hdata
 def extract_prodloss(ents):
 	days = sorted(hhist.group_by_date(ents))
 	bentry = [b.get('entry', hhist.date(0, 0, 0)) for b in hdata.Bombers]
+	bentry.extend([hhist.date(0, 0, 0) for i in range(32)])
 	res = {}
 	for d in days:
-		row = [[0, 0] for b in hdata.Bombers]
+		row = [[0, 0] for b in bentry]
 		for ent in d[1]:
 			if ent['class'] != 'A': continue
 			if ent['data']['type']['fb'] != 'B': continue

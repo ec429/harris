@@ -33,6 +33,7 @@ class Save(object):
 		self.dclasses = None
 		self.difficulty = {}
 		self.evented = set()
+		self.designs = {}
 		stage = None
 		nosplit = False
 		for line in f:
@@ -161,7 +162,9 @@ class Save(object):
 		if tag == 'Bombers':
 			self.nbombers = int(rest)
 			self.bombers = []
-			return self.Bombers, False
+			if self.nbombers:
+				return self.Bombers, False
+			return None, False
 		if tag == 'Bases':
 		    self.nbases = int(rest)
 		    self.bases = []
@@ -169,7 +172,9 @@ class Save(object):
 		if tag == 'Squadrons':
 		    self.nsquads = int(rest)
 		    self.squads = []
-		    return self.Squadrons, False
+		    if self.nsquads:
+		        return self.Squadrons, False
+		    return None, False
 		if tag == 'SNums':
 		    self.nsnums = int(rest)
 		    self.snums = []
@@ -220,6 +225,19 @@ class Save(object):
 		if tag == 'Evented':
 		    self.evented.add(rest)
 		    return None, False
+		if tag == 'Designs':
+			self.ndesigns = int(rest)
+			if self.ndesigns:
+				self._desi = 0
+				self._curdes = None
+				return self.Designs, True
+			return None, False
+		if tag == 'Manfs':
+			self.nmanfs = int(rest)
+			return self.Manfs, False
+		if tag == 'Techs':
+			self.ntechs = int(rest)
+			return self.Techs, False
 		if tag == 'Messages':
 			self.nmessages = int(rest)
 			self.messages = ['']
@@ -228,6 +246,14 @@ class Save(object):
 			self.nhistory = int(rest)
 			self.history = []
 			return self.History, True
+		if tag == 'Specials':
+			return None, False
+		if tag == 'NDNum':
+			return None, False
+		if tag == 'NCSlot':
+			return None, False
+		if tag == 'Research':
+			return None, False
 		raise UnrecognisedTag(tag, rest)
 	def Types(self, tag, rest):
 		if tag.startswith('Prio '):
@@ -329,6 +355,51 @@ class Save(object):
 	def Wstate(self, tag, rest):
 		self._wline += 1
 		return self._wline == 256
+	def Designs(self, tag, rest):
+		its = rest.split(':')
+		k, _, v = its[0].partition('=')
+		if k == 'MAN':
+			self._curdes = {}
+			return False
+		if self._curdes is None:
+			raise SubtagOutOfOrder('Designs', rest)
+		if k in ['ENG', 'TUR', 'WIN', 'CRW', 'BOM', 'FUS', 'ESL', 'TAN', 'MTW', 'RFL', 'RND', 'TN', 'MDX']:
+			return False
+		if k == 'PAR':
+			self._curdes['parent'] = int(v)
+			return False
+		if k == 'WKN':
+			self._curdes['name'] = v
+			return False
+		if k == 'IDX':
+			self._curdes['idx'] = int(v)
+			return False
+		if k == 'ENY':
+			if len(its) != 3:
+				raise BadSaveLine('Designs', rest)
+			mk, _, m = its[1].partition('=')
+			dk, _, d = its[2].partition('=')
+			if mk != 'ENM' or dk != 'END':
+				raise BadSaveLine('Designs', rest)
+			self._curdes['entry'] = hhist.date(int(d), int(m), int(v))
+			return False
+		if k == 'EOD':
+			if self._curdes['parent'] == -1 and 'idx' in self._curdes:
+				self.designs[self._curdes['idx']] = self._curdes
+			self._curdes = None
+			self._desi += 1
+			return self._desi == self.ndesigns
+		raise UnrecognisedSubtag('Designs', tag, rest)
+	def Manfs(self, tag, rest):
+		if tag.startswith('Manf '):
+			manf = int(tag[5:])
+			return manf + 1 == self.nmanfs
+		raise UnrecognisedSubtag('Targets', tag, rest)
+	def Techs(self, tag, rest):
+		if tag.startswith('Tech '):
+			tech = int(tag[5:])
+			return tech + 1 == self.ntechs
+		raise UnrecognisedSubtag('Targets', tag, rest)
 	def Messages(self, tag, rest):
 		if rest == '.':
 			if len(self.messages) == self.nmessages: return True
