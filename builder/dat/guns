@@ -1,4 +1,4 @@
-Ngun:SRV=2:TWT=25:DRG=4:LXN=0:GUN=1:GCF=10:OCN=1:OCB=1:UAB=1:n=Nose gun (single):d=Single .303 in flexible mount; may be operated by N* or B*.
+Ngun:SRV=2:TWT=25:DRG=2:LXN=0:GUN=1:GCF=10:OCN=1:OCB=1:UAB=1:n=Nose gun (single):d=Single .303 in flexible mount; may be operated by N* or B*.
 Nose:SRV=5:TWT=100:DRG=6:LXN=0:GUN=2:GCF=20:GCD=20:OCB=1:n=Nose turret (twin):d=Front turret with two .303s.  May be operated by B*.
 Chin:SRV=7:TWT=50:DRG=5:LXN=5:GUN=2:GCL=12:OCN=1:n=Rearward chin mount:d=Twin .303s firing aft below the a/c; may be operated by N*.
 Daf1:SRV=4:TWT=20:DRG=5:LXN=1:GUN=1:GCH=10:n=Dorsal after (single):d=Top rearward-facing mount for a single .303 gun.

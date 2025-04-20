@@ -200,13 +200,28 @@ static int calc_turrets(struct bomber *b)
 		t->drag += g->drg * tn->gdf;
 		tare = g->twt + m->twt * tn->gtf / 100.0f;
 		t->tare += tare;
-		/* Fixed guns generally carry far fewer rounds */
-		t->ammo += g->gun * tn->gam * (i == LXN_FIXED ? 0.25 : 1.0);
+		float gamscale;
+		switch (i) {
+		case LXN_FIXED:
+			/* Fixed guns generally carry far fewer rounds */
+			gamscale = 0.25;
+			break;
+		case LXN_NOSE:
+			/* Nose guns carry fewer rounds than mid or tail */
+			gamscale = 0.5;
+			break;
+		default:
+			gamscale = 1.0;
+			break;
+		}
+		t->ammo += g->gun * tn->gam * gamscale;
 		t->serv *= 1.0f - g->srv / 1000.0f;
 		t->cost += 3.0f * tare + g->gun * tn->gcf / 10.0f + g->gun * tn->gac / 10.0f;
 		for (j = 0; j < GC_COUNT; j++)
 			t->gc[j] += g->gc[j] / 10.0f;
 	}
+	/* fudge to try to make turrets worthwhile */
+	t->drag *= 0.7;
 	if (t->uab && b->engines.number > tn->ubl)
 		design_error(b, "The Air Ministry will not allow an unarmed bomber of this size!");
 	t->serv = 1.0f - t->serv;

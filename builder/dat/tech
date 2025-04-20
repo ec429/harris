@@ -6,7 +6,7 @@ _BM:CCN=100:CCT=160:CCS=80:CCG=100:FCN=100:FCT=160:FCS=70:FCG=110:n=Basic Manufa
 _CW:WTS=150:WTC=120:WTF=100:WLD=108:WCF=100:n=Cantilever Wings:y=0:d=Unbraced monoplane wings with standard aerofoil sections.
 _FT:FUT=120:FUV=100:FGV=80:SFT=0:SFV=0:SFC=0:FUC=60:n=Fuel Tanks:y=0:d=Wing-mounted petrol tanks for aircraft.
 _PE:e=Merc:e=Mer4:e=Tigr:ETF=150:EDF=100:EES=0:EET=0:EEC=0:EMC=100:n=Pre-War Engines:y=0:d=In-line and radial aero-engines available for bomber designs.
-_BT:t=Ngun:t=Nose:t=Chin:t=Dor1:t=Daf1:t=Vaf1:t=Ven1:t=Beam:t=Tail:t=Ta4e:t=For1:t=Fore:t=For4:GTF=75:GDF=24:GCF=100:GAC=30:GAM=180:n=Basic Turrets:y=0:d=Offensive and defensive armament options.
+_BT:t=Ngun:t=Nose:t=Chin:t=Dor1:t=Daf1:t=Vaf1:t=Ven1:t=Beam:t=Tail:t=Ta4e:t=For1:t=Fore:t=For4:GTF=75:GDF=24:GCF=100:GAC=30:GAM=150:n=Basic Turrets:y=0:d=Offensive and defensive armament options.
 _IB:BTS=70:BTM=100:BTC=0:BMC=0:BBB=8:BBF=2:CSB=0:n=Internal Bay:y=0:d=Enclosed bomb bays greatly reduce drag compared to external stowage.
 _ED:ESL=0:n=Engine Dynamo:y=0:d=A simple dynamoelectric generator driven from the engine crankshaft.
 _BN:NAG=0:NAH=0:NAO=0:n=Basic Navigation:y=0:d=Map-reading and 'astro' are the fundamentals of RAF navigational practice.
@@ -56,7 +56,7 @@ FCT:t=Dor5:t=Tai5:r=QUT:n=.50 Caliber Turret:y=1943:m=5:d=Turrets with twin 50-c
 GLT:t=Aglt:r=QUT:r=SVS:n=Gun-Laying Radar:y=1944:m=5:d=Unlocks the 'Village Inn' Advanced Gun-Laying Turret.
 IHY:GTF=60:GCF=105:n=Improved Hydraulics:y=1940:m=9:d=Reduces the weight of gun turrets.
 TUF:GDF=18:n=Turret Fairings:y=1941:m=8:d=Reduces the drag of gun turrets.
-LAT:GAM=135:GAC=24:n=Lightweight Ammo Tracks:y=1941:m=2:d=Reduces the per-gun weight associated with ammunition.
+LAT:GAM=120:GAC=24:n=Lightweight Ammo Tracks:y=1941:m=2:d=Reduces the per-gun weight associated with ammunition.
 #GRL:r=QUT:n=Gransden Lodge Turret:y=1942:m=10:d=Unimplemented feature.
 HCB:BTM=90:BMC=1:n=High Capacity Bombs:y=1940:m=1:d=Medium-girth bomb bays are lighter, and can carry cookies externally.
 BCE:BTS=55:n=Bomb Cells:y=1939:m=12:d=Reduced structure weight for small-girth bomb bays.
