@@ -10,6 +10,7 @@ Contents
 * Targets
 * Bombers
  - Mods and Marks
+ - Builder
  - Wear and Tear
 * Sun and Moon
 * Weather
@@ -65,6 +66,10 @@ It is thus possible for your forces of a given type to consist of a mix of diffe
 You can also filter by mark when assigning bombers to a raid; see the section "Filters" below for details.
 In the special case of the Handley Page Halifax (Mk I, Mk III), the change between marks is big enough to warrant a new type, so these do not use the game's mark system.
 Older marks are often best put to use in training units (see the section "Aircrew and Training" below).
+
+Builder
+-------
+There is an alternate game mode in which, instead of using historical aircraft, you design your own bomber types, making use of gradual technological development through the course of the game.  See the file 'BUILDER' for instructions on the features added in this mode.
 
 Wear and Tear
 -------------

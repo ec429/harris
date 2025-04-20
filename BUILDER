@@ -1,0 +1,100 @@
+==Harris==
+by Edward Cree
+--Aircraft Designer--
+
+If a new game is started with the "Game with Builder" main-menu option, the available bomber types, instead of those historically supplied to Bomber Command, will be models developed by the player through the "builder" subsystem.
+
+-Research-
+The game begins with a standard 1939 technology base, allowing for monoplane medium bombers with cantilever wings, powered gun turrets, internal bomb bays and up to three engines.  To advance beyond this and permit the development of more capable aircraft, there is a technology tree which unlocks new parts and improves various coefficients.  However, you don't get to choose exactly what gets researched when.  Instead, at the start of each month, you choose three techs to fill your 'slots'; at the end of the month, one of those three will be selected at random to unlock.
+Techs have a defined date at which they become available; normally, you cannot choose a tech until this date, but if you have two slots free, you can fill one with a tech from up to six months in the future, and the other with "Supporting Research".  At the end of the month, if the tech is selected it will be unlocked as normal and both slots freed; if Supporting Research is selected then the tech will become available to choose without Supporting Research, as though its date had already arrived.
+You can leave a slot empty; if that slot gets selected, you will get a boost to your budget (£4,800 per day in 1939, increasing by £400 per day each year).  Like any other cash source, this will decay over time (£4,800/day sums to £120k in the limit); you're usually better off researching an actual tech.
+Many techs have prerequisites; besides other techs, some techs depend on 'special' prerequisites: advanced geodetics techs can only be developed once you have flown a prototype with Geodetic fuselage, while improvements to four-engined bomber design require you to fly a four-engined prototype before you can start researching them.
+The research screen, which appears automatically at the start of each month to let you choose your three techs, can also be opened at any time with the "Meet Researchers" button in the control screen, although you won't be able to change your slots unless it's still the first day of the month.  Besides available, selected, and near-future techs, this screen also shows the 'Research Archive' of already-unlocked techs.  Clicking on any tech will display some information about it, including a short description and a complete table of all its effects — be that engines or turrets unlocked, or coefficients changed.  In the latter case, the green column will show the coefficient as of that tech, and the red column will show the current coefficient (which will generally be worse if you're looking at an un-researched tech, whereas if you're looking at the Research Archive it'll usually be the same, or may even be better if you've unlocked another relevant tech since this one).
+
+-Manufacturers-
+There are eight aircraft manufacturers in the game: Armstrong Whitworth, A.V.Roe & Co. ("Avro"), the British & Colonial Aircraft Co. ("Bristol"), de Havilland, Handley Page, Short Brothers, Supermarine, and Vickers.  Each has its own traits, which may make its aircraft better or worse; as a rule, every manufacturer has something they do better than the others, so depending on what kind of bomber you're building, any one of them could be best.
+Each design of bomber belongs to whichever manufacturer developed it; all subsequent marks of, and modifications to, that type must be developed by the same manufacturer.  Thus, you may want to plan ahead, using your second-choice manufacturer now so that the best one isn't too busy to work on your next design.
+Once the drawings for a design are issued (be it a brand-new type or a mark or mod of an existing type), it must be prototyped and tooled for production before you can use it; both processes take time and money.  Each manufacturer's design office can work on only one prototype at a time; similarly, their production engineers can only work on tooling for one design (not necessarily the same one!)  You can, however, halt work on one design to switch them over to another, then later resume the first design from where you left off — progress is not lost.
+The exact performance of a design is not known until the prototype is completed and test-flown; however, if you choose not to start spending money on tooling until you know the design is a good one, the eventual service entry will be much later than if you 'order it off the drawing board' and run both processes in parallel.
+The manufacturers' screen can be opened with the "Meet Manufacturers" button in the control screen, and also opens automatically whenever you issue drawings for a new design.  It shows the eight manufacturers and each of their designs, with a colour-coded marker — red for a paper project, yellow for a flown prototype, or green for a design that's been fully tooled for mass production.  The marker may be extended with chevrons to show that prototyping or tooling is currently in progress.
+Clicking on one of these designs will show its details, including vital statistics, performance, and costings.  Buttons 'Prototype', 'Tool', and/or 'Halt work' allow you to start or stop development work on an in-progress design, while further buttons let you commence a Mark or Mod refit of a completed design or start drawing up a completely new design using an existing one as a starting-point.
+The "Show:" toggles alter what performance figures are displayed: if "Current doctrine" is disabled then calculations will use the doctrine as of the time the design was issued, while "Test results" shows either the prototype as-flown (enabled) or the original predictions made by the drawing-office (disabled).
+
+-Builder-
+The builder, or Aircraft Design screen, is opened either with the "Design Aircraft" button in the control screen, or any of the "use as basis" buttons in the manufacturers' screen.  Here, you can specify all the leading particulars of your new aircraft type with the controls on the left-hand side, while watching how the predicted performance changes on the right.  When you're happy with your design (and there are no critical design errors that prevent it from being built), click "Issue drawings" to create the design; this will take you to the manufacturers' screen, where you can start prototyping and tooling it.
+
+Manufacturer: Choose one of the eight manufacturers.  The short description will give some indication of the selected manufacturer's strengths and weaknesses; some manufacturers also have an affinity with an engine supplier (Armstrong Whitworth for Armstrong Siddeley, and Bristol for their own engines) which will reduce the tare weight of engine mounts when using a matching engine type.
+
+Engines: Choose the type and number of engines.  Besides horsepower, engines vary in their cost, tare weight, drag, reliability and serviceability, vulnerability to damage, and even how strongly supercharged they are for high-altitude performance.  (There are three supercharging levels: one-speed superchargers start to lose power above about 10,000ft, while two-speed superchargers can switch into "F.S. gear", using 2% of the engine's shaft power to maintain maximum boost up to 16,000ft; the two-speed two-stage supercharger, found only on the Merlin 60, has a full-throttle height of 12,000ft in M.S. gear, while F.S. gear takes 6% of the shaft power but keeps full boost as high as 21,000ft, allowing some impressively high-flying aircraft designs).  Some engines (the Vulture, Sabre and Centaurus) are so large that even a twin-engined bomber using them will be classed as a 'heavy'; otherwise, four or more engines qualify a design for this flag.
+Some engines have another specific engine type that's considered their 'upgrade'; if you select 'Overbuild mounts' then a later Mod refit can swap in the upgraded engines (this also means that a Mark refit using them is faster and cheaper to develop), but until then you're paying a weight and cost penalty for the extra structure.
+If you use an odd number of engines, the nose-mounted engine will produce slightly less effective power owing to slipstream drag on the fuselage, and also prevent the use of nose turrets.
+The most reliable aircraft are twin-engined, since they can (unless badly damaged) continue to fly with one engine out, and adding more engines just increases the chance of breakdowns.  A single-engined aircraft is much more susceptible to mechanical failure, since if it loses that one engine it's dead.
+
+Wing: Choose the area and aspect ratio.  A larger wing is heavier, but will reduce the take-off speed (important because grass and concrete runways each have a maximum allowed speed, and if a bomber exceeds this then bombs will be offloaded until it fits) and increase manœuvrability (lower wing loading improves turn rate), as well as having more room to fit fuel tanks.  High aspect ratio wings increase weight and cost, reduce manœuvrability (via roll rate), and are less resilient to damage, but their higher lift/drag ratios improve speed, range, and ceiling altitude.  Low aspect ratio slightly increases take-off speed.
+
+Fuselage: Choose from up to four fuselage types.  "Normal" is the baseline design; "Slender" reduces weight and drag, but with penalties to vulnerability, reliability, and serviceability; it's also slightly more expensive to manufacture, and is incompatible with tail turrets (because the tail boom is too small to fit a man inside.  Look at a picture of a Hampden and you'll get the idea).  "Slabby" is cheap to build and even lighter-weight than Slender, brings bonuses to serviceability and reliability, and is required for the primitive pre-war design of quad-gun rear turret — but it brings a major increase in drag.  (For an idea of what this looks like, picture a Whitley or Stirling.)  "Geodetic" is only available for Vickers designs; this robust structure improves serviceability, reliability, and especially vulnerability, but it's the heaviest option and also the most expensive to manufacture.
+
+Bomb bay: Choose the capacity (in lbs of GP bombs), and one of up to three 'girths'.  "Small" can only fit GPs and incendiaries, while "Medium" allows the carriage of sea mines and (once developed) 4,000lb High Capacity blockbuster bombs, although the bombdoors cannot be fully closed around such a large bomb and thus the aircraft's drag will be increased.  "Cookie" yields a large unobstructed bomb bay which can fully enclose 4,000lb or even larger HC bombs.  However, the wider bomb bays have tare weight penalties; there is an additional weight penalty for bomb bays above 8,000lb capacity, increasing the bigger you go (for Avro this penalty only starts at 9,000lb).
+If you select 'CSBS', the aircraft will carry the improved Mark XIV Course Setting Bomb Sight, improving accuracy; it weighs 70lb more than the old Mark IX and costs an extra £1,200.
+
+Turrets: Choose gun mountings in each of seven positions.  Each turret type has a certain amount of firepower and lookout coverage, which helps improve defence against fighters; but guns also mean weight, cost, drag, and even impact serviceability.  And, of course, they need a crew member to operate them.
+Guns in the nose position cover the forward quadrant, one of the least important directions as night bombers are rarely attacked head-on; the Nose turret also covers the high beam.  They may be operated by a bomb-aimer (or in the case of the Ngun flex mount, by a navigator) rather than a dedicated gunner.  They can't be fitted to a bomber with an odd number of engines.
+Dorsal turrets cover the upper angles, abeam and behind; these are fairly important.  There are also "dorsal after" flex mounts which are lighter and less draggy but don't cover the beam.  Guns in dorsal positions may be operated by a wireless-op.
+Tail turrets cover the rear, both high and low.  The low rear is the most important direction, as nightfighters most often attack "von unten hinten": from below and behind.
+Waist guns, flex mounts on either side of the fuselage, cover the beam quadrants, both high and low, although the early Beam mount has poor coverage downwards.  They may be operated by a wireless-op.
+Ventral turrets cover the underside of the bomber — abeam, behind, and straight downwards.  The downwards direction becomes important after the Germans start fitting "Schräge Musik" upward-firing cannon to their nightfighters.  There are also "ventral after" flex mounts, similar to the "dorsal after" mounts; they cover the low beam and low rear but not straight downwards.  Guns in ventral positions may be operated by a wireless-op.
+Chin turrets are periscopically-sighted guns underneath the bomber's nose, firing aft; they cover only the low rear and have poor sighting.  They may be operated by a navigator.
+Fixed forward-firing guns, mounted in the wings, are operated by the pilot; they are lightweight and do not cause drag, but only provide limited head-on coverage.
+Most bombers are required to carry guns; the Air Ministry will only allow unarmed single-engined bombers or, after the Unarmed Bomber tech has been unlocked, twins (and neither Ngun nor the fixed forward guns count).
+You can right-click on a turret type to overbuild the mounting structure sufficient for that type, allowing it to be installed in a subsequent Mod refit.  Adding or changing a turret in a Mark refit is also faster and cheaper to develop if the mounts are not changed.
+
+Crew: Choose how many of each type of crew to carry, and whether they should operate a gun position in addition to their main rôle.
+You must have at least one Pilot; additional pilots increase the roll rate (and the max of all pilots' skill is used for calculating chance to evade fighter fire, and for airmanship if there's no engineer).
+You must have at least one Navigator; additional navigators improve accuracy.
+Bomb-aimers improve accuracy; the effect is smaller than another nav, but bomb-aimers are much easier to train (and can operate Nose turrets).
+Engineers improve damage-control, reducing vulnerability; the first engineer also improves reliability.  Also, a highly skilled engineer can achieve better speed, altitude and fuel efficiency ("airmanship skill") than the official figures.  Only heavy bombers may carry an engineer.
+Wireless-operators improve damage-control, though by less than an engineer; if the bomber has at least High Voltage electrics, they also improve accuracy, though by much less than a nav or bomb-aimer.  Their big advantage is that they can operate guns in the fuselage midsection (dorsal, ventral, waist).
+Gunners' only job is manning their gun positions.  Besides firing the guns, they are also lookouts; the average skill of all gunners (and any W/ops or dual-rôling bomb-aimer-gunners) affects the chance to evade fighter fire.  If you have too few gunners to operate all your turrets, defence against fighters will suffer.
+
+Electrics: Choose the bomber's electrical supply level.  "Low Voltage" is cheap but only runs basic systems; "High Voltage" allows early navigational aids including GEE to be fitted, while the yet more expensive "Stable Voltage" is needed for the advanced navaids.  Increasing electrical supply level also improves accuracy.  High and Stable both cost more if you have fewer engines, and Stable is extra-expensive to fit into a Slender fuselage.
+Choose which navaids to fit.  Each increases the cost but provides its own benefits to navigation; see the main manual (the file 'HOWTOPLAY') for details.
+
+Fuel: Choose the capacity of the fuel tankage in lb, and a fill percentage to be used in calculating the all-up weight.  (The tanks will automatically be filled beyond this, and bombs offloaded to meet weight and take-off speed limits, if the bomber is send on longer-range missions which require it.)  The resulting fuel load will determine the endurance and thus, in combination with cruise speed, the range.  Squeezing lots of fuel into a small wing increases vulnerability as fires are more likely.
+If you select 'SST', the bomber will be fitted with Self-Sealing Tanks.  These have a slight weight and cost penalty, but greatly reduce vulnerability.
+
+Max. gross take-off weight: This will normally be calculated automatically, but you can set it higher to allow for future growth (e.g. to make use of increased take-off speeds when runway techs are unlocked).  Doing so will increase the production cost of the bomber's structure.
+Bombers with a gross weight below 21,000lb get a "light bomber" bonus to accuracy, reflecting their being easier to steer.  This bonus is 1 point per 1,500lb below the cutoff.
+The mgtow controls the maximum number of crew that can fit inside the bomber; it must be at least 10,000lb for 3 crew, plus 5,556lb for each additional man.
+
+-Refits-
+You can develop a new Mark of an existing design, which reduces development time and cost relative to a clean-sheet design and allows squadrons and aircrew to switch over without retraining.  You can also develop a new Mod to apply to an existing mark, which is applied retroactively to existing airframes as well as to new production, and is generally even cheaper and quicker to develop.  However, refits are limited in what changes you can make, and not all improvements from research can be applied in refits (the coefficients shown in the research screen indicate the minimum level of refit they apply to).
+
+The following cannot be changed in refits:
+* manufacturer
+* number of engines
+* wing
+* bomb bay capacity or girth
+* fuselage type
+
+The following changes can be made in marks but not mods:
+* change engine type or mounts
+* add new turrets or mounts
+* add new crew
+* change electric supply level
+* change fuel capacity
+* change max gross take-off weight
+
+The following changes can be made even in mods:
+* upgrade engine on previously overbuilt mounts
+  - note that your fuelmass stays the same, so fuel in hours may decrease!
+  - the engine must be the precise type the mounts were designed for
+* remove turrets
+* add turrets to existing mounts
+  - the turret must be in the same location as the mount, and no heavier
+* remove crew
+* re-add crew that were originally present on this mark
+* toggle CSBS
+* add or remove navaids
+* toggle SST
+* change dual-rôling of crewmen
+* change fuel fill level
