@@ -224,6 +224,7 @@ manifest = {
 			'civ.sav',
 			'abd.sav',
 			'ruhr.sav',
+			'builder.sav',
 		]},
 }
 
