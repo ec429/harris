@@ -16,6 +16,7 @@
 #include "builder.h"
 #include "control.h"
 #include "post_raid.h"
+#include "rand.h"
 
 atg_element *handle_manfs_box;
 
@@ -356,7 +357,7 @@ atg_colour dsta_colour(enum design_status dsta)
 	}
 }
 
-const char *default_mark_names[MAX_MARKS]={"Mk I", "Mk II", "Mk III", "Mk IV"};
+const char *default_mark_names[MAX_MARKS]={"Mk I", "Mk II", "Mk III", "Mk IV", "Mk V", "Mk VI"};
 
 void realise_design(struct bomber *bb)
 {
@@ -520,7 +521,37 @@ void realise_design(struct bomber *bb)
 	bt->convertfrom=-1;
 	bt->newmark=max(bt->newmark, mark);
 	bt->markname[mark]=strdup(default_mark_names[mark]);
+	if(bb->refit==REFIT_FRESH)
+	{
+		const char *cat="Medium Bomber";
+		if(bt->heavy)
+			cat="Heavy Bomber";
+		bt->category=strdup(cat);
+	}
 	return;
+}
+
+const char *choose_name(const game *state, const struct bomber *b)
+{
+	const char *name[RN_MAX];
+	unsigned int names=0;
+	for(unsigned int i=0;i<b->manf->rand_names;i++)
+	{
+		unsigned int t;
+		if(names>=RN_MAX)
+			break;
+		for(t=rawntypes;t<state->next_custom_slot;t++)
+		{
+			if(!strcmp(b->manf->rand_name[i], types[t].name))
+				break;
+		}
+		if(t<state->next_custom_slot)
+			continue;
+		name[names++]=b->manf->rand_name[i];
+	}
+	if(!names)
+		return(NULL);
+	return(name[irandu(names)]);
 }
 
 int assign_slots(game *state, struct bomber *b)
@@ -534,6 +565,9 @@ int assign_slots(game *state, struct bomber *b)
 			fprintf(stderr, "No slots left!\n");
 			return(1);
 		}
+		const char *name=choose_name(state, b);
+		if(name)
+			snprintf(b->name, WORK_NAME_LEN, "%s", name);
 		type=state->next_custom_slot++;
 		if(!type) // can't happen
 			fprintf(stderr, "slot_idx zero used, bad stuff will happen!\n");
@@ -626,6 +660,7 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 	{
 		perror("calloc");
 		free(HM_dbtn);
+		free(HM_dsta);
 		return rc;
 	}
 	atg_element **HM_dtoo=calloc(state->ndesigns, sizeof(atg_element *));
@@ -633,8 +668,11 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 	{
 		perror("calloc");
 		free(HM_dbtn);
+		free(HM_dsta);
+		free(HM_dpro);
 		return rc;
 	}
+redraw:
 	for(unsigned int i=0;i<builder->entities.nmanf;i++)
 	{
 		struct manf *m=builder->entities.manf[i];
@@ -661,14 +699,15 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 			if(!shim)
 			{
 				fprintf(stderr, "atg_create_element_box failed\n");
-				return(1);
+				break;
 			}
 			shim->w=16;
 			shim->h=2;
 			if(atg_ebox_pack(row, shim))
 			{
 				perror("atg_ebox_pack");
-				return(1);
+				atg_free_element(shim);
+				break;
 			}
 			HM_dbtn[j]=atg_create_element_button(b->name, (atg_colour){223, 223, 239, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
 			if(!HM_dbtn[j])
@@ -686,14 +725,15 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 			if(!shim)
 			{
 				fprintf(stderr, "atg_create_element_box failed\n");
-				return(1);
+				break;
 			}
 			shim->w=2;
 			shim->h=2;
 			if(atg_ebox_pack(row, shim))
 			{
 				perror("atg_ebox_pack");
-				return(1);
+				atg_free_element(shim);
+				break;
 			}
 			HM_dsta[j]=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, dsta_colour(design_status(b)));
 			if(!HM_dsta[j])
@@ -732,9 +772,12 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 			}
 		}
 	}
-	wipe_m2v(HM_out_buf, HM_bp);
-	HM_proto->hidden=HM_tool->hidden=HM_halt->hidden=true;
-	update_refit_buttons(state, NULL);
+	if(seldes<0)
+	{
+		wipe_m2v(HM_out_buf, HM_bp);
+		HM_proto->hidden=HM_tool->hidden=HM_halt->hidden=true;
+		update_refit_buttons(state, NULL);
+	}
 
 	while(1)
 	{
@@ -911,7 +954,8 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 							atg_box *b=HM_dsta[seldes]->elemdata;
 							b->bgcolour=dsta_colour(design_status(seldesb));
 						}
-						break;
+						/* Refresh the screen to update typename in HM_dbtn */
+						goto redraw;
 					}
 					if(trigger.e==HM_halt)
 					{
@@ -953,19 +997,22 @@ screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
 						{
 							src_design=seldes;
 							src_rfl=REFIT_FRESH;
-							return(SCRN_BUILDER);
+							rc=SCRN_BUILDER;
+							goto out;
 						}
 						if(trigger.e==HM_mark)
 						{
 							src_design=seldes;
 							src_rfl=REFIT_MARK;
-							return(SCRN_BUILDER);
+							rc=SCRN_BUILDER;
+							goto out;
 						}
 						if(trigger.e==HM_mod)
 						{
 							src_design=seldes;
 							src_rfl=REFIT_MOD;
-							return(SCRN_BUILDER);
+							rc=SCRN_BUILDER;
+							goto out;
 						}
 					}
 					fprintf(stderr, "Clicked on unknown button!\n");

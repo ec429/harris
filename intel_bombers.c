@@ -49,7 +49,7 @@ enum b_stat_i
 
 static const char *get_cat(bombertype b, __attribute__((unused)) unsigned int mark)
 {
-	return b.category;
+	return b.category?:"";
 }
 static unsigned int get_cost(bombertype b, unsigned int mark)
 {
@@ -780,8 +780,6 @@ void update_intel_bombers(const game *state)
 	atg_ebox_empty(IB_stat_box);
 	for(unsigned int i=0;i<NUM_STATS;i++)
 	{
-		if(i==STAT_CAT&&state->builder)
-			continue;
 		atg_element *row=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, (atg_colour){223, 223, 223, ATG_ALPHA_OPAQUE});
 		if(!row)
 		{

@@ -93,6 +93,9 @@ enum fuse_type {
 const char *ident_ft(enum fuse_type ft);
 const char *describe_ft(enum fuse_type ft);
 
+#define RN_MAX	16
+#define RN_LEN	32
+
 struct manf {
 	struct list_head list;
 	char ident[3];
@@ -103,6 +106,8 @@ struct manf {
 	char *eman; // engine manufacturer
 	char *name;
 	char *desc;
+	char rand_name[RN_MAX][RN_LEN];
+	unsigned int rand_names;
 	int proto_idx, prod_idx;
 };
 

@@ -1613,9 +1613,17 @@ screen_id control_screen(atg_canvas *canvas, game *state)
 	
 	if(state->weather.seed)
 	{
+		unsigned int seed=rand();
 		srand(state->weather.seed);
 		w_init(&state->weather, 256, lorw);
 		state->weather.seed=0;
+		/* Re-seed the RNG from its old state.
+		 * Otherwise, the weather seed will make the first randoms
+		 * (in builder games, dice and name of legacy types) rather
+		 * predictable and subsequent entropy will depend entirely
+		 * on player actions until the game is loaded from save.
+		 */
+		srand(seed);
 	}
 
 	unsigned int prestart=0;

@@ -1,9 +1,9 @@
 **:WAP=8:WLD=100:BTS=100:BTM=100:BTC=100:BBB=0:WCF=100:WCP=120:WC4=120:WT4=140:ACC=100:ACT=100:e=:GEO=0:TPL=16:FDN=100:FDT=100:FDS=100:FDG=100:FTN=100:FTT=100:FTS=100:FTG=100:SVP=0:BOF=100:FAF=100
-AR:WAP=6:e=Armstrong Siddeley:FTS=90:n=Armstrong Whitworth:d=Good at slabby fuselages and low-aspect-ratio wings.
-AV:BTC=92:BBB=1:WCF=105:ACC=105:WT4=125:n=Avro:d=Good at big bomb bays and four-engined wing design.
-BR:e=Bristol:TPL=18:n=Bristol:d=Increased manoevrability - better turn rates.
-DH:FDN=75:FTN=110:BOF=90:n=de Havilland:d=Good at low-drag (normal-type) fuselages.
-HP:FAF=85:n=Handley Page:d=Improved reliability - lower failure rates.
-SH:ACT=108:ACC=80:WCF=240:WCP=110:WC4=100:SVP=15:n=Short:d=Good at building large airframes cheaply.
-SU:WLD=105:FDN=90:FDT=90:FDS=90:BOF=72:n=Supermarine:d=Better lift-drag ratios, but slower development.
-VI:GEO=1:BOF=110:n=Vickers:d=Faster development, and can construct geodetics.
+AR:WAP=6:e=Armstrong Siddeley:FTS=90:n=Armstrong Whitworth:r=Albemarle:r=Argosy:r=Atalanta:r=Ensign:r=Whitley:r=Sinaia:d=Good at slabby fuselages and low-aspect-ratio wings.
+AV:BTC=92:BBB=1:WCF=105:ACC=105:WT4=125:n=Avro:r=Anson:r=Manchester:r=Lancaster:r=Ashton:r=Vulcan:r=Aldershot:r=Antelope:d=Good at big bomb bays and four-engined wing design.
+BR:e=Bristol:TPL=18:n=Bristol:r=Blenheim:r=Bolingbroke:r=Bisley:r=Bombay:r=Beaufort:r=Buckingham:r=Brigand:r=Braemar:r=Bagshot:d=Increased manoevrability - better turn rates.
+DH:FDN=75:FTN=110:BOF=90:n=de Havilland:r=Mosquito:r=Comet:r=Albatross:r=Dominie:r=Dove:r=Dragon:r=Hornet:r=Mantis:r=Canberra:d=Good at low-drag (normal-type) fuselages.
+HP:FAF=85:n=Handley Page:r=Harrow:r=Hampden:r=Hereford:r=Halifax:r=Heyford:r=Hendon:r=Hyderabad:r=Victor:d=Improved reliability - lower failure rates.
+SH:ACT=108:ACC=80:WCF=240:WCP=110:WC4=100:SVP=15:n=Short:r=Stirling:r=Sturgeon:r=Sperrin:r=Shetland:r=Sunderland:r=Seaford:r=Scylla:r=Belfast:r=Selkirk:d=Good at building large airframes cheaply.
+SU:WLD=105:FDN=90:FDT=90:FDS=90:BOF=72:n=Supermarine:r=Spiteful:r=Attacker:r=Stranraer:r=Southampton:r=Scimitar:r=Mitchell:d=Better lift-drag ratios, but slower development.
+VI:GEO=1:BOF=110:n=Vickers:r=Wellesley:r=Wellington:r=Crecy:r=Warwick:r=Windsor:r=Vildebeest:r=Valiant:d=Faster development, and can construct geodetics.

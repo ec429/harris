@@ -414,6 +414,16 @@ static int load_manf_word(const char *key, const char *value, void *data)
 			return -ENOMEM;
 		return 0;
 	}
+	if (!strcmp(key, "r")) {
+		char *buf, *p;
+
+		if (man->rand_names >= RN_MAX)
+			return -ENOSPC;
+		buf = man->rand_name[man->rand_names++];
+		p = stpncpy(buf, value, RN_LEN - 1);
+		*p = 0;
+		return 0;
+	}
 	if (!strcmp(key, "d")) {
 		man->desc = strdup(value);
 		if (!man->desc)
