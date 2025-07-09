@@ -13,6 +13,7 @@
 #include "date.h"
 #include "builder/data.h"
 #include "builder/calc.h"
+#include "builder/art.h"
 #include "builder.h"
 #include "control.h"
 #include "post_raid.h"
@@ -387,6 +388,7 @@ void realise_design(struct bomber *bb)
 				bt->novelty.year++;
 			}
 		}
+		bt->picture=bomber_art_mini(b);
 	}
 	unsigned int mrcap[2];
 	unsigned int mrange[2];
