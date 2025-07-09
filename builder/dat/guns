@@ -1,8 +1,8 @@
 Ngun:SRV=2:TWT=25:DRG=2:LXN=0:GUN=1:GCF=10:OCN=1:OCB=1:UAB=1:n=Nose gun (single):d=Single .303 in flexible mount; may be operated by N* or B*.
 Nose:SRV=5:TWT=100:DRG=6:LXN=0:GUN=2:GCF=20:GCD=20:OCB=1:n=Nose turret (twin):d=Front turret with two .303s.  May be operated by B*.
 Chin:SRV=7:TWT=50:DRG=5:LXN=5:GUN=2:GCL=12:OCN=1:n=Rearward chin mount:d=Twin .303s firing aft below the a/c; may be operated by N*.
-Daf1:SRV=4:TWT=20:DRG=5:LXN=1:GUN=1:GCH=10:n=Dorsal after (single):d=Top rearward-facing mount for a single .303 gun.
-Daft:SRV=4:TWT=30:DRG=6:LXN=1:GUN=2:GCH=20:n=Dorsal after mount:d=Top rearward-facing mount for a pair of .303s.
+Daf1:SRV=4:TWT=20:DRG=5:LXN=1:GUN=1:GCH=10:ART=1:n=Dorsal after (single):d=Top rearward-facing mount for a single .303 gun.
+Daft:SRV=4:TWT=30:DRG=6:LXN=1:GUN=2:GCH=20:ART=1:n=Dorsal after mount:d=Top rearward-facing mount for a pair of .303s.
 Dor1:SRV=6:TWT=70:DRG=8:LXN=1:GUN=1:GCF=5:GCD=10:GCH=10:n=Dorsal turret (single):d=Top turret with a single .303 gun.
 Dors:SRV=5:TWT=100:DRG=9:LXN=1:GUN=2:GCF=10:GCD=20:GCH=20:n=Dorsal turret (twin):d=Top turret with two .303s.
 Dor5:SRV=7:TWT=160:DRG=10:LXN=1:GUN=5:GCF=25:GCD=50:GCH=50:n=Dorsal turret (.50):d=Top turret with two .50-cal heavy guns.

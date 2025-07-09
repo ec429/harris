@@ -41,6 +41,7 @@ struct turret {
 	unsigned int uab; /* does not prevent bomber counting as unarmed */
 	unsigned int slb;
 	unsigned int esl;
+	unsigned int art; /* type for art generator: 1 = after mount */
 	char *name;
 	char *desc;
 	bool unlocked;
@@ -61,6 +62,7 @@ struct engine {
 	unsigned int twt;
 	unsigned int drg;
 	unsigned int hvy;
+	unsigned int art; /* type for art generator; 0=inline, 1=radial */
 	struct engine *u; /* can mod to this with overbuilt mounts */
 	char *manu;
 	char *name;

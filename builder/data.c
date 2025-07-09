@@ -188,6 +188,7 @@ static int load_gun_word(const char *key, const char *value, void *data)
 	INT_KEY(gun, "UAB", uab);
 	INT_KEY(gun, "SLB", slb);
 	INT_KEY(gun, "ESL", esl);
+	INT_KEY(gun, "ART", art);
 	if (!strcmp(key, "n")) {
 		gun->name = strdup(value);
 		if (!gun->name)
@@ -276,6 +277,7 @@ static int load_engine_word(const char *key, const char *value, void *data)
 	INT_KEY(eng, "TWT", twt);
 	INT_KEY(eng, "DRG", drg);
 	INT_KEY(eng, "HVY", hvy);
+	INT_KEY(eng, "ART", art);
 	if (!strcmp(key, "m")) {
 		eng->manu = strdup(value);
 		if (!eng->manu)
