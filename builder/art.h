@@ -1,9 +1,11 @@
 #ifndef _ART_H
 #define _ART_H
 
-#include <SDL.h>
+#include <atg.h>
 #include "calc.h"
+#include "data.h"
 
+int init_camos(struct builder_data *builder);
 SDL_Surface *bomber_art_mini(const struct bomber *b);
 
 #endif /* _ART_H */

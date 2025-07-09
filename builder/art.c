@@ -3,6 +3,7 @@
 #include "art.h"
 #include "../render.h"
 #include "../rand.h"
+#include "../globals.h"
 
 static float clerp(float a, float b, float x)
 {
@@ -47,6 +48,22 @@ static void render_camo(SDL_Surface *s, unsigned int lamb, atg_colour fore, atg_
 			float v = clerp(u, b, dy);
 			pset(s, x, y, (v < 0.5f)?fore:back);
 		}
+}
+
+int init_camos(struct builder_data *builder)
+{
+	srand(0x44f); /* Stable seed for camo generation */
+	builder->camo_small = SDL_CreateRGBSurface(SDL_SWSURFACE,
+						   36 * 16, 36, 32, 0xff000000,
+						   0xff0000, 0xff00, 0xff);
+	if (!builder->camo_small) {
+		fprintf(stderr, "Failed to init camos: %s\n", SDL_GetError());
+		return 1;
+	}
+	render_camo(builder->camo_small, 3,
+		    (atg_colour){31, 94, 12, ATG_ALPHA_OPAQUE},
+		    (atg_colour){80, 50, 10, ATG_ALPHA_OPAQUE});
+	return 0;
 }
 
 static float fuse_width_at(const struct bomber *b, float t)
@@ -382,9 +399,10 @@ SDL_Surface *bomber_art_mini(const struct bomber *b)
 	SDL_Surface *features=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 36, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	SDL_Surface *decals=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 36, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 
-	render_camo(rv, 3, (atg_colour){31, 94, 12, ATG_ALPHA_OPAQUE}, (atg_colour){80, 50, 10, ATG_ALPHA_OPAQUE});
-	//(atg_colour){255,255,255,ATG_ALPHA_OPAQUE}, (atg_colour){255,255,255,ATG_ALPHA_OPAQUE});
-	//(atg_colour){31, 94, 12, ATG_ALPHA_OPAQUE}, (atg_colour){80, 50, 10, ATG_ALPHA_OPAQUE});
+	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, 0xffffffff);
+	SDL_Rect src={.x=36 * (b->slot_idx % 16), .y=0, .w=36, .h=36};
+	SDL_Rect dst={.x=0, .y=0, .w=36, .h=36};
+	SDL_BlitSurface(builder->camo_small, &src, rv, &dst);
 	SDL_FillRect(mask, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	SDL_FillRect(features, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	SDL_FillRect(decals, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);

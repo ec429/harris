@@ -106,6 +106,7 @@ void free_builder_data(void)
 	free_guns(&builder->guns);
 	free_engines(&builder->engines);
 	free_manfs(&builder->manfs);
+	SDL_FreeSurface(builder->camo_small);
 	free(builder);
 	return;
 }

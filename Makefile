@@ -106,6 +106,8 @@ handle_squadrons.o: ui.h globals.h date.h bits.h control.h rand.h render.h run_r
 
 builder.o: ui.h globals.h bits.h date.h rand.h widgets.h builder/data.h builder/list.h builder/calc.h
 
+builder/art.o: builder/list.h builder/calc.h builder/data.h globals.h rand.h render.h bits.h
+
 builder/calc.o: builder/list.h builder/data.h bits.h
 
 builder/data.o: builder/list.h builder/parse.h bits.h globals.h

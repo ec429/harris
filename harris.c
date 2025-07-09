@@ -45,6 +45,7 @@
 #include "handle_crews.h"
 #include "handle_squadrons.h"
 #include "builder.h"
+#include "builder/art.h"
 #include "handle_manfs.h"
 #include "research.h"
 
@@ -190,6 +191,11 @@ int main(int argc, char *argv[])
 	if(!canvas)
 	{
 		fprintf(stderr, "atg_create_canvas failed\n");
+		return(1);
+	}
+	if(init_camos(builder))
+	{
+		fprintf(stderr, "Failed to create proc camos\n");
 		return(1);
 	}
 	SDL_WM_SetCaption("Harris", "Harris");

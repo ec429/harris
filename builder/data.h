@@ -2,6 +2,7 @@
 #define _DATA_H
 
 #include <stdbool.h>
+#include <SDL.h>
 #include "list.h"
 #include "../bits.h"
 
@@ -253,6 +254,7 @@ struct builder_data {
 	struct list_head guns, engines, manfs, techs;
 	struct entities entities;
 	struct tech_numbers tn;
+	SDL_Surface *camo_small;
 };
 
 int populate_entities(struct entities *ent, struct list_head *guns,
