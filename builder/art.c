@@ -81,13 +81,13 @@ static float fuse_width_at(const struct bomber *b, float t)
 		return t * 32.0f;
 	case FT_SLENDER:
 		if (t > 0.9f)
-			return (1 - t) * 17.0f;
+			return (1 - t) * 27.0f;
 		if (t > 0.56f)
-			return 1.7;
+			return 2.7;
 		if (t > 0.44f)
-			return t * 8.0f - 2.78f;
+			return t * 8.0f - 1.78f;
 		if (t > 0.1f)
-			return t + 0.3f;
+			return t + 1.3f;
 		return t * 4.0f;
 	case FT_SLABBY:
 		if (t > 0.93f)
@@ -177,10 +177,10 @@ static float wing_chord_at(const struct bomber *b, float ts)
 		return 1;
 	case FT_SLENDER:
 		if (ts > 0.93f)
-			return 3.3f - ts * 3;
+			return 3.39f - ts * 3;
 		if (ts > 0.2f)
-			return 0.51f + (0.93f - ts) * 0.49f / 0.73f;
-		return 1.5f - 2.5f * ts;
+			return 0.6f + (0.93f - ts) * 0.4f / 0.73f;
+		return 1.6f - 3.0f * ts;
 	case FT_SLABBY:
 		return powf(1 - ts, 0.1);
 	case FT_GEODETIC:
@@ -229,7 +229,19 @@ static void render_mini_wing(SDL_Surface *s, const struct bomber *b, SDL_Surface
 		}
 	/* Render roundels to decal layer */
 	unsigned int rx = (s->w*0.92f + wcho * 1.4f - 5) / 2;
-	unsigned int ry = wlen * (b->fuse.typ == FT_GEODETIC ? 0.55f : 0.7f);
+	float ryf;
+	switch (b->fuse.typ) {
+	case FT_GEODETIC:
+		ryf = 0.55f;
+		break;
+	case FT_SLENDER:
+		ryf = 0.48f;
+		break;
+	default:
+		ryf = 0.7f;
+		break;
+	}
+	unsigned int ry = wlen * ryf;
 	render_roundel(deca, rx - ry, s->h - rx - ry - 1);
 	render_roundel(deca, rx + ry, s->h - rx + ry - 1);
 }
@@ -316,6 +328,27 @@ static void render_mini_engines(SDL_Surface *s, const struct bomber *b, SDL_Surf
 		}
 }
 
+static float tail_chord_at(const struct bomber *b, float ts, unsigned int fins)
+{
+	if (ts < 0 || ts > 1)
+		return 0;
+	switch (b->fuse.typ) {
+	case FT_NORMAL:
+	case FT_SLABBY:
+		if (fins < 2 && ts > 0.8f)
+			return 1.8f - ts;
+		return 1;
+	case FT_SLENDER:
+		if (fins < 2) // this is never true currently
+			return 1.4f - ts * 0.4f;
+		return 1.5f - ts * 0.7f;
+	case FT_GEODETIC: // always fins==1
+		return powf(1 - ts*ts, 0.25) * 1.1f;
+	default:
+		return 1;
+	}
+}
+
 static void render_mini_tail(SDL_Surface *s, const struct bomber *b)
 {
 	/* copied from _fuse, needed for proper positioning */
@@ -363,11 +396,9 @@ static void render_mini_tail(SDL_Surface *s, const struct bomber *b)
 			unsigned int sx = x + (s->h - y - 1);
 			unsigned int sy = abs(x + y + 1 - s->h);
 			float ts = sy / tspn / 2.0f;
-			// TODO vary tail shape
-			// need to write tail_chord_at(b, ts)
-			float wc = (ts < 1) ? 1 : 0;
-			float w0 = f0 + (1.0f - wc) * tcho;
-			float w1 = f0 + tcho;
+			float wc = tail_chord_at(b, ts, fins);
+			float w0 = f0 + (1 - wc) * tcho / 2.0;
+			float w1 = f0 + (wc + 1) * tcho / 2.0;
 			float l0 = (sx - w0) / 1.5f;
 			float l1 = (w1 - sx) / 1.5f;
 			clamp(l0, 0, 1);
