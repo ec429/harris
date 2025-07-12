@@ -6,6 +6,6 @@
 #include "data.h"
 
 int init_camos(struct builder_data *builder);
-SDL_Surface *bomber_art_mini(const struct bomber *b);
+void bomber_art_mini(SDL_Surface *s, const struct bomber *b);
 
 #endif /* _ART_H */

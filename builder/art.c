@@ -423,26 +423,24 @@ static void render_mini_tail(SDL_Surface *s, const struct bomber *b)
 		}
 }
 
-SDL_Surface *bomber_art_mini(const struct bomber *b)
+void bomber_art_mini(SDL_Surface *s, const struct bomber *b)
 {
-	SDL_Surface *rv=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 36, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	SDL_Surface *mask=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 36, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	SDL_Surface *features=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 36, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 	SDL_Surface *decals=SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, 36, 36, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 
-	SDL_FillRect(rv, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, 0xffffffff);
+	SDL_FillRect(s, &(SDL_Rect){.x=0, .y=0, .w=s->w, .h=s->h}, ATG_ALPHA_OPAQUE);
 	SDL_Rect src={.x=36 * (b->slot_idx % 16), .y=0, .w=36, .h=36};
 	SDL_Rect dst={.x=0, .y=0, .w=36, .h=36};
-	SDL_BlitSurface(builder->camo_small, &src, rv, &dst);
-	SDL_FillRect(mask, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
-	SDL_FillRect(features, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
-	SDL_FillRect(decals, &(SDL_Rect){.x=0, .y=0, .w=rv->w, .h=rv->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	SDL_BlitSurface(builder->camo_small, &src, s, &dst);
+	SDL_FillRect(mask, &(SDL_Rect){.x=0, .y=0, .w=s->w, .h=s->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	SDL_FillRect(features, &(SDL_Rect){.x=0, .y=0, .w=s->w, .h=s->h}, ATG_ALPHA_TRANSPARENT&0xff);
+	SDL_FillRect(decals, &(SDL_Rect){.x=0, .y=0, .w=s->w, .h=s->h}, ATG_ALPHA_TRANSPARENT&0xff);
 	render_mini_fuse(mask, b, features);
 	render_mini_wing(mask, b, decals);
 	render_mini_engines(mask, b, features);
 	render_mini_tail(mask, b);
-	SDL_BlitSurface(decals, NULL, rv, NULL);
-	SDL_BlitSurface(mask, NULL, rv, NULL);
-	SDL_BlitSurface(features, NULL, rv, NULL);
-	return rv;
+	SDL_BlitSurface(decals, NULL, s, NULL);
+	SDL_BlitSurface(mask, NULL, s, NULL);
+	SDL_BlitSurface(features, NULL, s, NULL);
 }

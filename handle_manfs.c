@@ -388,7 +388,7 @@ void realise_design(struct bomber *bb)
 				bt->novelty.year++;
 			}
 		}
-		bt->picture=bomber_art_mini(b);
+		bomber_art_mini(bt->picture, b);
 	}
 	unsigned int mrcap[2];
 	unsigned int mrange[2];
