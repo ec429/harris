@@ -404,6 +404,7 @@ static int load_manf_word(const char *key, const char *value, void *data)
 	INT_KEY(man, "SVP", svp);
 	INT_KEY(man, "BOF", bof);
 	INT_KEY(man, "FAF", faf);
+	INT_KEY(man, "VUF", vuf);
 	if (!strcmp(key, "e")) {
 		man->eman = strdup(value);
 		if (!man->eman)

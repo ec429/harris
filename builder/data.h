@@ -105,7 +105,7 @@ struct manf {
 	unsigned int wap, wld, bt[BB_COUNT], bbb;
 	unsigned int wcf, wcp, wc4, wt4, acc, act, geo;
 	unsigned int tpl, fd[FT_COUNT], ft[FT_COUNT], svp, bof;
-	unsigned int faf;
+	unsigned int faf, vuf;
 	char *eman; // engine manufacturer
 	char *name;
 	char *desc;

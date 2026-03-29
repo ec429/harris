@@ -105,8 +105,8 @@ WINDOW:24-07-1943:0
 MOONSHINE:01-10-1942:0
 # Airborne Cigar transmitters, carried in bombers, jam the German nightfighter R/T frequencies
 ABC:09-10-1943:0
-# Fishpond is a mod to H2S that detects aircraft in the H2S's viewcone
-FISHPOND:02-04-1944:0
+# Fishpond is a mod to H2S that detects aircraft in the H2S's viewcone.  "The first operational units went into service in October 1943, and by the spring of 1944, most of Bomber Command's aircraft carried it." - https://en.wikipedia.org/wiki/H2S_(radar)#Fishpond
+FISHPOND:02-04-1944:1
 # Serrate is a device to track Lichtenstein BC radar
 SERRATE:16-12-1942:0
 

@@ -24,7 +24,7 @@ unsigned int selmanf, seleng, selft, selgirth, selesl;
 struct multi_sel selgun[LXN_COUNT];
 atg_element *BB_manf, *BB_engc, *BB_egg, *BB_over, *BB_eng, *BB_wa, *BB_wr;
 atg_element *BB_fuse, *BB_girth, *BB_cap, *BB_csbs, *BB_esl, *BB_na[NNAVAIDS];
-atg_element *BB_fuel, *BB_fill, *BB_sst, *BB_gross, *BB_agw;
+atg_element *BB_fish, *BB_fuel, *BB_fill, *BB_sst, *BB_gross, *BB_agw;
 atg_element *BB_gun[LXN_COUNT], *BB_cc[CREW_CLASSES], *BB_cd[CREW_CLASSES];
 char *BB_manf_buf, *BB_manf_dbuf, *BB_eng_buf, *BB_eng_dbuf, *BB_eng_obuf;
 char *BB_fuse_dbuf, *BB_girth_dbuf, *BB_esl_dbuf, *BB_gun_dbuf[LXN_COUNT];
@@ -494,7 +494,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	manf_box->h=48;
 	if(atg_ebox_pack(left_box, manf_box))
 	{
 		perror("atg_ebox_pack");
@@ -610,7 +609,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	eng_box->h=93;
 	if(atg_ebox_pack(left_box, eng_box))
 	{
 		perror("atg_ebox_pack");
@@ -789,7 +787,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	wing_box->h=20;
 	if(atg_ebox_pack(left_box, wing_box))
 	{
 		perror("atg_ebox_pack");
@@ -869,7 +866,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	fuse_box->h=34;
 	if(atg_ebox_pack(left_box, fuse_box))
 	{
 		perror("atg_ebox_pack");
@@ -957,7 +953,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	bomb_box->h=50;
 	if(atg_ebox_pack(left_box, bomb_box))
 	{
 		perror("atg_ebox_pack");
@@ -1113,7 +1108,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	guns_box->h=222;
 	if(atg_ebox_pack(left_box, guns_box))
 	{
 		perror("atg_ebox_pack");
@@ -1204,7 +1198,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	crew_box->h=128;
 	if(atg_ebox_pack(left_box, crew_box))
 	{
 		perror("atg_ebox_pack");
@@ -1318,7 +1311,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	elec_box->h=34;
 	if(atg_ebox_pack(left_box, elec_box))
 	{
 		perror("atg_ebox_pack");
@@ -1371,7 +1363,7 @@ int builder_create(void)
 	for(enum nav_aid i=0;i<NNAVAIDS;i++)
 	{
 		BB_na[i]=atg_create_element_toggle(describe_navaid(i), false, BB_INFG_COLOUR, BB_OFF_COLOUR);
-		if(!(BB_na[i]))
+		if(!BB_na[i])
 		{
 			fprintf(stderr, "atg_create_element_toggle failed\n");
 			return(1);
@@ -1381,6 +1373,17 @@ int builder_create(void)
 			perror("atg_ebox_pack");
 			return(1);
 		}
+	}
+	BB_fish=atg_create_element_toggle("FP", false, BB_INFG_COLOUR, BB_OFF_COLOUR);
+	if(!BB_fish)
+	{
+		fprintf(stderr, "atg_create_element_toggle failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(elec_row, BB_fish))
+	{
+		perror("atg_ebox_pack");
+		return(1);
 	}
 	atg_element *elec_tg=atg_create_element_box(ATG_BOX_PACK_HORIZONTAL, BB_PAPER_COLOUR);
 	if(!elec_tg)
@@ -1431,7 +1434,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	fuel_box->h=20;
 	if(atg_ebox_pack(left_box, fuel_box))
 	{
 		perror("atg_ebox_pack");
@@ -1546,7 +1548,6 @@ int builder_create(void)
 		fprintf(stderr, "atg_create_element_box failed\n");
 		return(1);
 	}
-	gross_box->h=20;
 	if(atg_ebox_pack(left_box, gross_box))
 	{
 		perror("atg_ebox_pack");
@@ -1749,6 +1750,11 @@ void builder_update_m2c(const struct bomber *b)
 			atg_toggle *tog=BB_na[i]->elemdata;
 			if(tog) tog->state=b->elec.navaid[i];
 		}
+	if(BB_fish)
+	{
+		atg_toggle *tog=BB_fish->elemdata;
+		if(tog) tog->state=b->elec.fishpond;
+	}
 	if(BB_fuel)
 	{
 		atg_spinner *spin=BB_fuel->elemdata;
@@ -1832,7 +1838,8 @@ void builder_update_m2v(const struct bomber *b, char **outbuf)
 	snprintf(outbuf[OUT_PLD], 80,
 		 "Max payload: %ulb bombs, mines %s, cookies %s",
 		 b->bay.load, b->bay.mine ? "YES" : "NO",
-		 b->bay.cookie ? "YES" : b->bay.cookiesize ? "TECH" : "NO");
+		 b->bay.cookie ? b->bay.cookiesize ? "YES" : "SIZE"
+			       : b->bay.cookiesize ? "TECH" : "NO");
 	snprintf(outbuf[OUT_RAN], 80,
 		 "Max range: %.0fmi with %ulb bombs",
 		 bmr.range/0.75f, bmr.bay.load);
@@ -1955,6 +1962,7 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 	}
 	for(enum nav_aid i=0;i<NNAVAIDS;i++)
 		BB_na[i]->hidden=!builder->tn.na[i];
+	BB_fish->hidden=builder->tn.na[NAV_H2S]<2;
 	BB_sst->hidden=!builder->tn.sft;
 	struct bomber b;
 	init_bomber(&b, builder->entities.manf[0], builder->entities.eng[0]);
@@ -2118,6 +2126,11 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 						}
 						changed=true;
 					}
+					else if (t.e==BB_fish)
+					{
+						b.elec.fishpond=t.state;
+						changed=true;
+					}
 					else
 					{
 						unsigned int i;
@@ -2125,6 +2138,8 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 							if(t.e==BB_na[i])
 							{
 								b.elec.navaid[i]=t.state;
+								if(i==NAV_H2S&&!t.state)
+									b.elec.fishpond=false;
 								changed=true;
 								break;
 							}

@@ -67,7 +67,7 @@ struct crew {
 	unsigned int n;
 	struct crewman men[MAX_CREW];
 	/* Output cache */
-	unsigned int pilots, gunners, engineers;
+	unsigned int pilots, gunners, engineers, bombers;
 	float tare;
 	float gross;
 	float dc;
@@ -107,6 +107,7 @@ struct electrics {
 	/* Inputs */
 	enum elec_level esl;
 	bool navaid[NNAVAIDS];
+	bool fishpond;
 	/* Output cache */
 	float cost;
 	float ncost;

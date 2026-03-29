@@ -11,16 +11,16 @@ void init_bomber(struct bomber *b, struct manf *m, struct engine *e)
 	memset(b, 0, sizeof(*b));
 
 	b->manf = m;
-	b->engines.number = 1;
+	b->engines.number = 2;
 	b->engines.typ = e;
 	b->engines.mou = e;
-	b->wing.area = 240;
+	b->wing.area = 600;
 	b->wing.art = 70;
 	b->crew.n = 2;
 	b->crew.men[0] = (struct crewman){.pos = CCLASS_P};
 	b->crew.men[1] = (struct crewman){.pos = CCLASS_N};
-	b->bay.load = b->bay.cap = 1000;
-	b->tanks.hlb = 19;
+	b->bay.load = b->bay.cap = 4000;
+	b->tanks.hlb = 60;
 	b->tanks.pct = 80;
 	b->par_idx = -1;
 }
@@ -226,6 +226,12 @@ static int calc_turrets(struct bomber *b)
 		design_error(b, "The Air Ministry will not allow an unarmed bomber of this size!");
 	t->serv = 1.0f - t->serv;
 	t->rate[0] = t->rate[1] = 0;
+	if (b->elec.fishpond) {
+		/* FISHPOND improves lookout spotting below the bomber */
+		t->gc[GC_BEAM_LOW] += 0.5f;
+		t->gc[GC_TAIL_LOW] += 0.5f;
+		t->gc[GC_BENEATH] += 1.2f;
+	}
 	for (j = 0; j < GC_COUNT; j++) {
 		float x = gcr[j] * 3.0f / (3.0f + t->gc[j] * t->gc[j]);
 
@@ -407,6 +413,7 @@ static int calc_crew(struct bomber *b)
 	if (!count[CCLASS_N])
 		design_error(b, "Crew must include a navigator!");
 	c->engineers = count[CCLASS_E];
+	c->bombers = count[CCLASS_B];
 	/* Removing crew in a mod doesn't save their cmi */
 	c->tare = pc->n * tn->cmi;
 	c->gross = c->n * 168;
@@ -486,6 +493,7 @@ static int calc_fuselage(struct bomber *b)
 	f->cost = f->tare * 1.2f * (b->manf->acc / 100.0f) *
 		  (tn->fc[f->typ] / 100.0f);
 	f->vuln = tn->fv[f->typ] / 100.0f;
+	f->vuln *= b->manf->vuf / 100.0f;
 	/* drag needs b->tare, fill in later */
 	return 0;
 }
@@ -518,10 +526,20 @@ static int calc_electrics(struct bomber *b)
 			else if (e->esl < (i == NAV_GEE ? ESL_HIGH : ESL_STABLE))
 				design_error(b, "Navaid %s requires better electrics!",
 					     describe_navaid(i));
+			else if (i == NAV_H2S && !b->crew.bombers)
+				design_error(b, "Navaid %s requires a bomb-aimer!",
+					     describe_navaid(i));
 			e->ncost += nacost[i];
 		}
 	if (b->turrets.typ[LXN_VENTRAL] && e->navaid[NAV_H2S])
 		design_error(b, "H2S conflicts with turret in ventral position!");
+	if (e->fishpond) {
+		if (tn->na[NAV_H2S]<2)
+			design_error(b, "FISHPOND not developed yet!");
+		if (!e->navaid[NAV_H2S])
+			design_error(b, "FISHPOND requires an H2S set!");
+		e->ncost += 100; /* small cost for the extra CRT */
+	}
 	/* This is all hard-coded; datafiles / techlevels don't get to
 	 * change these coefficients.
 	 */
@@ -567,6 +585,7 @@ static int calc_tanks(struct bomber *b)
 	if (t->ratio > (t->sst ? 2.5f : 2.0f))
 		design_warning(b, "Wing is crammed with fuel, vulnerability high.");
 	t->vuln = t->ratio * tn->fuv / 400.0f;
+	t->vuln *= b->manf->vuf / 100.0f;
 	if (t->sst) {
 		if (!tn->sft || !tn->sfc || !tn->sfv)
 			design_error(b, "Self sealing tanks not developed yet!");
@@ -652,7 +671,7 @@ static float airspeed(const struct bomber *b, float alt)
 	return (m - b->wing.drag) / (2.0f * a);
 }
 
-#define ALTITUDE_STEP	200	// feet
+#define ALTITUDE_STEP	20	// feet
 
 static int calc_ceiling(struct bomber *b)
 {
