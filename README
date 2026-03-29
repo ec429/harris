@@ -14,6 +14,8 @@ Incomplete notes on strategy and the historical background of the game can be fo
 
 Harris uses SDL and a simple graphics toolkit called "libatg" (for A Tiny Gui).  The former can be found at <http://www.libsdl.org> and the latter at <https://github.com/ec429/libatg>.  It also depends (via atg) on the Liberation Mono font, which Debian users can get from the package "fonts-liberation".  SDL packages needed: sdl, sdl-devel, sdl-image, sdl-image-devel, sdl-ttf, sdl-ttf-dev, sdl-gfx, sdl-gfx-dev.
 
+Note that VSync may cause the run_raid screen to be very slow; turning off display compositing in your window manager settings can fix this.
+
 For project info (roadmap, how you can help, etc.) see the wiki, <https://github.com/ec429/harris/wiki>.
 
 The name "Harris" refers to the player's real-life counterpart, Sir Arthur Travers Harris (1892 - 1984), "Bert" to his friends, "Bomber" to the public and "Butch" or "The Butcher" to his crews.  This last was not intended as a comment on the morality of area bombing; rather it referred to his seeming indifference to the losses his aircrew were suffering.  Nonetheless the crews had a great deal of confidence in him, for here, they saw, was a man who would ensure their lives were not frittered away on ineffectual raids, but given in making a real contribution to the war.  It was largely by Harris' efforts that Bomber Command eventually became rather /too/ powerful, for late in the war actions such as the almost total destruction of Dresden caused public opinion to turn against the area bombing policy and against Harris himself.  To this day, Harris' legacy remains controversial.
