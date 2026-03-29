@@ -1803,7 +1803,7 @@ void builder_update_m2c(const struct bomber *b)
 /* Update the View from the Model state */
 void builder_update_m2v(const struct bomber *b, char **outbuf, bool grass, bool autodoc)
 {
-	struct tech_numbers tn=builder->tn;
+	struct tech_numbers tn=b->tn;
 	struct bomber bmp=*b; /* bomber at Max Payload */
 	struct bomber bmr=*b; /* bomber at Max Range */
 	unsigned int mptow, mts, mtg;
@@ -1811,37 +1811,41 @@ void builder_update_m2v(const struct bomber *b, char **outbuf, bool grass, bool 
 
 	if (grass)
 		tn.rcs = 0;
+	mts = tn.rcs ? tn.rcs : tn.rgs;
+	mtg = tn.rcs ? tn.rcg : tn.rgg;
+	mptow = floor(wing_lift(&b->wing, mts / 1.6f));
+	mptow = min(mptow, mtg * 1000);
+	mptow = min(mptow, b->mtow);
+	bmp.parent=b;
+	bmp.refit=REFIT_DOCTRINE;
 	if (autodoc)
 	{
 		bmp.tanks.pct=100;
-		bmp.parent=b;
-		bmp.refit=REFIT_DOCTRINE;
-		calc_bomber(&bmp, &tn);
-		mts = tn.rcs ? tn.rcs : tn.rgs;
-		mtg = tn.rcs ? tn.rcg : tn.rgg;
-		mptow = floor(wing_lift(&bmp.wing, mts / 1.6f));
-		mptow = min(mptow, mtg * 1000);
-		mptow = min(mptow, bmp.mtow);
+		calc_bomber(&bmp, &b->tn);
 		delta = bmp.gross - mptow;
 		bmp.tanks.pct=max(floor(100.0*(1.0f - delta/(bmp.tanks.hlb*100.0f))), 0);
-		calc_bomber(&bmp, &tn);
+		calc_bomber(&bmp, &b->tn);
 		delta = bmp.gross - mptow;
 		if((int)bmp.bay.load < delta)
 			bmp.bay.load = 0;
 		else
 			bmp.bay.load = min(((int)bmp.bay.load) - delta, (int)bmp.bay.cap);
-		calc_bomber(&bmp, &tn);
 	}
+	calc_bomber(&bmp, &b->tn);
 	bmr.tanks.pct=100;
 	bmr.parent=b;
 	bmr.refit=REFIT_DOCTRINE;
-	calc_bomber(&bmr, &tn);
+	calc_bomber(&bmr, &b->tn);
 	delta = bmr.gross - mptow;
 	if((int)bmr.bay.load < delta)
+	{
+		delta-=bmr.bay.load;
 		bmr.bay.load = 0;
+		bmr.tanks.pct=ceil(100.0f*(1.0f - delta/(bmr.tanks.hlb*100.0f)));
+	}
 	else
 		bmr.bay.load = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
-	calc_bomber(&bmr, &tn);
+	calc_bomber(&bmr, &b->tn);
 	snprintf(outbuf[OUT_DIM], 80,
 		 "Dimensions: span %.1fft, chord %.1fft",
 		 b->wing.span, b->wing.chord);

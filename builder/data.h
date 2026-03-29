@@ -237,7 +237,7 @@ struct tech {
 extern struct tech supporting, spec_four, spec_geo;
 
 int try_load_tn_word(const char *key, const char *value,
-		     struct tech_numbers *tn);
+		     struct tech_numbers *tn, bool mung_zeroes);
 int load_techs(struct list_head *head, struct list_head *engines,
 	       struct list_head *guns);
 int free_techs(struct list_head *head);

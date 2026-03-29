@@ -423,7 +423,7 @@ static int load_design_word(const char *key, const char *value, void *data)
 	unsigned int i;
 
 	if (l->tn) {
-		if (!try_load_tn_word(key, value, &l->b->tn))
+		if (!try_load_tn_word(key, value, &l->b->tn, false))
 			return 0;
 		load_error(l, "TN key %s not found!", key);
 		return -ENOENT;

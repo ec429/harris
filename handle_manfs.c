@@ -630,7 +630,6 @@ void update_m2v(struct bomber *b, char **outbuf)
 	bool grass=false;
 	if(b->refit)
 		pd=b->parent->dice;
-	calc_bomber(b, &b->tn);
 	atg_event ve;
 	if(atg_value_event(HM_doc, &ve)==0 && ve.type==ATG_EV_TOGGLE && ve.event.toggle.state)
 	{
@@ -793,7 +792,7 @@ redraw:
 	{
 		wipe_m2v(HM_out_buf, HM_bp);
 		HM_proto->hidden=HM_tool->hidden=HM_halt->hidden=true;
-		HM_doc->hidden=HM_dice->hidden=HM_cr->hidden=true;
+		HM_dice->hidden=HM_cr->hidden=true;
 		update_refit_buttons(state, NULL);
 	}
 

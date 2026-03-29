@@ -650,9 +650,15 @@ enum refit_level rfl_tn(unsigned int offset)
 
 void doc_tech(struct tech_numbers *tn, const struct tech_numbers *dtn)
 {
-	memcpy((char *)tn->doctrine_block,
-	       (char *)dtn->doctrine_block,
-	       sizeof(*tn) - offsetof(struct tech_numbers, doctrine_block));
+	const unsigned int *p = (unsigned int *)dtn;
+	unsigned int *q = (unsigned int *)tn;
+	unsigned int i;
+
+	for (i = offsetof(struct tech_numbers, doctrine_block) / sizeof(unsigned int);
+	     i < sizeof(*tn) / sizeof(unsigned int);
+	     i ++)
+		if (p[i] && p[i] != (unsigned int)-1)
+			q[i] = p[i];
 }
 
 struct tech supporting = {
@@ -672,14 +678,14 @@ struct tech spec_geo = {
 };
 
 int try_load_tn_word(const char *key, const char *value,
-		     struct tech_numbers *tn)
+		     struct tech_numbers *tn, bool mung_zeroes)
 {
 	for (unsigned int i = 0; i < ARRAY_SIZE(tn_meta); i++)
 		if (!strcmp(key, tn_meta[i].ident)) {
 			char *p = (char *)tn + tn_meta[i].offset;
 			if (sscanf(value, "%u", (unsigned int *)p) != 1)
 				return -EINVAL;
-			if (!*(unsigned int *)p)
+			if (mung_zeroes && !*(unsigned int *)p)
 				*(unsigned int *)p = -1;
 			return 0;
 		}
@@ -692,7 +698,7 @@ static int load_tech_word(const char *key, const char *value, void *data)
 
 	INT_KEY(loader->tech, "y", year);
 	INT_KEY(loader->tech, "m", month);
-	if (!try_load_tn_word(key, value, &loader->tech->num))
+	if (!try_load_tn_word(key, value, &loader->tech->num, true))
 		return 0;
 	if (!strcmp(key, "e")) {
 		struct engine *eng;
