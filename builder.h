@@ -36,4 +36,4 @@ extern enum refit_level src_rfl;
 
 int builder_rightbox_create(atg_element **ret, char **outbuf, SDL_Surface **bp, atg_colour bgcolour);
 struct bomber;
-void builder_update_m2v(const struct bomber *b, char **outbuf);
+void builder_update_m2v(const struct bomber *b, char **outbuf, bool grass, bool autodoc);

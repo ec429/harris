@@ -1801,28 +1801,47 @@ void builder_update_m2c(const struct bomber *b)
 
 
 /* Update the View from the Model state */
-void builder_update_m2v(const struct bomber *b, char **outbuf)
+void builder_update_m2v(const struct bomber *b, char **outbuf, bool grass, bool autodoc)
 {
-	const struct tech_numbers *tn=&builder->tn;
+	struct tech_numbers tn=builder->tn;
+	struct bomber bmp=*b; /* bomber at Max Payload */
 	struct bomber bmr=*b; /* bomber at Max Range */
 	unsigned int mptow, mts, mtg;
-	bool concrete = tn->rcs;
 	int delta;
+
+	if (grass)
+		tn.rcs = 0;
+	if (autodoc)
+	{
+		bmp.tanks.pct=100;
+		bmp.parent=b;
+		bmp.refit=REFIT_DOCTRINE;
+		calc_bomber(&bmp, &tn);
+		mts = tn.rcs ? tn.rcs : tn.rgs;
+		mtg = tn.rcs ? tn.rcg : tn.rgg;
+		mptow = floor(wing_lift(&bmp.wing, mts / 1.6f));
+		mptow = min(mptow, mtg * 1000);
+		mptow = min(mptow, bmp.mtow);
+		delta = bmp.gross - mptow;
+		bmp.tanks.pct=max(floor(100.0*(1.0f - delta/(bmp.tanks.hlb*100.0f))), 0);
+		calc_bomber(&bmp, &tn);
+		delta = bmp.gross - mptow;
+		if((int)bmp.bay.load < delta)
+			bmp.bay.load = 0;
+		else
+			bmp.bay.load = min(((int)bmp.bay.load) - delta, (int)bmp.bay.cap);
+		calc_bomber(&bmp, &tn);
+	}
 	bmr.tanks.pct=100;
 	bmr.parent=b;
 	bmr.refit=REFIT_DOCTRINE;
-	calc_bomber(&bmr, tn);
-	mts = concrete ? tn->rcs : tn->rgs;
-	mtg = concrete ? tn->rcg : tn->rgg;
-	mptow = floor(wing_lift(&bmr.wing, mts / 1.6f));
-	mptow = min(mptow, mtg * 1000);
-	mptow = min(mptow, bmr.mtow);
+	calc_bomber(&bmr, &tn);
 	delta = bmr.gross - mptow;
 	if((int)bmr.bay.load < delta)
 		bmr.bay.load = 0;
 	else
 		bmr.bay.load = min(((int)bmr.bay.load) - delta, (int)bmr.bay.cap);
-	calc_bomber(&bmr, tn);
+	calc_bomber(&bmr, &tn);
 	snprintf(outbuf[OUT_DIM], 80,
 		 "Dimensions: span %.1fft, chord %.1fft",
 		 b->wing.span, b->wing.chord);
@@ -1834,10 +1853,10 @@ void builder_update_m2v(const struct bomber *b, char **outbuf)
 		 b->takeoff_spd, b->deck_spd, b->cruise_spd, b->cruise_alt * 1000.0f);
 	snprintf(outbuf[OUT_CRC], 80,
 		 "Service ceiling: %.0fft; range: %.0fmi (%.1fhr); initial climb %.0ffpm",
-		 b->ceiling * 1000.0f, b->range/0.75f, b->tanks.hours, b->init_climb);
+		 b->ceiling * 1000.0f, bmp.range/0.75f, bmp.tanks.hours, b->init_climb);
 	snprintf(outbuf[OUT_PLD], 80,
 		 "Max payload: %ulb bombs, mines %s, cookies %s",
-		 b->bay.load, b->bay.mine ? "YES" : "NO",
+		 bmp.bay.load, b->bay.mine ? "YES" : "NO",
 		 b->bay.cookie ? b->bay.cookiesize ? "YES" : "SIZE"
 			       : b->bay.cookiesize ? "TECH" : "NO");
 	snprintf(outbuf[OUT_RAN], 80,
@@ -1983,8 +2002,7 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 	b.this_idx=-1;
 	calc_bomber(&b, &builder->tn);
 	builder_update_m2c(&b);
-	builder_update_m2v(&b, BB_out_buf);
-	(void)state;
+	builder_update_m2v(&b, BB_out_buf, false, false);
 	atg_event e;
 	while(1)
 	{
@@ -2285,7 +2303,7 @@ screen_id builder_screen(atg_canvas *canvas, game *state)
 				atg_spinner *spin=BB_gross->elemdata;
 				spin->value=ceil(b.mtow/100.0);
 			}
-			builder_update_m2v(&b, BB_out_buf);
+			builder_update_m2v(&b, BB_out_buf, false, false);
 		}
 		SDL_Delay(50);
 	}

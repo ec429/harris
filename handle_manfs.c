@@ -27,7 +27,7 @@ char *HM_out_buf[OUT_ROWS];
 SDL_Surface *HM_bp;
 atg_element *HM_proto, *HM_tool, *HM_halt;
 atg_element *HM_fresh, *HM_mark, *HM_mod;
-atg_element *HM_doc, *HM_dice;
+atg_element *HM_doc, *HM_dice, *HM_cr;
 
 int handle_manfs_create(void)
 {
@@ -315,6 +315,17 @@ int handle_manfs_create(void)
 		return(1);
 	}
 	if(atg_ebox_pack(showbox, HM_dice))
+	{
+		perror("atg_ebox_pack");
+		return(1);
+	}
+	HM_cr=atg_create_element_toggle("Concrete runway", true, (atg_colour){159, 159, 179, ATG_ALPHA_OPAQUE}, GAME_BG_COLOUR);
+	if(!HM_cr)
+	{
+		fprintf(stderr, "atg_create_element_toggle failed\n");
+		return(1);
+	}
+	if(atg_ebox_pack(showbox, HM_cr))
 	{
 		perror("atg_ebox_pack");
 		return(1);
@@ -609,12 +620,14 @@ void update_refit_buttons(const game *state, struct bomber *b)
 	HM_mark->hidden=design_status(b)<DSTA_TOOL||types[b->slot_idx].newmark+1>=MAX_MARKS;
 	HM_mod->hidden=design_status(b)<DSTA_TOOL;
 	HM_dice->hidden=design_status(b)<DSTA_PROTO;
+	HM_cr->hidden=!builder->tn.rcg;
 }
 
 void update_m2v(struct bomber *b, char **outbuf)
 {
 	struct bomber db, pb;
 	struct randomisation pd={};
+	bool grass=false;
 	if(b->refit)
 		pd=b->parent->dice;
 	calc_bomber(b, &b->tn);
@@ -631,8 +644,10 @@ void update_m2v(struct bomber *b, char **outbuf)
 		pb.dice=pd;
 		b=&pb;
 	}
+	if(atg_value_event(HM_cr, &ve)==0 && ve.type==ATG_EV_TOGGLE && !ve.event.toggle.state)
+		grass=true;
 	calc_bomber(b, &b->tn);
-	builder_update_m2v(b, outbuf);
+	builder_update_m2v(b, outbuf, grass, true);
 }
 
 screen_id handle_manfs_screen(atg_canvas *canvas, game *state)
@@ -778,6 +793,7 @@ redraw:
 	{
 		wipe_m2v(HM_out_buf, HM_bp);
 		HM_proto->hidden=HM_tool->hidden=HM_halt->hidden=true;
+		HM_doc->hidden=HM_dice->hidden=HM_cr->hidden=true;
 		update_refit_buttons(state, NULL);
 	}
 
@@ -1021,7 +1037,7 @@ redraw:
 				break;
 				case ATG_EV_TOGGLE:;
 					atg_ev_toggle toggle=e.event.toggle;
-					if(toggle.e==HM_doc||toggle.e==HM_dice)
+					if(toggle.e==HM_doc||toggle.e==HM_dice||toggle.e==HM_cr)
 					{
 						if(seldesb)
 							update_m2v(seldesb, HM_out_buf);
